@@ -98,7 +98,7 @@ export class FakeCoreHub {
 }
 
 /** ค่า env ที่ทุกเทสต์ใช้ — ชี้ JWKS ไปที่ Core Hub จำลอง */
-export function testEnv(hub: FakeCoreHub, databaseUrl = 'postgresql://unit:unit@127.0.0.1:1/unit'): Record<string, string> {
+export function testEnv(hub: FakeCoreHub, databaseUrl = 'postgresql://127.0.0.1:1/unit_tests_never_connect'): Record<string, string> {
   return {
     NODE_ENV: 'test',
     DATABASE_URL: databaseUrl,

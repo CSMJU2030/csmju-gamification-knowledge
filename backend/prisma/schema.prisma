@@ -55,7 +55,7 @@ model Character {
 
   items          Item[]
   regionProgress RegionProgress[]
-  regionRun      RegionRun?
+  regionRun      RegionRun?       @relation("CharacterRegionRun")
   battles        Battle[]
 
   @@map("characters")
@@ -98,7 +98,7 @@ model RegionProgress {
 model RegionRun {
   id              String    @id @default(uuid()) @db.Uuid
   characterId     String    @unique @map("character_id") @db.Uuid
-  character       Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  character       Character @relation("CharacterRegionRun", fields: [characterId], references: [id], onDelete: Cascade)
   regionId        String    @map("region_id")
   depth           Int
   /// เวลาที่แอปเขียนเอง (ไม่ใช่ default ของฐานข้อมูล) เพราะเป็นส่วนหนึ่งของ seed ของรอบ
