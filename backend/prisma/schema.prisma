@@ -1,0 +1,188 @@
+// Code Tower — ฐานข้อมูลของระบบย่อย csmju-code-tower (1 ระบบ = 1 ฐานข้อมูล)
+//
+// กติกาที่ไฟล์นี้ยึด (standards/docs/data-dictionary.md ข้อ 3, 9):
+//   · ไม่มีตาราง user ของตัวเอง ไม่เก็บรหัสผ่าน — ตัวตนคือ core_user_id (= claim `sub`) เท่านั้น
+//   · ตาราง plural snake_case · คอลัมน์ snake_case · field ใน Prisma camelCase เชื่อมด้วย @map/@@map
+//   · primary key เป็น UUID · ทุกตารางมี created_at / updated_at · boolean ขึ้นต้น is_
+//
+// `seq` (ตัวเลขเรียงตามลำดับที่สร้าง) มีในสามตาราง และไม่ใช่ id ที่ส่งออก API:
+//   engine ของเกมรับ seed เป็นตัวเลข 32 บิต และการจัดลำดับของระบบดวลต้องนิ่ง
+//   (tie-break ด้วยลำดับการสร้าง) — เดิมใช้ INTEGER PRIMARY KEY ของ SQLite ทำหน้าที่นี้
+//   พอ id เปลี่ยนเป็น UUID ตามมาตรฐาน จึงต้องมีคอลัมน์แยกให้ทำหน้าที่เดิมต่อ
+//
+// JSON ที่เก็บผลของ engine ใช้ @db.Json (ไม่ใช่ jsonb) โดยตั้งใจ:
+//   jsonb เรียง key ใหม่ ทำให้บันทึกการรบที่อ่านกลับออกมาไม่ตรงกับที่ engine สร้างทุกไบต์
+
+generator client {
+  provider            = "prisma-client"
+  output              = "../src/generated/prisma"
+  moduleFormat        = "cjs"
+  importFileExtension = ""
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+/// ตัวละครของผู้เล่นหนึ่งคน — หนึ่งคน (core_user_id) มีได้ตัวเดียว
+model Character {
+  id            String   @id @default(uuid()) @db.Uuid
+  seq           Int      @unique @default(autoincrement())
+  coreUserId    String   @unique @map("core_user_id")
+  /// ชื่อที่ผู้เล่นตั้งเอง (D5) — ไม่ใช้อีเมลจาก token เพราะจะโชว์ให้คนอื่นเห็นตอนดวล
+  displayName   String   @unique @map("display_name")
+  classId       String   @map("class_id")
+  level         Int      @default(1)
+  exp           Int      @default(0)
+  statStr       Int      @map("stat_str")
+  statInt       Int      @map("stat_int")
+  statVit       Int      @map("stat_vit")
+  statAgi       Int      @map("stat_agi")
+  statLuk       Int      @map("stat_luk")
+  gold          Int      @default(100)
+  materials     Int      @default(0)
+  /// ความยากสูงสุดที่เคยชนะ "ที่ไหนก็ได้" — ตัวปลดล็อกภูมิภาคและไวยากรณ์ของ BloxCode
+  highestFloor  Int      @default(0) @map("highest_floor")
+  programSource String   @map("program_source")
+  /// งานสะสมตั้งแต่เลเวลที่แล้ว (รอบ 2P §3.2) — ทศนิยมโดยธรรมชาติ (สัดส่วนของหลอดเลือด)
+  profStr       Float    @default(0) @map("prof_str")
+  profInt       Float    @default(0) @map("prof_int")
+  profVit       Float    @default(0) @map("prof_vit")
+  profAgi       Float    @default(0) @map("prof_agi")
+  profLuk       Float    @default(0) @map("prof_luk")
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt     DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  items          Item[]
+  regionProgress RegionProgress[]
+  regionRun      RegionRun?
+  battles        Battle[]
+
+  @@map("characters")
+}
+
+model Item {
+  id           String    @id @default(uuid()) @db.Uuid
+  seq          Int       @unique @default(autoincrement())
+  characterId  String    @map("character_id") @db.Uuid
+  character    Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  baseId       String    @map("base_id")
+  slot         String
+  rarity       String
+  upgradeLevel Int       @default(0) @map("upgrade_level")
+  droppedFloor Int       @default(1) @map("dropped_floor")
+  affixes      Json      @default("[]") @db.Json
+  isEquipped   Boolean   @default(false) @map("is_equipped")
+  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt    DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  @@index([characterId])
+  @@map("items")
+}
+
+/// ความคืบหน้าต่อ (ตัวละคร × ภูมิภาค) — มีแถวเฉพาะโซนที่เคยชนะจริง (รอบ 2F §3.2)
+model RegionProgress {
+  id           String    @id @default(uuid()) @db.Uuid
+  characterId  String    @map("character_id") @db.Uuid
+  character    Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  regionId     String    @map("region_id")
+  depthCleared Int       @default(0) @map("depth_cleared")
+  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt    DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  @@unique([characterId, regionId])
+  @@map("region_progress")
+}
+
+/// หนึ่งรอบในภูมิภาค = ทะเบียน "ตอนนี้ใครอยู่โซนไหน" (รอบ 2W §5.1) — หนึ่งตัวละครมีได้ทีละรอบ
+model RegionRun {
+  id              String    @id @default(uuid()) @db.Uuid
+  characterId     String    @unique @map("character_id") @db.Uuid
+  character       Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  regionId        String    @map("region_id")
+  depth           Int
+  /// เวลาที่แอปเขียนเอง (ไม่ใช่ default ของฐานข้อมูล) เพราะเป็นส่วนหนึ่งของ seed ของรอบ
+  enteredAt       DateTime  @map("entered_at") @db.Timestamptz(3)
+  expiresAt       DateTime  @map("expires_at") @db.Timestamptz(3)
+  /// คู่ดวลที่ประกาศไว้ตอนเข้า — มีได้ทีละช่อง (ออนไลน์ = ตัวละคร · ออฟไลน์ = สแนปช็อต)
+  duelCharacterId String?   @map("duel_character_id") @db.Uuid
+  duelSnapshotId  String?   @map("duel_snapshot_id") @db.Uuid
+  /// หนึ่งรอบสู้ได้ครั้งเดียว — null = ยังไม่สู้
+  foughtAt        DateTime? @map("fought_at") @db.Timestamptz(3)
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt       DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  @@index([regionId, expiresAt])
+  @@map("region_runs")
+}
+
+/// ภาพนิ่งของตัวละครไว้เป็นคู่ดวลให้คนอื่น (รอบ 2W §5.2) — เก็บเฉพาะช่องที่การดวลใช้
+model DuelSnapshot {
+  id            String   @id @default(uuid()) @db.Uuid
+  seq           Int      @unique @default(autoincrement())
+  characterId   String   @map("character_id") @db.Uuid
+  displayName   String   @map("display_name")
+  classId       String   @map("class_id")
+  level         Int
+  stats         Json     @db.Json
+  derived       Json     @db.Json
+  skills        Json     @db.Json
+  programSource String   @map("program_source")
+  /// เวลาที่แอปเขียนเอง — ใช้เรียงหา "ชุดล่าสุด" และตัดชุดที่เก่าเกินอายุ
+  createdAt     DateTime @map("created_at") @db.Timestamptz(3)
+  updatedAt     DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  @@index([level, createdAt])
+  @@index([characterId, createdAt])
+  @@map("duel_snapshots")
+}
+
+/// ผลการดวลที่คำนวณแล้ว — ฝ่ายที่สองอ่านก้อนเดิมกลับไป ไม่คำนวณใหม่ (รอบ 2W §8.4)
+model DuelMatch {
+  id                String   @id @default(uuid()) @db.Uuid
+  matchKey          String   @unique @map("match_key")
+  aCharacterId      String   @map("a_character_id") @db.Uuid
+  bCharacterId      String   @map("b_character_id") @db.Uuid
+  winnerCharacterId String?  @map("winner_character_id") @db.Uuid
+  events            Json     @db.Json
+  createdAt         DateTime @map("created_at") @db.Timestamptz(3)
+  updatedAt         DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  @@index([createdAt])
+  @@map("duel_matches")
+}
+
+/// ประวัติการรบแบบย่อ — ผลเต็ม (บันทึกการรบ) ส่งกลับตอนสร้างครั้งเดียว ไม่เก็บ
+model Battle {
+  id           String    @id @default(uuid()) @db.Uuid
+  characterId  String    @map("character_id") @db.Uuid
+  character    Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  regionId     String    @map("region_id")
+  depth        Int
+  floor        Int
+  isVictory    Boolean   @map("is_victory")
+  wavesCleared Int       @map("waves_cleared")
+  expGained    Int       @map("exp_gained")
+  goldGained   Int       @map("gold_gained")
+  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt    DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  @@index([characterId, createdAt])
+  @@map("battles")
+}
+
+/// โจทย์ BloxCode ที่ผู้สอนสร้าง (D4 — ร่าง รอ PL ยืนยันขอบเขต)
+model Challenge {
+  id            String   @id @default(uuid()) @db.Uuid
+  /// ผู้สร้าง (claim `sub`) — ใช้ตัดสินสิทธิ์ :own
+  coreUserId    String   @map("core_user_id")
+  title         String
+  description   String   @default("")
+  starterSource String   @map("starter_source")
+  regionId      String?  @map("region_id")
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt     DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  @@index([createdAt])
+  @@map("challenges")
+}
