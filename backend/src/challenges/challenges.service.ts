@@ -31,7 +31,9 @@ const toDto = (c: Challenge): ChallengeDto => ({
 
 function checkContent(body: UpdateChallengeDto): void {
   const problems: string[] = [];
-  if (body.regionId !== undefined && !regionById(body.regionId)) problems.push(`regionId: ไม่พบภูมิภาค "${body.regionId}"`);
+  if (typeof body.regionId === 'string' && !regionById(body.regionId)) {
+    problems.push(`regionId: ไม่พบภูมิภาค "${body.regionId}"`);
+  }
   if (body.starterSource !== undefined) {
     const parsed = parse(body.starterSource.replace(/\r\n?/g, '\n'));
     if (!parsed.program) problems.push(...parsed.errors.map((e) => `starterSource: ${formatLangError(e)}`));
@@ -70,7 +72,7 @@ export class ChallengesService {
     const row = await this.prisma.challenge.create({
       data: {
         coreUserId: user.coreUserId,
-        title: body.title.trim(),
+        title: body.title,
         description: body.description ?? '',
         starterSource: body.starterSource?.replace(/\r\n?/g, '\n') ?? TRIVIAL_PROGRAM,
         regionId: body.regionId ?? null,
@@ -93,7 +95,7 @@ export class ChallengesService {
     const updated = await this.prisma.challenge.update({
       where: { id },
       data: {
-        ...(body.title !== undefined ? { title: body.title.trim() } : {}),
+        ...(body.title !== undefined ? { title: body.title } : {}),
         ...(body.description !== undefined ? { description: body.description } : {}),
         ...(body.starterSource !== undefined ? { starterSource: body.starterSource.replace(/\r\n?/g, '\n') } : {}),
         ...(body.regionId !== undefined ? { regionId: body.regionId } : {}),
@@ -105,7 +107,9 @@ export class ChallengesService {
   async remove(user: AuthUser, id: string): Promise<{ id: string; deleted: true }> {
     const row = await this.find(id);
     this.assertCanModify(user, row, Permission.CHALLENGE_DELETE_ANY, Permission.CHALLENGE_DELETE_OWN);
-    await this.prisma.challenge.delete({ where: { id } });
+    // ลบพร้อมกันหลายคำขอ: ตัวแรกได้ 200 ที่เหลือได้ 404 (ไม่ใช่ 500)
+    const { count } = await this.prisma.challenge.deleteMany({ where: { id } });
+    if (count === 0) throw notFound('ไม่พบโจทย์นี้');
     return { id, deleted: true };
   }
 }

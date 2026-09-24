@@ -615,6 +615,7 @@
             "in": "query",
             "schema": {
               "minimum": 1,
+              "maximum": 100000,
               "default": 1,
               "type": "number"
             }
@@ -1018,6 +1019,7 @@
             "in": "query",
             "schema": {
               "minimum": 1,
+              "maximum": 100000,
               "default": 1,
               "type": "number"
             }
@@ -1402,6 +1404,7 @@
             "in": "query",
             "schema": {
               "minimum": 1,
+              "maximum": 100000,
               "default": 1,
               "type": "number"
             }
@@ -1632,6 +1635,7 @@
             "in": "query",
             "schema": {
               "minimum": 1,
+              "maximum": 100000,
               "default": 1,
               "type": "number"
             }
@@ -3287,11 +3291,13 @@
           },
           "starterSource": {
             "type": "string",
-            "description": "โปรแกรมตั้งต้นให้ผู้เล่น — ต้อง parse ผ่าน · เว้นไว้ = โปรแกรมพื้นฐาน"
+            "description": "โปรแกรมตั้งต้นให้ผู้เล่น — ต้อง parse ผ่าน · เว้นไว้ = โปรแกรมพื้นฐาน",
+            "maxLength": 20000
           },
           "regionId": {
-            "type": "string",
+            "type": "object",
             "example": "frostland",
+            "nullable": true,
             "description": "ภูมิภาคที่โจทย์นี้ผูกด้วย (ถ้ามี)"
           }
         },
@@ -3304,7 +3310,6 @@
         "properties": {
           "title": {
             "type": "string",
-            "example": "ตั้งการ์ดเมื่อถูกหมายหัว",
             "maxLength": 120
           },
           "description": {
@@ -3313,12 +3318,12 @@
           },
           "starterSource": {
             "type": "string",
-            "description": "โปรแกรมตั้งต้นให้ผู้เล่น — ต้อง parse ผ่าน · เว้นไว้ = โปรแกรมพื้นฐาน"
+            "maxLength": 20000
           },
           "regionId": {
-            "type": "string",
-            "example": "frostland",
-            "description": "ภูมิภาคที่โจทย์นี้ผูกด้วย (ถ้ามี)"
+            "type": "object",
+            "nullable": true,
+            "description": "null = เลิกผูกกับภูมิภาค"
           }
         }
       }

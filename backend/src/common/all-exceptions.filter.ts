@@ -34,6 +34,23 @@ const MESSAGE_BY_CODE: Record<ErrorCode, string> = {
   INTERNAL_ERROR: 'เกิดข้อผิดพลาดภายในเซิร์ฟเวอร์',
 };
 
+/**
+ * ข้อผิดพลาดของ Prisma ที่มีความหมายทางธุรกิจชัดเจน — เกิดได้เมื่อสองคำขอแข่งกันแก้แถวเดียวกัน
+ *   P2025 แถวที่จะแก้/ลบหายไปแล้ว → 404 · P2002 ค่าซ้ำ → 409 · P2034 ทรานแซกชันชนกัน → 409
+ * ตรวจจากชื่อคลาสและ code แทน instanceof เพื่อไม่ผูกไฟล์นี้กับ client ที่ generate
+ */
+function prismaError(exception: unknown): { status: number; code: ErrorCode; message: string } | null {
+  if (typeof exception !== 'object' || exception === null) return null;
+  const e = exception as { name?: unknown; code?: unknown };
+  if (e.name !== 'PrismaClientKnownRequestError' || typeof e.code !== 'string') return null;
+  if (e.code === 'P2025') return { status: 404, code: 'NOT_FOUND', message: 'ไม่พบข้อมูลนี้ (อาจถูกลบหรือเปลี่ยนไปแล้ว)' };
+  if (e.code === 'P2002') return { status: 409, code: 'CONFLICT', message: 'ข้อมูลซ้ำกับที่มีอยู่แล้ว' };
+  if (e.code === 'P2034') return { status: 409, code: 'CONFLICT', message: 'มีคำขออื่นแก้ข้อมูลเดียวกันพร้อมกัน — ลองใหม่อีกครั้ง' };
+  // ทรานแซกชันรอคิวนานเกินกำหนด (คำขอพร้อมกันมากผิดปกติ) — ยังเป็นความผิดฝั่งเซิร์ฟเวอร์ จึงคง 500 แต่บอกให้ลองใหม่
+  if (e.code === 'P2028') return { status: 500, code: 'INTERNAL_ERROR', message: 'ระบบมีคำขอพร้อมกันมากเกินไป — ลองใหม่อีกครั้ง' };
+  return null;
+}
+
 /** ข้อผิดพลาดจาก body-parser (JSON พัง · payload ใหญ่เกิน) มี status ติดมาแต่ไม่ใช่ HttpException */
 function parserStatus(exception: unknown): number | null {
   if (typeof exception !== 'object' || exception === null) return null;
@@ -60,12 +77,17 @@ export function toErrorBody(exception: unknown): { status: number; body: ErrorBo
     return { status, body: { success: false, error: { code, message } } };
   }
 
+  const known = prismaError(exception);
+  if (known) {
+    return { status: known.status, body: { success: false, error: { code: known.code, message: known.message } } };
+  }
+
+  // body-parser: JSON พัง (400) · ใหญ่เกิน (413) · charset/encoding ไม่รองรับ (415)
+  // ตอบ 400 ทั้งหมด เพราะ BAD_REQUEST ผูกกับ 400 ในตารางปิดของมาตรฐาน — สถานะกับ code ต้องตรงกัน
   const parsed = parserStatus(exception);
   if (parsed !== null) {
-    return {
-      status: parsed,
-      body: { success: false, error: { code: 'BAD_REQUEST', message: 'รูปแบบข้อมูลที่ส่งมาไม่ถูกต้อง' } },
-    };
+    const message = parsed === 413 ? 'ข้อมูลที่ส่งมาใหญ่เกินไป' : 'รูปแบบข้อมูลที่ส่งมาไม่ถูกต้อง';
+    return { status: 400, body: { success: false, error: { code: 'BAD_REQUEST', message } } };
   }
 
   return {

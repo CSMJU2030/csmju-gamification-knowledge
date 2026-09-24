@@ -109,9 +109,26 @@ export class RegionRunsService {
     // กวาดก่อนหาคู่ ไม่งั้นจะประกาศว่าจะเจอคนที่ปิดเบราว์เซอร์ไปนานแล้ว
     await this.sweep(now);
 
+    /**
+     * หนึ่งตัวละครอยู่ได้ทีละโซน — ลบรอบเดิมของตัวเอง "ก่อน" เปิดทรานแซกชันจับคู่ (commit ทันที)
+     *
+     * ลำดับนี้คือสิ่งที่กัน deadlock: ถ้าลบในทรานแซกชันเดียวกัน ต่างคนต่างถือล็อกแถวเก่าของตัวเอง
+     * แล้วไปล็อกแถวของอีกฝ่ายเพื่อจับคู่ = รอกันเป็นวง (การทดสอบแบบพยายามล้มเจอจริง)
+     * เมื่อลบก่อน ทรานแซกชันจับคู่จะถือแค่แถวใหม่ของตัวเอง (ที่คนอื่นยังมองไม่เห็น) กับแถวคู่ดวลหนึ่งแถว
+     * จึงไม่มีทางเกิดวงรอกัน และไม่ต้องเรียงคิวทุกคนผ่านล็อกกลางตัวเดียว (ซึ่งช้าเมื่อคนเข้าพร้อมกันมาก)
+     * คนเดียวกดเข้าซ้ำพร้อมกัน: ตัวหนึ่งชน unique ของ character_id → 409 ไม่ใช่ 500
+     */
+    await this.prisma.regionRun.deleteMany({ where: { characterId: row.id } });
     const run = await this.prisma.$transaction(async (tx) => {
-      // หนึ่งตัวละครอยู่ได้ทีละโซน — เข้าใหม่คือรอบใหม่ (seed ใหม่ · คู่ดวลใหม่ · id ใหม่)
-      await tx.regionRun.deleteMany({ where: { characterId: row.id } });
+      /**
+       * เข้าโซนเดียวกันเรียงคิวกันทีละคน (advisory lock ต่อภูมิภาค) — ไม่งั้นสองคนที่กดเข้าพร้อมกัน
+       * ต่างฝ่ายต่างมองไม่เห็นแถวของอีกคน (ยังไม่ commit) แล้วไม่ได้จับคู่ดวลกันเลย
+       * (การทดสอบแบบพยายามล้มรอบที่สามเจอ 19 ใน 20 ครั้ง) · ต่างโซนไม่รอกัน
+       * ล็อกก่อนสร้างแถว: พอได้ล็อก คำสั่งถัดไปจะเห็นแถวของคนก่อนหน้าที่ commit แล้วแน่นอน
+       * ไม่ย้อนกลับไปเป็น deadlock เพราะแต่ละทรานแซกชันถือล็อกของภูมิภาคเดียว และแถวคู่ดวล
+       * ที่ไปล็อกเป็นของคนที่อยู่ภูมิภาคเดียวกัน ซึ่งทรานแซกชันของภูมิภาคอื่นไม่เคยแตะ
+       */
+      await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`region-run:${region.id}`}))`;
       await tx.regionRun.create({
         data: {
           characterId: row.id,
@@ -135,7 +152,9 @@ export class RegionRunsService {
     const run = await this.prisma.regionRun.findUnique({ where: { id: runId } });
     if (!run) throw notFound('ไม่พบรอบนี้ (อาจหมดอายุหรือเข้ารอบใหม่ไปแล้ว)');
     if (run.characterId !== row.id) throw forbidden('รอบนี้เป็นของผู้เล่นคนอื่น');
-    await this.prisma.regionRun.delete({ where: { id: run.id } });
+    // ออกพร้อมกันหลายคำขอ: ตัวแรกได้ 200 ที่เหลือได้ 404 (ไม่ใช่ 500)
+    const { count } = await this.prisma.regionRun.deleteMany({ where: { id: run.id, characterId: row.id } });
+    if (count === 0) throw notFound('ไม่พบรอบนี้ (อาจหมดอายุหรือเข้ารอบใหม่ไปแล้ว)');
     return { id: run.id, deleted: true };
   }
 }

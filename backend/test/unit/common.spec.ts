@@ -8,6 +8,8 @@ import { Page, wrap } from '../../src/common/envelope';
 import { PageQueryDto } from '../../src/common/pagination.dto';
 import { createValidationPipe } from '../../src/common/validation';
 import { CreateBattleDto } from '../../src/battles/battle.dto';
+import { CreateChallengeDto, UpdateChallengeDto } from '../../src/challenges/challenge.dto';
+import { UpdateProgramDto } from '../../src/programs/program.dto';
 
 const CLOSED = ['BAD_REQUEST', 'VALIDATION_ERROR', 'UNAUTHORIZED', 'FORBIDDEN', 'NOT_FOUND', 'CONFLICT', 'INTERNAL_ERROR'];
 
@@ -58,6 +60,22 @@ describe('error envelope', () => {
     expect(body.error.code).toBe('INTERNAL_ERROR');
     expect(JSON.stringify(body)).not.toMatch(/SELECT|PrismaClient|\.ts:|stack/);
   });
+  it.each([
+    ['P2025', 404, 'NOT_FOUND'],
+    ['P2002', 409, 'CONFLICT'],
+    ['P2034', 409, 'CONFLICT'],
+    ['P2028', 500, 'INTERNAL_ERROR'],
+  ])('Prisma %s (คำขอแข่งกัน) → %i %s พร้อมข้อความที่ไม่รั่วรายละเอียด', (code, status, errorCode) => {
+    const err = Object.assign(new Error('Invalid `prisma.x.delete()` invocation'), { name: 'PrismaClientKnownRequestError', code });
+    const out = toErrorBody(err);
+    expect(out.status).toBe(status);
+    expect(out.body.error.code).toBe(errorCode);
+    expect(JSON.stringify(out.body)).not.toContain('prisma');
+  });
+  it.each([413, 415])('body-parser %i → 400 BAD_REQUEST (สถานะต้องตรงกับตารางรหัส)', (status) => {
+    const err = Object.assign(new Error('too large'), { status, type: 'entity.too.large' });
+    expect(toErrorBody(err)).toMatchObject({ status: 400, body: { error: { code: 'BAD_REQUEST' } } });
+  });
   it('ApiError เป็น HttpException ที่ Nest รู้จัก', () => {
     expect(new ApiError('CONFLICT', 'x').getStatus()).toBe(409);
   });
@@ -81,10 +99,30 @@ describe('validation', () => {
       details: [expect.stringContaining('hack')],
     });
   });
-  it('towerFloor ต้องเป็นจำนวนเต็ม 1-10', async () => {
-    for (const bad of [0, 11, 1.5, 'x']) {
+  it('towerFloor ต้องเป็นจำนวนเต็ม 1-10 ชนิด number จริง (ไม่แปลง "1" หรือ true ให้)', async () => {
+    for (const bad of [0, 11, 1.5, 'x', '1', true, null]) {
       const errors = await validate(plainToInstance(CreateBattleDto, { towerFloor: bad }));
       expect(errors.length).toBeGreaterThan(0);
     }
+  });
+
+  it.each([
+    ['towerFloor: null', CreateBattleDto, { towerFloor: null }],
+    ['regionRunId: null', CreateBattleDto, { regionRunId: null }],
+    ['starterSource: null', CreateChallengeDto, { title: 't', starterSource: null }],
+    ['PATCH title: null', UpdateChallengeDto, { title: null }],
+    ['PATCH description: null', UpdateChallengeDto, { description: null }],
+    ['title มีแต่ช่องว่าง', CreateChallengeDto, { title: '   ' }],
+    ['NUL ในโปรแกรม', UpdateProgramDto, { source: 'def turn():\n    defend()\n# \u0000\n' }],
+    ['NUL ในชื่อโจทย์', CreateChallengeDto, { title: 'a\u0000b' }],
+    ['starterSource ยาวเกิน 20000', CreateChallengeDto, { title: 't', starterSource: '#'.repeat(20001) }],
+  ])('%s → 400 VALIDATION_ERROR (เดิมหลุดไปเป็น 500)', async (_label, dto, body) => {
+    await expect(run(dto as new () => object, body)).rejects.toMatchObject({ errorCode: 'VALIDATION_ERROR' });
+  });
+  it('PATCH regionId: null ได้ (= เลิกผูกภูมิภาค)', async () => {
+    await expect(run(UpdateChallengeDto, { regionId: null })).resolves.toMatchObject({ regionId: null });
+  });
+  it('page ใหญ่ผิดปกติ (1e308) → 400 แทน 500', async () => {
+    await expect(run(PageQueryDto, { page: '1e308' }, 'query')).rejects.toMatchObject({ errorCode: 'VALIDATION_ERROR' });
   });
 });

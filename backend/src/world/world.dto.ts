@@ -1,14 +1,15 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
-import { IsInt, IsString, Min } from 'class-validator';
+import { IsInt, IsString, MaxLength, Min } from 'class-validator';
+import { NoNulCharacter } from '../common/validation';
 
 export class CreateRegionRunDto {
   @ApiProperty({ example: 'frostland', description: 'id ของภูมิภาค (จาก GET /api/v1/regions)' })
   @IsString({ message: 'regionId ต้องเป็นข้อความ' })
+  @MaxLength(64, { message: 'regionId ยาวเกินไป' })
+  @NoNulCharacter('regionId')
   regionId!: string;
 
   @ApiProperty({ minimum: 1, description: 'รอบที่เท่าไรของโซน (เข้าได้ถึง maxDepthAllowed)' })
-  @Type(() => Number)
   @IsInt({ message: 'ต้องระบุ depth เป็นจำนวนเต็ม' })
   @Min(1, { message: 'depth ต้องไม่น้อยกว่า 1' })
   depth!: number;

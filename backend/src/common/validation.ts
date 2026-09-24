@@ -3,6 +3,7 @@
  * (api-conventions.md ข้อ 4: ใช้ 400 ไม่ใช่ 422)
  */
 import { ParseUUIDPipe, ValidationError, ValidationPipe } from '@nestjs/common';
+import { ValidateBy, ValidateIf } from 'class-validator';
 import { validationError } from './api-error';
 
 function flatten(errors: ValidationError[], parent = ''): string[] {
@@ -23,6 +24,24 @@ export function createValidationPipe(): ValidationPipe {
     exceptionFactory: (errors) => validationError(flatten(errors)),
   });
 }
+
+/**
+ * field ที่ไม่ส่งมาก็ได้ แต่ถ้าส่งต้องมีค่า — `null` ไม่ผ่าน
+ * (`@IsOptional` ของ class-validator ปล่อย null ผ่านไปถึง service ซึ่งเคยทำให้ตอบ 500)
+ */
+export const OptionalButNotNull = () => ValidateIf((_object: object, value: unknown) => value !== undefined);
+
+/**
+ * ข้อความห้ามมีอักขระ NUL — PostgreSQL เก็บ \u0000 ในคอลัมน์ text ไม่ได้ (เคยทำให้ตอบ 500)
+ */
+export const NoNulCharacter = (field: string) =>
+  ValidateBy({
+    name: 'noNulCharacter',
+    validator: {
+      validate: (value: unknown) => typeof value !== 'string' || !value.includes(String.fromCharCode(0)),
+      defaultMessage: () => `${field} ห้ามมีอักขระ NUL (\\u0000)`,
+    },
+  });
 
 /** path parameter ต้องเป็น UUID v4 · ไม่ใช่ → 400 (api-conventions.md ข้อ 1) */
 export const uuidParam = () =>

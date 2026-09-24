@@ -227,3 +227,101 @@ describe('SSO callback', () => {
     await http.get('/auth/callback').expect(400);
   });
 });
+
+/**
+ * ข้อที่การทดสอบแบบพยายามล้ม (ก.ย. 2026) เจอว่าตอบ 500 — ต้องไม่กลับมาอีก
+ */
+describe('regression: คำขอพร้อมกันและอินพุตผิดปกติ', () => {
+  const player = async (sub: string) => {
+    await http.post('/api/v1/characters').set(as(sub)).send({ displayName: sub.replace(/-/g, '_') });
+    return sub;
+  };
+
+  it('หลายคนเข้าโซนพร้อมกันซ้ำ ๆ ข้ามภูมิภาค → ไม่มี deadlock / 500 · คนละคนได้ 201 เสมอ', async () => {
+    const [a, b, c] = [await player('r-dl-a'), await player('r-dl-b'), await player('r-dl-c')];
+    const distinct: number[] = [];
+    const sameUser: number[] = [];
+    for (let i = 0; i < 8; i++) {
+      const res = await Promise.all([
+        http.post('/api/v1/region-runs').set(as(a)).send({ regionId: i % 2 ? 'tower' : 'greenwood', depth: 1 }),
+        http.post('/api/v1/region-runs').set(as(b)).send({ regionId: i % 2 ? 'greenwood' : 'tower', depth: 1 }),
+        http.post('/api/v1/region-runs').set(as(c)).send({ regionId: 'greenwood', depth: 1 }),
+        http.post('/api/v1/region-runs').set(as(a)).send({ regionId: 'tower', depth: 1 }),
+      ]);
+      distinct.push(res[1].status, res[2].status);
+      sameUser.push(res[0].status, res[3].status);
+    }
+    expect(new Set(distinct)).toEqual(new Set([201]));
+    // คนเดียวกดเข้าซ้อนกัน: อย่างน้อยหนึ่งคำขอสำเร็จ อีกคำขอได้ 201 หรือ 409 — ไม่มี 500
+    expect(sameUser.every((s) => s === 201 || s === 409)).toBe(true);
+    const ok = await http.post('/api/v1/region-runs').set(as(a)).send({ regionId: 'greenwood', depth: 1 }).expect(201);
+    expect(ok.body.data.regionId).toBe('greenwood');
+  });
+
+  it('โปรแกรมที่เป็นสายยาว (1+1+… เกือบ 20,000 ตัวอักษร) → 400 ไม่ใช่ 500', async () => {
+    const a = await player('r-chain');
+    const source = `def turn():\n    attack(${Array(9900).fill('1').join('+')})\n`;
+    const res = await http.patch('/api/v1/programs/current').set(as(a)).send({ source }).expect(400);
+    expect(res.body.error.details[0]).toMatch(/SyntaxError/);
+    await http.post('/api/v1/challenges').set(as('t-chain', 'staff')).send({ title: 'สายยาว', starterSource: source }).expect(400);
+  });
+
+  it('สองคนกดเข้าโซนเดียวกันพร้อมกันเป๊ะ → ยังจับคู่ดวลกันได้ (ไม่หายเพราะมองไม่เห็นกัน)', async () => {
+    let paired = 0;
+    for (let i = 0; i < 6; i++) {
+      const [x, y] = [await player(`r-sim-x${i}`), await player(`r-sim-y${i}`)];
+      const [rx, ry] = await Promise.all([
+        http.post('/api/v1/region-runs').set(as(x)).send({ regionId: 'isles', depth: 1 }),
+        http.post('/api/v1/region-runs').set(as(y)).send({ regionId: 'isles', depth: 1 }),
+      ]);
+      // isles ยังไม่ปลดล็อกสำหรับตัวละครใหม่ → ใช้ greenwood ถ้าถูกปฏิเสธ
+      const [gx, gy] = rx.status === 201 ? [rx, ry] : await Promise.all([
+        http.post('/api/v1/region-runs').set(as(x)).send({ regionId: 'greenwood', depth: 1 }),
+        http.post('/api/v1/region-runs').set(as(y)).send({ regionId: 'greenwood', depth: 1 }),
+      ]);
+      expect([gx.status, gy.status]).toEqual([201, 201]);
+      if (gx.body.data.duel?.live || gy.body.data.duel?.live) paired += 1;
+      await http.delete(`/api/v1/region-runs/${gx.body.data.id}`).set(as(x));
+      await http.delete(`/api/v1/region-runs/${gy.body.data.id}`).set(as(y));
+    }
+    expect(paired).toBe(6);
+  });
+
+  it('ออกจากรอบเดียวกันพร้อมกัน 10 คำขอ → 200 หนึ่งครั้ง ที่เหลือ 404', async () => {
+    const a = await player('r-leave');
+    const run = await http.post('/api/v1/region-runs').set(as(a)).send({ regionId: 'greenwood', depth: 1 }).expect(201);
+    const res = await Promise.all(Array.from({ length: 10 }, () => http.delete(`/api/v1/region-runs/${run.body.data.id}`).set(as(a))));
+    expect(res.map((r) => r.status).sort()).toEqual([200, ...Array(9).fill(404)]);
+  });
+
+  it('ลบ/แก้โจทย์เดียวกันพร้อมกัน → 200 หนึ่งครั้ง ที่เหลือ 404', async () => {
+    const created = await http.post('/api/v1/challenges').set(as('t-race', 'staff')).send({ title: 'แข่งกันลบ' }).expect(201);
+    const id = created.body.data.id;
+    const res = await Promise.all([
+      ...Array.from({ length: 5 }, () => http.delete(`/api/v1/challenges/${id}`).set(as('t-race', 'staff'))),
+      ...Array.from({ length: 5 }, () => http.patch(`/api/v1/challenges/${id}`).set(as('t-race', 'staff')).send({ title: 'x' })),
+    ]);
+    const statuses = res.map((r) => r.status);
+    expect(statuses.filter((s) => s >= 500)).toEqual([]);
+    expect(res.slice(0, 5).filter((r) => r.status === 200)).toHaveLength(1);
+  });
+
+  it('อินพุตผิดปกติ → 400 envelope ไม่ใช่ 500', async () => {
+    const a = await player('r-input');
+    const deep = `def turn():\n    attack(${'('.repeat(1000)}weakest(enemies)${')'.repeat(1000)})\n`;
+    const cases = [
+      http.post('/api/v1/battles').set(as(a)).send({ towerFloor: null }),
+      http.post('/api/v1/battles').set(as(a)).send({ regionRunId: null }),
+      http.patch('/api/v1/programs/current').set(as(a)).send({ source: deep }),
+      http.patch('/api/v1/programs/current').set(as(a)).send({ source: 'def turn():\n    defend()\n# \u0000\n' }),
+      http.get('/api/v1/items?page=1e308').set(as(a)),
+      http.patch('/api/v1/programs/current').set(as(a)).set('Content-Type', 'application/json').send(JSON.stringify({ source: '#'.repeat(200_000) })),
+    ];
+    for (const res of await Promise.all(cases)) {
+      expect(res.status).toBe(400);
+      expect(res.body.success).toBe(false);
+      expect(['BAD_REQUEST', 'VALIDATION_ERROR']).toContain(res.body.error.code);
+    }
+  });
+});
+

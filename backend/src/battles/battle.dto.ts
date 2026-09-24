@@ -1,22 +1,21 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
-import { IsInt, IsOptional, IsUUID, Max, Min } from 'class-validator';
+import { IsInt, IsUUID, Max, Min } from 'class-validator';
 import { CharacterDto, ItemDto, StatsDto } from '../characters/character.dto';
 import { TOWER_MAX_FLOOR } from '../game/game-rules';
+import { OptionalButNotNull } from '../common/validation';
 import { DuelAnnounceDto, RegionRunDto } from '../world/world.dto';
 
 /** ส่งอย่างใดอย่างหนึ่ง: `towerFloor` (ท้าทายหอคอย) หรือ `regionRunId` (รบรอบที่เข้าไว้ในภูมิภาค) */
 export class CreateBattleDto {
   @ApiPropertyOptional({ minimum: 1, maximum: TOWER_MAX_FLOOR, description: 'ชั้นของหอคอยที่จะท้าทาย' })
-  @IsOptional()
-  @Type(() => Number)
+  @OptionalButNotNull()
   @IsInt({ message: 'ต้องระบุ towerFloor เป็นจำนวนเต็ม' })
   @Min(1, { message: 'towerFloor ต้องไม่น้อยกว่า 1' })
   @Max(TOWER_MAX_FLOOR, { message: `towerFloor ต้องไม่เกิน ${TOWER_MAX_FLOOR}` })
   towerFloor?: number;
 
   @ApiPropertyOptional({ format: 'uuid', description: 'id ของรอบจาก POST /api/v1/region-runs' })
-  @IsOptional()
+  @OptionalButNotNull()
   @IsUUID('4', { message: 'regionRunId ต้องเป็น UUID v4' })
   regionRunId?: string;
 }
