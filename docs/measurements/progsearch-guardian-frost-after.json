@@ -1,0 +1,177 @@
+{
+  "class": "guardian",
+  "pass": 0.8,
+  "maxLevel": 40,
+  "seedsFull": 64,
+  "bestOverall": "def turn():\n    if has_debuff(\"marked\"):\n        defend()\n    else:\n        cast(\"shield_bash\", weakest(enemies))\n",
+  "bestOneLine": "def turn():\n    cast(\"shield_bash\", deadliest(enemies))\n",
+  "cells": [
+    {
+      "region": "frostland",
+      "depth": 1,
+      "floor": 5,
+      "bestOneLine": 3,
+      "bestOneLineSrc": "attack(deadliest(enemies))",
+      "naive": 4,
+      "best": 1,
+      "bestSrc": "def turn():\n    if has_debuff(\"marked\"):\n        defend()\n    else:\n        cast(\"shield_bash\", weakest(enemies))\n",
+      "value": 2
+    },
+    {
+      "region": "frostland",
+      "depth": 2,
+      "floor": 6,
+      "bestOneLine": 3,
+      "bestOneLineSrc": "cast(\"shield_bash\", deadliest(enemies))",
+      "naive": 5,
+      "best": 1,
+      "bestSrc": "def turn():\n    if has_debuff(\"marked\"):\n        defend()\n    else:\n        cast(\"shield_bash\", weakest(enemies))\n",
+      "value": 2
+    },
+    {
+      "region": "frostland",
+      "depth": 3,
+      "floor": 7,
+      "bestOneLine": 4,
+      "bestOneLineSrc": "cast(\"shield_bash\", weakest(enemies))",
+      "naive": 5,
+      "best": 1,
+      "bestSrc": "def turn():\n    if has_debuff(\"marked\"):\n        defend()\n    else:\n        cast(\"shield_bash\", weakest(enemies))\n",
+      "value": 3
+    },
+    {
+      "region": "frostland",
+      "depth": 4,
+      "floor": 8,
+      "bestOneLine": 6,
+      "bestOneLineSrc": "cast(\"shield_bash\", weakest(enemies))",
+      "naive": 7,
+      "best": 1,
+      "bestSrc": "def turn():\n    if has_debuff(\"marked\"):\n        defend()\n    else:\n        cast(\"shield_bash\", weakest(enemies))\n",
+      "value": 5
+    },
+    {
+      "region": "frostland",
+      "depth": 5,
+      "floor": 9,
+      "bestOneLine": 6,
+      "bestOneLineSrc": "cast(\"shield_bash\", deadliest(enemies))",
+      "naive": 8,
+      "best": 2,
+      "bestSrc": "def turn():\n    if has_debuff(\"marked\"):\n        defend()\n    else:\n        cast(\"shield_bash\", weakest(enemies))\n",
+      "value": 4
+    }
+  ],
+  "top": [
+    {
+      "src": "def turn():\n    if has_debuff(\"marked\"):\n        defend()\n    else:\n        cast(\"shield_bash\", weakest(enemies))\n",
+      "total": 6,
+      "profile": [
+        1,
+        1,
+        1,
+        1,
+        2
+      ]
+    },
+    {
+      "src": "def turn():\n    if has_debuff(\"marked\"):\n        defend()\n    else:\n        cast(\"shield_bash\", fastest(enemies))\n",
+      "total": 6,
+      "profile": [
+        1,
+        1,
+        1,
+        1,
+        2
+      ]
+    },
+    {
+      "src": "def turn():\n    if has_debuff(\"marked\"):\n        defend()\n    elif count(enemies) >= 2:\n        cast(\"shield_bash\", fastest(enemies))\n    else:\n        cast(\"shield_bash\", weakest(enemies))\n",
+      "total": 6,
+      "profile": [
+        1,
+        1,
+        1,
+        1,
+        2
+      ]
+    },
+    {
+      "src": "def turn():\n    if has_debuff(\"marked\"):\n        defend()\n    elif count(enemies) >= 3:\n        cast(\"shield_bash\", fastest(enemies))\n    else:\n        cast(\"shield_bash\", weakest(enemies))\n",
+      "total": 6,
+      "profile": [
+        1,
+        1,
+        1,
+        1,
+        2
+      ]
+    },
+    {
+      "src": "def turn():\n    if has_debuff(\"marked\"):\n        defend()\n    elif count(enemies) >= 4:\n        attack(weakest(enemies))\n    else:\n        cast(\"shield_bash\", weakest(enemies))\n",
+      "total": 6,
+      "profile": [
+        1,
+        1,
+        1,
+        1,
+        2
+      ]
+    },
+    {
+      "src": "def turn():\n    if has_debuff(\"marked\"):\n        defend()\n    elif count(enemies) >= 4:\n        attack(deadliest(enemies))\n    else:\n        cast(\"shield_bash\", weakest(enemies))\n",
+      "total": 6,
+      "profile": [
+        1,
+        1,
+        1,
+        1,
+        2
+      ]
+    },
+    {
+      "src": "def turn():\n    if has_debuff(\"marked\"):\n        defend()\n    elif count(enemies) >= 4:\n        attack(fastest(enemies))\n    else:\n        cast(\"shield_bash\", weakest(enemies))\n",
+      "total": 6,
+      "profile": [
+        1,
+        1,
+        1,
+        1,
+        2
+      ]
+    },
+    {
+      "src": "def turn():\n    if has_debuff(\"marked\"):\n        defend()\n    elif count(enemies) >= 4:\n        cast(\"shield_bash\", deadliest(enemies))\n    else:\n        cast(\"shield_bash\", weakest(enemies))\n",
+      "total": 6,
+      "profile": [
+        1,
+        1,
+        1,
+        1,
+        2
+      ]
+    },
+    {
+      "src": "def turn():\n    if has_debuff(\"marked\"):\n        defend()\n    elif count(enemies) >= 4:\n        cast(\"shield_bash\", fastest(enemies))\n    else:\n        cast(\"shield_bash\", weakest(enemies))\n",
+      "total": 6,
+      "profile": [
+        1,
+        1,
+        1,
+        1,
+        2
+      ]
+    },
+    {
+      "src": "def turn():\n    if has_debuff(\"marked\"):\n        defend()\n    elif count(enemies) == 1:\n        cast(\"shield_bash\", strongest(enemies))\n    else:\n        cast(\"shield_bash\", weakest(enemies))\n",
+      "total": 6,
+      "profile": [
+        1,
+        1,
+        1,
+        1,
+        2
+      ]
+    }
+  ]
+}

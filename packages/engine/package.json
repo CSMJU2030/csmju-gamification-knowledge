@@ -1,0 +1,24 @@
+{
+  "name": "@tower/engine",
+  "version": "0.1.0",
+  "main": "dist/src/index.js",
+  "types": "dist/src/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "lint": "eslint src test",
+    "typecheck": "tsc --noEmit -p tsconfig.test.json",
+    "test": "vitest run",
+    "probe": "node tools/probe.cjs",
+    "profprobe": "node tools/profprobe.cjs",
+    "tune": "node tools/tune.cjs"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.36.0",
+    "@types/node": "^22.20.4",
+    "eslint": "^9.36.0",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.44.0",
+    "vitest": "^2.1.9"
+  },
+  "private": true
+}

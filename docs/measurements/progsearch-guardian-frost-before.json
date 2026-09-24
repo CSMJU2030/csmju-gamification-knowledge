@@ -1,0 +1,177 @@
+{
+  "class": "guardian",
+  "pass": 0.8,
+  "maxLevel": 40,
+  "seedsFull": 64,
+  "bestOverall": "def turn():\n    cast(\"shield_bash\", weakest(enemies))\n",
+  "bestOneLine": "def turn():\n    cast(\"shield_bash\", weakest(enemies))\n",
+  "cells": [
+    {
+      "region": "frostland",
+      "depth": 1,
+      "floor": 5,
+      "bestOneLine": 1,
+      "bestOneLineSrc": "attack(weakest(enemies))",
+      "naive": 1,
+      "best": 1,
+      "bestSrc": "def turn():\n    cast(\"shield_bash\", weakest(enemies))\n",
+      "value": 0
+    },
+    {
+      "region": "frostland",
+      "depth": 2,
+      "floor": 6,
+      "bestOneLine": 1,
+      "bestOneLineSrc": "attack(weakest(enemies))",
+      "naive": 1,
+      "best": 1,
+      "bestSrc": "def turn():\n    cast(\"shield_bash\", weakest(enemies))\n",
+      "value": 0
+    },
+    {
+      "region": "frostland",
+      "depth": 3,
+      "floor": 7,
+      "bestOneLine": 1,
+      "bestOneLineSrc": "attack(weakest(enemies))",
+      "naive": 1,
+      "best": 1,
+      "bestSrc": "def turn():\n    cast(\"shield_bash\", weakest(enemies))\n",
+      "value": 0
+    },
+    {
+      "region": "frostland",
+      "depth": 4,
+      "floor": 8,
+      "bestOneLine": 1,
+      "bestOneLineSrc": "attack(weakest(enemies))",
+      "naive": 1,
+      "best": 1,
+      "bestSrc": "def turn():\n    cast(\"shield_bash\", weakest(enemies))\n",
+      "value": 0
+    },
+    {
+      "region": "frostland",
+      "depth": 5,
+      "floor": 9,
+      "bestOneLine": 1,
+      "bestOneLineSrc": "cast(\"shield_bash\", weakest(enemies))",
+      "naive": 2,
+      "best": 1,
+      "bestSrc": "def turn():\n    cast(\"shield_bash\", weakest(enemies))\n",
+      "value": 0
+    }
+  ],
+  "top": [
+    {
+      "src": "def turn():\n    cast(\"shield_bash\", weakest(enemies))\n",
+      "total": 5,
+      "profile": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "src": "def turn():\n    cast(\"shield_bash\", strongest(enemies))\n",
+      "total": 5,
+      "profile": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "src": "def turn():\n    cast(\"shield_bash\", deadliest(enemies))\n",
+      "total": 5,
+      "profile": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "src": "def turn():\n    cast(\"shield_bash\", fastest(enemies))\n",
+      "total": 5,
+      "profile": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "src": "def turn():\n    if count(enemies) >= 2:\n        attack(weakest(enemies))\n    else:\n        cast(\"shield_bash\", weakest(enemies))\n",
+      "total": 5,
+      "profile": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "src": "def turn():\n    if count(enemies) >= 2:\n        attack(weakest(enemies))\n    else:\n        cast(\"shield_bash\", strongest(enemies))\n",
+      "total": 5,
+      "profile": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "src": "def turn():\n    if count(enemies) >= 2:\n        attack(weakest(enemies))\n    else:\n        cast(\"shield_bash\", deadliest(enemies))\n",
+      "total": 5,
+      "profile": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "src": "def turn():\n    if count(enemies) >= 2:\n        attack(weakest(enemies))\n    else:\n        cast(\"shield_bash\", fastest(enemies))\n",
+      "total": 5,
+      "profile": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "src": "def turn():\n    if count(enemies) >= 2:\n        attack(fastest(enemies))\n    else:\n        cast(\"shield_bash\", weakest(enemies))\n",
+      "total": 5,
+      "profile": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "src": "def turn():\n    if count(enemies) >= 2:\n        attack(fastest(enemies))\n    else:\n        cast(\"shield_bash\", strongest(enemies))\n",
+      "total": 5,
+      "profile": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    }
+  ]
+}
