@@ -1,0 +1,500 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{color-scheme:light}body{margin:0}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>Code Tower G1 Wireframes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+:root {
+  --bg: #F8F9FA;
+  --paper: #FFFFFF;
+  --ink: #191C1D;
+  --ink-2: #434654;
+  --meta: #4E5D87;
+  --rule: #C4C5D7;
+  --accent: #2154D9;
+  --accent-soft: rgba(33, 84, 217, .08);
+  /* wireframe — ขาวดำล้วน ตั้งใจไม่ลงสี (G1 มาก่อน G2) */
+  --wf-paper: #FFFFFF;
+  --wf-fill: #EEEFF1;
+  --wf-fill-2: #DCDEE2;
+  --wf-line: #9A9DA6;
+  --wf-ink: #2B2D31;
+  --wf-dim: #6B6E76;
+  --wf-dark: #3A3C41;
+  --wf-on-dark: #F1F2F4;
+  --font-th: "Noto Sans Thai", "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Plus Jakarta Sans", "Noto Sans Thai", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #111317;
+    --paper: #1A1D22;
+    --ink: #E6E7EA;
+    --ink-2: #B8BBC4;
+    --meta: #9FB0DA;
+    --rule: #3A3F4B;
+    --accent: #8FB0FF;
+    --accent-soft: rgba(143, 176, 255, .10);
+    --wf-paper: #1E2126;
+    --wf-fill: #2A2E35;
+    --wf-fill-2: #363A42;
+    --wf-line: #6E737D;
+    --wf-ink: #E3E5E9;
+    --wf-dim: #A2A6AE;
+    --wf-dark: #0C0E11;
+    --wf-on-dark: #D7D9DE;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #111317;
+  --paper: #1A1D22;
+  --ink: #E6E7EA;
+  --ink-2: #B8BBC4;
+  --meta: #9FB0DA;
+  --rule: #3A3F4B;
+  --accent: #8FB0FF;
+  --accent-soft: rgba(143, 176, 255, .10);
+  --wf-paper: #1E2126;
+  --wf-fill: #2A2E35;
+  --wf-fill-2: #363A42;
+  --wf-line: #6E737D;
+  --wf-ink: #E3E5E9;
+  --wf-dim: #A2A6AE;
+  --wf-dark: #0C0E11;
+  --wf-on-dark: #D7D9DE;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-th);
+  font-size: 15px;
+  line-height: 1.7;
+  padding-inline: 16px;
+}
+.page { max-width: 1240px; margin: 0 auto; padding-block: 40px 72px; display: flex; flex-direction: column; gap: 56px; }
+
+header.intro { display: grid; gap: 16px; max-width: 72ch; }
+.eyebrow { font-family: var(--font-display); font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--meta); }
+h1 { font-family: var(--font-display); font-weight: 800; font-size: clamp(28px, 4vw, 40px); line-height: 1.25; margin: 0; text-wrap: balance; }
+h1 span { font-family: var(--font-th); font-weight: 700; }
+.lede { color: var(--ink-2); margin: 0; }
+.facts { display: flex; flex-wrap: wrap; gap: 8px 20px; font-size: 13px; color: var(--ink-2); padding: 0; margin: 0; list-style: none; }
+.facts b { color: var(--ink); font-weight: 600; }
+
+.legend { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 12px; }
+.legend div { display: flex; gap: 12px; align-items: flex-start; background: var(--paper); border: 1px solid var(--rule); border-radius: 12px; padding: 14px 16px; font-size: 13px; color: var(--ink-2); line-height: 1.6; }
+.legend b { color: var(--ink); display: block; font-size: 14px; }
+.sw { flex: 0 0 34px; height: 34px; border-radius: 6px; border: 1px solid var(--wf-line); background: var(--wf-paper); }
+.sw.stage { background: repeating-linear-gradient(135deg, var(--wf-fill-2) 0 6px, var(--wf-paper) 6px 12px); }
+.sw.tpl { border: 2px dashed var(--wf-line); }
+.sw.mark { display: grid; place-items: center; border-radius: 50%; background: var(--accent); border: 0; color: #fff; font-family: var(--font-display); font-weight: 700; font-size: 14px; }
+
+section.screen { display: grid; gap: 20px; }
+.screen-head { display: grid; gap: 4px; border-top: 1px solid var(--rule); padding-top: 20px; }
+.screen-head .route { font-family: var(--font-mono); font-size: 13px; color: var(--meta); }
+h2 { font-family: var(--font-th); font-weight: 700; font-size: 24px; line-height: 1.35; margin: 0; }
+.purpose { margin: 0; color: var(--ink-2); max-width: 70ch; }
+
+.frames { display: grid; grid-template-columns: minmax(0, 1fr) minmax(220px, 300px); gap: 24px; align-items: start; }
+.frames > div { min-width: 0; }
+@media (max-width: 820px) { .frames { grid-template-columns: minmax(0, 1fr); } }
+.frame-label { font-size: 12px; font-weight: 600; color: var(--meta); margin-bottom: 8px; font-family: var(--font-display); letter-spacing: .04em; }
+.scroll { overflow-x: auto; padding-bottom: 4px; }
+.fw { container-type: inline-size; }
+.scroll .fw { min-width: 640px; }
+.mobile-wrap { max-width: 300px; }
+@media (max-width: 820px) { .mobile-wrap { max-width: 320px; } }
+
+.notes { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; max-width: 88ch; counter-reset: n; }
+.notes li { display: grid; grid-template-columns: 26px 1fr; gap: 10px; font-size: 14px; color: var(--ink-2); line-height: 1.65; }
+.notes li::before { counter-increment: n; content: counter(n); width: 24px; height: 24px; border-radius: 50%; background: var(--accent); color: #fff; font: 700 12px/24px var(--font-display); text-align: center; margin-top: 2px; }
+.notes b { color: var(--ink); font-weight: 600; }
+
+/* ---------------- wireframe primitives (ขนาดเป็น em ของเฟรม) ---------------- */
+.desk { font-size: 1.1cqw; }
+.mob { font-size: 3.9cqw; }
+.wf {
+  font-family: var(--font-th); color: var(--wf-ink); background: var(--wf-paper);
+  border: 1px solid var(--wf-line); border-radius: 10px; overflow: hidden; line-height: 1.5;
+  box-shadow: 0 1px 2px rgba(0,0,0,.06); position: relative;
+}
+.desk.wf { display: grid; grid-template-columns: 20% 1fr; aspect-ratio: 1280 / 860; }
+.mob.wf { display: grid; grid-template-rows: auto 1fr; aspect-ratio: 360 / 760; border-radius: 22px; border-width: 2px; }
+.side { background: var(--wf-dark); color: var(--wf-on-dark); padding: 1.6em 1.2em; display: flex; flex-direction: column; gap: 1.1em; }
+.logo { background: var(--wf-paper); border-radius: .8em; height: 4.2em; display: grid; place-items: center; color: var(--wf-dim); font-size: .85em; font-weight: 600; border: 2px dashed var(--wf-line); }
+.side .cta { border-radius: .6em; padding: .7em; text-align: center; font-weight: 700; background: var(--wf-on-dark); color: var(--wf-dark); }
+.nav { display: flex; flex-direction: column; gap: .15em; }
+.nav div { display: flex; gap: .7em; align-items: center; padding: .55em .7em; border-radius: .5em; font-size: .95em; color: var(--wf-on-dark); opacity: .72; }
+.nav div::before { content: ""; width: 1.1em; height: 1.1em; border-radius: .25em; border: 1.5px solid currentColor; flex: none; }
+.nav .on { opacity: 1; background: rgba(255,255,255,.12); box-shadow: inset .25em 0 0 var(--wf-on-dark); }
+.side .out { margin-top: auto; border: 1px solid rgba(255,255,255,.35); border-radius: .6em; padding: .6em; text-align: center; font-size: .9em; }
+.tpl-outline { outline: 2px dashed var(--wf-line); outline-offset: -2px; }
+
+.mainc { display: grid; grid-template-rows: 5.6em 1fr; min-width: 0; }
+.top { display: flex; align-items: center; gap: 1.2em; padding: 0 2em; border-bottom: 1px solid var(--wf-line); }
+.search { flex: 1; max-width: 26em; height: 2.4em; border-radius: 9em; background: var(--wf-fill); margin: 0 auto; display: flex; align-items: center; padding: 0 1em; color: var(--wf-dim); font-size: .85em; }
+.dot { width: 2.4em; height: 2.4em; border-radius: 50%; border: 1px solid var(--wf-line); flex: none; }
+.avatar { display: flex; align-items: center; gap: .6em; font-size: .85em; color: var(--wf-dim); }
+.avatar::before { content: "A"; width: 2.6em; height: 2.6em; border-radius: 50%; background: var(--wf-fill-2); color: var(--wf-ink); display: grid; place-items: center; font-weight: 700; }
+.content { padding: 2.2em 3em; display: flex; flex-direction: column; gap: 1.6em; min-height: 0; overflow: hidden; }
+
+.mtop { display: flex; align-items: center; gap: .8em; padding: .9em 1em; border-bottom: 1px solid var(--wf-line); }
+.burger { width: 1.6em; height: 1.2em; background: linear-gradient(var(--wf-ink) 0 0) top/100% 2px no-repeat, linear-gradient(var(--wf-ink) 0 0) center/100% 2px no-repeat, linear-gradient(var(--wf-ink) 0 0) bottom/100% 2px no-repeat; flex: none; }
+.appname { font-weight: 700; font-size: .95em; flex: 1; }
+.mcontent { padding: 1.1em 1em; display: flex; flex-direction: column; gap: 1em; overflow: hidden; min-height: 0; }
+
+.ph { display: flex; flex-wrap: wrap; align-items: flex-end; gap: .8em 1.4em; }
+.ph .t { font-weight: 700; font-size: 1.9em; line-height: 1.2; }
+.mob .ph .t { font-size: 1.45em; }
+.ph .d { color: var(--wf-dim); font-size: .95em; flex-basis: 100%; }
+.badge { font-size: .78em; border: 1px solid var(--wf-line); border-radius: 9em; padding: .15em .8em; color: var(--wf-dim); }
+.ph .actions { margin-left: auto; display: flex; gap: .6em; }
+
+.card { border: 1px solid var(--wf-line); border-radius: .9em; background: var(--wf-paper); padding: 1.2em 1.3em; display: flex; flex-direction: column; gap: .7em; min-width: 0; }
+.card h4 { margin: 0; font-size: 1em; font-weight: 700; }
+.row { display: flex; gap: 1.2em; align-items: center; min-width: 0; }
+.grid3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.4em; }
+.grid2 { display: grid; grid-template-columns: minmax(0, 1.9fr) minmax(0, 1fr); gap: 1.4em; min-height: 0; }
+.stack { display: flex; flex-direction: column; gap: .9em; min-width: 0; }
+
+.bar { height: .7em; border-radius: 9em; background: var(--wf-fill-2); }
+.bar.w40 { width: 40%; } .bar.w64 { width: 64%; } .bar.w88 { width: 88%; }
+.meter { height: .8em; border-radius: 9em; background: var(--wf-fill); position: relative; overflow: hidden; }
+.meter i { position: absolute; inset: 0 auto 0 0; background: var(--wf-line); border-radius: 9em; }
+.kv { display: grid; grid-template-columns: auto 1fr auto; gap: .35em .8em; align-items: center; font-size: .9em; }
+.kv span:nth-child(3n+1) { color: var(--wf-dim); font-weight: 600; }
+.num { font-variant-numeric: tabular-nums; font-weight: 700; }
+.btn { border: 1px solid var(--wf-line); border-radius: .5em; padding: .45em 1em; font-size: .85em; font-weight: 600; white-space: nowrap; text-align: center; }
+.btn.p { background: var(--wf-ink); color: var(--wf-paper); border-color: var(--wf-ink); }
+.btn.off { opacity: .45; border-style: dashed; }
+.chips { display: flex; flex-wrap: wrap; gap: .45em; }
+.chip { border: 1px solid var(--wf-line); border-radius: 9em; padding: .1em .75em; font-size: .8em; color: var(--wf-dim); }
+.seg { display: inline-flex; border: 1px solid var(--wf-line); border-radius: .55em; overflow: hidden; font-size: .85em; }
+.seg span { padding: .35em .9em; }
+.seg .on { background: var(--wf-ink); color: var(--wf-paper); }
+.slot { border: 1px dashed var(--wf-line); border-radius: .6em; padding: .5em .7em; font-size: .82em; color: var(--wf-dim); display: flex; justify-content: space-between; }
+.reason { font-size: .78em; color: var(--wf-dim); }
+
+.stage {
+  background: repeating-linear-gradient(135deg, var(--wf-fill-2) 0 .6em, var(--wf-paper) .6em 1.2em);
+  border: 1px solid var(--wf-line); border-radius: .7em; display: grid; place-items: center; color: var(--wf-ink);
+  font-weight: 700; font-size: .9em; text-align: center; padding: .6em;
+}
+.stage span { background: var(--wf-paper); padding: .25em .7em; border-radius: .4em; border: 1px solid var(--wf-line); }
+.portrait { width: 5.5em; height: 5.5em; flex: none; font-size: .9em; }
+.r169 { aspect-ratio: 16 / 9; }
+.r43 { aspect-ratio: 4 / 3; }
+
+.code { font-family: var(--font-mono); font-size: .82em; line-height: 1.75; background: var(--wf-fill); border-radius: .6em; padding: .7em .9em; white-space: pre; overflow: hidden; }
+.code .hl { outline: 1.5px solid var(--wf-ink); border-radius: .25em; display: inline-block; width: 100%; }
+.log { font-size: .8em; color: var(--wf-dim); display: grid; gap: .3em; }
+.log div { border-bottom: 1px dotted var(--wf-fill-2); padding-bottom: .25em; }
+.err { border: 1.5px solid var(--wf-ink); border-radius: .6em; padding: .55em .8em; font-size: .82em; }
+.err b { display: block; }
+
+.mk { position: absolute; width: 1.9em; height: 1.9em; border-radius: 50%; background: var(--accent); color: #fff; font: 700 .8em/1.9em var(--font-display); text-align: center; z-index: 2; box-shadow: 0 0 0 .25em var(--wf-paper); }
+.mob .mk { font-size: .72em; }
+
+.sticky { border-top: 1px solid var(--wf-line); padding: .8em 1em; display: flex; gap: .6em; justify-content: flex-end; background: var(--wf-paper); }
+.mob.wf.with-bar { grid-template-rows: auto 1fr auto; }
+.tabs { display: flex; gap: 1.4em; border-bottom: 1px solid var(--wf-line); font-size: .9em; }
+.tabs span { padding-bottom: .4em; color: var(--wf-dim); }
+.tabs .on { color: var(--wf-ink); font-weight: 700; box-shadow: inset 0 -2px 0 var(--wf-ink); }
+
+footer.end { border-top: 1px solid var(--rule); padding-top: 20px; font-size: 13px; color: var(--ink-2); display: grid; gap: 6px; max-width: 80ch; }
+footer.end b { color: var(--ink); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+</style>
+
+<div class="page">
+  <header class="intro">
+    <div class="eyebrow">CSMJU2030 · Design Review Gate G1 · csmju-code-tower</div>
+    <h1>Code Tower<br><span>โครงหน้าจอหลัก 3 หน้า</span></h1>
+    <p class="lede">ส่งให้ PL ตรวจโครงก่อนลงสี ตามข้อ 17.1 ของ ui-design-system ทุกหน้าอยู่ใน AppShell กลาง
+      และแยกให้เห็นว่าส่วนไหนเป็น "เวทีเกม" ที่ขอยกเว้นกฎสี (D1) ส่วนไหนใช้ component กลางเต็มร้อย
+      รายการหน้าจอทั้งหมด flow และสิทธิ์ของแต่ละ role อยู่ในเอกสาร G0 (<code>docs/ui-g0-scoping.md</code>)</p>
+    <ul class="facts">
+      <li><b>ขนาดอ้างอิง</b> desktop 1280 px · มือถือ 360 px</li>
+      <li><b>ขั้นนี้ไม่ลงสี</b> สีจริงมาจาก token ของ template ใน G2</li>
+      <li><b>ข้อความตัวอย่าง</b> ตัวละคร "alice" จอมเวทเลเวล 5</li>
+    </ul>
+    <div class="legend" role="list">
+      <div role="listitem"><span class="sw stage" aria-hidden="true"></span><span><b>ลายขวาง = เวทีเกม</b>ภาพ pixel art · canvas · บล็อกโค้ด ส่วนที่ขอยกเว้นใน D1</span></div>
+      <div role="listitem"><span class="sw tpl" aria-hidden="true"></span><span><b>เส้นประ = ของจาก template</b>โลโก้และ AppShell มาจาก csmju-subsystem-web ห้ามวาดเอง</span></div>
+      <div role="listitem"><span class="sw" aria-hidden="true"></span><span><b>กรอบทึบ = component กลาง</b>การ์ด ปุ่ม ตาราง ฟอร์ม ใช้ token และ class ใน ui.ts</span></div>
+      <div role="listitem"><span class="sw mark" aria-hidden="true">1</span><span><b>หมายเลข</b>ตรงกับคำอธิบายใต้แต่ละหน้า</span></div>
+    </div>
+  </header>
+
+  <!-- ================================================================== 1 -->
+  <section class="screen" aria-labelledby="s1">
+    <div class="screen-head">
+      <div class="route">/  ·  เมนู "ตัวละคร"</div>
+      <h2 id="s1">ตัวละคร</h2>
+      <p class="purpose">มาหน้านี้เพื่อดูว่าตัวละครเก่งขึ้นตรงไหน และโค้ดของเราทำให้ได้แต้มสเตตัสแบบไหนในเลเวลนี้</p>
+    </div>
+    <div class="frames">
+      <div>
+        <div class="frame-label">DESKTOP · 1280</div>
+        <div class="scroll"><div class="fw">
+          <div class="wf desk" role="img" aria-label="wireframe หน้าตัวละคร ขนาด desktop">
+            <aside class="side tpl-outline">
+              <div class="logo">โลโก้ CSMJU</div>
+              <div class="cta">ลงรบ</div>
+              <div class="nav">
+                <div class="on">ตัวละคร</div><div>โปรแกรม BloxCode</div><div>แผนที่โลก</div><div>หอคอย</div><div>กระเป๋า</div><div>ประวัติการรบ</div><div>โจทย์</div>
+              </div>
+              <div class="out">ออกจากระบบ</div>
+            </aside>
+            <div class="mainc">
+              <div class="top tpl-outline"><div class="search">ค้นหา</div><span class="dot"></span><span class="avatar">นักศึกษา</span></div>
+              <div class="content">
+                <div class="ph">
+                  <div class="t">ตัวละคร</div><span class="badge">นักศึกษา</span>
+                  <div class="d">นักสู้ของคุณ และสิ่งที่โค้ดทำให้เก่งขึ้นในเลเวลนี้</div>
+                </div>
+                <div class="card">
+                  <div class="row">
+                    <div class="stage portrait"><span>ภาพ</span></div>
+                    <div class="stack" style="flex:1">
+                      <div class="row"><b style="font-size:1.25em">alice</b><span class="chip">จอมเวท</span><span class="chip">เลเวล 5</span></div>
+                      <div class="kv" style="grid-template-columns:auto 1fr auto"><span>EXP</span><div class="meter"><i style="width:62%"></i></div><span class="num">310 / 500</span></div>
+                    </div>
+                    <div class="stack" style="align-items:flex-end"><span class="num">ทอง 1,240</span><span class="num">วัสดุ 36</span></div>
+                  </div>
+                </div>
+                <div class="grid3">
+                  <div class="card"><h4>สเตตัส</h4>
+                    <div class="kv"><span>STR</span><div class="bar w64"></div><span class="num">9</span><span>INT</span><div class="bar w88"></div><span class="num">17</span><span>VIT</span><div class="bar w40"></div><span class="num">8</span><span>AGI</span><div class="bar w40"></div><span class="num">7</span><span>LUK</span><div class="bar w40"></div><span class="num">6</span></div>
+                  </div>
+                  <div class="card"><h4>ความชำนาญเลเวลนี้</h4>
+                    <div class="kv"><span>STR</span><div class="meter"><i style="width:18%"></i></div><span class="num">+0</span><span>INT</span><div class="meter"><i style="width:70%"></i></div><span class="num">+2</span><span>VIT</span><div class="meter"><i style="width:12%"></i></div><span class="num">+1</span></div>
+                    <div class="reason">ถ้าเลเวลอัพตอนนี้จะได้แต้มตามนี้</div>
+                  </div>
+                  <div class="card"><h4>อุปกรณ์ที่สวม</h4>
+                    <div class="slot"><span>อาวุธ</span><span>คทา +2</span></div><div class="slot"><span>เกราะ</span><span>ว่าง</span></div><div class="slot"><span>หมวก</span><span>ว่าง</span></div><div class="slot"><span>เครื่องประดับ</span><span>สร้อย</span></div>
+                  </div>
+                </div>
+                <div class="card"><div class="row"><h4 style="flex:1">อาชีพ</h4><span class="btn off">เลือกอาชีพ</span></div><div class="reason">เลือกได้ครั้งเดียว หลังผ่านชั้น 1 — ตอนนี้เป็นจอมเวทแล้ว</div></div>
+              </div>
+            </div>
+            <span class="mk" style="left:6%;top:14.5%">1</span>
+            <span class="mk" style="left:23.5%;top:26%">2</span>
+            <span class="mk" style="left:55%;top:48%">3</span>
+            <span class="mk" style="left:95.5%;top:60.5%">4</span>
+          </div>
+        </div></div>
+      </div>
+      <div class="mobile-wrap">
+        <div class="frame-label">มือถือ · 360</div>
+        <div class="fw">
+          <div class="wf mob" role="img" aria-label="wireframe หน้าตัวละคร ขนาดมือถือ">
+            <div class="mtop tpl-outline"><span class="burger"></span><span class="appname">Code Tower</span><span class="dot"></span></div>
+            <div class="mcontent">
+              <div class="ph"><div class="t">ตัวละคร</div><span class="badge">นักศึกษา</span></div>
+              <div class="card">
+                <div class="row"><div class="stage portrait"><span>ภาพ</span></div><div class="stack"><b>alice</b><span class="chip">จอมเวท · เลเวล 5</span></div></div>
+                <div class="meter"><i style="width:62%"></i></div><div class="reason num">EXP 310 / 500 · ทอง 1,240 · วัสดุ 36</div>
+              </div>
+              <div class="card"><h4>ความชำนาญเลเวลนี้</h4><div class="kv"><span>STR</span><div class="meter"><i style="width:18%"></i></div><span class="num">+0</span><span>INT</span><div class="meter"><i style="width:70%"></i></div><span class="num">+2</span><span>VIT</span><div class="meter"><i style="width:12%"></i></div><span class="num">+1</span></div></div>
+              <div class="card"><h4>สเตตัส</h4><div class="bar w88"></div><div class="bar w64"></div></div>
+              <div class="card"><h4>อุปกรณ์ที่สวม</h4><div class="slot"><span>อาวุธ</span><span>คทา +2</span></div></div>
+            </div>
+            <span class="mk" style="left:4%;top:1.4%">1</span>
+            <span class="mk" style="left:88%;top:43%">3</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <ol class="notes">
+      <li><span><b>ปุ่มหลักของระบบ "ลงรบ"</b> ใต้โลโก้ พาไปแผนที่โลก · บนมือถือ AppShell ย้ายเมนูทั้งหมดเข้า drawer ของปุ่ม ☰ ตามข้อ 5.1 · แถบแท็บล่างแบบเกมของเดิมถูกเลิกใช้</span></li>
+      <li><span><b>ภาพตัวละครเป็นเวทีเกมชิ้นเดียวในหน้านี้</b> ขนาดคงที่ ส่วนชื่อ อาชีพ EXP ทอง เป็นการ์ดกลาง</span></li>
+      <li><span><b>แถบความชำนาญมีแค่ STR · INT · VIT</b> เพราะผู้เล่นควบคุม AGI/LUK ไม่ได้ · ตัวเลขท้ายแถบคือแต้มที่จะได้ถ้าเลเวลอัพตอนนี้ (บนมือถือยกขึ้นมาก่อนสเตตัส เพราะเป็นเรื่องที่เปลี่ยนทุกการรบ)</span></li>
+      <li><span><b>ปุ่มที่มีสิทธิ์แต่กดไม่ได้ตอนนี้</b> แสดงแบบ disable พร้อมเหตุผลเสมอ (ข้อ 10.1) · ครั้งแรกที่ยังไม่มีตัวละคร หน้านี้เป็นฟอร์มตั้งชื่อช่องเดียวแทน (G0 ข้อ 3.1)</span></li>
+    </ol>
+  </section>
+
+  <!-- ================================================================== 2 -->
+  <section class="screen" aria-labelledby="s2">
+    <div class="screen-head">
+      <div class="route">/program  ·  เมนู "โปรแกรม BloxCode"</div>
+      <h2 id="s2">โปรแกรม BloxCode</h2>
+      <p class="purpose">มาหน้านี้เพื่อเขียนหรือแก้โปรแกรมที่ตัวละครใช้สู้ แล้วรู้ทันทีว่าบรรทัดไหนผิดเพราะอะไร</p>
+    </div>
+    <div class="frames">
+      <div>
+        <div class="frame-label">DESKTOP · 1280</div>
+        <div class="scroll"><div class="fw">
+          <div class="wf desk" role="img" aria-label="wireframe หน้าโปรแกรม BloxCode ขนาด desktop">
+            <aside class="side tpl-outline">
+              <div class="logo">โลโก้ CSMJU</div>
+              <div class="cta">ลงรบ</div>
+              <div class="nav"><div>ตัวละคร</div><div class="on">โปรแกรม BloxCode</div><div>แผนที่โลก</div><div>หอคอย</div><div>กระเป๋า</div><div>ประวัติการรบ</div><div>โจทย์</div></div>
+              <div class="out">ออกจากระบบ</div>
+            </aside>
+            <div class="mainc">
+              <div class="top tpl-outline"><div class="search">ค้นหา</div><span class="dot"></span><span class="avatar">นักศึกษา</span></div>
+              <div class="content">
+                <div class="ph">
+                  <div class="t">โปรแกรม BloxCode</div>
+                  <div class="actions"><span class="seg"><span class="on">บล็อก</span><span>ข้อความ</span></span><span class="btn">เลิกแก้</span><span class="btn p">บันทึก</span></div>
+                  <div class="d">ฟังก์ชัน turn() ทำงานทุกเทิร์นของตัวละคร · ไวยากรณ์ปลดล็อกเพิ่มเมื่อผ่านชั้นสูงขึ้น</div>
+                </div>
+                <div class="grid2" style="grid-template-columns: minmax(0,.8fr) minmax(0,2.2fr) minmax(0,1.1fr)">
+                  <div class="card"><h4>บล็อก</h4>
+                    <div class="chips"><span class="chip">if / else</span><span class="chip">attack</span><span class="chip">cast</span><span class="chip">defend</span><span class="chip">weakest</span><span class="chip">has_debuff</span><span class="chip">me.hp_pct</span></div>
+                    <div class="reason">ล็อกอยู่: elif · and/or · ตัวแปร · for</div>
+                  </div>
+                  <div class="stage" style="min-height:24em"><span>พื้นที่วางบล็อก</span></div>
+                  <div class="stack">
+                    <div class="card"><h4>ข้อผิดพลาด 1 รายการ</h4>
+                      <div class="err"><b>บรรทัด 4 · NameError</b>ไม่รู้จัก 'atack()' — คุณหมายถึง 'attack()' หรือเปล่า?</div>
+                    </div>
+                    <div class="card"><h4>สกิลที่ใช้ได้</h4><div class="kv"><span>fireball</span><span></span><span class="num">MP 8</span><span>frost</span><span></span><span class="num">MP 12</span></div></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <span class="mk" style="left:92.5%;top:10.5%">1</span>
+            <span class="mk" style="left:40%;top:34%">2</span>
+            <span class="mk" style="left:74%;top:34%">3</span>
+            <span class="mk" style="left:23.5%;top:34%">4</span>
+          </div>
+        </div></div>
+      </div>
+      <div class="mobile-wrap">
+        <div class="frame-label">มือถือ · 360</div>
+        <div class="fw">
+          <div class="wf mob with-bar" role="img" aria-label="wireframe หน้าโปรแกรม BloxCode ขนาดมือถือ">
+            <div class="mtop tpl-outline"><span class="burger"></span><span class="appname">Code Tower</span><span class="dot"></span></div>
+            <div class="mcontent">
+              <div class="ph"><div class="t">โปรแกรม BloxCode</div></div>
+              <div class="tabs"><span class="on">บล็อก</span><span>ข้อความ</span><span>ข้อผิดพลาด (1)</span></div>
+              <div class="stage" style="flex:1;min-height:14em"><span>พื้นที่วางบล็อก</span></div>
+              <span class="btn">+ เพิ่มบล็อก</span>
+            </div>
+            <div class="sticky"><span class="btn">เลิกแก้</span><span class="btn p">บันทึก</span></div>
+            <span class="mk" style="left:66%;top:18%">3</span>
+            <span class="mk" style="left:80%;top:91.5%">5</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <ol class="notes">
+      <li><span><b>บันทึกเป็นปุ่มหลักหนึ่งเดียวของหน้า</b> · สลับบล็อก/ข้อความได้เมื่อโปรแกรม parse ผ่าน · "เลิกแก้" คืนโปรแกรมที่บันทึกไว้ล่าสุด</span></li>
+      <li><span><b>พื้นที่วางบล็อกเป็นเวทีเกม</b> สีของบล็อกบอกชนิดคำสั่ง · ใช้คีย์บอร์ดได้ (เลือกช่อง → Enter เพื่อเปิดเมนูบล็อก) และโหมดข้อความคือทางเลือกที่เข้าถึงได้เต็มที่</span></li>
+      <li><span><b>แผงข้อผิดพลาดเป็นการ์ดกลาง</b> อ่านจาก <code>error.details</code> รูป "บรรทัด:คอลัมน์:ชื่อ:ข้อความ" แล้วกดเพื่อเลื่อนไปบรรทัดนั้น · บนมือถือเป็นแท็บที่มีตัวนับ</span></li>
+      <li><span><b>บล็อกที่ยังล็อก</b> ซ่อนจาก palette แต่บอกเป็นข้อความว่าจะปลดเมื่อไร (ผู้เล่นมีสิทธิ์แต่ยังไม่ถึง — ตามหลัก disable + เหตุผล)</span></li>
+      <li><span><b>แถบบันทึกติดล่างบนมือถือ</b> เว้นระยะ safe-area ของเครื่องที่มีรอยบาก · palette เปิดเป็น bottom sheet จากปุ่ม "+ เพิ่มบล็อก"</span></li>
+    </ol>
+  </section>
+
+  <!-- ================================================================== 3 -->
+  <section class="screen" aria-labelledby="s3">
+    <div class="screen-head">
+      <div class="route">/battle  ·  หลังกด "เริ่มรบ" จากแผนที่โลกหรือหอคอย</div>
+      <h2 id="s3">เวทีรบและผลการรบ</h2>
+      <p class="purpose">มาหน้านี้เพื่อดูโค้ดของเราทำงานทีละเทิร์น แล้วรู้ว่าชนะหรือแพ้เพราะอะไร</p>
+    </div>
+    <div class="frames">
+      <div>
+        <div class="frame-label">DESKTOP · 1280</div>
+        <div class="scroll"><div class="fw">
+          <div class="wf desk" role="img" aria-label="wireframe หน้าเวทีรบ ขนาด desktop">
+            <aside class="side tpl-outline">
+              <div class="logo">โลโก้ CSMJU</div>
+              <div class="cta">ลงรบ</div>
+              <div class="nav"><div>ตัวละคร</div><div>โปรแกรม BloxCode</div><div class="on">แผนที่โลก</div><div>หอคอย</div><div>กระเป๋า</div><div>ประวัติการรบ</div><div>โจทย์</div></div>
+              <div class="out">ออกจากระบบ</div>
+            </aside>
+            <div class="mainc">
+              <div class="top tpl-outline"><div class="search">ค้นหา</div><span class="dot"></span><span class="avatar">นักศึกษา</span></div>
+              <div class="content">
+                <div class="ph">
+                  <div class="t">ป่าเริ่มต้น · รอบ 1</div>
+                  <div class="d">ความยาก 1 · ไม่มีมอน EX · ดวลกับ bob (อยู่ในโซนตอนนี้)</div>
+                </div>
+                <div class="grid2">
+                  <div class="stack">
+                    <div class="card">
+                      <div class="stage r169"><span>ฉากรบ 16:9</span></div>
+                      <div class="row"><span class="btn p">หยุด</span><span class="btn">ข้ามไปผลลัพธ์</span><span class="seg"><span class="on">1×</span><span>2×</span></span><span class="reason num" style="margin-left:auto">เวฟ 3/10 · เทิร์น 12</span></div>
+                    </div>
+                    <div class="card"><div class="row"><h4 style="flex:1">ผลการรบ</h4><span class="chip">ชนะ · 10/10 เวฟ</span></div>
+                      <div class="kv" style="grid-template-columns:auto auto auto auto;justify-content:start;gap:.3em 1.4em"><span>EXP</span><span class="num">+464</span><span>ทอง</span><span class="num">+341</span><span>เลเวล</span><span class="num">5 → 6</span><span>INT</span><span class="num">+3</span></div>
+                      <div class="row"><span class="slot" style="flex:1">ไอเทมที่ดรอป 3 ชิ้น</span><span class="btn">ดูโค้ดของคู่ดวล</span><span class="btn p">รบอีกครั้ง</span></div>
+                    </div>
+                  </div>
+                  <div class="stack">
+                    <div class="card"><h4>โค้ดที่ทำงานเทิร์นนี้</h4>
+<div class="code">def turn():
+    if me.hp_pct &lt; 40:
+        defend()
+<span class="hl">    else:</span>
+<span class="hl">        attack(weakest(enemies))</span></div>
+                    </div>
+                    <div class="card"><h4>บันทึกการรบ</h4>
+                      <div class="log"><div>alice โจมตี สไลม์ 14 ดาเมจ</div><div>สไลม์ ตี alice 5 ดาเมจ</div><div>alice โจมตี สไลม์ — ล้ม</div></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <span class="mk" style="left:50%;top:36%">1</span>
+            <span class="mk" style="left:23.5%;top:57%">2</span>
+            <span class="mk" style="left:71%;top:30%">3</span>
+            <span class="mk" style="left:71%;top:64%">4</span>
+            <span class="mk" style="left:23.5%;top:74%">5</span>
+          </div>
+        </div></div>
+      </div>
+      <div class="mobile-wrap">
+        <div class="frame-label">มือถือ · 360</div>
+        <div class="fw">
+          <div class="wf mob" role="img" aria-label="wireframe หน้าเวทีรบ ขนาดมือถือ">
+            <div class="mtop tpl-outline"><span class="burger"></span><span class="appname">Code Tower</span><span class="dot"></span></div>
+            <div class="mcontent">
+              <div class="ph"><div class="t">ป่าเริ่มต้น · รอบ 1</div><div class="d">ดวลกับ bob</div></div>
+              <div class="stage r43"><span>ฉากรบ 4:3</span></div>
+              <div class="row"><span class="btn p">หยุด</span><span class="btn">ข้าม</span><span class="seg"><span class="on">1×</span><span>2×</span></span></div>
+              <div class="tabs"><span class="on">โค้ด</span><span>บันทึกการรบ</span></div>
+<div class="code">    else:
+<span class="hl">        attack(weakest(enemies))</span></div>
+              <div class="reason num">เวฟ 3/10 · เทิร์น 12</div>
+            </div>
+            <span class="mk" style="left:48%;top:24%">1</span>
+            <span class="mk" style="left:66%;top:52.5%">4</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <ol class="notes">
+      <li><span><b>ฉากรบคือเวทีเกมชิ้นใหญ่ที่สุด</b> อยู่ในการ์ด ไม่เต็มจอ ไม่ทับ AppShell · อัตราส่วนคงที่ (16:9 desktop · 4:3 มือถือ) จองพื้นที่ไว้ก่อนโหลดเพื่อกัน CLS · โหลดแบบ lazy เฉพาะหน้านี้</span></li>
+      <li><span><b>ปุ่มควบคุมเป็นปุ่มกลาง</b> ใช้คีย์บอร์ดได้ (Space หยุด/เล่น · → ข้าม) · ถ้าผู้ใช้ตั้งลดการเคลื่อนไหว ฉากเล่นทีละเทิร์นแบบภาพนิ่ง</span></li>
+      <li><span><b>ไฮไลต์บรรทัดที่ตัดสินใจเทิร์นนี้</b> คือหัวใจของเกมสอนเขียนโปรแกรม ใช้กรอบ ไม่ใช้สีอย่างเดียว</span></li>
+      <li><span><b>บันทึกการรบแบบข้อความ</b> คู่กับฉากทุกเหตุการณ์ อ่านด้วย screen reader ได้ (aria-live) · บนมือถือสลับกับโค้ดด้วยแท็บ</span></li>
+      <li><span><b>ผลการรบใช้การ์ดและ badge กลาง</b> · "ดูโค้ดของคู่ดวล" แสดงเมื่อมีการดวล · ถ้ารอบนี้หมดอายุหรือรบไปแล้ว (409) กลับหน้าที่มาพร้อมข้อความจาก backend</span></li>
+    </ol>
+  </section>
+
+  <footer class="end">
+    <div><b>สิ่งที่ PL ต้องตัดสินจากหน้านี้:</b> ขอบเขตลายขวาง (D1) ครอบเท่านี้พอไหม · ลำดับเมนู · ปุ่ม "ลงรบ" ใต้โลโก้</div>
+    <div>หน้าที่เหลือ (แผนที่โลก · คำประกาศรอบ · หอคอย · กระเป๋า · ประวัติการรบ · โจทย์) ใช้โครงเดียวกันนี้ และอธิบายไว้ใน G0 ข้อ 3</div>
+    <div>ถัดไป: G2 ใช้ template csmju-subsystem-web จริง (รอสิทธิ์อ่าน csmju-core-hub)</div>
+  </footer>
+</div>
+
+</body>
+</html>
