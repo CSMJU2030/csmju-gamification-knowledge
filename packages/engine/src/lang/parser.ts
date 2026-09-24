@@ -23,7 +23,7 @@
  * `elif` ถูกแปลงเป็น If ที่ซ้อนใน orelse เหมือน ast ของ CPython เป๊ะ ๆ
  * (คอลัมน์ของ If ที่ซ้อนอยู่ = คอลัมน์ของคำว่า elif = คอลัมน์ของ if ตัวแม่)
  */
-import { MAX_PROGRAM_LINES } from './spec';
+import { MAX_AST_DEPTH, MAX_EXPR_DEPTH, MAX_PROGRAM_LINES } from './spec';
 import type { BinOp, CmpOp, Expr, ParseResult, Program, Stmt } from './spec';
 import { LangErrorException, fail } from './errors';
 import { CONSTANT_KEYWORDS, tokenize, type Token } from './tokenizer';
@@ -52,6 +52,8 @@ const ROLE_TH: Record<NameRole, string> = {
 
 class Parser {
   private p = 0;
+  /** ความลึกของนิพจน์ที่กำลัง parse อยู่ — ดู MAX_EXPR_DEPTH */
+  private depth = 0;
 
   constructor(private readonly toks: Token[]) {}
 
@@ -284,7 +286,24 @@ class Parser {
 
   // ------------------------------------------------------------ expressions
   parseExpr(): Expr {
-    return this.parseOr();
+    return this.nested(this.peek(), () => this.parseOr());
+  }
+
+  /** นับชั้นของการซ้อนก่อนลงไปอีกชั้น — เกินเพดานเป็น SyntaxError แทน stack ล้น */
+  private nested<T>(t: Token, parse: () => T): T {
+    if (++this.depth > MAX_EXPR_DEPTH) {
+      fail(
+        'SyntaxError',
+        `นิพจน์ซ้อนกันลึกเกิน ${MAX_EXPR_DEPTH} ชั้น — แยกเป็นหลายบรรทัดหรือใช้ตัวแปรช่วย`,
+        t.line,
+        t.col,
+      );
+    }
+    try {
+      return parse();
+    } finally {
+      this.depth--;
+    }
   }
 
   private parseOr(): Expr {
@@ -315,7 +334,7 @@ class Parser {
     // `not(x)` ไม่ใช่การเรียกฟังก์ชันชื่อ not แต่เป็น unary not กับวงเล็บ — CPython รับ เราจึงต้องรับ
     if (this.atKeyword('not')) {
       const t = this.next();
-      const operand = this.parseNot();
+      const operand = this.nested(t, () => this.parseNot());
       return { kind: 'unary', op: 'not', operand, line: t.line, col: t.col };
     }
     return this.parseCompare();
@@ -375,7 +394,7 @@ class Parser {
   private parseFactor(): Expr {
     if (this.at('OP', '-')) {
       const t = this.next();
-      const operand = this.parseFactor();
+      const operand = this.nested(t, () => this.parseFactor());
       return { kind: 'unary', op: '-', operand, line: t.line, col: t.col };
     }
     if (this.at('OP', '+')) {
@@ -480,6 +499,32 @@ class Parser {
   }
 }
 
+/**
+ * ความลึกของต้นไม้ที่ลึกที่สุด พร้อมตำแหน่งของโหนดนั้น — เดินด้วย stack ของตัวเอง ไม่ใช้ recursion
+ * (ฟังก์ชันนี้มีไว้กันต้นไม้ที่ลึกเกินจะเดินแบบ recursive ได้ จึงต้องไม่ recursive เสียเอง)
+ */
+function deepestNode(root: unknown): { depth: number; line: number; col: number } {
+  let best = { depth: 0, line: 1, col: 1 };
+  const stack: { node: unknown; depth: number }[] = [{ node: root, depth: 0 }];
+  while (stack.length > 0) {
+    const { node, depth } = stack.pop()!;
+    if (Array.isArray(node)) {
+      for (const child of node) stack.push({ node: child, depth });
+      continue;
+    }
+    if (node === null || typeof node !== 'object') continue;
+    const rec = node as Record<string, unknown>;
+    const here = typeof rec.kind === 'string' ? depth + 1 : depth;
+    if (here > best.depth) {
+      best = { depth: here, line: typeof rec.line === 'number' ? rec.line : best.line, col: typeof rec.col === 'number' ? rec.col : best.col };
+    }
+    for (const value of Object.values(rec)) {
+      if (value !== null && typeof value === 'object') stack.push({ node: value, depth: here });
+    }
+  }
+  return best;
+}
+
 /** แปลงข้อความ BloxCode เป็น AST — ไม่โยน exception, ส่ง errors กลับมาแทน */
 export function parse(source: string): ParseResult {
   try {
@@ -499,6 +544,15 @@ export function parse(source: string): ParseResult {
     const parser = new Parser(tokens);
     const header = leadingComments.length ? leadingComments.join('\n') : undefined;
     const program = parser.parseProgram(header);
+    const deepest = deepestNode(program);
+    if (deepest.depth > MAX_AST_DEPTH) {
+      fail(
+        'SyntaxError',
+        `นิพจน์ยาวหรือซ้อนกันลึกเกินไป (${deepest.depth} ชั้น เกิน ${MAX_AST_DEPTH}) — แยกเป็นหลายบรรทัดหรือใช้ตัวแปรช่วย`,
+        deepest.line,
+        deepest.col,
+      );
+    }
     return { program, errors: [] };
   } catch (e) {
     if (e instanceof LangErrorException) return { program: null, errors: [e.err] };
