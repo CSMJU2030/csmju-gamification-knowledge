@@ -15,17 +15,18 @@ public_endpoints:
 
 # conformance ใช้ probes ตรวจสัญญา API — ประกาศไม่ครบ = ขึ้น SKIP = ยังไม่ผ่าน
 probes:
-  collection: /api/v1/<resources>
-  not_found: /api/v1/<resources>/99999999-9999-4999-8999-999999999999
-  invalid_id: /api/v1/<resources>/not-a-uuid
+  # โจทย์ BloxCode (D4) — คอลเลกชันเดียวที่ staff อ่าน/สร้างได้และ student สร้างไม่ได้
+  collection: /api/v1/challenges
+  not_found: /api/v1/challenges/99999999-9999-4999-8999-999999999999
+  invalid_id: /api/v1/challenges/not-a-uuid
   create:
-    path: /api/v1/<resources>
+    path: /api/v1/challenges
     allowed_role: staff
     denied_role: student
     invalid_body:
-      someRequiredField: ""
+      title: ""
     valid_body:
-      someRequiredField: value
+      title: "โจทย์ทดสอบจาก conformance"
 
 owners:
   pl: "@csmju2030/pl-gamification-knowledge"
