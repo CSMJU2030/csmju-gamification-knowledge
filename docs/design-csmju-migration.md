@@ -110,3 +110,22 @@ Code Tower คือระบบย่อยที่ได้รับมอบ
 | D2 ถูกปฏิเสธ | engine ต้องมีสองชุด | ทำสคริปต์ sync + เทสต์เทียบสองชุด |
 | สิทธิ์ repo private มาช้า | ตันที่ขั้น 3–4 | ทำขั้น 1–2 ให้จบก่อน |
 | มาตรฐานขยับเวอร์ชัน | ตัวอย่าง `csmju-equipment` ผูกไว้ที่ 1.3.0 แต่ repo มาตรฐานประกาศ 1.0.0 | ถาม PL ว่าให้ผูกเวอร์ชันไหนตั้งแต่ขั้น 0 |
+
+## 9. ผลขั้น 1–2 (24 ก.ย. 2026)
+
+ทำเสร็จตามเกณฑ์ของขั้น 1–2 ทุกข้อ — รายละเอียดและผลรันจริงอยู่ที่ `REPORT.md`
+
+| เกณฑ์ | ผล |
+|---|---|
+| engine 200 เทสต์ผ่านบน pnpm · golden fixture ตรง | 209 ผ่าน (เพิ่ม 9 เทสต์ของเพดานความลึก) |
+| ผลการรบผ่าน API ตรงกับของเดิมทุกไบต์ที่ seed เดียวกัน | parity 132/132 ขั้น · 4,074 เหตุการณ์ |
+| `run-all-checks` ฝั่ง backend เขียว | 17/18 · ตัวที่ตกคือ ARC-02 ซึ่งรอ D2 ตามที่คาดไว้ |
+| (เกินแผน) conformance L3 กับ Core Hub จำลอง | 62 passed · 0 failed · 0 skipped |
+
+ส่วนที่ต่างจากร่าง API ในข้อ 5:
+- โปรแกรมใช้ `PATCH /api/v1/programs/current` ไม่ใช่ `PUT` — api-conventions ข้อ 2 ให้เลี่ยง PUT
+- body ของการรบคือ `{ towerFloor }` หรือ `{ regionRunId }` (ส่งอย่างใดอย่างหนึ่ง) แทน `{ place }` / `{ runId }`
+- เพิ่ม `POST /api/v1/characters` (สร้างตัวละคร + ตั้งชื่อ D5) · `GET /api/v1/battles` (ประวัติ) · `PATCH/DELETE /api/v1/challenges/:id`
+- `GET /api/v1/regions` ไม่ส่ง `mapImage`/`highestFloorCleared` แล้ว — top-level ของ envelope มีได้แค่ `success/data/meta`
+  (ค่าแรกเป็นค่าคงที่ของ frontend · ค่าหลังอ่านจาก `/characters/current`)
+
