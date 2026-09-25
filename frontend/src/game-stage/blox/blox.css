@@ -1,0 +1,467 @@
+/* =========================================================================
+   เวทีเกม: บล็อก BloxCode (ขอบเขต D1 ใน docs/ui-g0-scoping.md ข้อ 5.1)
+
+   ไฟล์นี้มีเฉพาะ "ตัวบล็อก" และพื้นที่ต่อบล็อก — สีบอกชนิดคำสั่งแบบ Scratch/Blockly
+   ซึ่งเป็นเนื้อหาของเกม ไม่ใช่สีของ UI · ของรอบ ๆ บล็อก (แถบเครื่องมือ ปุ่ม แท็บ
+   แผงข้อผิดพลาด หัวหมวดในถาด เมนูเลือกค่า) เป็น UI กลาง เขียนด้วย Tailwind + token ในไฟล์ .tsx
+
+   ตัดทิ้งจากของเดิม: พื้นหลังมืด · กรอบพิกเซล/เงาแข็ง · ornament · ฟอนต์พิกเซล · สีมิ้นต์ของธีม
+   สิ่งที่ไม่ใช่สีบล็อกอ้าง token กลาง (--color-*) ทั้งหมด เพื่อให้เปลี่ยนธีมตามระบบได้
+
+   กฎมือถือที่ยังต้องรักษา (มาจาก blox.css เดิม)
+     - ทุกอย่างที่แตะได้สูงอย่างน้อย 44px บนจอแคบ — จอกว้าง (ใช้เมาส์) ค่อยย่อ
+     - บล็อกที่ลากได้ต้องมี .draggable (touch-action: none) ไม่งั้นนิ้วจะเลื่อนจอแทนการลาก
+   ========================================================================= */
+
+.blox-root {
+  /*
+   * สีหมวดบล็อก — ไล่จากค่าเดิมใน tokens.css แต่ปรับให้ตัวหนังสือบนบล็อกผ่าน 4.5:1 ทั้งบนและล่างของไล่สี
+   * (ของเดิมวางบนพื้นมืด สีฟ้าของ magic กับเทาล่างของ basic จึงไม่เคยต้องผ่านเกณฑ์นี้)
+   */
+  --blk-control: linear-gradient(#e0b040, #c18f1f);
+  --blk-control-ink: #241c00;
+  --blk-control-edge: #8a6410;
+  --blk-action: linear-gradient(#d2543a, #a13724);
+  --blk-action-ink: #fff5f2;
+  --blk-action-edge: #7a2616;
+  --blk-magic: linear-gradient(#2f6fb5, #22508a);
+  --blk-magic-ink: #f2f7ff;
+  --blk-magic-edge: #183a66;
+  --blk-basic: linear-gradient(#aab0bf, #8e95a6);
+  --blk-basic-ink: #0e1017;
+  --blk-basic-edge: #5d6475;
+
+  --blox-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', monospace;
+  --blox-tap: 44px;
+  --blox-indent: 22px;
+}
+
+/* ทุกอย่างที่ลากได้ — ห้ามให้นิ้วเลื่อนหน้าจอ ห้ามเลือกข้อความ ห้ามเมนูกดค้างของ iOS */
+.blox-root .draggable {
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+.blox-root :focus-visible {
+  outline: 2px solid var(--color-primary-container);
+  outline-offset: 2px;
+}
+
+/* ---------------------------------------------------------------- บล็อกในถาด */
+.blk-pal {
+  /* ความกว้างคุมด้วย utility ใน Palette.tsx (แถวเลื่อนข้างบนจอแคบ / เต็มคอลัมน์บนจอกว้าง) */
+  min-height: var(--blox-tap);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 2px;
+  padding: 8px 12px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  text-align: left;
+  cursor: grab;
+}
+
+.blk-pal__label {
+  max-width: 100%;
+  font-family: var(--blox-mono);
+  font-size: 14px;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.blk-pal__hint {
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.blk-pal.is-locked {
+  background: var(--color-surface-container-low);
+  border: 1px dashed var(--color-outline-variant);
+  color: var(--color-on-surface-variant);
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+.blk-pal.is-armed {
+  outline: 3px solid var(--color-primary-container);
+  outline-offset: 2px;
+}
+
+/* ---------------------------------------------------------------- สีตามหมวด */
+.blk--control, .blk-pal--control { background: var(--blk-control); color: var(--blk-control-ink); border-color: var(--blk-control-edge); }
+.blk--action,  .blk-pal--action  { background: var(--blk-action);  color: var(--blk-action-ink);  border-color: var(--blk-action-edge); }
+.blk--magic,   .blk-pal--magic   { background: var(--blk-magic);   color: var(--blk-magic-ink);   border-color: var(--blk-magic-edge); }
+.blk--basic,   .blk-pal--basic   { background: var(--blk-basic);   color: var(--blk-basic-ink);   border-color: var(--blk-basic-edge); }
+
+/* ---------------------------------------------------------------- พื้นที่ต่อบล็อก */
+.blox-prog {
+  font-family: var(--blox-mono);
+}
+
+.blox-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.blox-gut {
+  flex: none;
+  width: 22px;
+  padding-top: 13px;
+  text-align: right;
+  font-family: var(--blox-mono);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-outline);
+  user-select: none;
+}
+
+.blox-gut.is-error {
+  color: var(--color-error);
+  font-weight: 700;
+}
+
+.blox-row-body {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  /* ไม่มี gap เพราะเส้นเยื้องต้องชิดกันเป็นระยะคงที่ — ระยะห่างอื่นใช้ margin เฉพาะจุด */
+  gap: 0;
+  padding: 2px 0;
+}
+
+/* เส้นนำสายตาของการเยื้อง — บล็อกที่ซ้อนกันต้อง "เห็นว่าอยู่ข้างในอะไร" ตั้งแต่แวบแรก */
+.blox-indent {
+  flex: none;
+  width: var(--blox-indent);
+  align-self: stretch;
+  border-left: 2px dotted var(--color-outline-variant);
+  margin-left: 4px;
+}
+
+.blox-comment {
+  color: var(--color-on-surface-variant);
+  font-size: 13px;
+  padding: 12px 0;
+  overflow-wrap: anywhere;
+}
+
+.blk {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  /* ระยะในบล็อกคุมด้วย margin ของแต่ละชิ้น ไม่ใช่ gap — ไม่งั้น cast() จะกลายเป็น cast ( ) */
+  gap: 0;
+  min-height: var(--blox-tap);
+  max-width: 100%;
+  padding: 3px 4px 3px 8px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.18);
+  font-family: var(--blox-mono);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.blk.draggable {
+  cursor: grab;
+}
+
+.blk.is-armed {
+  outline: 3px solid var(--color-primary-container);
+  outline-offset: 2px;
+}
+
+/* บรรทัดที่มีข้อผิดพลาด — ขอบแดงคู่กับเลขบรรทัดแดง (ไม่สื่อด้วยสีอย่างเดียว: แผงข้อผิดพลาดบอกเป็นข้อความ) */
+.blk.is-error {
+  outline: 2px solid var(--color-error);
+  outline-offset: 2px;
+}
+
+.blk--def {
+  background: var(--color-surface-container);
+  color: var(--color-on-surface);
+  border-color: var(--color-outline-variant);
+  box-shadow: none;
+  padding-right: 10px;
+  cursor: default;
+}
+
+.blk__grip {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 36px;
+  margin: 0 4px 0 -4px;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: inherit;
+  opacity: 0.7;
+  cursor: grab;
+}
+
+.blk__grip:hover {
+  opacity: 1;
+  background: rgba(0, 0, 0, 0.12);
+}
+
+.blk__kw { font-weight: 800; margin-right: 7px; }
+.blk__fn { font-weight: 800; }
+.blk__name { font-style: italic; margin-right: 7px; }
+.blk__op { font-weight: 800; margin-right: 7px; }
+.blk__punct { opacity: 0.8; }
+
+/* ช่องค่า: แตะแล้วเปิดเมนู (schema.ts §4) — พื้นขาวบนบล็อกสี ให้ดูเหมือน "กดได้" ชัดเจนแบบช่องกรอกของ Scratch */
+.blk-hole {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--blox-tap);
+  max-width: 100%;
+  margin: 2px 3px;
+  padding: 0 8px;
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid rgba(0, 0, 0, 0.22);
+  border-radius: 6px;
+  color: var(--color-on-surface);
+  font-family: var(--blox-mono);
+  font-size: 14px;
+  font-weight: 600;
+  text-align: left;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+}
+
+.blk-hole:hover {
+  border-color: var(--color-primary-container);
+  color: var(--color-primary-container);
+}
+
+/* นิพจน์ที่เมนูยังครอบไม่ถึง — อ่านอย่างเดียว ต้องดูต่างจากช่องที่กดได้ */
+.blk-raw {
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  margin: 2px 3px;
+  padding: 0 8px;
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px dashed rgba(0, 0, 0, 0.4);
+  border-radius: 6px;
+  color: var(--color-on-surface);
+  font-family: var(--blox-mono);
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
+/*
+ * ปุ่มลบอยู่ "ข้างใน" บล็อก เพื่อให้มันขึ้นบรรทัดใหม่พร้อมบล็อกตอนจอแคบ
+ * เป้านิ้วเต็มขนาดบนมือถือ — จอกว้างค่อยย่อในมีเดียคิวรีท้ายไฟล์
+ */
+.blk-del {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--blox-tap);
+  height: var(--blox-tap);
+  margin-left: 6px;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.14);
+  color: inherit;
+  cursor: pointer;
+}
+
+.blk-del:hover {
+  background: var(--color-error);
+  color: var(--color-on-primary);
+}
+
+/* ---------------------------------------------------------------- ช่องหย่อน */
+/* บางมากตอนไม่มีอะไรลาก แล้วขยายเป็นเป้าขนาดนิ้วเมื่อถึงเวลาใช้จริง */
+.blox-drop {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 8px;
+  border: 2px dashed transparent;
+  border-radius: 8px;
+  background: transparent;
+  padding: 0;
+  color: var(--color-primary-container);
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  text-align: left;
+}
+
+.blox-drop.is-open {
+  height: auto;
+  min-height: var(--blox-tap);
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  border-color: color-mix(in srgb, var(--color-primary-container) 55%, transparent);
+  background: color-mix(in srgb, var(--color-primary-container) 6%, transparent);
+}
+
+.blox-drop.is-empty:not(.is-placing) {
+  color: var(--color-on-surface-variant);
+  border-color: var(--color-outline-variant);
+  background: transparent;
+  font-weight: 400;
+}
+
+button.blox-drop.is-placing {
+  cursor: pointer;
+}
+
+.blox-drop.is-hover,
+button.blox-drop.is-placing:hover {
+  border-style: solid;
+  border-color: var(--color-primary-container);
+  background: color-mix(in srgb, var(--color-primary-container) 16%, transparent);
+}
+
+.blk-else-target {
+  min-height: var(--blox-tap);
+  margin-left: 6px;
+  padding: 0 12px;
+  border: 2px dashed color-mix(in srgb, var(--color-primary-container) 55%, transparent);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--color-primary-container) 6%, transparent);
+  color: var(--color-primary-container);
+  font-family: var(--blox-mono);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.blk-else-target.is-hover,
+.blk-else-target:hover:not(:disabled) {
+  border-style: solid;
+  border-color: var(--color-primary-container);
+  background: color-mix(in srgb, var(--color-primary-container) 16%, transparent);
+}
+
+.blk-else-target:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.blk-armed-tag {
+  margin-left: 8px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.6;
+  color: var(--color-primary-container);
+}
+
+/* ---------------------------------------------------------------- กะพริบบรรทัดที่กระโดดมาจากแผงข้อผิดพลาด */
+.blox-row.is-flash .blk {
+  animation: blox-flash 0.9s ease;
+}
+
+@keyframes blox-flash {
+  0%   { outline: 3px solid var(--color-brand-amber); outline-offset: 3px; }
+  70%  { outline: 3px solid var(--color-brand-amber); outline-offset: 3px; }
+  100% { outline: 3px solid transparent; outline-offset: 3px; }
+}
+
+/* ---------------------------------------------------------------- เงาที่ลากตามนิ้ว */
+/* ต้องไม่รับ pointer ไม่งั้นมันจะบังช่องที่กำลังเล็งอยู่ */
+.blox-ghost {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 60;
+  margin: -20px 0 0 14px;
+  pointer-events: none;
+}
+
+.blox-ghost > span {
+  display: inline-block;
+  padding: 8px 12px;
+  background: var(--color-primary-container);
+  color: var(--color-on-primary);
+  border-radius: 8px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.25);
+  font-family: var(--blox-mono);
+  font-size: 14px;
+  font-weight: 700;
+  white-space: nowrap;
+  transform: rotate(-3deg) scale(1.04);
+}
+
+/* =========================================================================
+   >= 1024px — ใช้เมาส์เป็นหลัก: ย่อเป้าให้บล็อกไม่ยืดจนอ่านโปรแกรมยาก
+   ========================================================================= */
+@media (min-width: 1024px) {
+  .blk {
+    min-height: 36px;
+  }
+
+  .blk-hole {
+    min-height: 28px;
+  }
+
+  .blk__grip {
+    height: 28px;
+    width: 22px;
+  }
+
+  .blk-del {
+    width: 28px;
+    height: 28px;
+  }
+
+  .blox-gut {
+    padding-top: 9px;
+  }
+
+  .blox-comment {
+    padding: 8px 0;
+  }
+
+  .blox-drop.is-open {
+    min-height: 36px;
+  }
+
+  .blk-else-target {
+    min-height: 32px;
+  }
+}
+
+/* จอแคบ: ช่องอย่าง `<` กว้างแค่ ~27px ซึ่งสูงพอแต่แคบเกินเกณฑ์ 44px (รอบ 2U §U4 ของเดิม) */
+@media (max-width: 1023px) {
+  .blk-hole {
+    min-width: var(--blox-tap);
+    justify-content: center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* ไม่กะพริบ — แสดงกรอบค้างไว้ตลอดช่วงไฮไลต์แทน (JS ลบ class เองเมื่อครบเวลา) */
+  .blox-row.is-flash .blk {
+    animation: none;
+    outline: 3px solid var(--color-brand-amber);
+    outline-offset: 3px;
+  }
+
+  .blox-ghost > span {
+    transform: none;
+  }
+}

@@ -28,6 +28,29 @@ probes:
     valid_body:
       title: "โจทย์ทดสอบจาก conformance"
 
+# ui-design-system ข้อ 19.2 — ยังใช้ชุดจำลองของ template (frontend/src/csmju) จนกว่าจะได้สิทธิ์อ่าน csmju-core-hub
+ui:
+  design_system_version: "stand-in"
+  theme: light
+  nav:
+    - { label: "ตัวละคร", path: "/" }
+    - { label: "โปรแกรม BloxCode", path: "/program" }
+    - { label: "แผนที่โลก", path: "/world" }
+    - { label: "หอคอย", path: "/tower" }
+    - { label: "กระเป๋า", path: "/items" }
+    - { label: "ประวัติการรบ", path: "/battles" }
+    - { label: "โจทย์", path: "/challenges" }
+  # ประกอบจาก class ใน ui.ts + token เท่านั้น (ข้อ 17.0) · เลข issue ขอย้ายเข้าส่วนกลางเปิดได้เมื่อมี repo
+  local_components:
+    - { name: Toast, path: frontend/src/components/Toast.tsx, issue: pending }
+    - { name: EmptyState, path: frontend/src/components/feedback.tsx, issue: pending }
+    - { name: ErrorState, path: frontend/src/components/feedback.tsx, issue: pending }
+    - { name: Skeleton, path: frontend/src/components/feedback.tsx, issue: pending }
+    - { name: Alert, path: frontend/src/components/feedback.tsx, issue: pending }
+    - { name: FormField, path: frontend/src/components/FormField.tsx, issue: pending }
+    - { name: ProgressBar, path: frontend/src/components/ProgressBar.tsx, issue: pending }
+    - { name: Pagination, path: frontend/src/components/Pagination.tsx, issue: pending }
+
 owners:
   pl: "@csmju2030/pl-gamification-knowledge"
   aie: "@csmju2030/aie-gamification-knowledge"

@@ -1,0 +1,254 @@
+/*
+ * เวทีแผนที่โลก (G0 ข้อ 5.1 — ภาพแผนที่ + วง hotspot บนภาพ) · ย้ายจาก client/src/styles/world.css
+ *
+ * ไฟล์นี้เป็นของเวทีเกมเท่านั้น: สีของเครื่องหมายบนภาพต้องอ่านออกบนผืนดินทุกสี (หิมะเกือบขาว ทะเลฟ้า
+ * ลาวาแดง) ซึ่ง token ของ UI ไม่ได้ออกแบบมาเพื่อสิ่งนี้ · ตัวหนังสือนอกภาพ (คำอธิบายเครื่องหมาย)
+ * ใช้ token กลางผ่าน class ของ Tailwind ใน .tsx แทน
+ *
+ * สามกติกาที่กำหนดรูปร่างของไฟล์นี้ (สืบมาจากของเดิม):
+ *   1. hotspot เป็น "สัดส่วนของภาพ" ทุกอย่างจึงคิดเป็น % ของ .plane ซึ่งตรึงอัตราส่วนเท่าภาพจริง
+ *   2. สถานะห้ามต่างกันด้วยสีอย่างเดียว — ทุกสถานะมีไอคอนคนละรูปทรง + ชื่อใน aria-label
+ *   3. เครื่องหมายที่ "วาด" เล็กกว่า 44px ได้ แต่พื้นที่ที่ "แตะ" ห้ามเล็กกว่า
+ */
+
+/* จองพื้นที่เท่าภาพตั้งแต่ก่อนภาพโหลด (กัน CLS) · เป็น container ให้ป้ายชื่อรู้ว่ากรอบกว้างพอไหม */
+.stage {
+  container-type: inline-size;
+  position: relative;
+  width: 100%;
+}
+
+.plane {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1920 / 1072;
+  overflow: hidden;
+  background: #1b2436;
+}
+
+.img {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/**
+ * ตัวตนของโซนมาจากผืนดิน ไม่ใช่จากหมุด — ทาสีไฟล์ JPG ใหม่ไม่ได้
+ * จึงหรี่ทั้งผืนลงนิดหนึ่งเมื่อมีโซนที่ถูกชี้/เลือก แล้ว "ยก" เฉพาะโซนนั้นให้สว่างขึ้นด้วย backdrop-filter
+ */
+.dim {
+  position: absolute;
+  inset: 0;
+  background: rgba(6, 9, 20, 0.3);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+}
+
+.plane[data-active] .dim {
+  opacity: 1;
+}
+
+.lift {
+  position: absolute;
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  background: radial-gradient(circle, rgba(255, 236, 170, 0.28), rgba(255, 236, 170, 0.08) 52%, transparent 72%);
+  -webkit-backdrop-filter: brightness(1.6) saturate(1.35);
+  backdrop-filter: brightness(1.6) saturate(1.35);
+  /* ขอบต้องฟุ้งหาย ไม่งั้นมันคือวงกลมทึบที่ดูเป็นปุ่มอีกอันซ้อนอยู่ */
+  -webkit-mask-image: radial-gradient(circle, #000 40%, rgba(0, 0, 0, 0.5) 62%, transparent 75%);
+  mask-image: radial-gradient(circle, #000 40%, rgba(0, 0, 0, 0.5) 62%, transparent 75%);
+}
+
+/* ---------------------------------------------------------------- จุดของโซน */
+
+/**
+ * ปุ่มกว้างอย่างน้อย 44px (touch target) แต่ "จุดศูนย์กลางของหมุด" ต้องตรงพิกัด ไม่ใช่กลางปุ่ม
+ * เพราะเมื่อป้ายชื่อโผล่ใต้หมุดบนจอกว้าง ปุ่มจะสูงขึ้น — จึงเลื่อนขึ้นคงที่ครึ่งหนึ่งของส่วนหมุด (22px)
+ */
+.spot {
+  position: absolute;
+  transform: translate(-50%, -22px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 8px 6px 0;
+  border: 0;
+  border-radius: 14px;
+  background: none;
+  color: #ffffff;
+  font: inherit;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* focus ต้องเห็นชัดบนผืนดินทุกสี — ขอบขาวทึบ + เงาน้ำเงินเข้มรอบนอก ต่างจาก "เลือกอยู่" ที่เป็นวงรอบหมุด */
+.spot:focus {
+  outline: none;
+}
+.spot:focus-visible {
+  outline: 3px solid #ffffff;
+  outline-offset: 1px;
+  box-shadow: 0 0 0 6px #16264d;
+}
+
+.marker {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 9999px;
+  border: 2px solid #ffffff;
+  box-shadow: 0 2px 6px rgba(4, 6, 14, 0.55);
+  transition: transform 0.15s ease;
+}
+
+.marker svg {
+  width: 15px;
+  height: 15px;
+}
+
+.spot:hover .marker {
+  transform: scale(1.1);
+}
+
+/* สีเป็นชั้นที่สองที่ช่วย ไม่ใช่ชั้นเดียวที่บอก — รูปทรงไอคอนต่างกันอยู่แล้ว */
+.open {
+  background: #f2b33d;
+  color: #1c1f2e;
+}
+.done {
+  background: #1f9d68;
+  color: #ffffff;
+}
+.locked {
+  background: #5d6478;
+  color: #ffffff;
+}
+.town {
+  background: #3b78d8;
+  color: #ffffff;
+}
+
+/* โซนที่เลือกอยู่: หมุดใหญ่ขึ้น + วงขาวรอบนอก — ตัวที่ยกผืนดินคือ .lift */
+.spot[aria-pressed='true'] .marker {
+  transform: scale(1.22);
+  box-shadow: 0 0 0 3px #ffffff, 0 3px 10px rgba(4, 6, 14, 0.7);
+}
+
+/* จำนวนผู้เล่นในโซน — เลขในวงเล็กมุมขวาบนของหมุด */
+.count {
+  position: absolute;
+  top: -8px;
+  right: -10px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border-radius: 9999px;
+  background: #ffffff;
+  color: #16264d;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 18px;
+  text-align: center;
+  box-shadow: 0 1px 3px rgba(4, 6, 14, 0.5);
+}
+
+/** วงกระเพื่อมเกาะกับหมุด (ขนาดคงที่) — บอกว่า "มีคนอยู่ตอนนี้" โดยไม่ต้องอ่านตัวเลข */
+.pulse {
+  position: absolute;
+  inset: -2px;
+  border-radius: 9999px;
+  border: 2px solid #ffffff;
+  animation: pulse 2.2s ease-out infinite;
+  pointer-events: none;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  70%,
+  100% {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
+
+/* ป้ายชื่อบนภาพ — ซ่อนบนกรอบแคบ เพราะชื่อจะเล็กกว่า 14px และทับกันเอง รายการโซนใต้แผนที่คือทางหลักของมือถือ */
+.label {
+  display: none;
+  margin-top: 4px;
+  padding: 1px 8px 2px;
+  border-radius: 9999px;
+  background: rgba(10, 14, 28, 0.8);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+
+.spot[data-status='locked'] .label {
+  color: #d5d8e3;
+}
+
+@container (min-width: 520px) {
+  .label {
+    display: block;
+  }
+}
+
+/* ---------------------------------------------------------------- คำอธิบายเครื่องหมาย */
+
+.legendMark {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  flex: none;
+  border-radius: 9999px;
+  border: 2px solid #ffffff;
+  box-shadow: 0 0 0 1px rgba(4, 6, 14, 0.25);
+}
+
+.legendMark svg {
+  width: 12px;
+  height: 12px;
+}
+
+.legendCount {
+  display: inline-grid;
+  place-items: center;
+  min-width: 22px;
+  height: 22px;
+  flex: none;
+  border-radius: 9999px;
+  background: #ffffff;
+  color: #16264d;
+  font-size: 12px;
+  font-weight: 700;
+  box-shadow: 0 0 0 1px rgba(4, 6, 14, 0.35);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pulse {
+    animation: none;
+    opacity: 0.5;
+    transform: scale(1.4);
+  }
+  .dim,
+  .marker {
+    transition: none;
+  }
+}
