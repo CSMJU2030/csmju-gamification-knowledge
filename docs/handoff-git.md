@@ -138,3 +138,5 @@ curl -X POST $CORE_HUB_URL/api/v1/subsystems \
 | ui-design-system (main) ข้อ 10: gateway ส่ง `X-User-Id` `X-Layer1-Role` `X-Faculty` | auth-contract ข้อ 1, 6 (ไม่มี gateway · ห้ามเชื่อ custom header) | ไม่ใช้ header เหล่านี้ |
 | template หน้าจอ `csmju-subsystem-web` อยู่ใน repo `csmju-core-hub` | (ข้อมูลใหม่ใน main) | ขั้น 4 ต้องมีสิทธิ์อ่าน `csmju-core-hub` — เพิ่มในรายการขอข้อ 1 แล้ว |
 | aie-workflow (main) กับดัก: `prisma.config.ts` ใช้ `env('DATABASE_URL')` ทำให้ CI ล้ม | — | ของเราแนบ datasource เฉพาะตอนมี env จริงตามคำแนะนำแล้ว |
+| LOCAL_INTEGRATION_GUIDE (main) ภาคผนวก: pnpm ต้องเป็น 12.x · `packageManager` `pnpm@12.3.4` | `new-subsystem.sh` (main) ตั้ง `pnpm@9.15.9` | repo นี้ใช้ `pnpm@10.28.0` (lockfile v9 · `allowBuilds` ใช้ได้) — ขอ PL ยืนยันเวอร์ชันเดียว |
+| LOCAL_INTEGRATION_GUIDE ข้อ 7 T8/หน้าเว็บ: alumni ต้องถูกปฏิเสธ | ตัวอย่างเป็นของ equipment | Code Tower อนุญาต alumni ตามข้อเสนอ D3 จึงได้ 302 · ทดสอบกรณีปฏิเสธแบบถอด alumni ชั่วคราว (`docs/local-integration.md`) |

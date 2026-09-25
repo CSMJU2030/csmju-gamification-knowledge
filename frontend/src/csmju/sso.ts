@@ -10,10 +10,10 @@ function fill(template: string | undefined, fallback: string): string {
 }
 
 export const ssoLoginUrl = () =>
-  fill(process.env.NEXT_PUBLIC_SSO_LOGIN_URL, 'http://localhost:3000/sso/login?subsystem={subsystem}');
+  fill(process.env.NEXT_PUBLIC_SSO_LOGIN_URL, 'http://localhost:3100/login?subsystem={subsystem}');
 export const ssoLogoutUrl = () =>
-  fill(process.env.NEXT_PUBLIC_SSO_LOGOUT_URL, 'http://localhost:3000/sso/logout');
-export const coreDashboardUrl = () => fill(process.env.NEXT_PUBLIC_CORE_DASHBOARD_URL, 'http://localhost:3000/');
+  fill(process.env.NEXT_PUBLIC_SSO_LOGOUT_URL, 'http://localhost:3100/logout?subsystem={subsystem}');
+export const coreDashboardUrl = () => fill(process.env.NEXT_PUBLIC_CORE_DASHBOARD_URL, 'http://localhost:3100/');
 
 let redirecting = false;
 

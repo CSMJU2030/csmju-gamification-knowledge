@@ -47,6 +47,10 @@ RESULT: 62 passed · 0 failed · 0 skipped
 ✅ CONFORMANT — csmju-code-tower meets standard v1.0 L3
 ```
 
+**ทดสอบเชื่อม 3 ระบบตาม LOCAL_INTEGRATION_GUIDE** (git clone ใหม่ของ branch นี้ + Core Hub จำลอง :3000/:3100 + demo จำลอง :3001):
+T1–T9 ผ่านทุกข้อ (T8 ปรับตาม D3 ที่อนุญาต alumni) · ทดสอบผ่านหน้าเว็บ Core Hub → Code Tower ผ่าน · conformance L1 32/32 และ L3 62/62
+รายละเอียดและตารางผลอยู่ที่ `docs/local-integration.md` ข้อ 4
+
 การทดสอบอื่นที่รันจริง:
 
 | ชุด | ผล |
@@ -135,7 +139,8 @@ RESULT: 62 passed · 0 failed · 0 skipped
 
 - **ARC-02 ตก** — `@tower/engine` ไม่อยู่ใน whitelist · รอ D2 (ร่าง issue: `docs/issues/D2-engine-workspace-package.md`)
   หมายเหตุ: `check-authorized-deps.sh` ของ v1.0.0 ไม่อ่าน `.compliance-exceptions.yml` แม้ ci-compliance-spec ข้อ 11.1 จะมีตัวอย่าง exception ของ ARC-02 — ต้องให้ DevOps ตัดสินว่าจะเพิ่ม whitelist หรือแก้สคริปต์
-- **ยังไม่ได้รันกับ Core Hub จริง** — conformance 62/62 ข้างบนเป็นผลกับตัวจำลอง · รอ `CORE_HUB_URL` และการลงทะเบียน
+- **ยังไม่ได้รันกับ Core Hub จริง** — conformance 62/62 และ T1–T9 เป็นผลกับตัวจำลอง · `csmju-core-hub` และ `demo-student-subsystem` เป็น private (clone แล้วได้ `could not read Username`) รอสิทธิ์จาก PM
+- **`prisma migrate deploy` ยังไม่ได้รันจริง** — เครื่องทดสอบออกเน็ตไป binaries.prisma.sh ไม่ได้ (ดูข้อถัดไป) · บนเครื่องที่ออกเน็ตได้ต้องรันตามคู่มือข้อ 6.3
 - **ชั้น auth ยังไม่ใช่ของ reference** — รอสิทธิ์ `demo-student-subsystem`
 - **UI-01 ตก เฉพาะเวทีเกม** — สีของ sprite เอฟเฟกต์ บล็อกโค้ด และหมุดบนแผนที่ (6 ไฟล์ใต้ `frontend/src/game-stage/`) รอ D1 · ไม่ได้แปลง hex เป็น `rgb()` เพื่อเลี่ยงการตรวจ เพราะเนื้อหายังเป็นสีนอก token อยู่ดี ให้ exception เป็นทางที่ตรวจสอบได้
 - **frontend ยังเป็นชุดจำลอง** — `src/csmju/` เขียนจากสเปค ไม่ใช่ template จริง (ยังไม่มีสิทธิ์อ่าน `csmju-core-hub`) · โลโก้เป็นตัวอักษรแทนภาพ · ช่องค้นหาและกระดิ่งบน top bar เป็นภาพประกอบ (disable)

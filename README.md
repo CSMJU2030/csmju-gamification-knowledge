@@ -41,6 +41,7 @@ pnpm --filter frontend start   # http://localhost:3003  (dev: pnpm --filter fron
 ```
 
 ต้องมี Core Hub รันอยู่ที่ `CORE_HUB_URL` — ระบบนี้ไม่มี login ของตัวเอง ผู้ใช้เข้าผ่าน SSO ของ Core Hub เท่านั้น
+ทดสอบเชื่อมกับ Core Hub + demo บนเครื่องตัวเอง (รวมวิธีใช้ตัวจำลองระหว่างยังไม่มีสิทธิ์อ่าน repo จริง): [`docs/local-integration.md`](docs/local-integration.md)
 ให้ backend พากลับหน้าเว็บหลัง SSO ด้วย `SSO_SUCCESS_REDIRECT=http://localhost:3003/` ใน `backend/.env`
 frontend เรียก API ผ่าน origin ของตัวเอง (`/api/*` และ `/auth/callback` ถูกส่งต่อไป `BACKEND_URL`) จึงไม่ต้องเปิด CORS
 
