@@ -23,6 +23,7 @@ standards/         submodule มาตรฐานกลาง (ห้ามแ�
 git submodule update --init standards/
 pnpm install
 cp backend/.env.example backend/.env      # แก้ DATABASE_URL และ CORE_HUB_URL ให้ตรงเครื่อง
+cp frontend/.env.example frontend/.env.local   # BACKEND_URL และหน้า login/logout ของ Core Hub
 createdb code_tower_db                    # ชื่อตาม DATABASE_URL
 pnpm --filter backend exec prisma migrate deploy
 ```
@@ -36,9 +37,12 @@ pnpm --filter backend exec prisma migrate deploy
 ```bash
 pnpm -r build                  # engine ก่อน แล้ว backend (pnpm เรียงให้เอง)
 pnpm --filter backend start    # http://localhost:3002/api/health
+pnpm --filter frontend start   # http://localhost:3003  (dev: pnpm --filter frontend dev)
 ```
 
 ต้องมี Core Hub รันอยู่ที่ `CORE_HUB_URL` — ระบบนี้ไม่มี login ของตัวเอง ผู้ใช้เข้าผ่าน SSO ของ Core Hub เท่านั้น
+ให้ backend พากลับหน้าเว็บหลัง SSO ด้วย `SSO_SUCCESS_REDIRECT=http://localhost:3003/` ใน `backend/.env`
+frontend เรียก API ผ่าน origin ของตัวเอง (`/api/*` และ `/auth/callback` ถูกส่งต่อไป `BACKEND_URL`) จึงไม่ต้องเปิด CORS
 
 ## ทดสอบ
 
@@ -51,6 +55,7 @@ TEST_DATABASE_URL=postgresql://postgres@localhost:5432/code_tower_test pnpm --fi
 ./standards/scripts/run-all-checks.sh .          # CI ทั้ง 18 ข้อบนเครื่อง
 node standards/conformance/run.js                # ต้องมี Core Hub + backend รันอยู่
 pnpm --filter backend generate:openapi           # อัปเดต backend/openapi.json ทุกครั้งที่แก้ endpoint
+pnpm --filter frontend generate:api              # แล้ว generate type ของ frontend จาก openapi.json
 ```
 
 ## API

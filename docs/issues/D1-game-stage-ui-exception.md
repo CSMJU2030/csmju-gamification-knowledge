@@ -20,8 +20,25 @@
 CSS เขียนเองได้เฉพาะ class กลางใน `globals.css`") เพราะ canvas วาดด้วยโค้ด และสไตล์ของบล็อกโค้ดต้องใช้ CSS ของตัวเอง
 ขอบเขตละเอียดของ "เวทีเกม" และสิ่งที่ **ไม่** อยู่ในเวทีเกม (ใช้ token กลาง 100%) อยู่ใน `docs/ui-g0-scoping.md` ข้อ 5
 
-scope จะระบุเป็นรายไฟล์ (ไม่ใช้ `*`) เช่น `frontend/src/game-stage/**/*.ts` หลังได้ template แล้ว
-ทุกรายการมี `expires` และ `issue` ตาม ci-compliance-spec ข้อ 11.1
+scope ระบุเป็นรายไฟล์ (ไม่ใช้ `*`) · ทุกรายการมี `expires` และ `issue` ตาม ci-compliance-spec ข้อ 11.1
+
+## ไฟล์ที่ขอ (ตามโค้ดจริงบน branch — `run-all-checks` UI-01 ชี้ 6 ไฟล์นี้เท่านั้น)
+
+| ไฟล์ | มีอะไร | ทำไมเป็นเวทีเกม |
+|---|---|---|
+| `frontend/src/game-stage/battle/effects.ts` | สีของเอฟเฟกต์สกิล 12 แบบ (ลูกไฟ เกล็ดน้ำแข็ง โดมโล่ …) | วาดลง canvas เป็นภาพ |
+| `frontend/src/game-stage/battle/renderer.ts` | สีตัวเลขดาเมจลอย แถบเลือดเหนือหัว แสงวงใต้เท้า | วาดลง canvas |
+| `frontend/src/game-stage/battle/spriteCache.ts` | สีย้อมตอนโดนตี/ล้ม และกล่องสำรองเมื่อไม่มีสไปรต์ | วาดลง canvas |
+| `frontend/src/game-stage/sprites/schema.ts` | ตัวอย่าง palette ในคอมเมนต์ของสัญญาสไปรต์ | เอกสารของรูปแบบข้อมูลภาพ (palette จริงอยู่ใน `sprites.json` ซึ่ง UI-01 ไม่ตรวจ) |
+| `frontend/src/game-stage/blox/blox.css` | สีบล็อกตามชนิดคำสั่ง 4 หมวด | ภาษาภาพของตัวแก้โค้ดแบบ Scratch/Blockly · ส่วนที่ไม่ใช่สีบล็อกอ้าง `var(--color-*)` |
+| `frontend/src/game-stage/world/WorldMapStage.module.css` | หมุด ป้ายชื่อ และวงบนภาพแผนที่ | ต้องอ่านออกบนภาพวาดทุกสี (ขาวทึบ + ขอบกรมท่า) |
+
+อีกสองเรื่องที่เกี่ยวกับกฎ "Tailwind เท่านั้น" (ui-design-system main ข้อ 16.0) ในไฟล์ชุดเดียวกัน:
+
+- `blox.css` และ `WorldMapStage.module.css` เป็น CSS ที่เขียนเอง (ไฟล์หลังเป็น CSS Module) — ขอรวมใน exception นี้ ไม่ใช้ที่อื่นในระบบ
+- ค่า px ดิบใน CSS สองไฟล์นี้ขึ้นเตือน UI-02 (warn ไม่ fail)
+
+ทุกอย่างนอก `frontend/src/game-stage/` (หน้าใน `src/app/**` · `src/components/**`) ไม่มี hex · ไม่มี CSS ของตัวเอง · ไม่มี emoji
 
 ## ถ้าไม่อนุมัติ
 
