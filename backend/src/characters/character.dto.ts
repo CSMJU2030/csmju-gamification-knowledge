@@ -1,4 +1,4 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 import { PLAYABLE_CLASSES } from '@tower/engine';
 import { IsIn, IsString, Matches } from 'class-validator';
 
@@ -30,6 +30,26 @@ export class StatsDto {
   @ApiProperty() luk!: number;
 }
 
+/** ค่าที่คำนวณแล้วจากสเตตัส + อุปกรณ์ (DerivedStats ของ engine) */
+export class DerivedStatsDto {
+  @ApiProperty() maxHp!: number;
+  @ApiProperty() maxMp!: number;
+  @ApiProperty({ description: 'พลังโจมตีกายภาพ' }) atk!: number;
+  @ApiProperty({ description: 'พลังเวท' }) matk!: number;
+  @ApiProperty() def!: number;
+  @ApiProperty() mdef!: number;
+  @ApiProperty() speed!: number;
+  @ApiProperty({ description: '0..1' }) critRate!: number;
+  @ApiProperty({ description: 'ตัวคูณ เช่น 1.5' }) critDmg!: number;
+  @ApiProperty({ description: '0..1' }) evasion!: number;
+  @ApiProperty({ description: '0..1' }) dropBonus!: number;
+}
+
+export class StatValueDto {
+  @ApiProperty() stat!: string;
+  @ApiProperty() value!: number;
+}
+
 export class ItemDto {
   @ApiProperty({ format: 'uuid' }) id!: string;
   @ApiProperty() baseId!: string;
@@ -37,11 +57,11 @@ export class ItemDto {
   @ApiProperty({ enum: ['common', 'uncommon', 'rare', 'epic', 'legendary'] }) rarity!: string;
   @ApiProperty() upgradeLevel!: number;
   @ApiProperty() droppedFloor!: number;
-  @ApiProperty({ type: 'array', items: { type: 'object', properties: { stat: { type: 'string' }, value: { type: 'number' } } } })
-  affixes!: { stat: string; value: number }[];
+  @ApiProperty({ type: [StatValueDto], description: 'คุณสมบัติเสริม' })
+  affixes!: StatValueDto[];
   @ApiProperty() nameTh!: string;
-  @ApiProperty({ type: 'object', properties: { stat: { type: 'string' }, value: { type: 'number' } } })
-  mainStat!: { stat: string; value: number };
+  @ApiProperty({ type: StatValueDto, description: 'ค่าหลักหลังตีบวกแล้ว' })
+  mainStat!: StatValueDto;
   @ApiProperty() equipped!: boolean;
 }
 
@@ -50,28 +70,30 @@ export class SkillSummaryDto {
   @ApiProperty() nameTh!: string;
   @ApiProperty() unlockLevel!: number;
   @ApiProperty() mpCost!: number;
-  @ApiProperty() kind!: string;
+  @ApiProperty({ enum: ['physical', 'magic', 'heal', 'shield', 'taunt'] }) kind!: string;
   @ApiProperty() aoe!: boolean;
 }
 
-const PROF_TRIPLE = {
-  type: 'object',
-  properties: { str: { type: 'number' }, int: { type: 'number' }, vit: { type: 'number' } },
-} as const;
+/** ความชำนาญเฉพาะสามช่องที่ผู้เล่นควบคุมได้ (agi/luk โตเอง) */
+export class ProficiencyTripleDto {
+  @ApiProperty() str!: number;
+  @ApiProperty() int!: number;
+  @ApiProperty() vit!: number;
+}
 
 export class ProficiencyDto {
-  @ApiProperty(PROF_TRIPLE) work!: Record<string, number>;
-  @ApiProperty(PROF_TRIPLE) share!: Record<string, number>;
-  @ApiProperty(PROF_TRIPLE) projectedPoints!: Record<string, number>;
+  @ApiProperty({ type: ProficiencyTripleDto, description: 'งานดิบตั้งแต่เลเวลที่แล้ว' }) work!: ProficiencyTripleDto;
+  @ApiProperty({ type: ProficiencyTripleDto, description: 'สัดส่วนหลังถ่วงน้ำหนัก รวม 1.0' }) share!: ProficiencyTripleDto;
+  @ApiProperty({ type: ProficiencyTripleDto, description: 'ถ้าเลเวลอัพตอนนี้จะได้ช่องละกี่แต้ม' }) projectedPoints!: ProficiencyTripleDto;
   @ApiProperty() pointsPerLevel!: number;
   @ApiProperty() usingClassDefault!: boolean;
 }
 
 export class EquipmentDto {
-  @ApiPropertyOptional({ type: ItemDto, nullable: true }) weapon!: ItemDto | null;
-  @ApiPropertyOptional({ type: ItemDto, nullable: true }) armor!: ItemDto | null;
-  @ApiPropertyOptional({ type: ItemDto, nullable: true }) helmet!: ItemDto | null;
-  @ApiPropertyOptional({ type: ItemDto, nullable: true }) accessory!: ItemDto | null;
+  @ApiProperty({ type: ItemDto, nullable: true }) weapon!: ItemDto | null;
+  @ApiProperty({ type: ItemDto, nullable: true }) armor!: ItemDto | null;
+  @ApiProperty({ type: ItemDto, nullable: true }) helmet!: ItemDto | null;
+  @ApiProperty({ type: ItemDto, nullable: true }) accessory!: ItemDto | null;
 }
 
 export class CharacterDto {
@@ -83,8 +105,8 @@ export class CharacterDto {
   @ApiProperty() expToNext!: number;
   @ApiProperty({ type: ProficiencyDto }) proficiency!: ProficiencyDto;
   @ApiProperty({ type: StatsDto }) stats!: StatsDto;
-  @ApiProperty({ type: 'object', additionalProperties: { type: 'number' }, description: 'ค่าที่คำนวณแล้ว (maxHp, atk, …)' })
-  derived!: Record<string, number>;
+  @ApiProperty({ type: DerivedStatsDto, description: 'ค่าที่คำนวณแล้ว (maxHp, atk, …)' })
+  derived!: DerivedStatsDto;
   @ApiProperty() gold!: number;
   @ApiProperty() materials!: number;
   @ApiProperty({ type: EquipmentDto }) equipment!: EquipmentDto;

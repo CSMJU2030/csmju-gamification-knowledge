@@ -20,6 +20,34 @@ export class CreateBattleDto {
   regionRunId?: string;
 }
 
+/** เป้าหนึ่งตัวในเหตุการณ์ — ตรงกับ CombatEvent['targets'][number] ของ engine */
+export class CombatTargetDto {
+  @ApiProperty() id!: string;
+  @ApiProperty() name!: string;
+  @ApiPropertyOptional() damage?: number;
+  @ApiPropertyOptional() heal?: number;
+  @ApiPropertyOptional() shield?: number;
+  @ApiPropertyOptional() crit?: boolean;
+  @ApiPropertyOptional() evaded?: boolean;
+  @ApiPropertyOptional() killed?: boolean;
+  @ApiProperty() hpAfter!: number;
+}
+
+/** หนึ่งการกระทำในบันทึกการรบ — ตรงกับ CombatEvent ของ engine */
+export class CombatEventDto {
+  @ApiProperty() turn!: number;
+  @ApiProperty() wave!: number;
+  @ApiProperty() actorId!: string;
+  @ApiProperty() actorName!: string;
+  @ApiProperty({ enum: ['attack', 'skill', 'defend'] }) action!: 'attack' | 'skill' | 'defend';
+  @ApiPropertyOptional() skillId?: string;
+  @ApiProperty({ type: [CombatTargetDto] }) targets!: CombatTargetDto[];
+  @ApiPropertyOptional({ enum: ['wave_start', 'wave_clear', 'defend', 'windup'] })
+  note?: 'wave_start' | 'wave_clear' | 'defend' | 'windup';
+  @ApiPropertyOptional({ description: 'บรรทัดในโปรแกรม BloxCode ที่ตัดสินใจเทิร์นนี้ (0 = การกระทำสำรอง)' }) line?: number;
+  @ApiPropertyOptional({ type: [String], description: 'คำเตือนตอนรันโปรแกรม' }) codeWarnings?: string[];
+}
+
 export class BattleDropsDto {
   @ApiProperty() gold!: number;
   @ApiProperty() materials!: number;
@@ -29,8 +57,8 @@ export class BattleDropsDto {
 export class BattleResultDto {
   @ApiProperty() victory!: boolean;
   @ApiProperty() wavesCleared!: number;
-  @ApiProperty({ type: 'array', items: { type: 'object' }, description: 'บันทึกการรบ (CombatEvent ของ engine)' })
-  events!: object[];
+  @ApiProperty({ type: [CombatEventDto], description: 'บันทึกการรบ (CombatEvent ของ engine)' })
+  events!: CombatEventDto[];
   @ApiProperty({ type: BattleDropsDto }) drops!: BattleDropsDto;
   @ApiProperty() expGained!: number;
   @ApiProperty() seed!: number;
@@ -38,7 +66,7 @@ export class BattleResultDto {
 
 export class DuelBlockDto {
   @ApiProperty({ type: DuelAnnounceDto }) opponent!: DuelAnnounceDto;
-  @ApiProperty({ type: 'array', items: { type: 'object' } }) events!: object[];
+  @ApiProperty({ type: [CombatEventDto] }) events!: CombatEventDto[];
   @ApiProperty() won!: boolean;
   @ApiProperty() byTimeout!: boolean;
   @ApiProperty() rounds!: number;

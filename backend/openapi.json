@@ -2223,50 +2223,51 @@
           "permissions"
         ]
       },
+      "ProficiencyTripleDto": {
+        "type": "object",
+        "properties": {
+          "str": {
+            "type": "number"
+          },
+          "int": {
+            "type": "number"
+          },
+          "vit": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "str",
+          "int",
+          "vit"
+        ]
+      },
       "ProficiencyDto": {
         "type": "object",
         "properties": {
           "work": {
-            "type": "object",
-            "properties": {
-              "str": {
-                "type": "number"
-              },
-              "int": {
-                "type": "number"
-              },
-              "vit": {
-                "type": "number"
+            "description": "งานดิบตั้งแต่เลเวลที่แล้ว",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ProficiencyTripleDto"
               }
-            }
+            ]
           },
           "share": {
-            "type": "object",
-            "properties": {
-              "str": {
-                "type": "number"
-              },
-              "int": {
-                "type": "number"
-              },
-              "vit": {
-                "type": "number"
+            "description": "สัดส่วนหลังถ่วงน้ำหนัก รวม 1.0",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ProficiencyTripleDto"
               }
-            }
+            ]
           },
           "projectedPoints": {
-            "type": "object",
-            "properties": {
-              "str": {
-                "type": "number"
-              },
-              "int": {
-                "type": "number"
-              },
-              "vit": {
-                "type": "number"
+            "description": "ถ้าเลเวลอัพตอนนี้จะได้ช่องละกี่แต้ม",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ProficiencyTripleDto"
               }
-            }
+            ]
           },
           "pointsPerLevel": {
             "type": "number"
@@ -2310,6 +2311,78 @@
           "luk"
         ]
       },
+      "DerivedStatsDto": {
+        "type": "object",
+        "properties": {
+          "maxHp": {
+            "type": "number"
+          },
+          "maxMp": {
+            "type": "number"
+          },
+          "atk": {
+            "type": "number",
+            "description": "พลังโจมตีกายภาพ"
+          },
+          "matk": {
+            "type": "number",
+            "description": "พลังเวท"
+          },
+          "def": {
+            "type": "number"
+          },
+          "mdef": {
+            "type": "number"
+          },
+          "speed": {
+            "type": "number"
+          },
+          "critRate": {
+            "type": "number",
+            "description": "0..1"
+          },
+          "critDmg": {
+            "type": "number",
+            "description": "ตัวคูณ เช่น 1.5"
+          },
+          "evasion": {
+            "type": "number",
+            "description": "0..1"
+          },
+          "dropBonus": {
+            "type": "number",
+            "description": "0..1"
+          }
+        },
+        "required": [
+          "maxHp",
+          "maxMp",
+          "atk",
+          "matk",
+          "def",
+          "mdef",
+          "speed",
+          "critRate",
+          "critDmg",
+          "evasion",
+          "dropBonus"
+        ]
+      },
+      "StatValueDto": {
+        "type": "object",
+        "properties": {
+          "stat": {
+            "type": "string"
+          },
+          "value": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "stat",
+          "value"
+        ]
+      },
       "ItemDto": {
         "type": "object",
         "properties": {
@@ -2346,32 +2419,22 @@
             "type": "number"
           },
           "affixes": {
+            "description": "คุณสมบัติเสริม",
             "type": "array",
             "items": {
-              "type": "object",
-              "properties": {
-                "stat": {
-                  "type": "string"
-                },
-                "value": {
-                  "type": "number"
-                }
-              }
+              "$ref": "#/components/schemas/StatValueDto"
             }
           },
           "nameTh": {
             "type": "string"
           },
           "mainStat": {
-            "type": "object",
-            "properties": {
-              "stat": {
-                "type": "string"
-              },
-              "value": {
-                "type": "number"
+            "description": "ค่าหลักหลังตีบวกแล้ว",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/StatValueDto"
               }
-            }
+            ]
           },
           "equipped": {
             "type": "boolean"
@@ -2429,7 +2492,13 @@
               }
             ]
           }
-        }
+        },
+        "required": [
+          "weapon",
+          "armor",
+          "helmet",
+          "accessory"
+        ]
       },
       "SkillSummaryDto": {
         "type": "object",
@@ -2447,7 +2516,14 @@
             "type": "number"
           },
           "kind": {
-            "type": "string"
+            "type": "string",
+            "enum": [
+              "physical",
+              "magic",
+              "heal",
+              "shield",
+              "taunt"
+            ]
           },
           "aoe": {
             "type": "boolean"
@@ -2497,11 +2573,12 @@
             "$ref": "#/components/schemas/StatsDto"
           },
           "derived": {
-            "type": "object",
-            "additionalProperties": {
-              "type": "number"
-            },
-            "description": "ค่าที่คำนวณแล้ว (maxHp, atk, …)"
+            "description": "ค่าที่คำนวณแล้ว (maxHp, atk, …)",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/DerivedStatsDto"
+              }
+            ]
           },
           "gold": {
             "type": "number"
@@ -2717,6 +2794,26 @@
           "itemId"
         ]
       },
+      "HotspotDto": {
+        "type": "object",
+        "properties": {
+          "x": {
+            "type": "number"
+          },
+          "y": {
+            "type": "number"
+          },
+          "r": {
+            "type": "number",
+            "description": "รัศมี (สัดส่วนของความกว้าง)"
+          }
+        },
+        "required": [
+          "x",
+          "y",
+          "r"
+        ]
+      },
       "RegionDto": {
         "type": "object",
         "properties": {
@@ -2748,18 +2845,7 @@
             "type": "number"
           },
           "hotspot": {
-            "type": "object",
-            "properties": {
-              "x": {
-                "type": "number"
-              },
-              "y": {
-                "type": "number"
-              },
-              "r": {
-                "type": "number"
-              }
-            }
+            "$ref": "#/components/schemas/HotspotDto"
           },
           "depthCleared": {
             "type": "number"
@@ -2958,6 +3044,105 @@
           "deleted"
         ]
       },
+      "CombatTargetDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "damage": {
+            "type": "number"
+          },
+          "heal": {
+            "type": "number"
+          },
+          "shield": {
+            "type": "number"
+          },
+          "crit": {
+            "type": "boolean"
+          },
+          "evaded": {
+            "type": "boolean"
+          },
+          "killed": {
+            "type": "boolean"
+          },
+          "hpAfter": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "hpAfter"
+        ]
+      },
+      "CombatEventDto": {
+        "type": "object",
+        "properties": {
+          "turn": {
+            "type": "number"
+          },
+          "wave": {
+            "type": "number"
+          },
+          "actorId": {
+            "type": "string"
+          },
+          "actorName": {
+            "type": "string"
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "attack",
+              "skill",
+              "defend"
+            ]
+          },
+          "skillId": {
+            "type": "string"
+          },
+          "targets": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CombatTargetDto"
+            }
+          },
+          "note": {
+            "type": "string",
+            "enum": [
+              "wave_start",
+              "wave_clear",
+              "defend",
+              "windup"
+            ]
+          },
+          "line": {
+            "type": "number",
+            "description": "บรรทัดในโปรแกรม BloxCode ที่ตัดสินใจเทิร์นนี้ (0 = การกระทำสำรอง)"
+          },
+          "codeWarnings": {
+            "description": "คำเตือนตอนรันโปรแกรม",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "turn",
+          "wave",
+          "actorId",
+          "actorName",
+          "action",
+          "targets"
+        ]
+      },
       "BattleDropsDto": {
         "type": "object",
         "properties": {
@@ -2990,11 +3175,11 @@
             "type": "number"
           },
           "events": {
+            "description": "บันทึกการรบ (CombatEvent ของ engine)",
             "type": "array",
             "items": {
-              "type": "object"
-            },
-            "description": "บันทึกการรบ (CombatEvent ของ engine)"
+              "$ref": "#/components/schemas/CombatEventDto"
+            }
           },
           "drops": {
             "$ref": "#/components/schemas/BattleDropsDto"
@@ -3024,7 +3209,7 @@
           "events": {
             "type": "array",
             "items": {
-              "type": "object"
+              "$ref": "#/components/schemas/CombatEventDto"
             }
           },
           "won": {
@@ -3191,15 +3376,116 @@
           "globalHighestFloor"
         ]
       },
+      "ClassInfoDto": {
+        "type": "object",
+        "properties": {
+          "nameTh": {
+            "type": "string"
+          },
+          "growthHint": {
+            "type": "string"
+          },
+          "baseStats": {
+            "$ref": "#/components/schemas/StatsDto"
+          }
+        },
+        "required": [
+          "nameTh",
+          "growthHint",
+          "baseStats"
+        ]
+      },
+      "SkillDefDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "nameTh": {
+            "type": "string"
+          },
+          "classId": {
+            "type": "string",
+            "enum": [
+              "novice",
+              "warrior",
+              "mage",
+              "guardian",
+              "monster"
+            ]
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "physical",
+              "magic",
+              "heal",
+              "shield",
+              "taunt"
+            ]
+          },
+          "power": {
+            "type": "number",
+            "description": "% ของ atk/matk (100 = 1 เท่า)"
+          },
+          "mpCost": {
+            "type": "number"
+          },
+          "aoe": {
+            "type": "boolean"
+          },
+          "unlockLevel": {
+            "type": "number"
+          },
+          "animation": {
+            "type": "string",
+            "description": "ชื่อแอนิเมชันเอฟเฟกต์ที่ฉากรบใช้วาด"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "nameTh",
+          "classId",
+          "kind",
+          "power",
+          "mpCost",
+          "aoe",
+          "unlockLevel"
+        ]
+      },
+      "RegionNameDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "nameTh": {
+            "type": "string"
+          },
+          "depths": {
+            "type": "number",
+            "description": "จำนวนรอบของโซน (0 = เมือง ไม่มีการรบ)"
+          }
+        },
+        "required": [
+          "id",
+          "nameTh",
+          "depths"
+        ]
+      },
       "GameDataDto": {
         "type": "object",
         "properties": {
           "skills": {
+            "description": "สกิลของทุกอาชีพและของมอนสเตอร์",
             "type": "array",
             "items": {
-              "type": "object"
-            },
-            "description": "สกิลของทุกอาชีพและของมอนสเตอร์"
+              "$ref": "#/components/schemas/SkillDefDto"
+            }
           },
           "affixNames": {
             "type": "object",
@@ -3222,7 +3508,14 @@
           "classes": {
             "type": "object",
             "additionalProperties": {
-              "type": "object"
+              "$ref": "#/components/schemas/ClassInfoDto"
+            }
+          },
+          "regions": {
+            "description": "ภูมิภาคทั้งหมดบนแผนที่ (id + ชื่อไทย) — ใช้กับฟอร์มโจทย์และประวัติการรบ",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RegionNameDto"
             }
           }
         },
@@ -3231,7 +3524,8 @@
           "affixNames",
           "rarities",
           "baseItemNames",
-          "classes"
+          "classes",
+          "regions"
         ]
       },
       "ChallengeDto": {
@@ -3255,8 +3549,9 @@
             "type": "string"
           },
           "regionId": {
-            "type": "object",
-            "nullable": true
+            "type": "string",
+            "nullable": true,
+            "description": "ภูมิภาคที่ผูก · null = ไม่ผูก"
           },
           "createdAt": {
             "type": "string",
@@ -3273,6 +3568,7 @@
           "title",
           "description",
           "starterSource",
+          "regionId",
           "createdAt",
           "updatedAt"
         ]
@@ -3295,7 +3591,7 @@
             "maxLength": 20000
           },
           "regionId": {
-            "type": "object",
+            "type": "string",
             "example": "frostland",
             "nullable": true,
             "description": "ภูมิภาคที่โจทย์นี้ผูกด้วย (ถ้ามี)"
@@ -3321,7 +3617,7 @@
             "maxLength": 20000
           },
           "regionId": {
-            "type": "object",
+            "type": "string",
             "nullable": true,
             "description": "null = เลิกผูกกับภูมิภาค"
           }

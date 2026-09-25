@@ -15,10 +15,12 @@ export class CreateRegionRunDto {
   depth!: number;
 }
 
-const HOTSPOT = {
-  type: 'object',
-  properties: { x: { type: 'number' }, y: { type: 'number' }, r: { type: 'number' } },
-} as const;
+/** ตำแหน่งบนภาพแผนที่ เป็นสัดส่วน 0..1 ของความกว้าง/สูง */
+export class HotspotDto {
+  @ApiProperty() x!: number;
+  @ApiProperty() y!: number;
+  @ApiProperty({ description: 'รัศมี (สัดส่วนของความกว้าง)' }) r!: number;
+}
 
 export class RegionDto {
   @ApiProperty() id!: string;
@@ -28,7 +30,7 @@ export class RegionDto {
   @ApiProperty({ type: [Number], minItems: 2, maxItems: 2 }) floorRange!: number[];
   @ApiProperty() lessonTh!: string;
   @ApiProperty() eliteChance!: number;
-  @ApiProperty(HOTSPOT) hotspot!: { x: number; y: number; r: number };
+  @ApiProperty({ type: HotspotDto }) hotspot!: { x: number; y: number; r: number };
   @ApiProperty() depthCleared!: number;
   @ApiProperty() maxDepthAllowed!: number;
   @ApiProperty() completed!: boolean;

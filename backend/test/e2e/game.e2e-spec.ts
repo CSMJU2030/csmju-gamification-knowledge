@@ -208,6 +208,16 @@ describe('โจทย์ (D4)', () => {
   });
 });
 
+describe('game-data', () => {
+  it('ผู้สอนที่ไม่มีตัวละครอ่านชื่อภูมิภาคได้ (ฟอร์มโจทย์ใช้) ขณะที่ GET /regions ต้องมีตัวละคร', async () => {
+    const gd = await http.get('/api/v1/game-data').set(as('t-three', 'staff')).expect(200);
+    const regions = gd.body.data.regions as { id: string; nameTh: string; depths: number }[];
+    expect(regions.length).toBeGreaterThan(1);
+    expect(regions).toContainEqual(expect.objectContaining({ id: 'frostland', depths: expect.any(Number) }));
+    await http.get('/api/v1/regions').set(as('t-three', 'staff')).expect(404);
+  });
+});
+
 describe('SSO callback', () => {
   it('token ถูก → 200 + คุกกี้ HttpOnly SameSite=Lax อายุไม่เกิน exp · คุกกี้อย่างเดียวเข้า /me ได้', async () => {
     const res = await http.get('/auth/callback').query({ access_token: token('user-004', 'alumni'), state: 'xyz' }).expect(200);

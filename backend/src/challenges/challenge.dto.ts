@@ -29,7 +29,7 @@ export class CreateChallengeDto {
   @NoNulCharacter('starterSource')
   starterSource?: string;
 
-  @ApiPropertyOptional({ example: 'frostland', nullable: true, description: 'ภูมิภาคที่โจทย์นี้ผูกด้วย (ถ้ามี)' })
+  @ApiPropertyOptional({ type: String, example: 'frostland', nullable: true, description: 'ภูมิภาคที่โจทย์นี้ผูกด้วย (ถ้ามี)' })
   @IsOptional()
   @IsString({ message: 'regionId ต้องเป็นข้อความ' })
   @MaxLength(64, { message: 'regionId ยาวเกินไป' })
@@ -65,7 +65,7 @@ export class UpdateChallengeDto {
   @NoNulCharacter('starterSource')
   starterSource?: string;
 
-  @ApiPropertyOptional({ nullable: true, description: 'null = เลิกผูกกับภูมิภาค' })
+  @ApiPropertyOptional({ type: String, nullable: true, description: 'null = เลิกผูกกับภูมิภาค' })
   @IsOptional()
   @IsString({ message: 'regionId ต้องเป็นข้อความ' })
   @MaxLength(64, { message: 'regionId ยาวเกินไป' })
@@ -79,7 +79,7 @@ export class ChallengeDto {
   @ApiProperty() title!: string;
   @ApiProperty() description!: string;
   @ApiProperty() starterSource!: string;
-  @ApiPropertyOptional({ nullable: true }) regionId!: string | null;
+  @ApiProperty({ type: String, nullable: true, description: 'ภูมิภาคที่ผูก · null = ไม่ผูก' }) regionId!: string | null;
   @ApiProperty({ format: 'date-time' }) createdAt!: string;
   @ApiProperty({ format: 'date-time' }) updatedAt!: string;
 }
