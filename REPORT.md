@@ -9,11 +9,6 @@
 และ UI-01 (สีของภาพในเวทีเกม `frontend/src/game-stage/**` เท่านั้น) รอ D1 — ส่วนเปลือกระบบไม่มี hex เลย
 
 ```
-  ✅ PASS  API Contract Sync           check-api-conventions.sh
-  ✅ PASS  Data Dictionary Compliance  check-field-aliases.sh
-  ✅ PASS  Data Dictionary Compliance  check-snake-case.sh
-  ✅ PASS  Data Dictionary Compliance  check-no-hardcoded-faculty.sh
-  ✅ PASS  Data Dictionary Compliance  check-money-fields.sh
   ✅ PASS  Convention Check            check-branch-name.sh
   ✅ PASS  Convention Check            check-commit-messages.sh
   ✅ PASS  Convention Check            check-ci-untouched.sh
