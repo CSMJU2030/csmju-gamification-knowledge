@@ -327,7 +327,7 @@ export interface components {
         HealthDto: {
             /** @enum {string} */
             status: "ok";
-            /** @example csmju-code-tower */
+            /** @example csmju-gamification-knowledge */
             service: string;
         };
         PageMetaDto: {

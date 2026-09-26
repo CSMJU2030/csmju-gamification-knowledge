@@ -1,4 +1,4 @@
-// Code Tower — ฐานข้อมูลของระบบย่อย csmju-code-tower (1 ระบบ = 1 ฐานข้อมูล)
+// Code Tower — ฐานข้อมูลของระบบย่อย csmju-gamification-knowledge (1 ระบบ = 1 ฐานข้อมูล)
 //
 // กติกาที่ไฟล์นี้ยึด (standards/docs/data-dictionary.md ข้อ 3, 9):
 //   · ไม่มีตาราง user ของตัวเอง ไม่เก็บรหัสผ่าน — ตัวตนคือ core_user_id (= claim `sub`) เท่านั้น

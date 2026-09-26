@@ -2160,7 +2160,7 @@
     }
   },
   "info": {
-    "title": "Code Tower — csmju-code-tower",
+    "title": "Code Tower — csmju-gamification-knowledge",
     "description": "ระบบย่อย Code Tower ของ CSMJU2030 · ตัวตนมาจาก Core Hub (RS256 + JWKS) · response ทุกตัวห่อด้วย envelope { success, data[, meta] } / { success: false, error }",
     "version": "1.0.0",
     "contact": {}
@@ -2192,7 +2192,7 @@
           },
           "service": {
             "type": "string",
-            "example": "csmju-code-tower"
+            "example": "csmju-gamification-knowledge"
           }
         },
         "required": [

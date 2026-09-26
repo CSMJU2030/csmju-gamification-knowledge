@@ -7,7 +7,7 @@ import {
 } from 'class-validator';
 
 /** ชื่อระบบย่อยนี้ในทะเบียน Core Hub — ต้องตรงกับ subsystem.yaml และ data.service ของ /api/health */
-export const SUBSYSTEM_NAME = 'csmju-code-tower';
+export const SUBSYSTEM_NAME = 'csmju-gamification-knowledge';
 
 class EnvironmentVariables {
   @IsOptional() @IsIn(['development', 'test', 'production'])

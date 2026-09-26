@@ -42,7 +42,7 @@ afterAll(async () => {
 describe('ตัวตนและสิทธิ์', () => {
   it('GET /api/health public', async () => {
     const res = await http.get('/api/health').expect(200);
-    expect(res.body).toEqual({ success: true, data: { status: 'ok', service: 'csmju-code-tower' } });
+    expect(res.body).toEqual({ success: true, data: { status: 'ok', service: 'csmju-gamification-knowledge' } });
   });
 
   it('ไม่มี token → 401 · token ถูก → /me คืนตัวตนจาก claim', async () => {

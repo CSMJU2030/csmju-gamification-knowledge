@@ -7,7 +7,7 @@ import { DocumentBuilder, SwaggerModule, type OpenAPIObject } from '@nestjs/swag
 
 export function buildOpenApiDocument(app: INestApplication): OpenAPIObject {
   const config = new DocumentBuilder()
-    .setTitle('Code Tower — csmju-code-tower')
+    .setTitle('Code Tower — csmju-gamification-knowledge')
     .setDescription(
       'ระบบย่อย Code Tower ของ CSMJU2030 · ตัวตนมาจาก Core Hub (RS256 + JWKS) · ' +
         'response ทุกตัวห่อด้วย envelope { success, data[, meta] } / { success: false, error }',

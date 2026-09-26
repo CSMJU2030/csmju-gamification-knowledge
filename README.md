@@ -1,6 +1,6 @@
 # csmju-gamification-knowledge
 
-Code Tower หอคอยนักสู้อัตโนมัติ — ระบบย่อยของโครงการ CSMJU2030
+Code Tower หอคอยนักสู้อัตโนมัติ — เกมของระบบย่อย Gamification Knowledge ในโครงการ CSMJU2030
 เกม auto-battle ที่ผู้เล่นเขียนโปรแกรม BloxCode (Python subset) ให้ตัวละครสู้เอง
 
 มาตรฐานกลางอยู่ใน `standards/` (submodule ของ CSMJU2030/csmju2030-standards · v1.0.0)
@@ -79,7 +79,7 @@ pnpm --filter frontend generate:api              # แล้ว generate type �
 ## Branch และ commit
 
 ```bash
-git checkout -b feature/code-tower/<เรื่องที่ทำ>
+git checkout -b feature/gamification-knowledge/<เรื่องที่ทำ>
 ```
 
-commit แบบ Conventional Commits (`feat(code-tower): …`) · ก่อนเปิด PR อ่าน `standards/docs/github-workflow.md` ข้อ 1
+commit แบบ Conventional Commits (`feat(gamification-knowledge): …`) · ก่อนเปิด PR อ่าน `standards/docs/github-workflow.md` ข้อ 1

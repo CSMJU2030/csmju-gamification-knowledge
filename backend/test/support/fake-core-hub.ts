@@ -102,7 +102,7 @@ export function testEnv(hub: FakeCoreHub, databaseUrl = 'postgresql://127.0.0.1:
   return {
     NODE_ENV: 'test',
     DATABASE_URL: databaseUrl,
-    SUBSYSTEM_ID: 'csmju-code-tower',
+    SUBSYSTEM_ID: 'csmju-gamification-knowledge',
     CORE_HUB_URL: hub.url,
     CORE_HUB_JWKS_URL: hub.jwksUrl,
     CORE_HUB_ISSUER: 'core-hub',

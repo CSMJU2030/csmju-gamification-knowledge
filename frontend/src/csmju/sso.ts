@@ -2,7 +2,7 @@
  * ทางเข้า/ออกผ่าน Core Hub (auth-contract ข้อ 5 · 7) — ระบบย่อยไม่มีหน้า login ของตัวเอง
  * ค่ามาจาก NEXT_PUBLIC_* (ฝังตอน build) ดู frontend/.env.example
  */
-const SUBSYSTEM = 'csmju-code-tower';
+const SUBSYSTEM = 'csmju-gamification-knowledge';
 const RETURN_KEY = 'csmju:return-to';
 
 function fill(template: string | undefined, fallback: string): string {

@@ -4,6 +4,6 @@ export class HealthDto {
   @ApiProperty({ enum: ['ok'] })
   status!: 'ok';
 
-  @ApiProperty({ example: 'csmju-code-tower' })
+  @ApiProperty({ example: 'csmju-gamification-knowledge' })
   service!: string;
 }

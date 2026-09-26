@@ -61,7 +61,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         {/* จุดเดียวที่เรียก CsmjuAppShell (ui-design-system ข้อ 16.2) · ปุ่มหลักของระบบ "ลงรบ" → /world */}
         <ToastProvider>
           <CsmjuAppShell
-            subsystemName="csmju-code-tower"
+            subsystemName="csmju-gamification-knowledge"
             displayName="Code Tower หอคอยนักสู้อัตโนมัติ"
             nav={NAV}
             primaryAction={{ label: 'ลงรบ', href: '/world', icon: 'swords' }}

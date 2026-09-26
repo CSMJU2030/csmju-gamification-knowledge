@@ -11,7 +11,7 @@ import { resolve } from 'node:path';
 const defaults: Record<string, string> = {
   NODE_ENV: 'development',
   DATABASE_URL: 'postgresql://127.0.0.1:1/openapi_generation_never_connects',
-  SUBSYSTEM_ID: 'csmju-code-tower',
+  SUBSYSTEM_ID: 'csmju-gamification-knowledge',
   CORE_HUB_URL: 'http://localhost:3000',
   CORE_HUB_JWKS_URL: 'http://localhost:3000/api/v1/.well-known/jwks.json',
   CORE_HUB_ISSUER: 'core-hub',
