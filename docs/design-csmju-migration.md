@@ -73,7 +73,7 @@ Code Tower คือระบบย่อยที่ได้รับมอบ
 | `GET /world` · `POST /world/:id/enter` `/fight` `/leave` | `GET /api/v1/regions` · `POST /api/v1/region-runs` · `POST /api/v1/battles { runId }` · `DELETE /api/v1/region-runs/:id` |
 | `GET /gamedata` | `GET /api/v1/game-data` |
 | (ใหม่ D4) | `GET` `POST /api/v1/challenges` · `GET /api/v1/challenges/:id` |
-| (ใหม่) | `GET /api/health` → `{ status, service: "csmju-code-tower" }` |
+| (ใหม่) | `GET /api/health` → `{ status, service: "csmju-gamification-knowledge" }` |
 
 ## 6. ลำดับงาน
 
@@ -96,7 +96,7 @@ Code Tower คือระบบย่อยที่ได้รับมอบ
 
 | ขอจากใคร | สิ่งที่ต้องได้ | ใช้ในขั้น |
 |---|---|---|
-| PM / org admin | เป็นสมาชิกองค์กร CSMJU2030 · ทีม `aie-code-tower` · สร้าง repo `csmju-code-tower` | 0, 6 |
+| PM / org admin | เป็นสมาชิกองค์กร CSMJU2030 · ทีม `aie-gamification-knowledge` · สร้าง repo — ✅ ได้ `csmju-gamification-knowledge` (26 ก.ย.) | 0, 6 |
 | PM / org admin | สิทธิ์อ่าน `csmju-core-hub` (template หน้าจอ + รัน Core Hub ในเครื่อง) และ `demo-student-subsystem` (ชั้น auth) | 3, 4 |
 | ผู้ดูแล Dev Server | `CORE_HUB_URL` ที่ใช้ได้จริง | 3 |
 | PL | ระดับ conformance เป้าหมาย (คาดว่า L3) · ขอบเขตงาน · คำตอบ D1–D6 | 0, 5 |

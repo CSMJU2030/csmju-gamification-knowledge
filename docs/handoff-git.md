@@ -1,65 +1,64 @@
-# ส่งมอบเข้า git — สิ่งที่รอทีมกลาง และสิ่งที่เราทำต่อทันทีเมื่อได้
+# ส่งมอบเข้า git — สถานะและขั้นตอน
 
-> สถานะ 24 ก.ย. 2026: งานทั้งหมดอยู่ใน git ของเครื่องเรา (branch `feature/code-tower/migrate-backend`)
-> ยัง push ขึ้น GitHub ไม่ได้ เพราะ repo `CSMJU2030/csmju-code-tower` ต้องสร้างโดย PM/org admin
-> ตามขั้น 2–3 ของ `standards/docs/aie-workflow.md` (ฉบับบน main ของ standards)
+> 26 ก.ย. 2026: org admin สร้าง repo ให้แล้วเป็น **`CSMJU2030/csmju-gamification-knowledge`** (scaffold จาก standards v1.0.0 บน `main`)
+> งานทั้งหมดอยู่บน branch **`feature/gamification-knowledge/migrate-code-tower`** ต่อจาก `main` ของ repo นี้ — ไม่แตะ `main`
+> ชื่อระบบย่อยจึงเป็น `csmju-gamification-knowledge` (ต้องตรงกันทั้งทะเบียน Core Hub · `subsystem.yaml` · `/api/health`) · Code Tower คือชื่อเกม
 
 ---
 
 ## 1. สิ่งที่ขอจาก PM / org admin
 
-| # | ขอ | ใช้ทำอะไร |
+| # | ขอ | สถานะ |
 |---|---|---|
-| 1 | รับเข้าองค์กร CSMJU2030 + สิทธิ์สร้าง repo (หรือให้ admin รันสคริปต์แทน) | สร้าง repo ด้วย `new-subsystem.sh` |
-| 2 | สร้าง Team `pl-code-tower` / `aie-code-tower` และตั้ง ruleset ของ repo | CODEOWNERS · branch protection |
-| 3 | สิทธิ์อ่าน `csmju-core-hub` และ `demo-student-subsystem` | template หน้าจอ (`templates/csmju-subsystem-web/`) · ชั้น auth ของ reference |
-| 4 | `CORE_HUB_URL` ของ Dev Server | ทดสอบกับ Core Hub จริง |
-| 5 | ลงทะเบียน + approve + activate ใน Core Hub (payload ข้อ 3) | SSO · conformance L3 กับของจริง |
+| 1 | repo ของระบบ | ✅ `CSMJU2030/csmju-gamification-knowledge` |
+| 2 | Team `pl-gamification-knowledge` / `aie-gamification-knowledge` และ ruleset | ตามที่ scaffold ใส่ไว้ใน `CODEOWNERS` · `subsystem.yaml` |
+| 3 | สิทธิ์อ่าน `csmju-core-hub` | ✅ อ่านได้แล้ว — ทดสอบกับของจริงแล้ว (`docs/local-integration.md`) |
+| 3b | สิทธิ์อ่าน `demo-student-subsystem` | ยังไม่ได้ (`could not read Username`) — ชั้น auth ยังไม่ใช่ของ reference |
+| 4 | `CORE_HUB_URL` ของ Dev Server | ยังไม่ได้ |
+| 5 | ลงทะเบียน + approve + activate ใน Core Hub (payload ข้อ 3) | ทำบน Core Hub ในเครื่องแล้ว · Dev Server รอข้อ 4 |
 
-คำสั่งสร้าง repo (รันจาก clone ของ `csmju2030-standards`):
+## 2. ย้ายประวัติเข้า repo นี้ (ทำแล้ว)
 
-```bash
-./new-subsystem.sh code-tower "Code Tower หอคอยนักสู้อัตโนมัติ"
-```
-
-ได้ repo `CSMJU2030/csmju-code-tower` ที่มี scaffold มาตรฐาน + submodule `standards/` บน `main`
-
-## 2. สิ่งที่เราทำทันทีเมื่อ repo ขึ้น GitHub
-
-scaffold บน `main` ของ repo จริงจะเป็น commit คนละตัวกับ scaffold ในเครื่องเรา (สร้างจากสคริปต์เดียวกัน แต่คนละครั้ง)
-จึงย้ายเฉพาะ commit ที่เป็นงานของเราไปต่อท้าย `main` ของจริง:
+scaffold บน `main` ของ repo นี้เป็นคนละ commit กับ scaffold ใน repo `csmju-code-tower` ของเครื่องเรา (สคริปต์เดียวกัน คนละครั้ง)
+จึงย้ายเฉพาะ commit ที่เป็นงานของเรา (17 commit หลัง "pin standards submodule" `e84d0d2`) ไปต่อท้าย `main`:
 
 ```bash
-git remote add origin https://github.com/CSMJU2030/csmju-code-tower.git
-git fetch origin
-# commit ของเราเริ่มหลัง "pin standards submodule" (e84d0d2)
-git rebase --onto origin/main e84d0d2 feature/code-tower/migrate-backend
-git push -u origin feature/code-tower/migrate-backend
+git clone https://github.com/CSMJU2030/csmju-gamification-knowledge.git && cd csmju-gamification-knowledge
+git remote add codetower <repo csmju-code-tower เดิม> && git fetch codetower
+git checkout -b feature/gamification-knowledge/migrate-code-tower codetower/feature/code-tower/migrate-backend
+git rebase -X theirs --onto origin/main e84d0d2
 ```
 
-ถ้าชนกันที่ `subsystem.yaml` หรือ `.env.example` ให้ถือฉบับของ branch เรา (scaffold ไม่มีค่าจริงของ Code Tower)
-แล้วรันชุดตรวจก่อน push:
+ผลต่างจากงานเดิมหลัง rebase มีแค่ไฟล์ scaffold ของ repo นี้ (`.github/**` · `subsystem.yaml` ส่วน name/owners/display_name/repo · หัว README)
+— `.github/` เป็นของ repo นี้ทั้งหมด ไม่ได้แก้ · แล้วเพิ่ม commit เปลี่ยนชื่อระบบย่อยและแก้ทางเข้า/ออก SSO ตามผลทดสอบกับ Core Hub จริง
+
+push (ครั้งแรกของ branch นี้):
 
 ```bash
-./standards/scripts/run-all-checks.sh .
+git push -u origin feature/gamification-knowledge/migrate-code-tower
 ```
 
-**PR แรกของ repo:** เป็นข้อยกเว้นของ `GH-03` ตาม aie-workflow ขั้น 9 — ให้ DevOps เป็นคน merge
+แล้วเปิด PR เข้า `main` (CI ของ repo นี้รันกับ PR ที่เข้า `main`) — **PR แรกของ repo:** ข้อยกเว้นของ `GH-03` ตาม aie-workflow ขั้น 9 ให้ DevOps เป็นคน merge
 
-**ขนาด PR:** branch นี้มีสองเรื่อง (ย้าย engine · backend) ถ้า PL อยากได้ PR เล็กตามขั้น 9 แยกได้เป็น
-- PR 1: `98598b3` ย้าย engine เข้า `packages/engine` (+ `869e4b7` เพดานความลึกของนิพจน์)
-- PR 2: ที่เหลือทั้งหมด (backend · เทสต์ · openapi · เอกสาร)
+**PR #1 ของ repo** (`bump-standards-v1-0-1` · ยังไม่ merge) เปลี่ยน standards เป็น v1.0.1 — merge แล้วให้ rebase branch นี้ตาม `main` ใหม่
+
+**ขนาด PR:** branch นี้ใหญ่ ถ้า PL อยากได้ PR เล็กตามขั้น 9 แยกได้เป็น
+- PR 1: ย้าย engine เข้า `packages/engine` (+ เพดานความลึกของนิพจน์)
+- PR 2: backend · เทสต์ · openapi
+- PR 3: frontend และ playtest รอบ A/B · เปลี่ยนชื่อระบบย่อย · SSO
 
 ## 3. payload ลงทะเบียน Core Hub
+
+`csmju2030/register-code-tower.cjs` ทำทั้งข้อนี้ (รับทุก 2xx · รันซ้ำได้) — หรือยิงเอง:
 
 ```bash
 curl -X POST $CORE_HUB_URL/api/v1/subsystems \
   -H "Authorization: Bearer $ADMIN_TOKEN" -H 'Content-Type: application/json' \
   -d '{
-    "name": "csmju-code-tower",
-    "displayName": "Code Tower หอคอยนักสู้อัตโนมัติ",
+    "name": "csmju-gamification-knowledge",
+    "displayName": "Gamification Knowledge — Code Tower",
     "owner": "<username ของเจ้าของระบบใน Core Hub>",
-    "repo": "CSMJU2030/csmju-code-tower",
+    "repo": "CSMJU2030/csmju-gamification-knowledge",
     "standardsVersion": "1.0.0",
     "callbackUrl": "http://localhost:3002/auth/callback",
     "defaultRoleMapping": { "student": "PLAYER", "alumni": "PLAYER", "staff": "INSTRUCTOR", "admin": "ADMIN" },
@@ -69,20 +68,22 @@ curl -X POST $CORE_HUB_URL/api/v1/subsystems \
 
 - `defaultRoleMapping` ต้องตรงกับ `backend/src/auth/role-mapping.ts` เป๊ะ — ค่านี้คือข้อเสนอ D3 ถ้า PL เปลี่ยน ต้องแก้ทั้งสองที่
 - `callbackUrl` ตอน dev ใช้ `http://localhost:3002/auth/callback` · บน Dev Server ต้องเป็น `https://…/auth/callback`
-- แล้ว `POST /api/v1/subsystems/:id/approve` และ `/activate`
+- แล้ว `POST /api/v1/subsystems/:id/approve` และ `/activate` — Core Hub ตอบ **201** · เรียกซ้ำได้ **409**
 
-## 4. ร่างข้อความ PR (ตาม `templates/pull_request_template.md`)
+## 4. ร่างข้อความ PR (ตาม `.github/pull_request_template.md`)
 
 ```markdown
 ## สรุปสิ่งที่ทำใน PR นี้
 
-ย้าย Code Tower เข้ามาตรฐาน CSMJU2030 ขั้น 1–2: engine เป็น pnpm workspace และ backend ใหม่
-(NestJS + Prisma 7 + PostgreSQL) ครบทุกโดเมนของเกม ผลการรบตรงกับเซิร์ฟเวอร์เดิม 132/132 ขั้น
+ย้าย Code Tower เข้ามาตรฐาน CSMJU2030 เป็นระบบย่อย csmju-gamification-knowledge:
+engine เป็น pnpm workspace · backend ใหม่ (NestJS + Prisma 7 + PostgreSQL) ครบทุกโดเมนของเกม ·
+frontend Next.js ทุกหน้า · playtest รอบ A/B · ทางเข้า/ออก SSO ตาม Core Hub จริง
+ผลการรบตรงกับเซิร์ฟเวอร์เดิม 132/132 ขั้น · conformance 62/62 L3 กับ csmju-core-hub (develop)
 
 ## ประเภทการเปลี่ยนแปลง
 
 - [x] `feat` — เพิ่มฟีเจอร์ใหม่
-- [x] `fix` — แก้บั๊ก (ที่เจอจากการทดสอบแบบพยายามล้ม)
+- [x] `fix` — แก้บั๊ก (ที่เจอจากการทดสอบแบบพยายามล้ม และจากการทดสอบกับ Core Hub จริง)
 - [ ] `refactor` — ปรับโครงสร้างโค้ด
 - [x] `chore` / `docs` / `test` / `ci`
 
@@ -92,16 +93,16 @@ curl -X POST $CORE_HUB_URL/api/v1/subsystems \
 - [x] submodule `standards/` ผูก v1.0.0 (ตรงกับ `.standards-version` และ `uses:` ใน ci.yml)
 - [x] Branch name ตรงรูปแบบ `feature/<subsystem>/<เรื่อง>`
 - [x] Commit message ตาม Conventional Commits ทุก commit
-- [ ] PR นี้โฟกัสเรื่องเดียว — มีสองเรื่อง (engine · backend) แยกได้ตาม docs/handoff-git.md ข้อ 2
+- [ ] PR นี้โฟกัสเรื่องเดียว — เป็นการย้ายทั้งระบบ แยกได้ตาม docs/handoff-git.md ข้อ 2
 
 ### สถาปัตยกรรม
 - [x] ไม่มี Database connection หรือ Prisma ใน `frontend/`
 - [ ] ไม่มี dependency นอก whitelist — `@tower/engine` (package ใน workspace เดียวกัน) รอ D2
-- [x] ไม่มี UI library อื่น (ยังไม่มี frontend)
+- [ ] ไม่มี UI library อื่น — ไม่มี แต่ `frontend/src/csmju/` เป็นชุดจำลองของ template (ยังไม่มี template จริง)
 
 ### Auth
 - [x] ไม่ได้สร้างหน้า login หรือ form username/password เอง
-- [ ] ไม่ได้เขียนโค้ด verify JWT signature เอง — ชั้น auth ตอนนี้เขียนตาม auth-contract.md
+- [ ] ไม่ได้เขียนโค้ด verify JWT signature เอง — ชั้น auth เขียนตาม auth-contract.md
       เพราะยังไม่มีสิทธิ์อ่าน demo-student-subsystem จะแทนด้วยไฟล์ของ reference ทันทีที่ได้สิทธิ์
 - [x] ไม่เก็บ token ใน `localStorage`
 
@@ -119,8 +120,10 @@ curl -X POST $CORE_HUB_URL/api/v1/subsystems \
 
 ## หมายเหตุสำหรับ PL
 
-- ผลรันจริงทั้งหมดอยู่ใน REPORT.md — run-all-checks 17/18 (ARC-02 รอ D2) · conformance 62/62 กับ Core Hub จำลอง
-- ต้องการคำตอบ D1–D6 (docs/design-csmju-migration.md ข้อ 4) โดยเฉพาะ D3 ก่อนลงทะเบียน
+- ผลรันจริงทั้งหมดอยู่ใน REPORT.md — run-all-checks 16/18 (ARC-02 รอ D2 · UI-01 เฉพาะเวทีเกม รอ D1) ·
+  conformance 62/62 กับ Core Hub จริง (develop 6674ef6 รันในเครื่อง) · ทดสอบเชื่อมระบบที่ docs/local-integration.md
+- ต้องการคำตอบ D1–D6 (docs/design-csmju-migration.md ข้อ 4) โดยเฉพาะ D3 ก่อนลงทะเบียนบน Dev Server
+- ออกจากระบบ: สัญญา 1.0 ไม่มี SSO logout — ปุ่มพาไปหน้าแรกของ Core Hub · session ของระบบนี้หมดเองใน ≤ 15 นาที
 - สามข้อใน PR template ขัดกับเอกสารฉบับอื่น จึงติ๊กตามเอกสารหลักแทน: "field เป็น snake_case",
   "ใช้ username" และ "error.code 6 ค่า" (ดู docs/handoff-git.md ข้อ 5)
 ```

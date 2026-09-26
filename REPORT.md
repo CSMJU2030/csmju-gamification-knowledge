@@ -1,7 +1,8 @@
-# REPORT — csmju-code-tower
+# REPORT — csmju-gamification-knowledge (Code Tower)
 
-> สถานะ: **ขั้น 1–2 ของแผนย้าย + frontend ชุดจำลอง** (docs/design-csmju-migration.md) · branch `feature/code-tower/migrate-backend`
-> frontend ครบทุกหน้าตาม G0 แต่ใช้ **ชุดจำลองของ template** (`frontend/src/csmju/`) และ **Core Hub จำลอง** — จะเชื่อมของจริงเมื่อได้สิทธิ์ (ดูหัวข้อสุดท้าย)
+> สถานะ: **ขั้น 1–2 ของแผนย้าย + frontend ชุดจำลอง** (docs/design-csmju-migration.md) · branch `feature/gamification-knowledge/migrate-code-tower`
+> repo `CSMJU2030/csmju-gamification-knowledge` · ชื่อระบบย่อย `csmju-gamification-knowledge` · Code Tower คือชื่อเกม
+> frontend ครบทุกหน้าตาม G0 แต่ใช้ **ชุดจำลองของ template** (`frontend/src/csmju/`) · **ทดสอบกับ Core Hub จริงแล้ว** (csmju-core-hub develop `6674ef6` รันในเครื่อง)
 
 ## ผลรัน
 
@@ -31,8 +32,8 @@
 ❌ 2 / 18 checks failed — merge would be blocked.
 ```
 
-`node standards/conformance/run.js` — **รันกับ Core Hub จำลอง** (สคริปต์ทดสอบของทีม ไม่อยู่ใน repo นี้)
-ผ่านกับตัวจำลอง ≠ ผ่านกับ Core Hub จริง ต้องรันซ้ำเมื่อได้ `CORE_HUB_URL`
+`node standards/conformance/run.js` — **รันกับ Core Hub จริง** (`csmju-core-hub` branch `develop` `6674ef6` รันในเครื่องโดยไม่แก้โค้ด ·
+`main` `c33a021` seed ไม่ได้ด้วย pnpm — ดู `docs/local-integration.md`) · ยังไม่มี `CORE_HUB_URL` ของ Dev Server
 
 ```
 
@@ -44,12 +45,12 @@
 
 ────────────────────────────────────────────────────────────
 RESULT: 62 passed · 0 failed · 0 skipped
-✅ CONFORMANT — csmju-code-tower meets standard v1.0 L3
+✅ CONFORMANT — csmju-gamification-knowledge meets standard v1.0 L3
 ```
 
-**ทดสอบเชื่อม 3 ระบบตาม LOCAL_INTEGRATION_GUIDE** (git clone ใหม่ของ branch นี้ + Core Hub จำลอง :3000/:3100 + demo จำลอง :3001):
-T1–T9 ผ่านทุกข้อ (T8 ปรับตาม D3 ที่อนุญาต alumni) · ทดสอบผ่านหน้าเว็บ Core Hub → Code Tower ผ่าน · conformance L1 32/32 และ L3 62/62
-รายละเอียดและตารางผลอยู่ที่ `docs/local-integration.md` ข้อ 4
+**ทดสอบกับ Core Hub จริง** (26 ก.ย. 2569 · API และเบราว์เซอร์จริง): ลงทะเบียน → approve → activate · token ของทั้ง 4 role · SSO → callback → คุกกี้ ·
+เข้าจากเมนูของ Core Hub · เปิด Code Tower โดยไม่มี session → login ที่ Core Hub → กลับหน้าเดิม · ปุ่มออกจากระบบ — ผลและสิ่งที่แก้อยู่ที่ `docs/local-integration.md`
+(ก่อนหน้านี้ทดสอบกับ Core Hub จำลอง ซึ่งซ่อนปัญหาไว้ 3 ข้อ: หน้า login ไม่อ่าน `?subsystem=` · ไม่มี `/logout` · POST ตอบ 201 ไม่ใช่ 200)
 
 **Playtest รอบ A (26 ก.ย. 2569)** — แก้หลอด MP ที่หมดทั้งที่ยังร่ายได้ · คำอธิบายสกิลจากค่าของตัวรบ · ครั้งแรกที่จุดใหม่ต้องดูฉากจนจบ + การ์ดผลบอกการเติบโตแบบก่อน → หลัง
 รายละเอียดอยู่ที่ `docs/playtest/round-a-2026-09-26.md`
@@ -146,7 +147,9 @@ T1–T9 ผ่านทุกข้อ (T8 ปรับตาม D3 ที่อ
 
 - **ARC-02 ตก** — `@tower/engine` ไม่อยู่ใน whitelist · รอ D2 (ร่าง issue: `docs/issues/D2-engine-workspace-package.md`)
   หมายเหตุ: `check-authorized-deps.sh` ของ v1.0.0 ไม่อ่าน `.compliance-exceptions.yml` แม้ ci-compliance-spec ข้อ 11.1 จะมีตัวอย่าง exception ของ ARC-02 — ต้องให้ DevOps ตัดสินว่าจะเพิ่ม whitelist หรือแก้สคริปต์
-- **ยังไม่ได้รันกับ Core Hub จริง** — conformance 62/62 และ T1–T9 เป็นผลกับตัวจำลอง · `csmju-core-hub` และ `demo-student-subsystem` เป็น private (clone แล้วได้ `could not read Username`) รอสิทธิ์จาก PM
+- **ยังไม่ได้รันกับ Core Hub บน Dev Server** — ทดสอบกับ `csmju-core-hub` develop ที่รันในเครื่องแล้ว · ยังไม่มี `CORE_HUB_URL` จริง
+- **`demo-student-subsystem` ยังอ่านไม่ได้** (clone แล้วได้ `could not read Username`) — ชั้น auth จึงยังไม่ใช่ของ reference
+- **ออกจากระบบ** — สัญญา 1.0 ไม่มี SSO logout ปุ่มจึงพาไปหน้าแรกของ Core Hub (ออกจากระบบที่นั่น) · session ของระบบนี้ยังใช้ได้จนหมดอายุ ≤ 15 นาที
 - **`prisma migrate deploy` ยังไม่ได้รันจริง** — เครื่องทดสอบออกเน็ตไป binaries.prisma.sh ไม่ได้ (ดูข้อถัดไป) · บนเครื่องที่ออกเน็ตได้ต้องรันตามคู่มือข้อ 6.3
 - **ชั้น auth ยังไม่ใช่ของ reference** — รอสิทธิ์ `demo-student-subsystem`
 - **UI-01 ตก เฉพาะเวทีเกม** — สีของ sprite เอฟเฟกต์ บล็อกโค้ด และหมุดบนแผนที่ (6 ไฟล์ใต้ `frontend/src/game-stage/`) รอ D1 · ไม่ได้แปลง hex เป็น `rgb()` เพื่อเลี่ยงการตรวจ เพราะเนื้อหายังเป็นสีนอก token อยู่ดี ให้ exception เป็นทางที่ตรวจสอบได้

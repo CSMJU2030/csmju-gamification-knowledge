@@ -1,124 +1,128 @@
-# ทดสอบเชื่อม 3 ระบบบนเครื่องตัวเอง — ฉบับ Code Tower
+# ทดสอบเชื่อม 3 ระบบบนเครื่องตัวเอง — ฉบับ Code Tower (csmju-gamification-knowledge)
 
 > ทำตาม `csmju2030-standards/docs/LOCAL_INTEGRATION_GUIDE.md` (บน `main` ของ standards) ทุกข้อ
-> เอกสารนี้บอกเฉพาะ **จุดที่ Code Tower ต่างจากตัวอย่าง `equipment`** ในคู่มือ และวิธีทดสอบด้วย **ตัวจำลอง**
-> ระหว่างที่ยังไม่มีสิทธิ์อ่าน `csmju-core-hub` กับ `demo-student-subsystem` (สอง repo นี้เป็น private)
+> เอกสารนี้บอกเฉพาะ **จุดที่ระบบนี้ต่างจากตัวอย่าง `equipment`** ในคู่มือ ผลรันกับ **Core Hub จริง**
+> และสิ่งที่เจอใน Core Hub (แจ้งเจ้าของ Core Hub — เราไม่ได้แก้ repo นั้น)
 
 ---
 
-## 1. ของจริงกับของจำลอง
+## 1. อะไรรันที่ไหน
 
-| คู่มือใช้ | พอร์ต | ตอนนี้ใช้ | อยู่ที่ไหน |
-|---|---|---|---|
-| `csmju-core-hub/backend` | 3000 | **Core Hub จำลอง** `csmju-core-hub-sim/backend/server.cjs` | นอก repo นี้ (โฟลเดอร์พี่น้องใน `csmju2030/`) |
-| `csmju-core-hub/frontend` | 3100 | **Core Hub จำลอง** `csmju-core-hub-sim/frontend/server.cjs` | นอก repo นี้ |
-| `demo-student-subsystem/backend` | 3001 | **demo จำลอง** `demo-student-subsystem-sim/server.cjs` | นอก repo นี้ |
-| ระบบของทีม backend | 3002 | `csmju-code-tower/backend` ของจริง | repo นี้ |
-| — | 3003 | `csmju-code-tower/frontend` ของจริง (คู่มือไม่มี frontend ของทีม) | repo นี้ |
+| คู่มือใช้ | พอร์ต | ตอนนี้ใช้ |
+|---|---|---|
+| `csmju-core-hub/backend` | 3000 | **ของจริง** — branch `develop` `6674ef6` (`main` `c33a021` seed ไม่ได้ ดูข้อ 5) |
+| `csmju-core-hub/frontend` | 3100 | **ของจริง** — `pnpm dev` (`next dev -H 127.0.0.1 -p 3100`) |
+| `demo-student-subsystem/backend` | 3001 | demo จำลอง `csmju2030/demo-student-subsystem-sim` — repo จริงยังอ่านไม่ได้ (`could not read Username`) |
+| ระบบของทีม backend | 3002 | `backend/` ของ repo นี้ |
+| — | 3003 | `frontend/` ของ repo นี้ (คู่มือไม่มี frontend ของทีม) |
 
-ตัวจำลองเป็น Node ล้วน ไม่มี dependency · ทำตามพฤติกรรมที่เขียนใน `auth-contract.md` และ `subsystem-registry.md`
-(กุญแจ RS256 จาก openssl · JWKS ดิบ · SSO ตรวจ 404 → 409 → 409 → 403 → 400 → 302 · ทะเบียน PENDING/INACTIVE → approve → activate)
-
-**ผ่านกับตัวจำลอง ≠ ผ่านกับของจริง** — ได้สิทธิ์แล้วต้องทำคู่มือซ้ำกับ Core Hub และ demo ตัวจริงทุกข้อ
+Core Hub จำลอง (`csmju2030/csmju-core-hub-sim`) ยังใช้กับตัวเปิดเว็บคลิกเดียว `csmju2030/run-web/start.cjs` ได้
+ปรับ URL และรหัสสถานะให้ตรงของจริงแล้ว (ข้อ 6) — แต่ผลที่นับคือผลกับของจริงในข้อ 4
 
 ## 2. ต่างจากตัวอย่าง `equipment` ตรงไหน
 
-| ข้อในคู่มือ | ตัวอย่าง equipment | Code Tower |
+| ข้อในคู่มือ | ตัวอย่าง equipment | ระบบนี้ |
 |---|---|---|
 | 3 ฐานข้อมูล | `equipment_db` | `code_tower_db` |
 | 6.1–6.2 สร้าง repo · วางโค้ดจาก demo | ต้องทำ | **ข้าม** — repo มีโค้ดครบแล้ว (ชั้น auth ยังเป็นฉบับเขียนตามสัญญา รอแทนด้วยของ demo) |
 | 6.2 `allowBuilds` | คัดลอกจาก demo | มีแล้วใน `pnpm-workspace.yaml` (prisma · @prisma/engines · esbuild) |
-| 6.3 `.env` | `SUBSYSTEM_ID=csmju-equipment` | `SUBSYSTEM_ID=csmju-code-tower` · `SSO_SUCCESS_REDIRECT=http://localhost:3003/` |
-| 6.3 frontend | — | `cp frontend/.env.example frontend/.env.local` (ชี้หน้า login/logout ของ Core Hub ที่ :3100) |
-| 6.4 ลงทะเบียน | mapping ไม่มี alumni | payload ใน `docs/handoff-git.md` ข้อ 3 — **มี alumni** (ข้อเสนอ D3) |
+| 6.3 `.env` | `SUBSYSTEM_ID=csmju-equipment` | `SUBSYSTEM_ID=csmju-gamification-knowledge` · `SSO_SUCCESS_REDIRECT=http://localhost:3003/` |
+| 6.3 frontend | — | `cp frontend/.env.example frontend/.env.local` — ค่าในนั้นตรงกับ Core Hub จริงแล้ว (ข้อ 3) |
+| 6.4 ลงทะเบียน | mapping ไม่มี alumni | `node csmju2030/register-code-tower.cjs` หรือ payload ใน `docs/handoff-git.md` ข้อ 3 — **มี alumni** (ข้อเสนอ D3) |
 | 6.5 รัน | `pnpm --filter backend start:dev` | เหมือนกัน + `pnpm --filter frontend build && pnpm --filter frontend start` (:3003) |
 | T3 | `"subsystemRole":"STUDENT"` | `"subsystemRole":"PLAYER"` |
-| T8 | alumni → 403 | alumni → **302** เพราะ Code Tower อนุญาต alumni · ทดสอบกรณีปฏิเสธด้วยการถอด alumni ออกจากทะเบียนชั่วคราว (ข้อ 4) |
+| T8 | alumni → 403 | alumni → **302** เพราะระบบนี้อนุญาต alumni · กรณีปฏิเสธทดสอบด้วยการถอด alumni ออกชั่วคราว |
 | ทดสอบหน้าเว็บ | alumni เห็น 1 ระบบ | alumni เห็น **2 ระบบ** |
 
-## 3. ลำดับคำสั่ง (Git Bash บน Windows ได้เหมือนกัน)
+## 3. เข้าและออกผ่าน Core Hub (ค่าใน `frontend/.env.example`)
 
-> ทางลัด: โฟลเดอร์ `csmju2030/` มี `start-sim.cjs` (เปิดตัวจำลองทั้ง 3 ตัวใน terminal เดียว + สร้างกุญแจให้ครั้งแรก)
-> และ `register-code-tower.cjs` (ข้อ 6.4 ทั้งข้อ รันซ้ำได้ ใช้กับ Core Hub จริงได้ด้วย) — วิธีรันบน Windows ทีละขั้นอยู่ใน `csmju2030/README.md`
+| ใช้ทำอะไร | URL | ทำไม |
+|---|---|---|
+| 401 → เข้าสู่ระบบ | `http://localhost:3100/api/sso/{subsystem}` | route ของหน้าเว็บ Core Hub ที่ขอ handoff แล้วส่งไป callback ของเรา · ยังไม่ login จะผ่าน `/login?next=…` แล้วกลับมาเอง · หน้า `/login` ไม่อ่าน `?subsystem=` |
+| ปุ่มออกจากระบบ | `http://localhost:3100/` | Core Hub ไม่มีหน้า logout แบบลิงก์ (`/logout` = 404) และสัญญา 1.0 ไม่มี SSO logout — ออกจากระบบที่หน้าแรกของ Core Hub · session ของเรายังใช้ได้จนหมดอายุ ≤ 15 นาที |
+| กลับหน้าหลัก | `http://localhost:3100/` | |
 
-โครงโฟลเดอร์ตามคู่มือข้อ 2:
+ใช้ `localhost` ไม่ใช่ `127.0.0.1`: `/api/sso` ของ Core Hub ส่งไปหน้า login ที่ `localhost:3100` เสมอ ไม่ว่าเบราว์เซอร์เปิดด้วย host ไหน
+และคุกกี้ของสอง host แยกกัน — ถ้าตั้งเป็น `127.0.0.1` คนที่ login ค้างไว้จะถูกพาไปหน้าแรกของ Core Hub แทนที่จะกลับมาที่นี่
+(คู่มือให้เปิด `http://127.0.0.1:3100` — ใช้ได้ แต่ถ้า Code Tower พาไป `localhost:3100` จะต้อง login อีกครั้งหนึ่ง)
 
-```text
-csmju2030/
-├── csmju2030-standards/            git clone https://github.com/CSMJU2030/csmju2030-standards.git
-├── csmju-core-hub-sim/             ตัวจำลอง (แทน csmju-core-hub)
-├── demo-student-subsystem-sim/     ตัวจำลอง (แทน demo-student-subsystem)
-└── csmju-code-tower/               repo นี้ (git clone --recurse-submodules …)
+## 4. ผลรันกับ Core Hub จริง (26 ก.ย. 2569 · develop `6674ef6` · ไม่ได้แก้โค้ดของ Core Hub)
+
+| # | ทดสอบ | ผล |
+|---|---|---|
+| ลงทะเบียน | `register-code-tower.cjs` ครั้งแรก (ทะเบียนมีชื่อเดิม `csmju-code-tower` ค้าง) | ✅ ลบชื่อเดิม → `PENDING/INACTIVE` → `APPROVED/ACTIVE` |
+| ลงทะเบียน | รันซ้ำ | ✅ อัปเดตข้อมูล · ไม่เรียก approve/activate ซ้ำ (ของจริงตอบ 409 ถ้าเรียก) |
+| login | admin · student · staff · alumni | ✅ 201 ทั้ง 4 (NestJS ตอบ 201 ให้ POST ทุกตัว) |
+| T1 | JWKS ดิบ | ✅ ขึ้นต้น `{"keys":[` · `kid` `core-hub-2026` |
+| T3 | token ของ Core Hub → `/api/v1/me` | ✅ admin → `ADMIN` · student → `PLAYER` · staff → `INSTRUCTOR` · alumni → `PLAYER` |
+| T4 · T5 | ไม่มี token · token ปลอม | ✅ 401 · 401 |
+| T7 | SSO ทั้ง 4 role | ✅ 302 → `http://localhost:3002/auth/callback?access_token,token_type,expires_in,state` → callback 302 → `http://localhost:3003/?state=…` + `Set-Cookie: core_hub_access_token` (HttpOnly · Lax · 899 วินาที) → `/me` ด้วยคุกกี้ 200 |
+| T8 (ตามทะเบียน) | alumni | ✅ 302 |
+| T8 (ดัดแปลง) | ถอด alumni ออกชั่วคราว → alumni | ✅ 403 · คืนค่าแล้วกลับเป็น 302 |
+| SSO ผิด | ไม่มี Bearer · callback_url ไม่ตรง · ระบบไม่มี | ✅ 401 · 400 · 404 |
+| token | header · claim | `RS256` `core-hub-2026` · `sub email role sid iss aud iat exp` · iss `core-hub` · aud `csmju2030` · อายุ 900 วินาที |
+| W1–W3 | เปิด :3100 → login admin → เมนูระบบย่อย → กดระบบนี้ | ✅ เมนูมี CSMJU Student Service และ Gamification Knowledge — Code Tower → เข้า :3003 `/me` 200 `ADMIN` |
+| W4 | ปุ่มออกจากระบบใน Code Tower | ✅ ไปหน้าแรกของ Core Hub (มีปุ่มออกจากระบบของ Core Hub) |
+| W5 | alumni | ✅ เห็น 2 ระบบ |
+| W6–W7 | เปิด :3003/items โดยไม่มี session | ✅ `localhost:3100/login?next=%2Fapi%2Fsso%2Fcsmju-gamification-knowledge` → login student → กลับมาที่ `/items` `/me` 200 `PLAYER` |
+| W8 | session ของเราหายแต่ Core Hub ยัง login อยู่ → เปิด `/history` | ✅ กลับมาที่ `/history` เองโดยไม่ต้องกรอกอะไร |
+| conformance | `node standards/conformance/run.js` | ✅ 62 passed · 0 failed · 0 skipped · L3 |
+| run-all-checks | branch นี้เทียบ `main` | 16/18 — ARC-02 (รอ D2) · UI-01 เฉพาะเวทีเกม (รอ D1) |
+
+W1–W8 คือ `csmju2030/web-test.mjs` (Playwright · เบราว์เซอร์จริง · ไม่ใส่คุกกี้เอง) — สคริปต์เดียวกันรันกับตัวจำลองได้ผลเหมือนกันทุกข้อ
+
+**ก่อนแก้** (ค่าเดิมที่ทำไว้ตามตัวจำลอง) กับ Core Hub จริง:
+`/login?subsystem=` → login แล้วค้างที่หน้าแรกของ Core Hub · `/logout?subsystem=` → 404 และ session ของเรายังอยู่ ·
+`register-code-tower.cjs` ล้มที่ขั้นแรก `login admin ไม่ผ่าน (201)` และรันซ้ำได้ 409 ที่ approve/activate
+
+## 5. สิ่งที่เจอใน Core Hub (แจ้งเจ้าของ Core Hub — ไม่ได้แก้)
+
+| ที่ | สิ่งที่เจอ | ผล |
+|---|---|---|
+| `main` `c33a021` | `node dist/prisma/seed.js` → `Cannot find module 'dotenv/config'` เมื่อติดตั้งด้วย pnpm | ทำตาม README ของ `main` ไม่จบ · `develop` แก้แล้ว (`5726b1f`) แต่ยังไม่ merge (`develop` นำ 8 commit) |
+| `frontend/app/api/sso/[subsystem]/route.ts` | redirect ไป `/login` สร้างจาก `request.url` ได้ `localhost:3100` เสมอ | เปิดด้วย `127.0.0.1` แล้วโดนย้าย host · คุกกี้คนละชุด |
+| `frontend/app/login/page.tsx` | `next` ที่เป็น `/api/sso/…` ใช้ `router.replace` — client router ยิง route นั้นแบบ fetch อีก 2 ครั้งก่อนเปลี่ยนหน้าจริง | ออก token 3 ใบต่อการกดหนึ่งครั้ง (ใช้งานได้) |
+| `frontend/proxy.ts` | login อยู่แล้วเปิด `/login?next=…` → ไปหน้าแรก ไม่สน `next` | ผู้ใช้ที่ login ค้างอยู่ไม่ถูกพาไปต่อ |
+| ทั้ง frontend | ไม่มี `GET /logout` · ออกจากระบบคือ `POST /api/auth/logout` จาก JS | ระบบย่อยลิงก์ไปออกจากระบบตรง ๆ ไม่ได้ |
+| backend | ไม่มี `@HttpCode` — POST ทุกตัวตอบ 201 (login · approve · activate) | สคริปต์ที่รอ 200 ล้ม · ระบบย่อยควรรับทุก 2xx |
+
+## 6. ลำดับคำสั่ง
+
+Core Hub จริง — ทำตาม `csmju-core-hub/README.md` และ `backend/README.md` (branch `develop`):
+
+```bash
+cd csmju-core-hub && cp backend/.env.example backend/.env && cp frontend/.env.example frontend/.env.local
+pnpm install
+cd backend && mkdir -p keys && openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048 -out keys/jwt-private.pem && openssl rsa -in keys/jwt-private.pem -pubout -out keys/jwt-public.pem
+npx prisma migrate deploy && pnpm run build && node dist/prisma/seed.js
+node dist/src/main.js                     # :3000
 ```
 
 ```bash
-createdb code_tower_db
+cd csmju-core-hub/frontend && pnpm dev     # :3100
 ```
 
-```bash
-cd csmju-core-hub-sim/backend && mkdir -p keys && openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048 -out keys/jwt-private.pem
-```
-
-5 terminal ค้างไว้:
+ระบบนี้:
 
 ```bash
-cd csmju2030/csmju-core-hub-sim/backend && node server.cjs          # :3000
-```
-
-```bash
-cd csmju2030/csmju-core-hub-sim/frontend && node server.cjs         # :3100
-```
-
-```bash
-cd csmju2030/demo-student-subsystem-sim && node server.cjs          # :3001
-```
-
-```bash
-cd csmju2030/csmju-code-tower && pnpm install && cp backend/.env.example backend/.env && cp frontend/.env.example frontend/.env.local
-```
-
-แก้ `DATABASE_URL` ใน `backend/.env` ให้ตรงเครื่อง แล้ว:
-
-```bash
+cd csmju-gamification-knowledge && pnpm install && cp backend/.env.example backend/.env && cp frontend/.env.example frontend/.env.local
 pnpm --filter backend exec prisma migrate deploy && pnpm --filter backend start:dev     # :3002
 ```
 
 ```bash
-cd csmju2030/csmju-code-tower && pnpm --filter frontend build && pnpm --filter frontend start   # :3003
+cd csmju-gamification-knowledge && pnpm --filter frontend build && pnpm --filter frontend start   # :3003
 ```
 
-ลงทะเบียน (คู่มือข้อ 6.4 — payload เต็มอยู่ใน `docs/handoff-git.md` ข้อ 3) แล้ว approve + activate
-ทะเบียนของตัวจำลองเก็บใน `csmju-core-hub-sim/backend/data/registry.json` — รีสตาร์ตแล้วไม่หาย ลงทะเบียนครั้งเดียวพอ
+```bash
+node csmju2030/register-code-tower.cjs     # ลงทะเบียน + approve + activate · รันซ้ำได้
+```
 
-เปิด http://127.0.0.1:3100 → login `admin@core.local` → กด **Code Tower หอคอยนักสู้อัตโนมัติ** → เข้าหน้าเว็บ :3003
+เปิด http://localhost:3100 → login `admin@core.local` / `password1` → เมนู **Gamification Knowledge — Code Tower**
 
-## 4. ผลรันจริง (25 ก.ย. 2569 · git clone ใหม่ของ branch นี้ · ตัวจำลองทั้งสองตัว)
+เครื่องทดสอบของเราออกเน็ตไป `binaries.prisma.sh` และ Google Fonts ไม่ได้ จึงใช้ทางสำรองที่ไม่แตะโค้ด:
+`psql -f` migration ทีละไฟล์แทน `prisma migrate deploy` (ทั้งสองระบบ) และ `pnpm dev` แทน `next build` ของ Core Hub
+— บนเครื่องที่ออกเน็ตได้ใช้คำสั่งข้างบนได้เลย
 
-| # | ทดสอบ | ผล |
-|---|---|---|
-| ลงทะเบียน | ไม่ส่ง `requestedExceptions` | 400 `requestedExceptions ต้องเป็น array` (ตรงตาราง "พลาดบ่อย") |
-| ลงทะเบียน | payload ครบ | 201 · PENDING/INACTIVE |
-| ก่อน approve / ก่อน activate | SSO | 409 / 409 |
-| T1 | JWKS ดิบ | ✅ ขึ้นต้น `{"keys":[` |
-| T2 | demo รับ token | ✅ `STUDENT` |
-| T3 | Code Tower รับ token เดียวกัน | ✅ `PLAYER` |
-| T4 · T5 | ไม่มี token · token ปลอม | ✅ 401 · 401 |
-| T6 · T7 | SSO ไป demo · ไป Code Tower | ✅ `Location: http://localhost:3001/auth/callback?…` · `…3002/auth/callback?…` |
-| T8 (ตามทะเบียนจริง) | alumni → Code Tower | ✅ 302 (อนุญาตตาม D3) |
-| T8 (ดัดแปลง) | ถอด alumni ออกชั่วคราว → alumni | ✅ 403 · คืนค่าแล้วกลับเป็น 302 |
-| T9 | alumni → demo | ✅ 302 |
-| เพิ่ม | callback ของ Code Tower | ✅ `Set-Cookie: core_hub_access_token=…; HttpOnly; SameSite=Lax` + `Location: http://localhost:3003/` |
-| หน้าเว็บ | admin login ที่ :3100 | ✅ เมนูมี CSMJU Student Service และ Code Tower → กดแล้วเข้า :3003 ได้ `subsystemRole = ADMIN` |
-| หน้าเว็บ | ออกจากระบบใน Code Tower | ✅ กลับหน้า login ของ Core Hub · เปิด :3003 อีกครั้งถูกพาไป login |
-| หน้าเว็บ | alumni | ✅ เห็น 2 ระบบ |
-| หน้าเว็บ | เปิด :3003/items โดยไม่มี session | ✅ ไป login ของ Core Hub → login → SSO → กลับมาที่ `/items` |
-| conformance L1 | `node standards/conformance/run.js --level L1` | ✅ 32 passed · 0 failed · 0 skipped |
-| conformance | `node standards/conformance/run.js` | ✅ 62 passed · 0 failed · 0 skipped · L3 |
-| run-all-checks | ในโฟลเดอร์ที่ clone ใหม่ | 16/18 — ARC-02 (รอ D2) · UI-01 เฉพาะเวทีเกม (รอ D1) |
+ตัวจำลอง (ทางลัดสำหรับลองเล่น): `node csmju2030/run-web/start.cjs` — ขั้นตอนบน Windows อยู่ใน `csmju2030/README.md`
 
-เรื่องที่เจอระหว่างทำตามคู่มือ:
-
-- `pnpm install` เตือน `Ignored build scripts: prisma, @prisma/engines …` — เพิ่ม `allowBuilds` ใน `pnpm-workspace.yaml` แล้ว (คู่มือข้อ 6.2)
-- `prisma migrate deploy` ต้องดาวน์โหลด schema engine — เครื่องทดสอบของเราออกเน็ตไป `binaries.prisma.sh` ไม่ได้ (403)
-  จึงใช้ทางสำรองใน README (`psql -f …/migration.sql`) · บนเครื่องที่ออกเน็ตได้ใช้คำสั่งตามคู่มือได้เลย
-- คู่มือบอกว่า pnpm ต้องเป็น 12.x แต่ `new-subsystem.sh` บน `main` ตั้ง `packageManager` เป็น `pnpm@9.15.9` · repo นี้ใช้ `pnpm@10.28.0` (lockfile v9) — แจ้ง PL ให้ยืนยันเวอร์ชันเดียว
+- คู่มือบอกว่า pnpm ต้องเป็น 12.x แต่ `new-subsystem.sh` ตั้ง `packageManager` เป็น `pnpm@9.15.9` · repo นี้ใช้ `pnpm@10.28.0` (lockfile v9) — แจ้ง PL ให้ยืนยันเวอร์ชันเดียว
