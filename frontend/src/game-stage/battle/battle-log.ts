@@ -27,6 +27,8 @@ export interface LogContext {
   skillName: (skillId: string | undefined) => string;
   /** ฉากดวล: ไม่มี 10 เวฟ event ของระบบจึงหมายถึงเริ่ม/จบการดวล */
   duel?: boolean;
+  /** จำนวนเวฟทั้งหมด (เว้นไว้ = 10) — ตัวอย่างอาชีพมีแค่ 3 เวฟ */
+  waveTotal?: number;
 }
 
 export function describeEvent(ev: CombatEvent, ctx: LogContext): LogEntry[] {
@@ -36,7 +38,7 @@ export function describeEvent(ev: CombatEvent, ctx: LogContext): LogEntry[] {
     }
     return [
       ev.note === 'wave_start'
-        ? { text: `เวฟ ${ev.wave}/${MAX_WAVE} เริ่มต้น`, kind: 'wave' }
+        ? { text: `เวฟ ${ev.wave}/${ctx.waveTotal ?? MAX_WAVE} เริ่มต้น`, kind: 'wave' }
         : { text: `เคลียร์เวฟ ${ev.wave} แล้ว`, kind: 'wave' },
     ];
   }

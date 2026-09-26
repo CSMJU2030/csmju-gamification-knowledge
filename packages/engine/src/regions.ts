@@ -134,10 +134,12 @@ export function buildRegionWaves(
 ): WaveSpec[] {
   const region = getRegion(regionId)!;
   const floor = floorForRegion(regionId, depth);
+  // กลไกของโซนอาจเริ่มที่รอบหลัง ๆ (minDepth) — รอบก่อนหน้านั้นเหมือนไม่มีกลไก ไม่กิน rng เพิ่ม
+  const mechanic = region.mechanic && depth >= (region.mechanic.minDepth ?? 1) ? region.mechanic : undefined;
   return buildWavesFor(floor, partySize, seed, {
     pool: region.pool,
     threatRole: region.threatRole,
     elite,
-    mechanic: region.mechanic,
+    mechanic,
   });
 }

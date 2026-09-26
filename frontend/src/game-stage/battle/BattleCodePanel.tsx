@@ -34,6 +34,8 @@ interface Props {
    */
   programDriven: boolean;
   finished: boolean;
+  /** หัวแผง (เว้นไว้ = "โค้ดของคุณ") — ตัวอย่างอาชีพใช้ "โปรแกรมตัวอย่าง" */
+  title?: string;
 }
 
 function status(p: Props): { tone: StatusTone; text: string } {
@@ -57,7 +59,7 @@ function status(p: Props): { tone: StatusTone; text: string } {
 }
 
 export default function BattleCodePanel(props: Props) {
-  const { source, loadError, onRetry, code, programDriven } = props;
+  const { source, loadError, onRetry, code, programDriven, title = 'โค้ดของคุณ' } = props;
   const headingId = useId();
   const bodyRef = useRef<HTMLDivElement | null>(null);
   const activeRef = useRef<HTMLLIElement | null>(null);
@@ -88,7 +90,7 @@ export default function BattleCodePanel(props: Props) {
     <section className={`${cardClass} flex flex-col`} aria-labelledby={headingId}>
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-outline-variant/40 px-4 py-3 md:px-6">
         <h2 id={headingId} className="font-display text-label-md text-on-surface">
-          โค้ดของคุณ
+          {title}
         </h2>
         <StatusBadge tone={st.tone}>{st.text}</StatusBadge>
       </div>
@@ -96,7 +98,7 @@ export default function BattleCodePanel(props: Props) {
       <div
         ref={bodyRef}
         tabIndex={0}
-        aria-label="โค้ดของคุณระหว่างรบ"
+        aria-label={`${title}ระหว่างรบ`}
         className={`${PANEL_HEIGHT} relative overflow-auto focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary-container`}
       >
         {/* ข้อความนี้ค้างไว้ข้ามเทิร์นมอนด้วย (ไม่ผูกกับ code.active) — ถ้าโผล่ ๆ หาย ๆ

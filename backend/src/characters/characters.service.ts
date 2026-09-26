@@ -1,9 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { PLAYABLE_CLASSES, gamedata, type ClassId } from '@tower/engine';
+import { PLAYABLE_CLASSES, gamedata, type ClassId, type CombatEvent } from '@tower/engine';
 import { conflict } from '../common/api-error';
 import { Prisma } from '../generated/prisma/client';
 import { type CharacterView } from '../game/character.view';
-import { loadCharacterView, lockCharacter, requireCharacter } from '../game/character.repository';
+import { equippedItems, loadCharacterView, lockCharacter, requireCharacter } from '../game/character.repository';
+import { TRIAL_WAVES, demoProgram, runTrial, trialSummary, type TrialSummary } from '../game/class-trial';
+import { HERO_ID, buildHero } from '../game/progression';
 import { CLASS_CHOICE_FLOOR, STARTING_CLASS, TRIVIAL_PROGRAM } from '../game/game-rules';
 import { PrismaService } from '../prisma/prisma.service';
 
@@ -77,4 +79,51 @@ export class CharactersService {
     });
     return loadCharacterView(this.prisma, own.id);
   }
+
+  /**
+   * ตัวอย่างการรบของอาชีพหนึ่งก่อนเลือก (playtest รอบ B ข้อ 3) — ไม่บันทึกอะไรเลย
+   * ใช้ตัวละครจริงของผู้เล่น (เลเวล สเตตัส ของที่สวม) เปลี่ยนแค่อาชีพและโปรแกรมเป็นตัวอย่าง
+   * ทุกอาชีพเจอเวฟเดียวกัน (seed คงที่) จึงเทียบกันได้ตรง ๆ
+   */
+  async classTrial(coreUserId: string, classId: string): Promise<ClassTrialView> {
+    const row = await requireCharacter(this.prisma, coreUserId);
+    if (!(PLAYABLE_CLASSES as readonly string[]).includes(classId)) {
+      throw conflict(`ดูตัวอย่างได้เฉพาะ ${PLAYABLE_CLASSES.join(' · ')} เท่านั้น`);
+    }
+    if (row.classId !== STARTING_CLASS) {
+      throw conflict('เลือกอาชีพไปแล้ว — ตัวอย่างการรบมีไว้ช่วยตัดสินใจก่อนเลือกเท่านั้น');
+    }
+    const demo = demoProgram(classId as ClassId, row.level);
+    const floor = Math.max(1, row.highestFloor);
+    const { combatant, derived } = buildHero(
+      { ...row, classId, programSource: demo.source },
+      await equippedItems(this.prisma, row.id),
+    );
+    const result = runTrial(combatant, floor);
+    return {
+      classId,
+      level: row.level,
+      floor,
+      waves: TRIAL_WAVES,
+      program: demo.source,
+      skills: demo.skills,
+      maxHp: derived.maxHp,
+      maxMp: derived.maxMp,
+      result: { victory: result.victory, wavesCleared: result.wavesCleared, events: result.events },
+      summary: trialSummary(result.events, HERO_ID, derived.maxHp),
+    };
+  }
+}
+
+export interface ClassTrialView {
+  classId: string;
+  level: number;
+  floor: number;
+  waves: number;
+  program: string;
+  skills: string[];
+  maxHp: number;
+  maxMp: number;
+  result: { victory: boolean; wavesCleared: number; events: CombatEvent[] };
+  summary: TrialSummary;
 }

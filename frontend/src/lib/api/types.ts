@@ -21,6 +21,7 @@ export type ItemUpgrade = S['ItemUpgradeDto'];
 export type Region = S['RegionDto'];
 export type RegionRun = S['RegionRunDto'];
 export type BattleOutcome = S['BattleOutcomeDto'];
+export type ClassTrial = S['ClassTrialDto'];
 export type BattleResult = S['BattleResultDto'];
 export type CombatEvent = S['CombatEventDto'];
 export type DuelBlock = S['DuelBlockDto'];

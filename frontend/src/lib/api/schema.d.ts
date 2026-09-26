@@ -90,6 +90,23 @@ export interface paths {
         patch: operations["Characters_update"];
         trace?: never;
     };
+    "/api/v1/characters/current/class-trials": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** ตัวอย่างการรบของอาชีพก่อนเลือก — ตัวละครจริง เวฟเดียวกันทุกอาชีพ ไม่ได้รางวัลและไม่บันทึก */
+        post: operations["Characters_classTrial"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/programs/current": {
         parameters: {
             query?: never;
@@ -452,6 +469,75 @@ export interface components {
              */
             classId: "warrior" | "mage" | "guardian";
         };
+        CombatTargetDto: {
+            id: string;
+            name: string;
+            damage?: number;
+            heal?: number;
+            shield?: number;
+            crit?: boolean;
+            evaded?: boolean;
+            killed?: boolean;
+            hpAfter: number;
+        };
+        CombatEventDto: {
+            turn: number;
+            wave: number;
+            actorId: string;
+            actorName: string;
+            /** @enum {string} */
+            action: "attack" | "skill" | "defend";
+            skillId?: string;
+            targets: components["schemas"]["CombatTargetDto"][];
+            /** @enum {string} */
+            note?: "wave_start" | "wave_clear" | "defend" | "windup";
+            /** @description บรรทัดในโปรแกรม BloxCode ที่ตัดสินใจเทิร์นนี้ (0 = การกระทำสำรอง) */
+            line?: number;
+            /** @description คำเตือนตอนรันโปรแกรม */
+            codeWarnings?: string[];
+            /** @description MP ของผู้ลงมือหลังจบเทิร์นนี้ (หักค่าร่ายและฟื้นตอนจบเทิร์นแล้ว) — ไม่มีใน event ของระบบ */
+            mpAfter?: number;
+        };
+        ClassTrialResultDto: {
+            victory: boolean;
+            wavesCleared: number;
+            events: components["schemas"]["CombatEventDto"][];
+        };
+        ClassTrialSummaryDto: {
+            /** @description จำนวนเทิร์นที่ตัวละครได้ลงมือ */
+            turns: number;
+            /** @description ร่ายสกิลกี่ครั้ง */
+            skillCasts: number;
+            damageDealt: number;
+            damageTaken: number;
+            /** @description เลือดที่เหลือตอนจบ (% ของหลอด) */
+            hpLeftPct: number;
+        };
+        ClassTrialDto: {
+            /** @enum {string} */
+            classId: "warrior" | "mage" | "guardian";
+            /** @description เลเวลของตัวละครที่ใช้ (เลเวลปัจจุบัน) */
+            level: number;
+            /** @description ชั้นของเวฟตัวอย่าง (ชั้นที่ผ่านล่าสุด อย่างน้อย 1) */
+            floor: number;
+            /** @description จำนวนเวฟของตัวอย่าง */
+            waves: number;
+            /** @description โปรแกรมตัวอย่าง — เขียนด้วยไวยากรณ์ที่ใช้ได้ตั้งแต่ผ่านชั้น 1 */
+            program: string;
+            /** @description สกิลที่โปรแกรมตัวอย่างเรียก (ที่ปลดแล้วที่เลเวลนี้) */
+            skills: string[];
+            maxHp: number;
+            maxMp: number;
+            result: components["schemas"]["ClassTrialResultDto"];
+            summary: components["schemas"]["ClassTrialSummaryDto"];
+        };
+        CreateClassTrialDto: {
+            /**
+             * @description อาชีพที่อยากเห็นตัวอย่าง
+             * @enum {string}
+             */
+            classId: "warrior" | "mage" | "guardian";
+        };
         ProgramSkillDto: {
             id: string;
             nameTh: string;
@@ -564,35 +650,6 @@ export interface components {
             id: string;
             /** @enum {boolean} */
             deleted: true;
-        };
-        CombatTargetDto: {
-            id: string;
-            name: string;
-            damage?: number;
-            heal?: number;
-            shield?: number;
-            crit?: boolean;
-            evaded?: boolean;
-            killed?: boolean;
-            hpAfter: number;
-        };
-        CombatEventDto: {
-            turn: number;
-            wave: number;
-            actorId: string;
-            actorName: string;
-            /** @enum {string} */
-            action: "attack" | "skill" | "defend";
-            skillId?: string;
-            targets: components["schemas"]["CombatTargetDto"][];
-            /** @enum {string} */
-            note?: "wave_start" | "wave_clear" | "defend" | "windup";
-            /** @description บรรทัดในโปรแกรม BloxCode ที่ตัดสินใจเทิร์นนี้ (0 = การกระทำสำรอง) */
-            line?: number;
-            /** @description คำเตือนตอนรันโปรแกรม */
-            codeWarnings?: string[];
-            /** @description MP ของผู้ลงมือหลังจบเทิร์นนี้ (หักค่าร่ายและฟื้นตอนจบเทิร์นแล้ว) — ไม่มีใน event ของระบบ */
-            mpAfter?: number;
         };
         BattleDropsDto: {
             gold: number;
@@ -1034,6 +1091,79 @@ export interface operations {
                         /** @enum {boolean} */
                         success: true;
                         data: components["schemas"]["CharacterDto"];
+                    };
+                };
+            };
+            /** @description BAD_REQUEST หรือ VALIDATION_ERROR */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelopeDto"];
+                };
+            };
+            /** @description UNAUTHORIZED — ไม่มี token หรือ token ใช้ไม่ได้ */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelopeDto"];
+                };
+            };
+            /** @description FORBIDDEN — สิทธิ์ไม่พอ */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelopeDto"];
+                };
+            };
+            /** @description NOT_FOUND */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelopeDto"];
+                };
+            };
+            /** @description CONFLICT — สถานะปัจจุบันไม่อนุญาต */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelopeDto"];
+                };
+            };
+        };
+    };
+    Characters_classTrial: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateClassTrialDto"];
+            };
+        };
+        responses: {
+            /** @description สำเร็จ */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @enum {boolean} */
+                        success: true;
+                        data: components["schemas"]["ClassTrialDto"];
                     };
                 };
             };

@@ -73,6 +73,33 @@ describe('ตัวละคร', () => {
     await http.patch('/api/v1/characters/current').set(as('p-alice')).send({ classId: 'warrior' }).expect(409);
     await http.patch('/api/v1/characters/current').set(as('p-alice')).send({ classId: 'novice' }).expect(400);
   });
+
+  it('playtest รอบ B: ดูตัวอย่างอาชีพได้ก่อนเลือก (ไม่บันทึก) · อาชีพผิด → 400 · เลือกแล้ว → 409', async () => {
+    await http.post('/api/v1/characters').set(as('p-trial')).send({ displayName: 'trial' }).expect(201);
+    const before = (await http.get('/api/v1/characters/current').set(as('p-trial'))).body.data;
+    const res = await http.post('/api/v1/characters/current/class-trials').set(as('p-trial')).send({ classId: 'mage' }).expect(200);
+    const t = res.body.data;
+    expect(t).toMatchObject({ classId: 'mage', level: 1, floor: 1, waves: 3, skills: ['m_firebolt'] });
+    expect(t.program).toContain('cast("firebolt"');
+    expect(t.result.events.some((e: { actorId: string; skillId?: string }) => e.actorId === 'p1' && e.skillId === 'm_firebolt')).toBe(true);
+    expect(t.summary.skillCasts).toBeGreaterThan(0);
+    // ไม่บันทึกอะไร: ตัวละครเหมือนเดิมทุกค่า และไม่มีบันทึกการรบเพิ่ม
+    const after = (await http.get('/api/v1/characters/current').set(as('p-trial'))).body.data;
+    expect(after).toEqual(before);
+    expect((await http.get('/api/v1/battles').set(as('p-trial'))).body.meta.total).toBe(0);
+
+    const bad = await http.post('/api/v1/characters/current/class-trials').set(as('p-trial')).send({ classId: 'novice' }).expect(400);
+    expect(bad.body.error.code).toBe('VALIDATION_ERROR');
+
+    // ผ่านชั้น 1 แล้วเลือกอาชีพ → ดูตัวอย่างไม่ได้แล้ว
+    let won = false;
+    for (let i = 0; i < 6 && !won; i++) {
+      won = (await http.post('/api/v1/battles').set(as('p-trial')).send({ towerFloor: 1 }).expect(201)).body.data.result.victory;
+    }
+    expect(won).toBe(true);
+    await http.patch('/api/v1/characters/current').set(as('p-trial')).send({ classId: 'warrior' }).expect(200);
+    await http.post('/api/v1/characters/current/class-trials').set(as('p-trial')).send({ classId: 'mage' }).expect(409);
+  });
 });
 
 describe('การรบและกระเป๋า', () => {

@@ -74,6 +74,13 @@ export interface BalanceTuning {
    * อยู่ใน gamedata ไม่ใช่ในโค้ด เพื่อให้เปิดได้โดยไม่ต้องแก้โค้ดเมื่อจูนเสร็จ
    */
   levelSyncEnabled: boolean;
+  /**
+   * ตัวคูณ EXP ของมอนเลเวล 2 (ชั้น 1) — ไล่ขึ้นเป็น 1 ที่ `earlyExpFullLevel` (playtest รอบ B)
+   * ไม่ตั้ง = ไม่ลด · ดูเหตุผลที่ earlyExpMult() ใน battle.ts
+   */
+  earlyExpMult?: number;
+  /** เลเวลมอนที่เริ่มจ่าย EXP เต็ม (มอนเลเวล = ชั้น × 2) */
+  earlyExpFullLevel?: number;
 }
 
 /**

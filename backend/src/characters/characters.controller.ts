@@ -3,6 +3,7 @@
  *   POST  /api/v1/characters           สร้างตัวละคร (แทน /auth/register เดิม)
  *   GET   /api/v1/characters/current   แทน GET /me เดิม
  *   PATCH /api/v1/characters/current   เลือกอาชีพ (แทน POST /me/class เดิม)
+ *   POST  /api/v1/characters/current/class-trials   ตัวอย่างการรบของอาชีพก่อนเลือก (ไม่บันทึก)
  */
 import { Body, Controller, Get, HttpCode, Patch, Post } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
@@ -13,7 +14,8 @@ import { Permission } from '../auth/permissions';
 import { ApiErrors, ApiSuccess } from '../common/swagger';
 import type { CharacterView } from '../game/character.view';
 import { CharacterDto, CreateCharacterDto, UpdateCharacterDto } from './character.dto';
-import { CharactersService } from './characters.service';
+import { ClassTrialDto, CreateClassTrialDto } from './class-trial.dto';
+import { CharactersService, type ClassTrialView } from './characters.service';
 
 @ApiTags('characters')
 @Controller('v1/characters')
@@ -46,5 +48,17 @@ export class CharactersController {
   @ApiErrors(400, 401, 403, 404, 409)
   update(@CurrentUser() user: AuthUser, @Body() body: UpdateCharacterDto): Promise<CharacterView> {
     return this.characters.chooseClass(user.coreUserId, body.classId);
+  }
+
+  @Post('current/class-trials')
+  @HttpCode(200)
+  @RequirePermissions(Permission.CHARACTER_READ_OWN)
+  @ApiOperation({
+    summary: 'ตัวอย่างการรบของอาชีพก่อนเลือก — ตัวละครจริง เวฟเดียวกันทุกอาชีพ ไม่ได้รางวัลและไม่บันทึก',
+  })
+  @ApiSuccess(ClassTrialDto)
+  @ApiErrors(400, 401, 403, 404, 409)
+  classTrial(@CurrentUser() user: AuthUser, @Body() body: CreateClassTrialDto): Promise<ClassTrialView> {
+    return this.characters.classTrial(user.coreUserId, body.classId);
   }
 }

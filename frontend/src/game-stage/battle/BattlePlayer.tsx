@@ -58,6 +58,10 @@ export interface BattlePlayerProps {
    * ดูจบหนึ่งรอบแล้วปลดให้ข้าม/4× ได้ในการเล่นซ้ำ · ค่าเริ่มต้น true (เช่นฉากดวล)
    */
   canSkip?: boolean;
+  /** โปรแกรมที่ขับการรบนี้ ถ้าไม่ใช่โปรแกรมปัจจุบันของผู้เล่น (เช่น ตัวอย่างอาชีพ) — ไม่ส่ง = โหลดจาก /programs/current */
+  programSource?: string;
+  /** จำนวนเวฟทั้งหมดของฉาก (เว้นไว้ = 10) */
+  waveTotal?: number;
 }
 
 /** ความเร็วที่เลือกได้ — ครั้งแรกที่ต้องดูจนจบจำกัดที่ 2× ให้ยังตามทันว่าโค้ดทำอะไร */
@@ -105,6 +109,8 @@ export default function BattlePlayer({
   startFinished: startFinishedProp = false,
   onFinished,
   canSkip = true,
+  programSource,
+  waveTotal,
 }: BattlePlayerProps) {
   // อ่านครั้งเดียวตอนเปิด — หน้าเพจพลิกค่าเป็น true หลังดูจบ ถ้าอ่านสดจะสร้างฉากใหม่ซ้ำโดยเปล่าประโยชน์
   const [startFinished] = useState(startFinishedProp);
@@ -120,8 +126,9 @@ export default function BattlePlayer({
       maxMp: character.derived.maxMp,
       skills: [...merged.values()],
       ...(duel ? { duel } : {}),
+      ...(waveTotal ? { waveTotal } : {}),
     };
-  }, [gameData, character, duel]);
+  }, [gameData, character, duel, waveTotal]);
   const ctxRef = useRef(ctx);
   ctxRef.current = ctx;
 
@@ -241,7 +248,13 @@ export default function BattlePlayer({
   }, [dir]);
 
   // ---- โปรแกรมของผู้เล่นสำหรับแผงโค้ด ----
-  const program = useApi((signal) => api.get<Program>('/programs/current', undefined, signal), []);
+  const program = useApi(
+    (signal) =>
+      programSource !== undefined
+        ? Promise.resolve({ source: programSource, unlockedFeatures: [], availableSkills: [], highestFloorCleared: 0 } as Program)
+        : api.get<Program>('/programs/current', undefined, signal),
+    [programSource],
+  );
   /*
    * การรบนี้ขับด้วยโปรแกรมจริงไหม — ดูว่ามี event ของฝั่งผู้เล่นที่ส่ง line มาบ้างหรือเปล่า
    * ถ้าไม่มีต้องบอกตรง ๆ ห้ามเดาว่าเป็นการกระทำสำรอง เพราะจะสอนผิดว่าโค้ดเขาไม่ทำงาน
@@ -312,7 +325,7 @@ export default function BattlePlayer({
             {title}
             <span className="font-body font-normal text-on-surface-variant tabular-nums">
               {' · '}
-              {subtitle ?? `เวฟ ${Math.max(1, play.wave)}/${MAX_WAVE}`}
+              {subtitle ?? `เวฟ ${Math.max(1, play.wave)}/${waveTotal ?? MAX_WAVE}`}
             </span>
           </h2>
           <StatusBadge tone={stateBadge.tone}>{stateBadge.text}</StatusBadge>
@@ -401,6 +414,7 @@ export default function BattlePlayer({
           code={play.code}
           programDriven={programDriven}
           finished={finished}
+          {...(programSource !== undefined ? { title: 'โปรแกรมตัวอย่าง' } : {})}
         />
       </div>
     </div>

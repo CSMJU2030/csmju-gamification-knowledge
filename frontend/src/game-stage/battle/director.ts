@@ -150,6 +150,8 @@ export interface DirectorCtx {
   skills: StageSkill[];
   /** เว้นไว้ = การรบกับมอนตามปกติ · ใส่ = ฉากดวลกับผู้เล่นอีกคน */
   duel?: DuelSides;
+  /** จำนวนเวฟทั้งหมดของฉากนี้ (เว้นไว้ = 10) */
+  waveTotal?: number;
 }
 
 export interface EntFx {
@@ -706,7 +708,11 @@ export class BattleDirector {
 
   private pushLogs(ev: CombatEvent): void {
     const s = this.play;
-    const lines = describeEvent(ev, { skillName: this.skillName, duel: !!this.ctx.duel });
+    const lines = describeEvent(ev, {
+      skillName: this.skillName,
+      duel: !!this.ctx.duel,
+      ...(this.ctx.waveTotal ? { waveTotal: this.ctx.waveTotal } : {}),
+    });
     if (lines.length === 0) return;
     s.log = [...s.log, ...lines.map((l) => ({ id: s.nextId++, text: l.text, kind: l.kind }))].slice(-LOG_CAP);
     this.dirty = true;

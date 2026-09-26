@@ -9,6 +9,7 @@
     "typecheck": "tsc --noEmit -p tsconfig.test.json",
     "test": "vitest run",
     "probe": "node tools/probe.cjs",
+    "forestprobe": "node tools/forestprobe.cjs",
     "profprobe": "node tools/profprobe.cjs",
     "tune": "node tools/tune.cjs"
   },

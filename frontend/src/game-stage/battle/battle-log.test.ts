@@ -19,6 +19,12 @@ describe('describeEvent — ข้อความไทยของบันท�
     ]);
   });
 
+  it('ตัวอย่างอาชีพมีแค่ 3 เวฟ — บอกจำนวนเวฟตามจริง (playtest รอบ B)', () => {
+    expect(describeEvent(ev({ note: 'wave_start', wave: 1, actorId: 'system' }), { ...ctx, waveTotal: 3 })).toEqual([
+      { text: 'เวฟ 1/3 เริ่มต้น', kind: 'wave' },
+    ]);
+  });
+
   it('การดวลใช้คำว่าเริ่ม/จบการดวลแทนเวฟ', () => {
     const duelCtx = { skillName, duel: true };
     expect(describeEvent(ev({ note: 'wave_start' }), duelCtx)[0].text).toBe('เริ่มการดวล');

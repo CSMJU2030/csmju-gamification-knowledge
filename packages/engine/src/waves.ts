@@ -59,6 +59,8 @@ interface MonsterOpts {
   windupEvery?: number;
   /** รอบ 2M: สัดส่วนท่าทุบที่ทะลุการตั้งการ์ด */
   windupGuard?: number;
+  /** รอบ B: พลังท่าทุบของโซนนี้ (% ของ atk) — ไม่ใส่ = ของสกิลทุบ (mon_crush) */
+  windupPower?: number;
 }
 
 /**
@@ -66,7 +68,9 @@ interface MonsterOpts {
  * field เสริมแบบเดียวกับที่ battle.ts ทำกับ `equipment`/`lifesteal` มาตลอด
  * — ฝั่งที่อ่านคือ battle.ts ตอนแจกดรอป
  */
-export type EliteFlagged = Combatant & { isElite?: boolean; windupEvery?: number; windupGuard?: number };
+export type EliteFlagged = Combatant & {
+  isElite?: boolean; windupEvery?: number; windupGuard?: number; windupPower?: number;
+};
 
 /** true = ตัวนี้คือมอน EX ของรอบนั้น */
 export function isElite(c: Combatant): boolean {
@@ -105,6 +109,7 @@ function makeMonster(
   if (opts.windupEvery && opts.windupEvery > 0) {
     c.windupEvery = opts.windupEvery;
     if (opts.windupGuard !== undefined) c.windupGuard = opts.windupGuard;
+    if (opts.windupPower !== undefined) c.windupPower = opts.windupPower;
   }
   return c;
 }
@@ -128,10 +133,16 @@ export interface WaveBuildSpec {
 }
 
 /** ตัวเลือกกลไกหมายหัวสำหรับ archetype นี้ในโซนนี้ ({} = ไม่มีกลไก) — กระจายลง MonsterOpts ได้ตรง ๆ */
-function windupFor(spec: WaveBuildSpec, archId: string): { windupEvery?: number; windupGuard?: number } {
+function windupFor(
+  spec: WaveBuildSpec, archId: string,
+): { windupEvery?: number; windupGuard?: number; windupPower?: number } {
   const m = spec.mechanic;
-  return m && m.kind === 'windup' && m.archetypes.includes(archId)
-    ? { windupEvery: m.every, windupGuard: m.guardMult } : {};
+  if (!m || m.kind !== 'windup' || !m.archetypes.includes(archId)) return {};
+  return {
+    windupEvery: m.every,
+    windupGuard: m.guardMult,
+    ...(m.crushPower !== undefined ? { windupPower: m.crushPower } : {}),
+  };
 }
 
 export function buildWaves(floor: number, partySize: number, seed: number): WaveSpec[] {

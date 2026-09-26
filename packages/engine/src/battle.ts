@@ -103,6 +103,11 @@ function windupGuardOf(c: Combatant): number {
   return (c as Combatant & { windupGuard?: number }).windupGuard ?? 0.5;
 }
 
+/** พลังท่าทุบของตัวนี้ — โซนตั้งเองได้ (รอบ B ป่าเริ่มต้น) ไม่งั้นใช้ของสกิลทุบ */
+function windupPowerOf(c: Combatant, fallback: number): number {
+  return (c as Combatant & { windupPower?: number }).windupPower ?? fallback;
+}
+
 function selectTarget(
   sel: TargetSelector,
   actor: Fighter,
@@ -481,6 +486,29 @@ function rewardFalloff(topLevel: number, monsterLevel: number): number {
 }
 
 /**
+ * ตัวคูณ EXP ของเนื้อหาช่วงต้นเกม (playtest รอบ B · 26 ก.ย. 2026)
+ *
+ * ผู้เล่นจริงเล่นจบป่าแล้วรายงานว่า "ค่าสถานะโตเร็วเกินไป" — วัดแล้วจบป่าใน 5 การรบ
+ * จาก lv1 ไป lv9 สเตตัสรวม 25 → 65 (tools/forestprobe.cjs) · สาเหตุคือรายได้ EXP ของมอนเลเวลต่ำ
+ * ใหญ่กว่าค่าที่ต้องใช้ขึ้นเลเวลต้น ๆ หลายเท่า (ชนะชั้น 1 ได้ ~500 · lv1-4 ใช้รวม 477)
+ *
+ * ลดที่ "รายได้จากมอนเลเวลต่ำ" แทนการแก้ `expToNext` เพราะ:
+ *  · มีผลเฉพาะเนื้อหาช่วงต้น (ป่าเริ่มต้น + หอคอยชั้นต้น) — มอนตั้งแต่ `earlyExpFullLevel` จ่ายเต็มเหมือนเดิม
+ *    เกณฑ์ที่จูนไว้ของกลางเกมถึงท้ายเกมจึงไม่ถูกแตะตรง ๆ
+ *  · อยู่ใน gamedata จูนได้ไม่ต้องแก้โค้ด · ไม่กิน rng เลย ผลการรบเหมือนเดิมทุกไบต์ ต่างแค่ EXP
+ *
+ * ตัวคูณไล่เป็นเส้นตรงจาก `earlyExpMult` ที่มอนเลเวล 2 (ชั้น 1) ถึง 1 ที่ `earlyExpFullLevel`
+ * ไม่ตั้งค่า = 1 ทุกเลเวล (พฤติกรรมเดิม)
+ */
+function earlyExpMult(monsterLevel: number): number {
+  const b = gamedata.balance;
+  if (b.earlyExpMult === undefined || b.earlyExpFullLevel === undefined) return 1;
+  if (monsterLevel >= b.earlyExpFullLevel) return 1;
+  const t = Math.max(0, (monsterLevel - 2) / Math.max(1, b.earlyExpFullLevel - 2));
+  return b.earlyExpMult + (1 - b.earlyExpMult) * t;
+}
+
+/**
  * ตัวคูณรางวัลตอนแพ้ — แปรตามสัดส่วนเวฟที่ผ่าน (รอบ 2F §3.1 ข้อ 2)
  *
  * เดิมแพ้ได้รางวัลของทุกตัวที่ฆ่าได้แบบเต็ม ๆ (แพ้ชั้น 8 ได้ 1,728 · ชนะได้ 2,203)
@@ -627,7 +655,7 @@ export function simulateWaves(
             const crush = getSkill(CRUSH_SKILL_ID)!;
             const target = applyTaunt(marked, enemies, round);
             const wasAlive = alive(target);
-            const hit = dealDamage(actor, target, 'physical', crush.power, true, rng, round,
+            const hit = dealDamage(actor, target, 'physical', windupPowerOf(actor.c, crush.power), true, rng, round,
               windupGuardOf(actor.c));
             recordKillIfEnemy(target, wasAlive);
             events.push({
@@ -800,7 +828,7 @@ export function simulateWaves(
       // ค่า EXP อยู่ใน gamedata.balance เพื่อให้จูนได้โดยไม่แตะโค้ด (19 ก.ย. 2026)
       exp += (gamedata.balance.expPerMonsterBase
         + kill.level * gamedata.balance.expPerMonsterPerLevel)
-        * bossMult * (kill.isElite ? ex.expMult : 1) * falloff;
+        * bossMult * (kill.isElite ? ex.expMult : 1) * falloff * earlyExpMult(kill.level);
       goldRaw += (5 + kill.level * 3) * bossMult * (kill.isElite ? ex.goldMult : 1) * falloff;
       if (kill.isBoss) {
         drops.items.push(nextItem());

@@ -18,6 +18,7 @@ import { api, userMessage } from '@/lib/api/client';
 import type { Character } from '@/lib/api/types';
 import { CLASS_GUIDE, CLASS_NAMES } from '@/lib/game/labels';
 import { useGame } from '@/lib/game/session';
+import { ClassTrials } from './ClassTrials';
 import { Portrait } from './Portrait';
 
 export function ClassChoice({ character, onChosen }: { character: Character; onChosen: (c: Character) => void }) {
@@ -118,6 +119,8 @@ export function ClassChoice({ character, onChosen }: { character: Character; onC
           );
         })}
       </div>
+
+      <ClassTrials character={character} />
 
       <div className="flex flex-col gap-3 border-t border-outline-variant/40 px-6 py-4 md:flex-row md:items-center md:justify-end">
         {error && (

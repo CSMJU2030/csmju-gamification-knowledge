@@ -452,6 +452,103 @@
         ]
       }
     },
+    "/api/v1/characters/current/class-trials": {
+      "post": {
+        "operationId": "Characters_classTrial",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateClassTrialDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "สำเร็จ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ]
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/ClassTrialDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "BAD_REQUEST หรือ VALIDATION_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "UNAUTHORIZED — ไม่มี token หรือ token ใช้ไม่ได้",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "FORBIDDEN — สิทธิ์ไม่พอ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "CONFLICT — สถานะปัจจุบันไม่อนุญาต",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "ตัวอย่างการรบของอาชีพก่อนเลือก — ตัวละครจริง เวฟเดียวกันทุกอาชีพ ไม่ได้รางวัลและไม่บันทึก",
+        "tags": [
+          "characters"
+        ]
+      }
+    },
     "/api/v1/programs/current": {
       "get": {
         "operationId": "Programs_current",
@@ -2646,6 +2743,238 @@
           "classId"
         ]
       },
+      "CombatTargetDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "damage": {
+            "type": "number"
+          },
+          "heal": {
+            "type": "number"
+          },
+          "shield": {
+            "type": "number"
+          },
+          "crit": {
+            "type": "boolean"
+          },
+          "evaded": {
+            "type": "boolean"
+          },
+          "killed": {
+            "type": "boolean"
+          },
+          "hpAfter": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "hpAfter"
+        ]
+      },
+      "CombatEventDto": {
+        "type": "object",
+        "properties": {
+          "turn": {
+            "type": "number"
+          },
+          "wave": {
+            "type": "number"
+          },
+          "actorId": {
+            "type": "string"
+          },
+          "actorName": {
+            "type": "string"
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "attack",
+              "skill",
+              "defend"
+            ]
+          },
+          "skillId": {
+            "type": "string"
+          },
+          "targets": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CombatTargetDto"
+            }
+          },
+          "note": {
+            "type": "string",
+            "enum": [
+              "wave_start",
+              "wave_clear",
+              "defend",
+              "windup"
+            ]
+          },
+          "line": {
+            "type": "number",
+            "description": "บรรทัดในโปรแกรม BloxCode ที่ตัดสินใจเทิร์นนี้ (0 = การกระทำสำรอง)"
+          },
+          "codeWarnings": {
+            "description": "คำเตือนตอนรันโปรแกรม",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "mpAfter": {
+            "type": "number",
+            "description": "MP ของผู้ลงมือหลังจบเทิร์นนี้ (หักค่าร่ายและฟื้นตอนจบเทิร์นแล้ว) — ไม่มีใน event ของระบบ"
+          }
+        },
+        "required": [
+          "turn",
+          "wave",
+          "actorId",
+          "actorName",
+          "action",
+          "targets"
+        ]
+      },
+      "ClassTrialResultDto": {
+        "type": "object",
+        "properties": {
+          "victory": {
+            "type": "boolean"
+          },
+          "wavesCleared": {
+            "type": "number"
+          },
+          "events": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CombatEventDto"
+            }
+          }
+        },
+        "required": [
+          "victory",
+          "wavesCleared",
+          "events"
+        ]
+      },
+      "ClassTrialSummaryDto": {
+        "type": "object",
+        "properties": {
+          "turns": {
+            "type": "number",
+            "description": "จำนวนเทิร์นที่ตัวละครได้ลงมือ"
+          },
+          "skillCasts": {
+            "type": "number",
+            "description": "ร่ายสกิลกี่ครั้ง"
+          },
+          "damageDealt": {
+            "type": "number"
+          },
+          "damageTaken": {
+            "type": "number"
+          },
+          "hpLeftPct": {
+            "type": "number",
+            "description": "เลือดที่เหลือตอนจบ (% ของหลอด)"
+          }
+        },
+        "required": [
+          "turns",
+          "skillCasts",
+          "damageDealt",
+          "damageTaken",
+          "hpLeftPct"
+        ]
+      },
+      "ClassTrialDto": {
+        "type": "object",
+        "properties": {
+          "classId": {
+            "type": "string",
+            "enum": [
+              "warrior",
+              "mage",
+              "guardian"
+            ]
+          },
+          "level": {
+            "type": "number",
+            "description": "เลเวลของตัวละครที่ใช้ (เลเวลปัจจุบัน)"
+          },
+          "floor": {
+            "type": "number",
+            "description": "ชั้นของเวฟตัวอย่าง (ชั้นที่ผ่านล่าสุด อย่างน้อย 1)"
+          },
+          "waves": {
+            "type": "number",
+            "description": "จำนวนเวฟของตัวอย่าง"
+          },
+          "program": {
+            "type": "string",
+            "description": "โปรแกรมตัวอย่าง — เขียนด้วยไวยากรณ์ที่ใช้ได้ตั้งแต่ผ่านชั้น 1"
+          },
+          "skills": {
+            "description": "สกิลที่โปรแกรมตัวอย่างเรียก (ที่ปลดแล้วที่เลเวลนี้)",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "maxHp": {
+            "type": "number"
+          },
+          "maxMp": {
+            "type": "number"
+          },
+          "result": {
+            "$ref": "#/components/schemas/ClassTrialResultDto"
+          },
+          "summary": {
+            "$ref": "#/components/schemas/ClassTrialSummaryDto"
+          }
+        },
+        "required": [
+          "classId",
+          "level",
+          "floor",
+          "waves",
+          "program",
+          "skills",
+          "maxHp",
+          "maxMp",
+          "result",
+          "summary"
+        ]
+      },
+      "CreateClassTrialDto": {
+        "type": "object",
+        "properties": {
+          "classId": {
+            "type": "string",
+            "enum": [
+              "warrior",
+              "mage",
+              "guardian"
+            ],
+            "description": "อาชีพที่อยากเห็นตัวอย่าง"
+          }
+        },
+        "required": [
+          "classId"
+        ]
+      },
       "ProgramSkillDto": {
         "type": "object",
         "properties": {
@@ -3042,109 +3371,6 @@
         "required": [
           "id",
           "deleted"
-        ]
-      },
-      "CombatTargetDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          },
-          "damage": {
-            "type": "number"
-          },
-          "heal": {
-            "type": "number"
-          },
-          "shield": {
-            "type": "number"
-          },
-          "crit": {
-            "type": "boolean"
-          },
-          "evaded": {
-            "type": "boolean"
-          },
-          "killed": {
-            "type": "boolean"
-          },
-          "hpAfter": {
-            "type": "number"
-          }
-        },
-        "required": [
-          "id",
-          "name",
-          "hpAfter"
-        ]
-      },
-      "CombatEventDto": {
-        "type": "object",
-        "properties": {
-          "turn": {
-            "type": "number"
-          },
-          "wave": {
-            "type": "number"
-          },
-          "actorId": {
-            "type": "string"
-          },
-          "actorName": {
-            "type": "string"
-          },
-          "action": {
-            "type": "string",
-            "enum": [
-              "attack",
-              "skill",
-              "defend"
-            ]
-          },
-          "skillId": {
-            "type": "string"
-          },
-          "targets": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/CombatTargetDto"
-            }
-          },
-          "note": {
-            "type": "string",
-            "enum": [
-              "wave_start",
-              "wave_clear",
-              "defend",
-              "windup"
-            ]
-          },
-          "line": {
-            "type": "number",
-            "description": "บรรทัดในโปรแกรม BloxCode ที่ตัดสินใจเทิร์นนี้ (0 = การกระทำสำรอง)"
-          },
-          "codeWarnings": {
-            "description": "คำเตือนตอนรันโปรแกรม",
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "mpAfter": {
-            "type": "number",
-            "description": "MP ของผู้ลงมือหลังจบเทิร์นนี้ (หักค่าร่ายและฟื้นตอนจบเทิร์นแล้ว) — ไม่มีใน event ของระบบ"
-          }
-        },
-        "required": [
-          "turn",
-          "wave",
-          "actorId",
-          "actorName",
-          "action",
-          "targets"
         ]
       },
       "BattleDropsDto": {

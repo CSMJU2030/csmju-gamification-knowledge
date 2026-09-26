@@ -2,10 +2,14 @@
  * ตรรกะเกมที่ย้ายมาจากเซิร์ฟเวอร์เดิม — ส่วนที่เป็นฟังก์ชันบริสุทธิ์ (ไม่ต้องใช้ฐานข้อมูล)
  * ความเท่ากันกับเซิร์ฟเวอร์เดิมทั้งเส้นทางตรวจด้วย parity test แยกอีกชั้น (ดู REPORT.md)
  */
-import { FORMULAS, ZERO_PROFICIENCY, gamedata, getRegion, type RegionDef } from '@tower/engine';
+import {
+  FEATURE_UNLOCK, FORMULAS, ZERO_PROFICIENCY, gamedata, getRegion, parse, unlockedFeatures, validate,
+  type RegionDef,
+} from '@tower/engine';
 import type { Character, Item } from '../../src/generated/prisma/client';
 import { characterView, enrichInstance, proficiencyView } from '../../src/game/character.view';
-import { TRIVIAL_PROGRAM } from '../../src/game/game-rules';
+import { TRIAL_WAVES, demoProgram, runTrial, trialSummary } from '../../src/game/class-trial';
+import { CLASS_CHOICE_FLOOR, TRIVIAL_PROGRAM, unlockedSkills } from '../../src/game/game-rules';
 import { HERO_ID, buildHero, progress } from '../../src/game/progression';
 import { levelBandFor, regionProgress } from '../../src/game/world';
 import { checkProgram, formatLangError, langOptions } from '../../src/programs/programs.service';
@@ -120,5 +124,48 @@ describe('ตรวจโปรแกรม BloxCode', () => {
   });
   it('ยาวเกิน 20000 ตัวอักษร → ปฏิเสธก่อนเข้า parser', () => {
     expect(checkProgram(`#${'x'.repeat(20001)}`, novice)[0].line).toBe(1);
+  });
+});
+
+describe('ตัวอย่างการรบก่อนเลือกอาชีพ (playtest รอบ B ข้อ 3)', () => {
+  it('cast() เขียนได้ตั้งแต่ตอนที่เลือกอาชีพได้ — ไม่ต้องรออีกชั้น', () => {
+    expect(FEATURE_UNLOCK.string).toBeLessThanOrEqual(CLASS_CHOICE_FLOOR);
+  });
+
+  it('โปรแกรมตัวอย่างใช้เฉพาะสกิลที่ปลดแล้ว และบันทึกได้จริงทันทีหลังเลือกอาชีพ (ชั้น 1)', () => {
+    for (const classId of ['warrior', 'mage', 'guardian'] as const) {
+      for (const level of [1, 3, 5, 8]) {
+        const demo = demoProgram(classId, level);
+        const available = unlockedSkills(classId, level).map((s) => s.id);
+        expect(demo.skills.length).toBeGreaterThan(0);
+        for (const id of demo.skills) expect(available).toContain(id);
+        const ast = parse(demo.source).program!;
+        const r = validate(ast, { features: unlockedFeatures(CLASS_CHOICE_FLOOR), availableSkills: available });
+        expect(r.errors).toEqual([]);
+      }
+    }
+    // ผู้พิทักษ์ lv3 ได้ยั่วยุแล้ว · lv1 ยังไม่ได้
+    expect(demoProgram('guardian', 3).skills).toContain('g_taunt');
+    expect(demoProgram('guardian', 1).skills).not.toContain('g_taunt');
+  });
+
+  it('ทุกอาชีพเจอเวฟเดียวกัน · ไม่ได้ EXP/ของ · สรุปตัวเลขตรงกับบันทึก', () => {
+    const rosters: string[] = [];
+    for (const classId of ['warrior', 'mage', 'guardian'] as const) {
+      const demo = demoProgram(classId, 3);
+      const { combatant, derived } = buildHero(character({ classId, level: 3, highestFloor: 1, programSource: demo.source }), []);
+      const r = runTrial(combatant, 1);
+      expect(r.expGained).toBe(0);
+      expect(r.drops.items).toEqual([]);
+      const starts = r.events.filter((e) => e.note === 'wave_start');
+      expect(starts.length).toBeLessThanOrEqual(TRIAL_WAVES);
+      rosters.push(JSON.stringify(starts[0].targets.map((t) => t.id)));
+      const sum = trialSummary(r.events, HERO_ID, derived.maxHp);
+      expect(sum.skillCasts).toBeGreaterThan(0);
+      expect(sum.turns).toBe(r.events.filter((e) => e.actorId === HERO_ID).length);
+      expect(sum.hpLeftPct).toBeGreaterThanOrEqual(0);
+      expect(sum.hpLeftPct).toBeLessThanOrEqual(100);
+    }
+    expect(new Set(rosters).size).toBe(1);
   });
 });
