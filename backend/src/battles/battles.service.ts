@@ -9,12 +9,13 @@ import {
 } from '@tower/engine';
 import { conflict, forbidden, notFound, validationError } from '../common/api-error';
 import { Page } from '../common/envelope';
-import type { PageQueryDto } from '../common/pagination.dto';
+import type { SearchPageQueryDto } from '../common/pagination.dto';
+import { idsMatching } from '../common/search';
 import type { Character } from '../generated/prisma/client';
 import { equippedItems, loadCharacterView, requireCharacter } from '../game/character.repository';
 import { TOWER_MAX_FLOOR } from '../game/game-rules';
 import { buildHero } from '../game/progression';
-import { TOWER_REGION_ID, isSyncedRegion, regionById, towerRegion } from '../game/world';
+import { TOWER_REGION_ID, allRegions, isSyncedRegion, regionById, towerRegion } from '../game/world';
 import { PrismaService } from '../prisma/prisma.service';
 import { DuelService, type DuelBlock } from '../world/duel.service';
 import { RegionRunsService } from '../world/region-runs.service';
@@ -159,9 +160,12 @@ export class BattlesService {
     return hasTower ? this.towerBattle(row, body.towerFloor!) : this.regionBattle(row, body.regionRunId!);
   }
 
-  async list(coreUserId: string, query: PageQueryDto): Promise<Page<BattleSummaryDto>> {
+  /** q ค้นในชื่อสถานที่ (หอคอย · ชื่อภูมิภาค จาก gamedata — แปลงเป็นรายการ regionId ก่อนถาม DB) */
+  async list(coreUserId: string, query: SearchPageQueryDto): Promise<Page<BattleSummaryDto>> {
     const row = await requireCharacter(this.prisma, coreUserId);
-    const where = { characterId: row.id };
+    const regionIds = query.q ? idsMatching(allRegions(), query.q, (r) => r.id, (r) => r.nameTh) : undefined;
+    if (regionIds?.length === 0) return Page.of([], 0, query.page, query.limit);
+    const where = { characterId: row.id, ...(regionIds ? { regionId: { in: regionIds } } : {}) };
     const [rows, total] = await Promise.all([
       this.prisma.battle.findMany({
         where,

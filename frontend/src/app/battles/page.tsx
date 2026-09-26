@@ -5,13 +5,23 @@
  * เรียงใหม่สุดก่อน (backend เรียงให้) · 20 รายการต่อหน้า
  */
 import Link from 'next/link';
-import { useState } from 'react';
-import { HistoryIcon, PageHeader, StatusBadge, SwordsIcon, cardClass, primaryButtonClass, tdClass, thClass } from '@/csmju';
+import {
+  HistoryIcon,
+  PageHeader,
+  SearchIcon,
+  StatusBadge,
+  SwordsIcon,
+  cardClass,
+  primaryButtonClass,
+  secondaryButtonClass,
+  tdClass,
+  thClass,
+} from '@/csmju';
 import { EmptyState, ErrorState, LoadingRegion, Skeleton } from '@/components/feedback';
 import { Pagination } from '@/components/Pagination';
-import { api } from '@/lib/api/client';
+import { SearchField } from '@/components/SearchField';
 import type { BattleSummary } from '@/lib/api/types';
-import { useApi } from '@/lib/api/use-api';
+import { useSearchList } from '@/lib/api/use-search-list';
 import { fmt, formatDateTime } from '@/lib/game/labels';
 import { useGame } from '@/lib/game/session';
 import { placeLabel, useRegionNames } from '@/lib/game/use-region-names';
@@ -22,8 +32,7 @@ function Result({ b }: { b: BattleSummary }) {
 
 export default function BattlesPage() {
   const { character } = useGame();
-  const [page, setPage] = useState(1);
-  const list = useApi((signal) => api.page<BattleSummary>('/battles', { page, limit: 20 }, signal), [page]);
+  const { list, rows, meta, q, search, setPage, pending, hasAny, shownQuery, status } = useSearchList<BattleSummary>('/battles');
   const regions = useRegionNames();
 
   const header = <PageHeader title="ประวัติการรบ" description="ย้อนดูว่ารบอะไรไปแล้ว ชนะหรือแพ้ และได้อะไรกลับมา" />;
@@ -45,12 +54,18 @@ export default function BattlesPage() {
     );
   }
 
-  const rows = list.status === 'ready' ? list.data.data : [];
-  const meta = list.status === 'ready' ? list.data.meta : undefined;
-
   return (
     <>
       {header}
+      {(hasAny !== false || q !== '') && (
+        <SearchField
+          label="ค้นหาการรบ"
+          placeholder="สถานที่ เช่น หอคอย ป่าเริ่มต้น"
+          value={q}
+          onSearch={search}
+          status={status}
+        />
+      )}
       {list.status === 'loading' && (
         <LoadingRegion label="กำลังโหลดประวัติการรบ">
           <div className={`${cardClass} divide-y divide-outline-variant/40`}>
@@ -65,7 +80,19 @@ export default function BattlesPage() {
         </LoadingRegion>
       )}
       {list.status === 'error' && <ErrorState message={list.error.message} onRetry={list.reload} />}
-      {list.status === 'ready' && rows.length === 0 && (
+      {list.status === 'ready' && rows.length === 0 && shownQuery !== '' && (
+        <EmptyState
+          title={`ไม่พบการรบที่ “${shownQuery}”`}
+          description="ค้นได้ตามชื่อสถานที่ เช่น หอคอย หรือชื่อภูมิภาคบนแผนที่ — ลองคำอื่น หรือล้างการค้นหา"
+          icon={<SearchIcon className="h-6 w-6" />}
+          action={
+            <button type="button" className={secondaryButtonClass} onClick={() => search('')}>
+              ล้างการค้นหา
+            </button>
+          }
+        />
+      )}
+      {list.status === 'ready' && rows.length === 0 && shownQuery === '' && (
         <EmptyState
           title="ยังไม่เคยรบ"
           description="เลือกโซนบนแผนที่โลกหรือชั้นของหอคอย แล้วผลการรบทุกครั้งจะมาอยู่ที่นี่"
@@ -79,10 +106,10 @@ export default function BattlesPage() {
         />
       )}
       {list.status === 'ready' && rows.length > 0 && (
-        <section className={cardClass} aria-labelledby="battles-title">
+        <section className={cardClass} aria-labelledby="battles-title" aria-busy={pending}>
           <div className="flex items-end justify-between gap-3 border-b border-outline-variant/40 px-6 py-5">
             <h2 id="battles-title" className="font-display text-headline-md text-on-surface">
-              การรบทั้งหมด
+              {shownQuery ? 'ผลการค้นหา' : 'การรบทั้งหมด'}
             </h2>
             <span className="text-label-md font-normal text-on-surface-variant tabular-nums">{meta?.total ?? rows.length} ครั้ง</span>
           </div>

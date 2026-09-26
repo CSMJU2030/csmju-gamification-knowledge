@@ -5,37 +5,36 @@
  * ผู้เล่น: เห็นอย่างเดียว · ผู้สอน: สร้างได้ แก้/ลบเฉพาะของตัวเอง · ผู้ดูแล: แก้/ลบได้ทุกโจทย์ (G0 ข้อ 4)
  */
 import Link from 'next/link';
-import { useState } from 'react';
 import {
   AssignmentIcon,
   ChevronRightIcon,
   EditIcon,
   PageHeader,
   PlusIcon,
+  SearchIcon,
   StatusBadge,
   TrashIcon,
   cardClass,
   iconButtonClass,
   iconDangerButtonClass,
   primaryButtonClass,
+  secondaryButtonClass,
 } from '@/csmju';
 import { EmptyState, ErrorState, LoadingRegion, Skeleton } from '@/components/feedback';
 import { Pagination } from '@/components/Pagination';
-import { api } from '@/lib/api/client';
+import { SearchField } from '@/components/SearchField';
 import type { Challenge } from '@/lib/api/types';
-import { useApi } from '@/lib/api/use-api';
+import { useSearchList } from '@/lib/api/use-search-list';
 import { formatDateTime } from '@/lib/game/labels';
 import { regionName, useRegionNames } from '@/lib/game/use-region-names';
 import { DeleteChallenge, useChallengePermissions } from './_parts';
 
 export default function ChallengesPage() {
-  const [page, setPage] = useState(1);
-  const list = useApi((signal) => api.page<Challenge>('/challenges', { page, limit: 20 }, signal), [page]);
+  const { list, rows, meta, q, search, setPage, pending, hasAny, shownQuery, status } = useSearchList<Challenge>('/challenges');
   const perm = useChallengePermissions();
   const regions = useRegionNames();
 
-  const rows = list.status === 'ready' ? list.data.data : [];
-  const meta = list.status === 'ready' ? list.data.meta : undefined;
+  const nothingYet = hasAny === false && q === '';
 
   return (
     <>
@@ -44,7 +43,7 @@ export default function ChallengesPage() {
         description="อ่านโจทย์ที่ผู้สอนตั้ง แล้วเปิดโปรแกรมตั้งต้นไปลองแก้ในหน้าโปรแกรม"
         aside={
           // รายการว่างมีปุ่มสร้างในการ์ดอยู่แล้ว — ปุ่มหลักมีได้ปุ่มเดียวต่อพื้นที่
-          perm.canCreate && !(list.status === 'ready' && rows.length === 0) && (
+          perm.canCreate && !nothingYet && (
             <Link href="/challenges/new" className={primaryButtonClass}>
               <PlusIcon className="h-4 w-4" />
               สร้างโจทย์
@@ -53,6 +52,9 @@ export default function ChallengesPage() {
         }
       />
 
+      {!nothingYet && (
+        <SearchField label="ค้นหาโจทย์" placeholder="ชื่อหรือคำอธิบายของโจทย์" value={q} onSearch={search} status={status} />
+      )}
       {list.status === 'loading' && (
         <LoadingRegion label="กำลังโหลดโจทย์">
           <div className="grid gap-6 md:grid-cols-2">
@@ -63,7 +65,19 @@ export default function ChallengesPage() {
         </LoadingRegion>
       )}
       {list.status === 'error' && <ErrorState message={list.error.message} onRetry={list.reload} />}
-      {list.status === 'ready' && rows.length === 0 && (
+      {list.status === 'ready' && rows.length === 0 && shownQuery !== '' && (
+        <EmptyState
+          title={`ไม่พบโจทย์ที่มีคำว่า “${shownQuery}”`}
+          description="ค้นในชื่อและคำอธิบายของโจทย์ — ลองคำอื่น หรือล้างการค้นหาเพื่อดูโจทย์ทั้งหมด"
+          icon={<SearchIcon className="h-6 w-6" />}
+          action={
+            <button type="button" className={secondaryButtonClass} onClick={() => search('')}>
+              ล้างการค้นหา
+            </button>
+          }
+        />
+      )}
+      {list.status === 'ready' && rows.length === 0 && shownQuery === '' && (
         <EmptyState
           title="ยังไม่มีโจทย์จากผู้สอน"
           description={perm.canCreate ? 'สร้างโจทย์แรกให้ผู้เล่นลองเขียนโปรแกรมตามเป้าหมายที่คุณตั้ง' : 'เมื่อผู้สอนตั้งโจทย์ใหม่ โจทย์จะมาอยู่ที่นี่'}
@@ -80,7 +94,7 @@ export default function ChallengesPage() {
       )}
       {list.status === 'ready' && rows.length > 0 && (
         <>
-          <ul className="grid gap-6 md:grid-cols-2">
+          <ul className="grid gap-6 md:grid-cols-2" aria-busy={pending}>
             {rows.map((c) => {
               const region = c.regionId ? regionName(c.regionId, regions) : null;
               return (

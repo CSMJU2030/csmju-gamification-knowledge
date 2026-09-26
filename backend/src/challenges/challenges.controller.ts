@@ -13,7 +13,7 @@ import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { RequirePermissions } from '../auth/decorators/require-permissions.decorator';
 import { Permission } from '../auth/permissions';
 import { Page } from '../common/envelope';
-import { PageQueryDto } from '../common/pagination.dto';
+import { SearchPageQueryDto } from '../common/pagination.dto';
 import { ApiErrors, ApiSuccess, DeletedDto } from '../common/swagger';
 import { uuidParam } from '../common/validation';
 import { ChallengeDto, CreateChallengeDto, UpdateChallengeDto } from './challenge.dto';
@@ -26,10 +26,10 @@ export class ChallengesController {
 
   @Get()
   @RequirePermissions(Permission.CHALLENGE_READ)
-  @ApiOperation({ summary: 'โจทย์ทั้งหมด ล่าสุดก่อน' })
+  @ApiOperation({ summary: 'โจทย์ทั้งหมด ล่าสุดก่อน · q ค้นในชื่อและคำอธิบาย' })
   @ApiSuccess(ChallengeDto, { paginated: true })
   @ApiErrors(400, 401, 403)
-  list(@Query() query: PageQueryDto): Promise<Page<ChallengeDto>> {
+  list(@Query() query: SearchPageQueryDto): Promise<Page<ChallengeDto>> {
     return this.challenges.list(query);
   }
 

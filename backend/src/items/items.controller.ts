@@ -11,7 +11,7 @@ import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { RequirePermissions } from '../auth/decorators/require-permissions.decorator';
 import { Permission } from '../auth/permissions';
 import { Page } from '../common/envelope';
-import { PageQueryDto } from '../common/pagination.dto';
+import { SearchPageQueryDto } from '../common/pagination.dto';
 import { ApiErrors, ApiSuccess } from '../common/swagger';
 import { uuidParam } from '../common/validation';
 import { ItemDto } from '../characters/character.dto';
@@ -26,10 +26,10 @@ export class ItemsController {
 
   @Get()
   @RequirePermissions(Permission.ITEM_READ_OWN)
-  @ApiOperation({ summary: 'ไอเทมทั้งหมดในกระเป๋า เรียงตามลำดับที่ได้มา' })
+  @ApiOperation({ summary: 'ไอเทมทั้งหมดในกระเป๋า เรียงตามลำดับที่ได้มา · q ค้นในชื่อไอเทม' })
   @ApiSuccess(ItemDto, { paginated: true })
   @ApiErrors(400, 401, 403, 404)
-  list(@CurrentUser() user: AuthUser, @Query() query: PageQueryDto): Promise<Page<EnrichedItem>> {
+  list(@CurrentUser() user: AuthUser, @Query() query: SearchPageQueryDto): Promise<Page<EnrichedItem>> {
     return this.items.list(user.coreUserId, query);
   }
 

@@ -5,10 +5,11 @@
  * (authorization.md ข้อ 5 ห้ามตอบ 404 แทน 403 เพื่อซ่อนข้อมูล)
  */
 import { Injectable } from '@nestjs/common';
-import { FORMULAS, SALVAGE_MATERIALS, UPGRADE_MAX_LEVEL, type Rarity } from '@tower/engine';
+import { FORMULAS, SALVAGE_MATERIALS, UPGRADE_MAX_LEVEL, gamedata, type Rarity } from '@tower/engine';
 import { conflict, forbidden, notFound } from '../common/api-error';
 import { Page } from '../common/envelope';
-import type { PageQueryDto } from '../common/pagination.dto';
+import type { SearchPageQueryDto } from '../common/pagination.dto';
+import { idsMatching } from '../common/search';
 import type { Item } from '../generated/prisma/client';
 import { lockCharacter, requireCharacter } from '../game/character.repository';
 import { enrichItem, type EnrichedItem } from '../game/character.view';
@@ -18,9 +19,14 @@ import { PrismaService, type Tx } from '../prisma/prisma.service';
 export class ItemsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async list(coreUserId: string, query: PageQueryDto): Promise<Page<EnrichedItem>> {
+  /** q ค้นในชื่อไทยของไอเทม (ชื่ออยู่ใน gamedata ไม่ใช่ใน DB — แปลงเป็นรายการ baseId ก่อนถาม DB) */
+  async list(coreUserId: string, query: SearchPageQueryDto): Promise<Page<EnrichedItem>> {
     const own = await requireCharacter(this.prisma, coreUserId);
-    const where = { characterId: own.id };
+    const baseIds = query.q
+      ? idsMatching(gamedata.baseItems, query.q, (b) => b.baseId, (b) => b.nameTh)
+      : undefined;
+    if (baseIds?.length === 0) return Page.of([], 0, query.page, query.limit);
+    const where = { characterId: own.id, ...(baseIds ? { baseId: { in: baseIds } } : {}) };
     const [rows, total] = await Promise.all([
       this.prisma.item.findMany({ where, orderBy: { seq: 'asc' }, skip: query.skip, take: query.limit }),
       this.prisma.item.count({ where }),

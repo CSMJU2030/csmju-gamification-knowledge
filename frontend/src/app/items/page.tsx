@@ -13,19 +13,22 @@ import {
   ChevronRightIcon,
   InventoryIcon,
   PageHeader,
+  SearchIcon,
   StatusBadge,
   SwordsIcon,
   cardClass,
   primaryButtonClass,
+  secondaryButtonClass,
   tdClass,
   thClass,
 } from '@/csmju';
 import { EmptyState, ErrorState, LoadingRegion, Skeleton } from '@/components/feedback';
 import { Pagination } from '@/components/Pagination';
+import { SearchField } from '@/components/SearchField';
 import { useToast } from '@/components/Toast';
 import { api, apiRequest, userMessage } from '@/lib/api/client';
 import type { Character, Item, ItemUpgrade, SalvagedItem } from '@/lib/api/types';
-import { useApi } from '@/lib/api/use-api';
+import { useSearchList } from '@/lib/api/use-search-list';
 import { MAIN_STAT_LABELS, RARITY_LABELS, RARITY_TONE, SLOT_LABELS, fmt } from '@/lib/game/labels';
 import { useGame } from '@/lib/game/session';
 import { ItemDialog, itemTitle, type ItemAction } from './ItemDialog';
@@ -52,14 +55,11 @@ function ItemsSkeleton() {
 export default function ItemsPage() {
   const { character, gameData, setCharacter } = useGame();
   const toast = useToast();
-  const [page, setPage] = useState(1);
-  const list = useApi((signal) => api.page<Item>('/items', { page, limit: 20 }, signal), [page]);
+  const { list, rows: items, meta, q, search, setPage, pending, hasAny, shownQuery, status } = useSearchList<Item>('/items');
   const [openId, setOpenId] = useState<string | null>(null);
   const [busy, setBusy] = useState<ItemAction | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
 
-  const items = list.status === 'ready' ? list.data.data : [];
-  const meta = list.status === 'ready' ? list.data.meta : undefined;
   const open = items.find((i) => i.id === openId) ?? null;
   const me = character.status === 'ready' ? character.character : null;
 
@@ -131,9 +131,24 @@ export default function ItemsPage() {
   return (
     <>
       {header}
+      {(hasAny !== false || q !== '') && (
+        <SearchField label="ค้นหาไอเทม" placeholder="ชื่อไอเทม เช่น ดาบ แหวน" value={q} onSearch={search} status={status} />
+      )}
       {list.status === 'loading' && <ItemsSkeleton />}
       {list.status === 'error' && <ErrorState message={list.error.message} onRetry={list.reload} />}
-      {list.status === 'ready' && items.length === 0 && (
+      {list.status === 'ready' && items.length === 0 && shownQuery !== '' && (
+        <EmptyState
+          title={`ไม่พบไอเทมชื่อ “${shownQuery}”`}
+          description="ลองคำอื่น หรือล้างการค้นหาเพื่อดูไอเทมทั้งหมด"
+          icon={<SearchIcon className="h-6 w-6" />}
+          action={
+            <button type="button" className={secondaryButtonClass} onClick={() => search('')}>
+              ล้างการค้นหา
+            </button>
+          }
+        />
+      )}
+      {list.status === 'ready' && items.length === 0 && shownQuery === '' && (
         <EmptyState
           title="ยังไม่มีไอเทม"
           description="ไปลงรบเพื่อรับของชิ้นแรก — มอนสเตอร์ดรอปอุปกรณ์ ทอง และวัสดุ"
@@ -147,10 +162,10 @@ export default function ItemsPage() {
         />
       )}
       {list.status === 'ready' && items.length > 0 && (
-        <section className={cardClass} aria-labelledby="items-title">
+        <section className={cardClass} aria-labelledby="items-title" aria-busy={pending}>
           <div className="flex items-end justify-between gap-3 border-b border-outline-variant/40 px-6 py-5">
             <h2 id="items-title" className="font-display text-headline-md text-on-surface">
-              ไอเทมทั้งหมด
+              {shownQuery ? 'ผลการค้นหา' : 'ไอเทมทั้งหมด'}
             </h2>
             <span className="text-label-md font-normal text-on-surface-variant tabular-nums">{meta?.total ?? items.length} ชิ้น</span>
           </div>

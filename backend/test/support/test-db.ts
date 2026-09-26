@@ -21,3 +21,24 @@ export async function resetDatabase(url: string): Promise<void> {
     await client.end();
   }
 }
+
+/** ใส่ไอเทมตรง ๆ (ไม่ผ่านการรบ ซึ่งสุ่มว่าได้ชิ้นไหน) — ใช้กับเทสต์ค้นหาที่ต้องรู้ชื่อไอเทมแน่นอน */
+export async function insertItems(
+  url: string,
+  characterId: string,
+  items: ReadonlyArray<{ baseId: string; slot: string; rarity?: string }>,
+): Promise<void> {
+  const client = new Client({ connectionString: url });
+  await client.connect();
+  try {
+    for (const it of items) {
+      await client.query(
+        `INSERT INTO items (id, character_id, base_id, slot, rarity, updated_at)
+         VALUES (gen_random_uuid(), $1, $2, $3, $4, now())`,
+        [characterId, it.baseId, it.slot, it.rarity ?? 'common'],
+      );
+    }
+  } finally {
+    await client.end();
+  }
+}

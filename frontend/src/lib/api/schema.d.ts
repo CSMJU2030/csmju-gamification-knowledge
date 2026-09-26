@@ -152,7 +152,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** ไอเทมทั้งหมดในกระเป๋า เรียงตามลำดับที่ได้มา */
+        /** ไอเทมทั้งหมดในกระเป๋า เรียงตามลำดับที่ได้มา · q ค้นในชื่อไอเทม */
         get: operations["Items_list"];
         put?: never;
         post?: never;
@@ -255,7 +255,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** ประวัติการรบแบบย่อ ล่าสุดก่อน */
+        /** ประวัติการรบแบบย่อ ล่าสุดก่อน · q ค้นในชื่อสถานที่ (หอคอย หรือชื่อภูมิภาค) */
         get: operations["Battles_list"];
         put?: never;
         /** รบ — ท้าทายหอคอย (towerFloor) หรือรบรอบในภูมิภาค (regionRunId) */
@@ -307,7 +307,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** โจทย์ทั้งหมด ล่าสุดก่อน */
+        /** โจทย์ทั้งหมด ล่าสุดก่อน · q ค้นในชื่อและคำอธิบาย */
         get: operations["Challenges_list"];
         put?: never;
         /** สร้างโจทย์ (ผู้สอน) */
@@ -1382,6 +1382,8 @@ export interface operations {
             query?: {
                 page?: number;
                 limit?: number;
+                /** @description คำค้นหา ไม่สนตัวพิมพ์เล็ก/ใหญ่ · ว่าง = ทั้งหมด */
+                q?: string;
             };
             header?: never;
             path?: never;
@@ -1864,6 +1866,8 @@ export interface operations {
             query?: {
                 page?: number;
                 limit?: number;
+                /** @description คำค้นหา ไม่สนตัวพิมพ์เล็ก/ใหญ่ · ว่าง = ทั้งหมด */
+                q?: string;
             };
             header?: never;
             path?: never;
@@ -2094,6 +2098,8 @@ export interface operations {
             query?: {
                 page?: number;
                 limit?: number;
+                /** @description คำค้นหา ไม่สนตัวพิมพ์เล็ก/ใหญ่ · ว่าง = ทั้งหมด */
+                q?: string;
             };
             header?: never;
             path?: never;

@@ -11,7 +11,7 @@ import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { RequirePermissions } from '../auth/decorators/require-permissions.decorator';
 import { Permission } from '../auth/permissions';
 import { Page } from '../common/envelope';
-import { PageQueryDto } from '../common/pagination.dto';
+import { SearchPageQueryDto } from '../common/pagination.dto';
 import { ApiErrors, ApiSuccess } from '../common/swagger';
 import { BattleOutcomeDto, BattleSummaryDto, CreateBattleDto, TowerProgressDto } from './battle.dto';
 import { BattlesService } from './battles.service';
@@ -33,10 +33,10 @@ export class BattlesController {
 
   @Get()
   @RequirePermissions(Permission.BATTLE_READ_OWN)
-  @ApiOperation({ summary: 'ประวัติการรบแบบย่อ ล่าสุดก่อน' })
+  @ApiOperation({ summary: 'ประวัติการรบแบบย่อ ล่าสุดก่อน · q ค้นในชื่อสถานที่ (หอคอย หรือชื่อภูมิภาค)' })
   @ApiSuccess(BattleSummaryDto, { paginated: true })
   @ApiErrors(400, 401, 403, 404)
-  list(@CurrentUser() user: AuthUser, @Query() query: PageQueryDto): Promise<Page<BattleSummaryDto>> {
+  list(@CurrentUser() user: AuthUser, @Query() query: SearchPageQueryDto): Promise<Page<BattleSummaryDto>> {
     return this.battles.list(user.coreUserId, query);
   }
 }

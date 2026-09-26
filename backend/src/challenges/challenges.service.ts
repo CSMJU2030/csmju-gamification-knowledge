@@ -10,7 +10,7 @@ import type { AuthUser } from '../auth/auth.types';
 import { Permission } from '../auth/permissions';
 import { forbidden, notFound, validationError } from '../common/api-error';
 import { Page } from '../common/envelope';
-import type { PageQueryDto } from '../common/pagination.dto';
+import type { SearchPageQueryDto } from '../common/pagination.dto';
 import type { Challenge } from '../generated/prisma/client';
 import { TRIVIAL_PROGRAM } from '../game/game-rules';
 import { regionById } from '../game/world';
@@ -45,14 +45,26 @@ function checkContent(body: UpdateChallengeDto): void {
 export class ChallengesService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async list(query: PageQueryDto): Promise<Page<ChallengeDto>> {
+  /** q ค้นในชื่อและคำอธิบายของโจทย์ */
+  async list(query: SearchPageQueryDto): Promise<Page<ChallengeDto>> {
+    // Prisma ส่ง contains เป็น ILIKE โดยไม่ escape — % และ _ ของผู้ใช้ต้องเป็นตัวอักษรธรรมดา (ไม่งั้น % ได้ทุกแถว)
+    const needle = query.q?.replace(/[\\%_]/g, (c) => `\\${c}`);
+    const where = needle
+      ? {
+          OR: [
+            { title: { contains: needle, mode: 'insensitive' as const } },
+            { description: { contains: needle, mode: 'insensitive' as const } },
+          ],
+        }
+      : {};
     const [rows, total] = await Promise.all([
       this.prisma.challenge.findMany({
+        where,
         orderBy: [{ createdAt: 'desc' }, { id: 'asc' }],
         skip: query.skip,
         take: query.limit,
       }),
-      this.prisma.challenge.count(),
+      this.prisma.challenge.count({ where }),
     ]);
     return Page.of(rows.map(toDto), total, query.page, query.limit);
   }

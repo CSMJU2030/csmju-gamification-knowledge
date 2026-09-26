@@ -765,6 +765,16 @@
               "default": 20,
               "type": "number"
             }
+          },
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "description": "คำค้นหา ไม่สนตัวพิมพ์เล็ก/ใหญ่ · ว่าง = ทั้งหมด",
+            "schema": {
+              "maxLength": 100,
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -841,7 +851,7 @@
             }
           }
         },
-        "summary": "ไอเทมทั้งหมดในกระเป๋า เรียงตามลำดับที่ได้มา",
+        "summary": "ไอเทมทั้งหมดในกระเป๋า เรียงตามลำดับที่ได้มา · q ค้นในชื่อไอเทม",
         "tags": [
           "items"
         ]
@@ -1554,6 +1564,16 @@
               "default": 20,
               "type": "number"
             }
+          },
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "description": "คำค้นหา ไม่สนตัวพิมพ์เล็ก/ใหญ่ · ว่าง = ทั้งหมด",
+            "schema": {
+              "maxLength": 100,
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -1630,7 +1650,7 @@
             }
           }
         },
-        "summary": "ประวัติการรบแบบย่อ ล่าสุดก่อน",
+        "summary": "ประวัติการรบแบบย่อ ล่าสุดก่อน · q ค้นในชื่อสถานที่ (หอคอย หรือชื่อภูมิภาค)",
         "tags": [
           "battles"
         ]
@@ -1785,6 +1805,16 @@
               "default": 20,
               "type": "number"
             }
+          },
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "description": "คำค้นหา ไม่สนตัวพิมพ์เล็ก/ใหญ่ · ว่าง = ทั้งหมด",
+            "schema": {
+              "maxLength": 100,
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -1851,7 +1881,7 @@
             }
           }
         },
-        "summary": "โจทย์ทั้งหมด ล่าสุดก่อน",
+        "summary": "โจทย์ทั้งหมด ล่าสุดก่อน · q ค้นในชื่อและคำอธิบาย",
         "tags": [
           "challenges"
         ]

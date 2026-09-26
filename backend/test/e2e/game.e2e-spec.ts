@@ -8,7 +8,7 @@ import type { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import request from 'supertest';
 import { FakeCoreHub, testEnv, type CoreRoleClaim } from '../support/fake-core-hub';
-import { resetDatabase } from '../support/test-db';
+import { insertItems, resetDatabase } from '../support/test-db';
 
 const DB = process.env.TEST_DATABASE_URL;
 if (!DB) throw new Error('ตั้ง TEST_DATABASE_URL ก่อนรัน e2e (ฐานข้อมูลนี้จะถูกล้าง)');
@@ -397,3 +397,67 @@ describe('regression: คำขอพร้อมกันและอินพ�
   });
 });
 
+describe('ค้นหาในตาราง (?q= · ui-design-system ข้อ 8.2)', () => {
+  it('กระเป๋า: q ค้นในชื่อไอเทม · ไม่พบ → data [] total 0 · ช่องว่างล้วน = ไม่กรอง · แบ่งหน้าตามผลที่กรองแล้ว', async () => {
+    await http.post('/api/v1/characters').set(as('p-find')).send({ displayName: 'finder' }).expect(201);
+    const me = (await http.get('/api/v1/characters/current').set(as('p-find'))).body.data;
+    await insertItems(DB!, me.id, [
+      { baseId: 'sword', slot: 'weapon' },
+      { baseId: 'staff', slot: 'weapon' },
+      { baseId: 'plate', slot: 'armor' },
+      { baseId: 'helm', slot: 'helmet' },
+      { baseId: 'ring', slot: 'accessory' },
+    ]);
+    const names = async (q: string, extra = '') =>
+      (await http.get(`/api/v1/items?q=${encodeURIComponent(q)}${extra}`).set(as('p-find')).expect(200)).body;
+
+    expect((await names('ดาบ')).data.map((i: { nameTh: string }) => i.nameTh)).toEqual(['ดาบ']);
+    expect((await names('เหล็ก')).data.map((i: { nameTh: string }) => i.nameTh)).toEqual(['เกราะเหล็ก', 'หมวกเหล็ก']);
+    expect(await names('มังกร')).toEqual({ success: true, data: [], meta: { total: 0, page: 1, limit: 20, totalPages: 0 } });
+    expect((await names('   ')).meta.total).toBe(5);
+    const paged = await names('เหล็ก', '&limit=1&page=2');
+    expect(paged.meta).toEqual({ total: 2, page: 2, limit: 1, totalPages: 2 });
+    expect(paged.data.map((i: { nameTh: string }) => i.nameTh)).toEqual(['หมวกเหล็ก']);
+    // ของคนอื่นไม่ปน
+    expect((await http.get('/api/v1/items?q=ดาบ'.replace('ดาบ', encodeURIComponent('ดาบ'))).set(as('p-alice')).expect(200)).body.data
+      .every((i: { id: string }) => !paged.data.some((x: { id: string }) => x.id === i.id))).toBe(true);
+  });
+
+  it('ประวัติการรบ: q ค้นในชื่อสถานที่ (หอคอย · ชื่อภูมิภาค)', async () => {
+    await http.post('/api/v1/battles').set(as('p-find')).send({ towerFloor: 1 }).expect(201);
+    const run = await http.post('/api/v1/region-runs').set(as('p-find')).send({ regionId: 'greenwood', depth: 1 }).expect(201);
+    await http.post('/api/v1/battles').set(as('p-find')).send({ regionRunId: run.body.data.id }).expect(201);
+    const places = async (q: string) =>
+      (await http.get(`/api/v1/battles?q=${encodeURIComponent(q)}`).set(as('p-find')).expect(200)).body.data.map(
+        (b: { regionId: string }) => b.regionId,
+      );
+    expect(await places('หอ')).toEqual(['tower']);
+    expect(await places('เริ่มต้น')).toEqual(['greenwood']);
+    expect(await places('ภูเขาไฟ')).toEqual([]);
+    expect((await places('')).sort()).toEqual(['greenwood', 'tower']);
+  });
+
+  it('โจทย์: q ค้นในชื่อและคำอธิบาย ไม่สนตัวพิมพ์ · % กับ _ เป็นตัวอักษรธรรมดา · q ผิดรูป → 400', async () => {
+    const mk = (title: string, description: string) =>
+      http.post('/api/v1/challenges').set(as('t-find', 'staff')).send({ title, description }).expect(201);
+    const a = (await mk('ตั้งการ์ดเมื่อถูกหมายหัว', 'ใช้ Defend() ตอนหมาป่าง้าง')).body.data.id;
+    const b = (await mk('ร่ายไฟใส่ตัวที่เลือดน้อย', 'แรง 150% ของ INT')).body.data.id;
+    const titles = async (q: string) =>
+      (await http.get(`/api/v1/challenges?q=${encodeURIComponent(q)}`).set(as('p-find')).expect(200)).body.data.map(
+        (c: { title: string }) => c.title,
+      );
+    expect(await titles('การ์ด')).toEqual(['ตั้งการ์ดเมื่อถูกหมายหัว']);
+    expect(await titles('DEFEND')).toEqual(['ตั้งการ์ดเมื่อถูกหมายหัว']);
+    expect(await titles('int')).toEqual(['ร่ายไฟใส่ตัวที่เลือดน้อย']);
+    expect(await titles('%')).toEqual(['ร่ายไฟใส่ตัวที่เลือดน้อย']);
+    expect(await titles('_')).toEqual([]);
+    expect(await titles('\\')).toEqual([]);
+
+    const bad = await http.get(`/api/v1/challenges?q=${'ก'.repeat(101)}`).set(as('p-find')).expect(400);
+    expect(bad.body.error.code).toBe('VALIDATION_ERROR');
+    await http.get('/api/v1/challenges?q=a&q=b').set(as('p-find')).expect(400);
+    await http.get('/api/v1/items?q=%00').set(as('p-find')).expect(400);
+
+    for (const id of [a, b]) await http.delete(`/api/v1/challenges/${id}`).set(as('t-find', 'staff')).expect(200);
+  });
+});
