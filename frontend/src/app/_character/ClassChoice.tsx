@@ -95,6 +95,16 @@ export function ClassChoice({ character, onChosen }: { character: Character; onC
               </span>
               <span className="space-y-2">
                 <span className="block text-label-md text-on-surface">สกิลที่จะเรียกได้</span>
+                {/* game-data ยังไม่มา: จองที่เท่าสกิล 3 ตัว — ไม่งั้นส่วน "ลองดูก่อนเลือก" ข้างล่างกระโดดลงตอนข้อมูลมาถึง (CLS) */}
+                {!gameData &&
+                  [0, 1, 2].map((i) => (
+                    <span key={i} className="block space-y-1.5" aria-hidden="true">
+                      {/* span ไม่ใช่ <Skeleton> (div) — อยู่ใน <button> ใส่ได้แค่ phrasing content */}
+                      <span className="skeleton block h-5 w-3/4 rounded-lg" />
+                      <span className="skeleton block h-5 w-full rounded-lg" />
+                      <span className="skeleton block h-4 w-5/6 rounded-lg" />
+                    </span>
+                  ))}
                 {skillsOf(c).map((s) => {
                   const t = describeSkill(s);
                   return (
