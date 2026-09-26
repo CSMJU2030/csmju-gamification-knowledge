@@ -12,7 +12,7 @@
  * จนกว่าอายุรอบ 5 นาทีจะหมด · ยกเว้นตอนรบสำเร็จแล้วกำลังไป /battle — ตอนนั้นยังอยู่ในโซนจริง
  */
 import dynamic from 'next/dynamic';
-import Link from 'next/link';
+import Link from '@/components/AppLink';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import type { ClassId } from '@tower/engine/types';

@@ -7,7 +7,7 @@
  * หน้าที่ที่ shell ถือไว้ (ระบบย่อยห้ามทำเอง): sidebar · top bar · เมนูผู้ใช้ · ออกจากระบบ
  * กลับ Dashboard · 401 → SSO · skip link · footer
  */
-import Link from 'next/link';
+import Link from '@/components/AppLink';
 import { usePathname, useRouter } from 'next/navigation';
 import {
   createContext,

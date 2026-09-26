@@ -4,7 +4,7 @@
  * โจทย์ — มาหน้านี้เพื่ออ่านโจทย์ที่ผู้สอนตั้ง แล้วเปิดโปรแกรมตั้งต้นไปลองใน /program (G0 ข้อ 3)
  * ผู้เล่น: เห็นอย่างเดียว · ผู้สอน: สร้างได้ แก้/ลบเฉพาะของตัวเอง · ผู้ดูแล: แก้/ลบได้ทุกโจทย์ (G0 ข้อ 4)
  */
-import Link from 'next/link';
+import Link from '@/components/AppLink';
 import {
   AssignmentIcon,
   ChevronRightIcon,

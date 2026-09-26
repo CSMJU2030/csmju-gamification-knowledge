@@ -11,7 +11,7 @@
  * ผลการดวลไม่มีทางไหลกลับไปแตะผลของรอบ หน้านี้จึงแยกเป็นสองช่วง (phase) ชัดเจน
  */
 import dynamic from 'next/dynamic';
-import Link from 'next/link';
+import Link from '@/components/AppLink';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   MapIcon,

@@ -9,7 +9,7 @@
  *
  * การ์ดถูก remount ด้วย key ทุกครั้งที่เปลี่ยนโซน รอบที่เลือกจึงเริ่มใหม่จาก defaultDepth เสมอ
  */
-import Link from 'next/link';
+import Link from '@/components/AppLink';
 import { useId, useState, type Ref } from 'react';
 import {
   CheckIcon,

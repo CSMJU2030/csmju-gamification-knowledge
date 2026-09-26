@@ -4,7 +4,7 @@
  * หอคอย — มาหน้านี้เพื่อเลือกชั้นที่จะท้าทาย (G0 ข้อ 3)
  * กดท้าทาย → POST /battles {towerFloor} → ส่งผลไปเล่นที่ /battle (ผลคำนวณและบันทึกที่ backend ครั้งเดียว)
  */
-import Link from 'next/link';
+import Link from '@/components/AppLink';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { LockIcon, PageHeader, StatusBadge, cardClass, primaryButtonClass, secondaryButtonClass } from '@/csmju';

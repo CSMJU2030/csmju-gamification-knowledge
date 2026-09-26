@@ -4,7 +4,7 @@
  * ประวัติการรบ — มาหน้านี้เพื่อย้อนดูว่ารบอะไรไปแล้ว ชนะ/แพ้กี่รอบ (G0 ข้อ 3)
  * เรียงใหม่สุดก่อน (backend เรียงให้) · 20 รายการต่อหน้า
  */
-import Link from 'next/link';
+import Link from '@/components/AppLink';
 import {
   HistoryIcon,
   PageHeader,

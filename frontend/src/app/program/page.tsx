@@ -11,7 +11,7 @@
  * เอดิเตอร์ + ล่ามหนัก จึงโหลดด้วย next/dynamic (ssr:false) — หน้าอื่นไม่ต้องจ่ายค่าล่ามใน JS แรกเข้า
  */
 import dynamic from 'next/dynamic';
-import Link from 'next/link';
+import Link from '@/components/AppLink';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useCallback, useEffect, useState } from 'react';
 import { Alert, Button, EmptyState, ErrorState, ForbiddenState, Skeleton } from '@/components/feedback';

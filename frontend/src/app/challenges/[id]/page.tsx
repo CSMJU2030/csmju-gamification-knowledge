@@ -1,7 +1,7 @@
 'use client';
 
 /** อ่านโจทย์หนึ่งข้อ · 404 → EmptyState + ย้อนกลับ (G0 ข้อ 3) */
-import Link from 'next/link';
+import Link from '@/components/AppLink';
 import { useParams, useRouter } from 'next/navigation';
 import {
   ArrowLeftIcon,

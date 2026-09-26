@@ -11,7 +11,7 @@
  * `?region=<id>` เปิดการ์ดโซนนั้นค้างไว้ — หน้า /battle และปุ่ม "ออกจากโซน" พากลับมาแบบนี้
  * การเลือกโซนเขียนกลับลง URL ด้วย replaceState (ไม่เพิ่มประวัติ) ปุ่มย้อนกลับจึงไม่ต้องไล่ทีละโซน
  */
-import Link from 'next/link';
+import Link from '@/components/AppLink';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { MapIcon, PageHeader, PersonIcon, StatusBadge, cardClass, primaryButtonClass } from '@/csmju';

@@ -4,7 +4,7 @@
  * หน้า "ตัวละคร" — มาหน้านี้เพื่อดูว่าตัวละครเก่งขึ้นตรงไหน และโค้ดของเราทำงานแบบไหนในเลเวลนี้ (G0 ข้อ 3)
  * ย้ายเนื้อหาจาก CharacterPage เดิม: ตุ๊กตาแต่งตัวกลายเป็นรายการอุปกรณ์ · แถบความชำนาญยังเป็นหัวใจของหน้า
  */
-import Link from 'next/link';
+import Link from '@/components/AppLink';
 import { useMemo, type ReactNode } from 'react';
 import { ChevronRightIcon, InfoIcon, LockIcon, StatusBadge, cardClass, secondaryButtonClass } from '@/csmju';
 import { ProgressBar } from '@/components/ProgressBar';

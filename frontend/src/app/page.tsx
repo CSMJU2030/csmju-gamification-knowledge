@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import Link from '@/components/AppLink';
 import { PageHeader, StatusBadge, TowerIcon, primaryButtonClass } from '@/csmju';
 import { Alert, ErrorState, LoadingRegion, Skeleton } from '@/components/feedback';
 import { useGame } from '@/lib/game/session';

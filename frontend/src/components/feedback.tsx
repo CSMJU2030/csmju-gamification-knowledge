@@ -4,7 +4,7 @@
  * local component ชั่วคราว (ui-design-system ข้อ 17.0: ของในข้อ 7.1 ที่ template ยังไม่มี
  * ให้ประกอบใน components/ จาก class ใน ui.ts + token เท่านั้น) — ระบุไว้ใน subsystem.yaml → local_components
  */
-import Link from 'next/link';
+import Link from '@/components/AppLink';
 import type { ButtonHTMLAttributes, ReactNode } from 'react';
 import {
   AlertIcon,

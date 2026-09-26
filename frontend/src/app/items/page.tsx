@@ -7,7 +7,7 @@
  * PATCH/DELETE/POST ของไอเทมไม่คืนตัวละคร จึงโหลดตัวละครใหม่หลังทำสำเร็จ
  * (ค่าสถานะรวม ทอง วัสดุ เปลี่ยนตาม) — backend เป็นคนคิดทุกค่า หน้านี้ไม่คำนวณเอง
  */
-import Link from 'next/link';
+import Link from '@/components/AppLink';
 import { useState } from 'react';
 import {
   ChevronRightIcon,
@@ -33,6 +33,7 @@ import { MAIN_STAT_LABELS, RARITY_LABELS, RARITY_TONE, SLOT_LABELS, fmt } from '
 import { useGame } from '@/lib/game/session';
 import { ItemDialog, itemTitle, type ItemAction } from './ItemDialog';
 
+/** 10 แถว — ให้ footer อยู่ใต้ขอบจอตั้งแต่ตอนโหลด (6 แถวเดิมสั้นกว่ารายการจริง footer จึงกระโดดบนมือถือ · CLS 0.11) */
 function ItemsSkeleton() {
   return (
     <LoadingRegion label="กำลังโหลดกระเป๋า">
@@ -40,7 +41,7 @@ function ItemsSkeleton() {
         <div className="px-6 py-5">
           <Skeleton className="h-6 w-40" />
         </div>
-        {Array.from({ length: 6 }, (_, i) => (
+        {Array.from({ length: 10 }, (_, i) => (
           <div key={i} className="flex items-center gap-4 px-6 py-4">
             <Skeleton className="h-5 flex-1" />
             <Skeleton className="h-5 w-20" />

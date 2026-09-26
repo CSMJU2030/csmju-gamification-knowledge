@@ -1,7 +1,7 @@
 'use client';
 
 /** ผู้สอนแก้โจทย์ — ไม่มีสิทธิ์แก้ข้อนี้ → หน้าไม่มีสิทธิ์ (backend ตรวจซ้ำและตอบ 403 เสมอ) */
-import Link from 'next/link';
+import Link from '@/components/AppLink';
 import { useParams } from 'next/navigation';
 import { ArrowLeftIcon, PageHeader, secondaryButtonClass } from '@/csmju';
 import { EmptyState, ErrorState, ForbiddenState, LoadingRegion, Skeleton } from '@/components/feedback';
