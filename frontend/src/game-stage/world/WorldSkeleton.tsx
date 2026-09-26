@@ -1,9 +1,10 @@
 /**
- * โครงหน้าแผนที่ระหว่างโหลด — ขนาดเท่าของจริง (แผนที่จองอัตราส่วนภาพ · การ์ดโซน · รายการ) กัน CLS
+ * โครงหน้าแผนที่ระหว่างโหลด — ขนาดเท่าของจริง (ภาพแผนที่จริง · การ์ดโซน · รายการ) กัน CLS
  * ใช้ทั้งใน app/world/loading.tsx และตอนหน้ารอตัวละคร/รายการโซน · กริดต้องตรงกับ WORLD_GRID ของหน้าจริง
  */
 import { cardClass } from '@/csmju';
 import { LoadingRegion, Skeleton } from '@/components/feedback';
+import { WorldMapBackdrop } from './WorldMapStage';
 
 /** กริดของหน้าแผนที่: จอกว้างแผนที่+รายการอยู่ซ้าย การ์ดโซนอยู่ขวา · จอแคบเรียง แผนที่ → การ์ดโซน → รายการ */
 export const WORLD_GRID = 'grid gap-6 xl:grid-cols-[minmax(0,1fr)_340px] xl:items-start';
@@ -17,7 +18,8 @@ export default function WorldSkeleton({ label = 'กำลังโหลดแ�
       <div className={WORLD_GRID}>
         <div className={WORLD_MAP_CELL}>
           <div className={cardClass}>
-            <Skeleton className="aspect-[1920/1072] w-full rounded-none" />
+            {/* ภาพแผนที่จริง (ไม่ขึ้นกับข้อมูล) แทนกล่องเทา — หมุดโซนตามมาเมื่อ /regions ตอบ */}
+            <WorldMapBackdrop />
             <div className="flex flex-wrap gap-4 border-t border-outline-variant/40 px-4 py-3 md:px-6">
               {[0, 1, 2, 3].map((i) => (
                 <Skeleton key={i} className="h-5 w-20" />

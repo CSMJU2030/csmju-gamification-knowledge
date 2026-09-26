@@ -222,7 +222,7 @@ export function CharacterOverview({ character: c, gameData }: { character: Chara
                       {it.upgradeLevel > 0 && <span className="text-primary-container"> +{it.upgradeLevel}</span>}
                     </span>
                   ) : (
-                    <span className="text-body-md text-outline">ว่าง</span>
+                    <span className="text-body-md text-on-surface-variant">ว่าง</span>
                   )}
                 </li>
               );

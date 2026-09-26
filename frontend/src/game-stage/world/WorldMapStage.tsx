@@ -46,6 +46,47 @@ function MarkIcon({ status }: { status: RegionStatus }) {
   return <SwordsIcon />;
 }
 
+/**
+ * ภาพแผนที่ — ใช้ทั้งในเวทีและใน WorldSkeleton (ตอนรอข้อมูล) ให้ภาพอยู่ใน HTML แรกของหน้า
+ * แล้วเวทีที่ขึ้นทีหลังได้ภาพจาก cache ทันที (ภาพนี้คือ LCP ของหน้าแผนที่ — เดิมรอ /regions ก่อนจึงเริ่มโหลด)
+ *
+ * ขนาดไฟล์ (G0 ข้อ 8 · Lighthouse บนมือถือ): จอแคบใช้ WebP 640/960px (40/73KB) ตามความกว้างจริงของการ์ด
+ * แทน JPG 960px (107KB) · จอกว้างใช้ WebP 1920px (195KB) แทน JPG (358KB) · JPG ยังอยู่เป็นตัวสำรอง
+ * ไฟล์ WebP สร้างจาก worldmap.jpg ด้วย sharp (resize → webp quality 78–80)
+ */
+function WorldMapPicture() {
+  return (
+    <picture>
+      <source media="(min-width: 768px)" type="image/webp" srcSet="/worldmap-1920.webp" />
+      <source media="(min-width: 768px)" srcSet="/worldmap.jpg" />
+      {/* การ์ดแผนที่บนจอแคบกว้างเท่าจอ ลบขอบหน้า 2×16px และเส้นขอบการ์ด 2px */}
+      <source type="image/webp" srcSet="/worldmap-640.webp 640w, /worldmap-960.webp 960w" sizes="calc(100vw - 34px)" />
+      <img
+        className={styles.img}
+        src="/worldmap-small.jpg"
+        alt="แผนที่โลกของ Code Tower"
+        width={MAP_WIDTH}
+        height={MAP_HEIGHT}
+        fetchPriority="high"
+      />
+    </picture>
+  );
+}
+
+/**
+ * ผืนแผนที่เปล่า (ยังไม่มีหมุด) สำหรับตอนโหลด — กรอบ .stage/.plane เดียวกับเวทีจริงทุกพิกเซล
+ * ต้องเท่ากันเป๊ะ: ถ้าภาพในเวทีจริงใหญ่กว่าแม้นิดเดียว เบราว์เซอร์จะนับ LCP ใหม่ตอนเวทีขึ้น (หลังรอ API)
+ */
+export function WorldMapBackdrop() {
+  return (
+    <div className={styles.stage}>
+      <div className={styles.plane}>
+        <WorldMapPicture />
+      </div>
+    </div>
+  );
+}
+
 export default function WorldMapStage({
   regions,
   selectedId,
@@ -63,18 +104,7 @@ export default function WorldMapStage({
   return (
     <div className={styles.stage}>
       <div className={styles.plane} data-active={active ? '' : undefined}>
-        <picture>
-          {/* จอกว้างค่อยโหลดภาพเต็ม 1920px (360KB) · จอแคบได้ไฟล์ 960px (110KB) พอ (G0 ข้อ 8 · LCP) */}
-          <source media="(min-width: 768px)" srcSet="/worldmap.jpg" />
-          <img
-            className={styles.img}
-            src="/worldmap-small.jpg"
-            alt="แผนที่โลกของ Code Tower"
-            width={MAP_WIDTH}
-            height={MAP_HEIGHT}
-            decoding="async"
-          />
-        </picture>
+        <WorldMapPicture />
 
         <span className={styles.dim} aria-hidden="true" />
         {active && (

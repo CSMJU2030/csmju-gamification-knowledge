@@ -29,17 +29,30 @@ const FLOOR_NAMES: Record<number, string> = {
   10: 'ยอดหอคอย',
 };
 
+/** จำนวนชั้นที่ skeleton จองไว้ = จำนวนชื่อชั้น (เท่า maxFloor ที่ API ตอบ · TOWER_MAX_FLOOR ของ backend) */
+const SKELETON_FLOORS = Object.keys(FLOOR_NAMES).length;
+
+/** โครงเท่ารายการจริง (หัวการ์ด + ทุกชั้น · แถวเดียวกันทั้งความสูงและการตัดบรรทัด) — สั้นกว่าจริงแล้ว footer กระโดด (CLS) */
 function TowerSkeleton() {
   return (
     <LoadingRegion label="กำลังโหลดหอคอย">
-      <div className={`${cardClass} divide-y divide-outline-variant/40`}>
-        {Array.from({ length: 6 }, (_, i) => (
-          <div key={i} className="flex items-center gap-4 px-6 py-4">
-            <Skeleton className="h-12 w-12 rounded-lg" />
-            <Skeleton className="h-5 flex-1" />
-            <Skeleton className="h-10 w-28" />
-          </div>
-        ))}
+      <div className={cardClass}>
+        <div className="flex flex-col gap-1 border-b border-outline-variant/40 px-6 py-5 md:flex-row md:items-end md:justify-between">
+          <Skeleton className="h-8 w-40" />
+          <Skeleton className="h-5 w-48" />
+        </div>
+        <div className="divide-y divide-outline-variant/40">
+          {Array.from({ length: SKELETON_FLOORS }, (_, i) => (
+            <div key={i} className="flex flex-wrap items-center gap-4 px-6 py-4">
+              <Skeleton className="h-12 w-12 shrink-0 rounded-lg" />
+              <span className="min-w-0 flex-1 space-y-2">
+                <Skeleton className="h-5 w-40 max-w-full" />
+                <Skeleton className="h-6 w-24 rounded-full" />
+              </span>
+              <Skeleton className="h-11 w-28 md:h-10" />
+            </div>
+          ))}
+        </div>
       </div>
     </LoadingRegion>
   );
