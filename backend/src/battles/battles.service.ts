@@ -20,7 +20,16 @@ import { DuelService, type DuelBlock } from '../world/duel.service';
 import { RegionRunsService } from '../world/region-runs.service';
 import { PARTY_SIZE, liveId, runSeed } from '../world/run-seed';
 import type { BattleSummaryDto, TowerProgressDto } from './battle.dto';
-import { BattlePersistenceService } from './battle-persistence.service';
+import { BattlePersistenceService, type BattleAttempt } from './battle-persistence.service';
+
+/** รูปที่ส่งออกทาง API (วันที่เป็น ISO string ตามมาตรฐาน) */
+function attemptView(a: BattleAttempt) {
+  return {
+    attemptNo: a.attemptNo,
+    firstAttempt: a.firstAttempt,
+    previous: a.previous ? { ...a.previous, createdAt: a.previous.createdAt.toISOString() } : null,
+  };
+}
 
 @Injectable()
 export class BattlesService {
@@ -79,6 +88,7 @@ export class BattlesService {
       result: persisted.result,
       character: await loadCharacterView(this.prisma, row.id),
       ...persisted.gains,
+      attempt: attemptView(persisted.attempt),
     };
   }
 
@@ -133,6 +143,7 @@ export class BattlesService {
       duel,
       character: await loadCharacterView(this.prisma, row.id),
       ...persisted.gains,
+      attempt: attemptView(persisted.attempt),
     };
   }
 

@@ -777,12 +777,19 @@ export class BattleDirector {
     const actorKey = this.actorKey(ev);
     const usedSkill = ev.action === 'skill';
 
-    // หัก MP ฝั่งผู้เล่นตาม mpCost (ประมาณเอาฝั่งหน้าจอ — event ไม่ส่ง MP มา)
-    if (usedSkill && s.combatants[actorKey]?.side === 'party') {
-      const def = this.ctx.skills.find((x) => x.id === ev.skillId);
-      if (def) {
-        const actor = s.combatants[actorKey];
-        actor.mp = Math.max(0, actor.mp - def.mpCost);
+    /*
+     * MP ฝั่งผู้เล่น = ค่าจริงจาก engine (mpAfter · หลังหักค่าร่ายและฟื้นตอนจบเทิร์น)
+     * เดิมหน้าจอหักตาม mpCost อย่างเดียวแต่ engine คืน MP ทุกเทิร์น หลอดจึงหมดทั้งที่ยังร่ายได้จริง
+     * (playtest รอบ A ข้อ 4) · บันทึกที่ไม่มี mpAfter (รุ่นก่อน 26 ก.ย. 2026) ถอยไปหักแบบเดิม
+     */
+    const actorView = s.combatants[actorKey];
+    if (actorView?.side === 'party') {
+      if (typeof ev.mpAfter === 'number') {
+        const mp = Math.max(0, ev.mpAfter);
+        s.combatants[actorKey] = { ...actorView, mp, maxMp: Math.max(actorView.maxMp, mp) };
+      } else if (usedSkill) {
+        const def = this.ctx.skills.find((x) => x.id === ev.skillId);
+        if (def) s.combatants[actorKey] = { ...actorView, mp: Math.max(0, actorView.mp - def.mpCost) };
       }
     }
 

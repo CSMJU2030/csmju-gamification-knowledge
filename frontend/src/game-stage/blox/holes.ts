@@ -53,6 +53,8 @@ export interface HoleOption {
   code: string;
   /** คำอธิบายไทย */
   labelTh: string;
+  /** บรรทัดรายละเอียด (เช่น สกิลทำอะไร) — เว้นได้ */
+  detailTh?: string;
   pick: Expr | CmpOp;
 }
 
@@ -68,6 +70,14 @@ export interface SkillOption {
   nameTh: string;
   mpCost: number;
   aoe: boolean;
+  /**
+   * สกิลนี้ทำอะไร (26 ก.ย. 2026 — playtest: "รู้แค่ชื่อสกิล ไม่รู้ว่าทำอะไรได้")
+   * สร้างด้วย describeSkill() ของ engine ตัวเลขจึงตรงกับตัวรบเสมอ
+   */
+  kindTh: string;
+  effectTh: string;
+  targetTh: string;
+  descTh: string;
 }
 
 // ----------------------------------------------------------------- ขอบเขตตัวแปร
@@ -207,7 +217,8 @@ function skillSections(skills: SkillOption[]): HoleSection[] {
     options: skills.map((s) => ({
       code: `"${s.codeName}"`,
       // ถอด "· N MB" ออกเมื่อ 19 ก.ย. 2026 พร้อมระบบ Memory (รอบ 2P §3.1)
-      labelTh: `${s.nameTh} · MP ${s.mpCost}${s.aoe ? ' · วงกว้าง' : ''}`,
+      labelTh: `${s.nameTh} · MP ${s.mpCost}`,
+      ...(s.effectTh ? { detailTh: `${s.kindTh} · ${s.effectTh} · ${s.targetTh}` } : {}),
       pick: strExpr(s.codeName),
     })),
   }];

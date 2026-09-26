@@ -3132,6 +3132,10 @@
             "items": {
               "type": "string"
             }
+          },
+          "mpAfter": {
+            "type": "number",
+            "description": "MP ของผู้ลงมือหลังจบเทิร์นนี้ (หักค่าร่ายและฟื้นตอนจบเทิร์นแล้ว) — ไม่มีใน event ของระบบ"
           }
         },
         "required": [
@@ -3235,6 +3239,55 @@
           "opponentProgram"
         ]
       },
+      "PreviousAttemptDto": {
+        "type": "object",
+        "properties": {
+          "victory": {
+            "type": "boolean"
+          },
+          "wavesCleared": {
+            "type": "number"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "victory",
+          "wavesCleared",
+          "createdAt"
+        ]
+      },
+      "BattleAttemptDto": {
+        "type": "object",
+        "properties": {
+          "attemptNo": {
+            "type": "number",
+            "minimum": 1,
+            "description": "ครั้งที่ของการรบที่จุดนี้ (1 = ครั้งแรก)"
+          },
+          "firstAttempt": {
+            "type": "boolean",
+            "description": "ครั้งแรกที่จุดนี้ — หน้าเว็บให้ดูฉากจนจบก่อน"
+          },
+          "previous": {
+            "nullable": true,
+            "description": "ผลครั้งก่อนที่จุดนี้ (null = ไม่เคยรบ)",
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PreviousAttemptDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "attemptNo",
+          "firstAttempt",
+          "previous"
+        ]
+      },
       "BattleOutcomeDto": {
         "type": "object",
         "properties": {
@@ -3285,13 +3338,17 @@
                 "$ref": "#/components/schemas/StatsDto"
               }
             ]
+          },
+          "attempt": {
+            "$ref": "#/components/schemas/BattleAttemptDto"
           }
         },
         "required": [
           "id",
           "result",
           "character",
-          "leveledUp"
+          "leveledUp",
+          "attempt"
         ]
       },
       "CreateBattleDto": {
@@ -3429,7 +3486,7 @@
           },
           "power": {
             "type": "number",
-            "description": "% ของ atk/matk (100 = 1 เท่า)"
+            "description": "physical/magic = % ของ atk/matk (100 = 1 เท่า) · heal = % ของเลือดสูงสุดของเป้า · shield = % ของเลือดสูงสุดของผู้ร่าย · taunt ไม่ใช้"
           },
           "mpCost": {
             "type": "number"
@@ -3439,6 +3496,10 @@
           },
           "unlockLevel": {
             "type": "number"
+          },
+          "descTh": {
+            "type": "string",
+            "description": "คำอธิบายสำหรับผู้เล่น (มีเฉพาะสกิลของอาชีพ)"
           },
           "animation": {
             "type": "string",

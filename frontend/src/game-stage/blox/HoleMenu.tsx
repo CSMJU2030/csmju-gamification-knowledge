@@ -118,6 +118,7 @@ export default function HoleMenu({ hole, locals, skills, onPick, onClose }: Prop
                       {opt.code}
                     </span>
                     <span className="text-body-md text-on-surface-variant">{opt.labelTh}</span>
+                    {opt.detailTh && <span className="text-label-md text-on-surface-variant">{opt.detailTh}</span>}
                   </button>
                 );
               })}

@@ -31,6 +31,7 @@ import { useGame } from '@/lib/game/session';
 import { duelSides } from '@/game-stage/battle/duel';
 import { eliteMismatch, eliteMismatchDetail } from '@/game-stage/battle/elite';
 import StageSkeleton from '@/game-stage/battle/StageSkeleton';
+import { growthSummary } from '@/lib/game/growth';
 import BattleResult from './_components/BattleResult';
 import { DuelIntro, DuelResult } from './_components/DuelPanels';
 
@@ -144,6 +145,10 @@ function BattleView({ pending }: { pending: PendingBattle }) {
     setFocusTo(next === 'battle' ? 'battle' : duelDone || sides === null ? 'duel' : 'duelIntro');
   };
 
+  // playtest รอบ A ข้อ 6: ครั้งแรกที่จุดนี้ต้องดูฉากจนจบ · การ์ดผลบอกว่าโตขึ้นเท่าไร (ก่อน → หลัง)
+  const firstAttempt = outcome.attempt?.firstAttempt === true;
+  const growth = useMemo(() => growthSummary(before, outcome), [before, outcome]);
+
   const onBattleFinished = useCallback(() => {
     setBattleDone(true);
     setFocusTo('battle');
@@ -243,6 +248,7 @@ function BattleView({ pending }: { pending: PendingBattle }) {
               actions={battleActions}
               actionError={retryError}
               headingRef={resultHeadingRef}
+              growth={growth}
             />
           )}
           <BattlePlayer
@@ -253,6 +259,7 @@ function BattleView({ pending }: { pending: PendingBattle }) {
             enemyLevel={monsterLevel(floor)}
             startFinished={battleDone}
             onFinished={onBattleFinished}
+            canSkip={!firstAttempt}
           />
         </>
       ) : (

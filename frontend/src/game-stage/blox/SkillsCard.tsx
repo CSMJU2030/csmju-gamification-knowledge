@@ -5,7 +5,7 @@
  * ของเดิมรู้ได้ทางเดียวคือเปิดเมนูช่องสกิลในมุมมองบล็อก ซึ่งถาดซ่อนอยู่ในมุมมองโค้ด
  * การ์ดนี้จึงอยู่คอลัมน์ข้างและแสดงทั้งสองมุมมอง
  */
-import { FEATURE_LABEL_TH, FEATURE_UNLOCK } from '@tower/engine/lang';
+import { BASIC_ATTACK_TEXT_TH, FEATURE_LABEL_TH, FEATURE_UNLOCK, MP_RULES_TEXT_TH } from '@tower/engine/lang';
 import { StatusBadge, cardClass } from '@/csmju';
 import type { SkillOption } from './holes';
 
@@ -48,11 +48,23 @@ export default function SkillsCard({ skills, canCast }: Props) {
                 <span className="mt-1 flex flex-wrap items-center gap-2">
                   <span className="text-body-md text-on-surface">{s.nameTh}</span>
                   <span className="text-label-sm text-on-surface-variant tabular-nums">MP {s.mpCost}</span>
-                  {s.aoe && <StatusBadge tone="info">วงกว้าง</StatusBadge>}
+                  {s.kindTh && <StatusBadge tone={s.aoe ? 'info' : 'neutral'}>{s.kindTh}</StatusBadge>}
                 </span>
+                {s.effectTh && (
+                  <span className="mt-1 block text-label-md text-on-surface tabular-nums">
+                    {s.effectTh} · {s.targetTh}
+                  </span>
+                )}
+                {s.descTh && <span className="mt-0.5 block text-body-md text-on-surface-variant">{s.descTh}</span>}
               </li>
             ))}
           </ul>
+          {/* เทียบกับตีธรรมดา + กติกา MP ที่หลอดบอกไม่ได้ (ร่ายได้มากกว่า MP เต็มหลอดเพราะฟื้นทุกเทิร์น) */}
+          <p className="mt-3 border-t border-outline-variant/40 pt-3 text-label-md text-on-surface-variant">
+            <code lang="en" className="font-mono">{BASIC_ATTACK_TEXT_TH.split(' = ')[0]}</code> ={' '}
+            {BASIC_ATTACK_TEXT_TH.split(' = ')[1]}
+            <span className="mt-1 block">{MP_RULES_TEXT_TH}</span>
+          </p>
         </>
       )}
     </section>

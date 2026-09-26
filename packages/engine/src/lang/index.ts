@@ -13,9 +13,13 @@ export { toPython, exprToPython, stringLiteral, numberLiteral } from './printer'
 export { fromRules } from './fromRules';
 export type { FromRulesOptions } from './fromRules';
 export {
-  resolveSkillName, preferredSkillName, KNOWN_SKILL_NAMES,
+  resolveSkillName, preferredSkillName, KNOWN_SKILL_NAMES, describeSkillById,
 } from './skills';
 export type { SkillInfo } from './skills';
+export {
+  describeSkill, BASIC_ATTACK_TEXT_TH, DEFEND_TEXT_TH, MP_RULES_TEXT_TH,
+} from './skillText';
+export type { SkillText } from './skillText';
 export { LangErrorException, editDistance, closestName } from './errors';
 export {
   monsterProgramFor, clearMonsterProgramCache, DEFAULT_MONSTER_PROGRAM_KEY,

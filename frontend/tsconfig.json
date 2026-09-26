@@ -35,6 +35,9 @@
       ],
       "@tower/engine/types": [
         "../packages/engine/src/types.ts"
+      ],
+      "@tower/engine/skill-text": [
+        "../packages/engine/src/lang/skillText.ts"
       ]
     }
   },

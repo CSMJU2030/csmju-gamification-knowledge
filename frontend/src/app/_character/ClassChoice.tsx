@@ -7,6 +7,8 @@
  * แต่เหตุผลเดิมยังอยู่: ผู้ฝึกหัดไม่มีสกิลเลย จึงวางการ์ดนี้ไว้บนสุดของหน้าทันทีที่เลือกได้
  * ข้อความพูดถึงสิ่งที่ผู้เล่นเพิ่งเห็นในการรบ และผูกกลับไปที่โปรแกรมเสมอ (อาชีพ = cast() สั่งอะไรได้)
  */
+// import ตรงไฟล์ข้อความ (ไม่ผ่าน @tower/engine/lang) — ไม่ลากตัวแปลภาษาและ gamedata เข้าหน้าแรก
+import { describeSkill } from '@tower/engine/skill-text';
 import { PLAYABLE_CLASSES, type PlayableClassId } from '@tower/engine/types';
 import { useState } from 'react';
 import { CheckIcon, LockIcon, Modal, cardClass, secondaryButtonClass } from '@/csmju';
@@ -15,6 +17,7 @@ import { useToast } from '@/components/Toast';
 import { api, userMessage } from '@/lib/api/client';
 import type { Character } from '@/lib/api/types';
 import { CLASS_GUIDE, CLASS_NAMES } from '@/lib/game/labels';
+import { useGame } from '@/lib/game/session';
 import { Portrait } from './Portrait';
 
 export function ClassChoice({ character, onChosen }: { character: Character; onChosen: (c: Character) => void }) {
@@ -23,6 +26,12 @@ export function ClassChoice({ character, onChosen }: { character: Character; onC
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const toast = useToast();
+  // สกิลของแต่ละอาชีพมาจาก game-data (ชุดเดียวกับที่ตัวรบใช้) — ยังโหลดไม่เสร็จก็แค่ยังไม่แสดงรายการ
+  const { gameData } = useGame();
+  const skillsOf = (classId: string) =>
+    (gameData?.skills ?? [])
+      .filter((s) => s.classId === classId)
+      .sort((a, b) => a.unlockLevel - b.unlockLevel || a.id.localeCompare(b.id));
 
   const unlocked = character.highestFloorCleared >= 1;
 
@@ -83,13 +92,23 @@ export function ClassChoice({ character, onChosen }: { character: Character; onC
                   <span className="block text-body-md text-on-surface-variant">{g.playTh}</span>
                 </span>
               </span>
-              <span className="space-y-1">
+              <span className="space-y-2">
                 <span className="block text-label-md text-on-surface">สกิลที่จะเรียกได้</span>
-                {g.skills.map((s) => (
-                  <span key={s.nameTh} className="block text-body-md text-on-surface-variant">
-                    <strong className="font-semibold text-on-surface">{s.nameTh}</strong> · เลเวล {s.level} — {s.whatTh}
-                  </span>
-                ))}
+                {skillsOf(c).map((s) => {
+                  const t = describeSkill(s);
+                  return (
+                    <span key={s.id} className="block text-body-md text-on-surface-variant">
+                      <span className="block">
+                        <strong className="font-semibold text-on-surface">{s.nameTh}</strong>
+                        <span className="tabular-nums"> · เลเวล {s.unlockLevel} · MP {s.mpCost}</span>
+                      </span>
+                      {t.descTh && <span className="block">{t.descTh}</span>}
+                      <span className="block text-label-md">
+                        {t.kindTh} · {t.effectTh} · {t.targetTh}
+                      </span>
+                    </span>
+                  );
+                })}
               </span>
               <span className="block text-body-md text-on-surface-variant">{g.programTh}</span>
               <span className="block text-label-md text-on-surface-variant">

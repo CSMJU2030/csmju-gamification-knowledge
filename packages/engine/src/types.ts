@@ -76,6 +76,11 @@ export interface SkillDef {
   mpCost: number;
   aoe: boolean;       // โดนศัตรู/พวกเดียวกันทุกตัว
   unlockLevel: number;
+  /**
+   * คำอธิบายสั้นสำหรับผู้เล่น (26 ก.ย. 2026) — มีเฉพาะสกิลของอาชีพ ต้องพูดตรงกับที่ battle.ts ทำเท่านั้น
+   * ตัวเลข (แรงกี่ % · เป้าหมาย) ไม่ต้องเขียนที่นี่ — describeSkill() สร้างจาก field ด้านบนให้
+   */
+  descTh?: string;
   /** เฟส 2A: ชื่อแอนิเมชันเอฟเฟกต์ที่ client ใช้วาด (ดู EFFECT_ANIMATIONS ใน client/src/sprites/schema.ts) */
   animation?: string;
 }
@@ -145,6 +150,11 @@ export interface CombatEvent {
   line?: number;
   /** codeWarnings: คำเตือนตอนรันโปรแกรม เช่น "MP ไม่พอสำหรับ blizzard" */
   codeWarnings?: string[];
+  /**
+   * MP ของผู้ลงมือหลังจบเทิร์นนี้ (หักค่าร่าย + ฟื้นตอนจบเทิร์นแล้ว) — เพิ่ม 26 ก.ย. 2026
+   * ฉากรบใช้ค่านี้วาดหลอด MP แทนการเดา · ไม่มีใน event ของระบบ (wave_start / wave_clear)
+   */
+  mpAfter?: number;
 }
 
 export interface DropResult {

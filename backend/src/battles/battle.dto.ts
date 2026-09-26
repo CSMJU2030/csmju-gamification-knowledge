@@ -46,6 +46,10 @@ export class CombatEventDto {
   note?: 'wave_start' | 'wave_clear' | 'defend' | 'windup';
   @ApiPropertyOptional({ description: 'บรรทัดในโปรแกรม BloxCode ที่ตัดสินใจเทิร์นนี้ (0 = การกระทำสำรอง)' }) line?: number;
   @ApiPropertyOptional({ type: [String], description: 'คำเตือนตอนรันโปรแกรม' }) codeWarnings?: string[];
+  @ApiPropertyOptional({
+    description: 'MP ของผู้ลงมือหลังจบเทิร์นนี้ (หักค่าร่ายและฟื้นตอนจบเทิร์นแล้ว) — ไม่มีใน event ของระบบ',
+  })
+  mpAfter?: number;
 }
 
 export class BattleDropsDto {
@@ -73,6 +77,21 @@ export class DuelBlockDto {
   @ApiProperty({ description: 'โปรแกรมของคู่ดวล — ฝ่ายแพ้เปิดดูได้ (รอบ 2W §5.4)' }) opponentProgram!: string;
 }
 
+/** ผลของครั้งก่อนที่จุดเดียวกัน */
+export class PreviousAttemptDto {
+  @ApiProperty() victory!: boolean;
+  @ApiProperty() wavesCleared!: number;
+  @ApiProperty({ format: 'date-time' }) createdAt!: string;
+}
+
+/** ครั้งที่เท่าไรที่จุดเดียวกัน (ภูมิภาค + รอบ หรือ ชั้นหอคอย) — นับรวมครั้งนี้ */
+export class BattleAttemptDto {
+  @ApiProperty({ minimum: 1, description: 'ครั้งที่ของการรบที่จุดนี้ (1 = ครั้งแรก)' }) attemptNo!: number;
+  @ApiProperty({ description: 'ครั้งแรกที่จุดนี้ — หน้าเว็บให้ดูฉากจนจบก่อน' }) firstAttempt!: boolean;
+  @ApiProperty({ type: PreviousAttemptDto, nullable: true, description: 'ผลครั้งก่อนที่จุดนี้ (null = ไม่เคยรบ)' })
+  previous!: PreviousAttemptDto | null;
+}
+
 export class BattleOutcomeDto {
   @ApiProperty({ format: 'uuid', description: 'id ของบันทึกการรบแบบย่อ (GET /api/v1/battles)' }) id!: string;
   @ApiProperty({ type: BattleResultDto }) result!: BattleResultDto;
@@ -83,6 +102,7 @@ export class BattleOutcomeDto {
   @ApiProperty() leveledUp!: boolean;
   @ApiPropertyOptional() newLevel?: number;
   @ApiPropertyOptional({ type: StatsDto, description: 'สเตตัสที่ได้จากการเลเวลอัพรอบนี้' }) statsGained?: StatsDto;
+  @ApiProperty({ type: BattleAttemptDto }) attempt!: BattleAttemptDto;
 }
 
 export class BattleSummaryDto {

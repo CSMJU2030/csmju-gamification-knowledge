@@ -85,6 +85,24 @@ describe('การรบและกระเป๋า', () => {
     await http.post('/api/v1/battles').set(as('p-alice')).send({}).expect(400);
   });
 
+  it('playtest รอบ A: นับครั้งที่รบที่จุดเดียวกัน + ผลครั้งก่อน · ทุก event ของผู้ลงมือมี mpAfter', async () => {
+    await http.post('/api/v1/characters').set(as('p-attempt')).send({ displayName: 'attempt' }).expect(201);
+    const first = (await http.post('/api/v1/battles').set(as('p-attempt')).send({ towerFloor: 1 }).expect(201)).body.data;
+    expect(first.attempt).toEqual({ attemptNo: 1, firstAttempt: true, previous: null });
+    for (const e of first.result.events) {
+      const system = e.note === 'wave_start' || e.note === 'wave_clear';
+      expect(typeof e.mpAfter).toBe(system ? 'undefined' : 'number');
+    }
+
+    const second = (await http.post('/api/v1/battles').set(as('p-attempt')).send({ towerFloor: 1 }).expect(201)).body.data;
+    expect(second.attempt).toMatchObject({
+      attemptNo: 2,
+      firstAttempt: false,
+      previous: { victory: first.result.victory, wavesCleared: first.result.wavesCleared },
+    });
+    expect(Date.parse(second.attempt.previous.createdAt)).not.toBeNaN();
+  });
+
   it('สองการรบพร้อมกัน — exp รวมตรงกับผลรวมจริง (ไม่มีการเขียนทับกัน)', async () => {
     await http.post('/api/v1/characters').set(as('p-carol')).send({ displayName: 'carol' }).expect(201);
     const before = (await http.get('/api/v1/characters/current').set(as('p-carol'))).body.data;
@@ -93,6 +111,8 @@ describe('การรบและกระเป๋า', () => {
       http.post('/api/v1/battles').set(as('p-carol')).send({ towerFloor: 1 }),
     ]);
     expect([a.status, b.status]).toEqual([201, 201]);
+    // ล็อกแถวตัวละครทำให้นับครั้งไม่ชนกัน: ได้ 1 กับ 2 เสมอ
+    expect([a.body.data.attempt.attemptNo, b.body.data.attempt.attemptNo].sort()).toEqual([1, 2]);
     const gold = a.body.data.result.drops.gold + b.body.data.result.drops.gold;
     const after = (await http.get('/api/v1/characters/current').set(as('p-carol'))).body.data;
     expect(after.gold).toBe(before.gold + gold);

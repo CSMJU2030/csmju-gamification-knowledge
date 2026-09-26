@@ -591,6 +591,8 @@ export interface components {
             line?: number;
             /** @description คำเตือนตอนรันโปรแกรม */
             codeWarnings?: string[];
+            /** @description MP ของผู้ลงมือหลังจบเทิร์นนี้ (หักค่าร่ายและฟื้นตอนจบเทิร์นแล้ว) — ไม่มีใน event ของระบบ */
+            mpAfter?: number;
         };
         BattleDropsDto: {
             gold: number;
@@ -615,6 +617,20 @@ export interface components {
             /** @description โปรแกรมของคู่ดวล — ฝ่ายแพ้เปิดดูได้ (รอบ 2W §5.4) */
             opponentProgram: string;
         };
+        PreviousAttemptDto: {
+            victory: boolean;
+            wavesCleared: number;
+            /** Format: date-time */
+            createdAt: string;
+        };
+        BattleAttemptDto: {
+            /** @description ครั้งที่ของการรบที่จุดนี้ (1 = ครั้งแรก) */
+            attemptNo: number;
+            /** @description ครั้งแรกที่จุดนี้ — หน้าเว็บให้ดูฉากจนจบก่อน */
+            firstAttempt: boolean;
+            /** @description ผลครั้งก่อนที่จุดนี้ (null = ไม่เคยรบ) */
+            previous: components["schemas"]["PreviousAttemptDto"] | null;
+        };
         BattleOutcomeDto: {
             /**
              * Format: uuid
@@ -632,6 +648,7 @@ export interface components {
             newLevel?: number;
             /** @description สเตตัสที่ได้จากการเลเวลอัพรอบนี้ */
             statsGained?: components["schemas"]["StatsDto"];
+            attempt: components["schemas"]["BattleAttemptDto"];
         };
         CreateBattleDto: {
             /** @description ชั้นของหอคอยที่จะท้าทาย */
@@ -675,11 +692,13 @@ export interface components {
             classId: "novice" | "warrior" | "mage" | "guardian" | "monster";
             /** @enum {string} */
             kind: "physical" | "magic" | "heal" | "shield" | "taunt";
-            /** @description % ของ atk/matk (100 = 1 เท่า) */
+            /** @description physical/magic = % ของ atk/matk (100 = 1 เท่า) · heal = % ของเลือดสูงสุดของเป้า · shield = % ของเลือดสูงสุดของผู้ร่าย · taunt ไม่ใช้ */
             power: number;
             mpCost: number;
             aoe: boolean;
             unlockLevel: number;
+            /** @description คำอธิบายสำหรับผู้เล่น (มีเฉพาะสกิลของอาชีพ) */
+            descTh?: string;
             /** @description ชื่อแอนิเมชันเอฟเฟกต์ที่ฉากรบใช้วาด */
             animation?: string;
         };

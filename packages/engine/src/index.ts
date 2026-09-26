@@ -31,6 +31,7 @@ export { proficiencyFromBattle, allocatePoints } from './proficiency';
 export {
   parse, validate, runTurn, toPython, fromRules, tokenize,
   resolveSkillName, preferredSkillName, KNOWN_SKILL_NAMES,
+  describeSkill, describeSkillById, BASIC_ATTACK_TEXT_TH, DEFEND_TEXT_TH, MP_RULES_TEXT_TH,
   monsterProgramFor, isElifChain, SELF_TARGET,
   unlockedFeatures, BUFF_NAMES, DEBUFF_NAMES, STATUS_NAMES,
   GLOBALS, ME_ATTRS, UNIT_ATTRS, PURE_FUNCS, ACTION_FUNCS,
@@ -41,5 +42,5 @@ export type {
   Program, Stmt, Expr, Pos, CmpOp, BinOp,
   LangError, ErrorName, Feature,
   ParseResult, ValidateOptions, ValidateResult, TurnDecision,
-  RuntimeUnit, TurnContext, SkillInfo, FromRulesOptions,
+  RuntimeUnit, TurnContext, SkillInfo, FromRulesOptions, SkillText,
 } from './lang/index';

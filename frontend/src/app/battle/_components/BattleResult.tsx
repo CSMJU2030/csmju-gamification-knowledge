@@ -19,6 +19,8 @@ import {
   fmt,
 } from '@/lib/game/labels';
 import { MAX_WAVE } from '@/game-stage/battle/battle-log';
+import type { GrowthSummary } from '@/lib/game/growth';
+import GrowthPanel from './GrowthPanel';
 
 type StatKey = keyof typeof STAT_SHORT;
 const STAT_ORDER: StatKey[] = ['str', 'int', 'vit', 'agi', 'luk'];
@@ -62,9 +64,20 @@ interface Props {
   /** ข้อผิดพลาดของปุ่มในแถวนี้ (เช่น 409 ตอนท้าทายซ้ำ) — แสดงเหนือปุ่ม */
   actionError?: string | null;
   headingRef?: Ref<HTMLHeadingElement>;
+  /** การเติบโต ก่อน → หลัง (playtest รอบ A ข้อ 6) — ไม่ส่ง = ป้าย +สเตตัสแบบเดิม */
+  growth?: GrowthSummary;
 }
 
-export default function BattleResult({ outcome, gameData, contextLine, notes, actions, actionError, headingRef }: Props) {
+export default function BattleResult({
+  outcome,
+  gameData,
+  contextLine,
+  notes,
+  actions,
+  actionError,
+  headingRef,
+  growth,
+}: Props) {
   const headingId = useId();
   const { result, leveledUp, newLevel, statsGained } = outcome;
   const gained = statsGained ? STAT_ORDER.filter((k) => (statsGained[k] ?? 0) > 0) : [];
@@ -99,7 +112,9 @@ export default function BattleResult({ outcome, gameData, contextLine, notes, ac
 
       {notes && <div className="mt-4 space-y-3">{notes}</div>}
 
-      {leveledUp && (
+      {growth && <GrowthPanel growth={growth} />}
+
+      {!growth && leveledUp && (
         <div className="mt-4">
           <Alert tone="success">
             <span className="font-semibold">เลเวลอัพ! ตอนนี้เลเวล {newLevel ?? outcome.character.level}</span>

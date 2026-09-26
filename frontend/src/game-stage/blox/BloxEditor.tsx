@@ -15,6 +15,7 @@
  */
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import {
+  describeSkillById,
   parse,
   preferredSkillName,
   toPython,
@@ -149,6 +150,8 @@ export default function BloxEditor({ program: meta, source, onSourceChange, serv
         nameTh: s.nameTh,
         mpCost: s.mpCost,
         aoe: s.aoe,
+        // สร้างจากค่าของ engine ชุดเดียวกับตัวรบ (ไม่ใช่ข้อความที่พิมพ์ไว้ในหน้าเว็บ)
+        ...(describeSkillById(s.id) ?? { kindTh: '', effectTh: '', targetTh: '', descTh: '' }),
       })),
     [meta.availableSkills],
   );

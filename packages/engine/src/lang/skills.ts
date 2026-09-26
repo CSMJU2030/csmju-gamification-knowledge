@@ -9,8 +9,9 @@
  *   2. id ตัดคำนำหน้า      heal          (w_ / m_ / g_ / mon_)
  *   3. ชื่ออังกฤษ           power_strike  (จาก field name แปลงเป็นตัวพิมพ์เล็ก + _)
  */
-import { gamedata } from '../data';
+import { gamedata, getSkill } from '../data';
 import type { SkillDef } from '../types';
+import { describeSkill, type SkillText } from './skillText';
 
 export interface SkillInfo {
   id: string;
@@ -68,4 +69,10 @@ export function preferredSkillName(skillId: string): string {
   const short = underscore > 0 ? skillId.slice(underscore + 1) : skillId;
   const back = aliasMap.get(short);
   return back && back.id === skillId ? short : skillId;
+}
+
+/** สะดวกสำหรับหน้าเว็บที่มีแค่ id — สกิลที่ไม่รู้จักคืน undefined */
+export function describeSkillById(id: string): SkillText | undefined {
+  const s = getSkill(id);
+  return s ? describeSkill(s) : undefined;
 }

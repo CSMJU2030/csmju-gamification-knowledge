@@ -21,29 +21,13 @@ import { parse } from './lang/parser';
 import { runTurn, SELF_TARGET, type RuntimeUnit, type TurnContext } from './lang/evaluator';
 import { monsterProgramFor } from './lang/monsterAi';
 
+import {
+  BASIC_ATTACK_MP, GUARD_MULT, MP_REGEN_PCT, TAUNT_DAMAGE_REDUCTION, TAUNT_ROUNDS, WAVE_CLEAR_RESTORE,
+} from './combat-rules';
+
 /** Safety cap: after this many rounds the battle counts as a defeat. */
 export const MAX_ROUNDS = 200;
-/** Party restores this fraction of maxHp/maxMp on each wave clear. */
-const WAVE_CLEAR_RESTORE = 0.15;
-/** MP regenerated at end of a combatant's own turn (fraction of maxMp). */
-const MP_REGEN_PCT = 0.05;
-/** Extra MP restored by a basic attack. */
-const BASIC_ATTACK_MP = 3;
-/** Taunt lasts through (castRound + TAUNT_ROUNDS). */
-const TAUNT_ROUNDS = 2;
-
-/**
- * ตัวลดความเสียหายระหว่างยั่วยุ (19 ก.ย. 2026)
- *
- * เดิมยั่วยุทำอย่างเดียวคือ "ดึงการโจมตีเป้าเดี่ยวมาที่ตัวเอง" ซึ่งแปลว่า
- * **ตอนเล่นคนเดียวมันไม่ทำอะไรเลย** — ไม่มีเพื่อนให้ดึงแทน เสียเทิร์นฟรี ๆ
- * ผู้พิทักษ์จึงเป็นคลาสที่ "เล่นถูกวิธีแล้วแย่กว่าเล่นมั่ว" ตามที่วัดได้ใน
- * docs/measurements/probe-before-2p.txt (เกณฑ์ B3 ตก)
- *
- * ให้ยั่วยุแปลว่า "ตั้งรับ + ประกาศตัวเป็นเป้า" จึงใช้ได้ทั้งเดี่ยวและปาร์ตี้
- * (โหมด co-op ในเฟส 3 ยังได้ผลเดิมของมันครบ)
- */
-const TAUNT_DAMAGE_REDUCTION = 0.3;
+// ค่ากติกาที่ผู้เล่นต้องรู้ (ฟื้น MP · ยั่วยุ · ตั้งการ์ด) อยู่ที่ combat-rules.ts — ข้อความอธิบายบนจออ่านจากที่เดียวกัน
 
 interface Fighter {
   c: Combatant;
@@ -375,7 +359,7 @@ function dealDamage(
    * เพราะ "ทำถูกจังหวะ" ต้องคุ้มจริง ถ้าตั้งการ์ดแล้วยังเจ็บครึ่งหนึ่ง คนที่อ่านจังหวะเป็นก็โดนลงโทษไปด้วย
    * (0.5 ให้ผลเท่า `/ 2` เดิมทุกค่า — golden fixture คุมอยู่)
    */
-  guardMult = 0.5,
+  guardMult = GUARD_MULT,
 ): HitResult {
   const ad = attacker.c.derived;
   const td = target.c.derived;
@@ -422,6 +406,23 @@ function dealDamage(
 }
 
 interface KillRecord { level: number; isBoss: boolean; isElite: boolean }
+
+/**
+ * ประทับ MP จริงของผู้ลงมือลงใน event ของเทิร์นนั้น (playtest รอบ A ข้อ 4 · 26 ก.ย. 2026)
+ *
+ * เดิม event ไม่มี MP ฉากจึงเดาเองด้วยการ "หักค่าร่ายอย่างเดียว" แต่ตัวรบจริงคืน MP ทุกเทิร์น
+ * (MP_REGEN_PCT) ตอนตีธรรมดา (BASIC_ATTACK_MP) และตอนเคลียร์เวฟ ผลคือหลอด MP บนจอหมด
+ * ทั้งที่จริงยังเหลือ แล้วผู้เล่นเห็นตัวละครร่ายต่อ = ดูเหมือนบั๊ก "MP หมดยังใช้สกิลได้"
+ * (วัดได้: จอมเวท lv1 ร่ายลูกไฟจริง 22 ครั้ง จอบอกว่าไม่พอตั้งแต่ครั้งที่ 10)
+ *
+ * ค่าที่ประทับ = หลังหักค่าร่ายและฟื้นตอนจบเทิร์นแล้ว = ค่าที่ `me.mp` ของเทิร์นถัดไปเห็น
+ * (ก่อนการฟื้นตอนเคลียร์เวฟ ถ้าเวฟจบระหว่างนั้น) · ไม่แตะ rng และไม่เปลี่ยนค่าใดของการรบ
+ */
+function stampMp(events: CombatEvent[], from: number, actor: Fighter): void {
+  for (let i = from; i < events.length; i++) {
+    if (events[i].actorId === actor.c.id) events[i].mpAfter = actor.mp;
+  }
+}
 
 /**
  * ตัวคูณรางวัลของ "เนื้อหาที่ต่ำกว่าตัวเรามาก" (รอบ 2F §3.1 ข้อ 1 — คันโยกที่ใหญ่ที่สุด)
@@ -605,6 +606,8 @@ export function simulateWaves(
         if (!alive(actor)) continue;
         if (!enemiesAlive() || !partyAlive()) break;
         actor.defending = false; // 'defend' lasts until the actor's next turn
+        /** event แรกของเทิร์นนี้ — ใช้ประทับ mpAfter ตอนจบเทิร์น (ดู stampMp) */
+        const turnStart = events.length;
 
         const isParty = actor.c.side === 'party';
         const allies = isParty ? partyFighters : enemyFighters;
@@ -647,6 +650,7 @@ export function simulateWaves(
           if (forced) {
             actor.turnsTaken++;
             actor.mp = Math.min(d.maxMp, actor.mp + Math.round(d.maxMp * MP_REGEN_PCT));
+            stampMp(events, turnStart, actor);
             continue;
           }
         }
@@ -739,6 +743,7 @@ export function simulateWaves(
         // End-of-turn MP regeneration (5% of maxMp).
         actor.mp = Math.min(d.maxMp, actor.mp + Math.round(d.maxMp * MP_REGEN_PCT));
         actor.turnsTaken++;
+        stampMp(events, turnStart, actor);
       }
 
       if (!partyAlive()) break outer;

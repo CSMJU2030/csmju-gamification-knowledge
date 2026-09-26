@@ -104,6 +104,53 @@ describe('BattleDirector — ทีละเทิร์น / ข้ามไป
   });
 });
 
+describe('BattleDirector — หลอด MP (playtest รอบ A ข้อ 4)', () => {
+  const skillCtx: DirectorCtx = {
+    ...ctx,
+    skills: [{ id: 'w_power_strike', nameTh: 'ฟันสายฟ้าแลบ', mpCost: 8, kind: 'physical', aoe: false }],
+  };
+  const cast = (turn: number, hpAfter: number, mpAfter?: number): CombatEvent => ({
+    turn,
+    wave: 1,
+    actorId: 'p1',
+    actorName: 'อัศวินน้อย',
+    action: 'skill',
+    skillId: 'w_power_strike',
+    targets: [{ id: 'f1w1_m0_slime', name: 'สไลม์', damage: 5, hpAfter }],
+    ...(mpAfter !== undefined ? { mpAfter } : {}),
+  });
+
+  it('ใช้ MP จริงจาก engine (mpAfter) — ร่ายเกินหลอดได้เพราะฟื้นทุกเทิร์น หลอดไม่ติดศูนย์', () => {
+    // MP 20 ร่ายครั้งละ 8 สามครั้ง: หักอย่างเดียวจะเหลือ 0 แต่ engine ฟื้น +1 ต่อเทิร์น จึงเหลือจริง 1 → 7 → ...
+    const evs = [events[0], cast(1, 25, 13), cast(2, 20, 6), cast(3, 15, 1)];
+    const d = new BattleDirector(evs, skillCtx, () => {});
+    d.stepEvent(); // wave_start
+    const seen: number[] = [];
+    for (let i = 1; i < evs.length; i++) {
+      d.stepEvent();
+      seen.push(d.play.combatants.p1.mp);
+    }
+    // หักอย่างเดียวจะได้ 12 → 4 → 0 (ติดศูนย์ทั้งที่ engine ยังร่ายได้)
+    expect(seen).toEqual([13, 6, 1]);
+  });
+
+  it('ตีธรรมดาก็อัปเดต MP (engine ให้ +3 ต่อครั้ง)', () => {
+    const hit: CombatEvent = { ...events[1], mpAfter: 20 };
+    const d = new BattleDirector([events[0], cast(1, 25, 13), hit], skillCtx, () => {});
+    d.stepEvent();
+    d.stepEvent();
+    expect(d.play.combatants.p1.mp).toBe(13);
+    d.stepEvent();
+    expect(d.play.combatants.p1.mp).toBe(20);
+  });
+
+  it('บันทึกรุ่นเก่าที่ไม่มี mpAfter ถอยไปหักตาม mpCost แบบเดิม', () => {
+    const d = new BattleDirector([events[0], cast(1, 25), cast(2, 20)], skillCtx, () => {});
+    d.skip();
+    expect(d.play.combatants.p1.mp).toBe(4);
+  });
+});
+
 describe('duelSides', () => {
   it('หา id ทั้งสองฝั่งจากชื่อ และอ่านเลือดเต็มจาก log', () => {
     const duel: DuelBlock = {

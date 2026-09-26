@@ -21,10 +21,14 @@ export class SkillDefDto {
   @ApiProperty() nameTh!: string;
   @ApiProperty({ enum: ['novice', 'warrior', 'mage', 'guardian', 'monster'] }) classId!: string;
   @ApiProperty({ enum: ['physical', 'magic', 'heal', 'shield', 'taunt'] }) kind!: string;
-  @ApiProperty({ description: '% ของ atk/matk (100 = 1 เท่า)' }) power!: number;
+  @ApiProperty({
+    description: 'physical/magic = % ของ atk/matk (100 = 1 เท่า) · heal = % ของเลือดสูงสุดของเป้า · shield = % ของเลือดสูงสุดของผู้ร่าย · taunt ไม่ใช้',
+  })
+  power!: number;
   @ApiProperty() mpCost!: number;
   @ApiProperty() aoe!: boolean;
   @ApiProperty() unlockLevel!: number;
+  @ApiPropertyOptional({ description: 'คำอธิบายสำหรับผู้เล่น (มีเฉพาะสกิลของอาชีพ)' }) descTh?: string;
   @ApiPropertyOptional({ description: 'ชื่อแอนิเมชันเอฟเฟกต์ที่ฉากรบใช้วาด' }) animation?: string;
 }
 

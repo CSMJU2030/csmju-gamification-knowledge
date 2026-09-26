@@ -53,7 +53,17 @@ export interface BattlePlayerProps {
   startFinished?: boolean;
   /** ฉากจบรอบแรก — `skipped` = ผู้ใช้กดข้ามไปผลลัพธ์ */
   onFinished: (how: 'played' | 'skipped') => void;
+  /**
+   * ข้ามไปผลลัพธ์ได้ไหม (playtest รอบ A ข้อ 6) — false = ครั้งแรกที่จุดนี้ ต้องดูจนจบ เร่งได้ถึง 2×
+   * ดูจบหนึ่งรอบแล้วปลดให้ข้าม/4× ได้ในการเล่นซ้ำ · ค่าเริ่มต้น true (เช่นฉากดวล)
+   */
+  canSkip?: boolean;
 }
+
+/** ความเร็วที่เลือกได้ — ครั้งแรกที่ต้องดูจนจบจำกัดที่ 2× ให้ยังตามทันว่าโค้ดทำอะไร */
+const SPEEDS_MUST_WATCH = [1, 2] as const;
+const SPEEDS_ALL = [1, 2, 4] as const;
+type Speed = (typeof SPEEDS_ALL)[number];
 
 const REDUCED_QUERY = '(prefers-reduced-motion: reduce)';
 
@@ -94,6 +104,7 @@ export default function BattlePlayer({
   duel,
   startFinished: startFinishedProp = false,
   onFinished,
+  canSkip = true,
 }: BattlePlayerProps) {
   // อ่านครั้งเดียวตอนเปิด — หน้าเพจพลิกค่าเป็น true หลังดูจบ ถ้าอ่านสดจะสร้างฉากใหม่ซ้ำโดยเปล่าประโยชน์
   const [startFinished] = useState(startFinishedProp);
@@ -117,7 +128,7 @@ export default function BattlePlayer({
   const [, bump] = useReducer((x: number) => x + 1, 0);
   const [runId, setRunId] = useState(0);
   const [playing, setPlaying] = useState(!startFinished);
-  const [speed, setSpeed] = useState<1 | 2>(1);
+  const [speed, setSpeed] = useState<Speed>(1);
   const reduced = usePrefersReducedMotion();
 
   /*
@@ -154,6 +165,14 @@ export default function BattlePlayer({
     reportedRef.current = true;
     onFinishedRef.current(howRef.current);
   }, [finished, startFinished, runId]);
+
+  // ดูจบหนึ่งรอบแล้ว (หรือเปิดมาที่สถานะจบ) = ปลดล็อกปุ่มข้ามและ 4× สำหรับการเล่นซ้ำ
+  const [watchedOnce, setWatchedOnce] = useState(startFinished);
+  useEffect(() => {
+    if (finished && !watchedOnce) setWatchedOnce(true);
+  }, [finished, watchedOnce]);
+  const skipAllowed = canSkip || watchedOnce;
+  const speeds: readonly Speed[] = skipAllowed ? SPEEDS_ALL : SPEEDS_MUST_WATCH;
 
   // ---- canvas: โหลดสไปรต์ · ตั้งขนาดตามกรอบ · ลูป requestAnimationFrame ----
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -249,10 +268,10 @@ export default function BattlePlayer({
   }, [dir]);
 
   const skipToEnd = useCallback(() => {
-    if (dir.done) return;
+    if (dir.done || !skipAllowed) return;
     howRef.current = 'skipped';
     dir.skip();
-  }, [dir]);
+  }, [dir, skipAllowed]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -269,14 +288,14 @@ export default function BattlePlayer({
         e.preventDefault();
         step();
       } else {
-        if (dir.done) return;
+        if (dir.done || !skipAllowed) return;
         e.preventDefault();
         skipToEnd();
       }
     };
     document.addEventListener('keydown', onKey);
     return () => document.removeEventListener('keydown', onKey);
-  }, [dir, togglePlay, step, skipToEnd]);
+  }, [dir, togglePlay, step, skipToEnd, skipAllowed]);
 
   const play = dir.play;
   const stateBadge = finished
@@ -326,12 +345,14 @@ export default function BattlePlayer({
             <ChevronRightIcon className="h-4 w-4" />
             เทิร์นถัดไป
           </button>
-          <button type="button" className={secondaryButtonClass} onClick={skipToEnd} disabled={finished}>
-            <SkipIcon className="h-4 w-4" />
-            ข้ามไปผลลัพธ์
-          </button>
+          {skipAllowed && (
+            <button type="button" className={secondaryButtonClass} onClick={skipToEnd} disabled={finished}>
+              <SkipIcon className="h-4 w-4" />
+              ข้ามไปผลลัพธ์
+            </button>
+          )}
           <div role="group" aria-label="ความเร็ว" className="flex gap-1">
-            {([1, 2] as const).map((x) => (
+            {speeds.map((x) => (
               <button
                 key={x}
                 type="button"
@@ -346,9 +367,19 @@ export default function BattlePlayer({
             ))}
           </div>
           <p className="hidden text-label-md text-on-surface-variant lg:ml-auto lg:block">
-            คีย์ลัด <kbd className="font-mono">Space</kbd> เล่น/หยุด · <kbd className="font-mono">→</kbd> เทิร์นถัดไป ·{' '}
-            <kbd className="font-mono">Esc</kbd> ข้ามไปผลลัพธ์
+            คีย์ลัด <kbd className="font-mono">Space</kbd> เล่น/หยุด · <kbd className="font-mono">→</kbd> เทิร์นถัดไป
+            {skipAllowed && (
+              <>
+                {' · '}
+                <kbd className="font-mono">Esc</kbd> ข้ามไปผลลัพธ์
+              </>
+            )}
           </p>
+          {!skipAllowed && !finished && (
+            <p className="w-full text-label-md text-on-surface-variant">
+              ครั้งแรกที่จุดนี้ต้องดูจนจบ — ดูว่าโค้ดของคุณสั่งอะไรในแต่ละเทิร์น (เร่งได้ 2×) · ครั้งต่อไปข้ามได้
+            </p>
+          )}
         </div>
 
         {spritesMissing && (

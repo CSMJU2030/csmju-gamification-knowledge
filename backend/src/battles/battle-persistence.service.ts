@@ -19,8 +19,20 @@ export interface BattlePlace {
   depth: number;
 }
 
+/**
+ * การรบครั้งนี้เป็นครั้งที่เท่าไรที่จุดเดียวกัน (ภูมิภาค + รอบ) — playtest รอบ A ข้อ 6 (26 ก.ย. 2026)
+ * หน้าเว็บใช้ตัดสินว่าครั้งแรกต้องดูฉากจนจบ และใช้เทียบผลกับครั้งก่อนเพื่อให้เห็นการเติบโต
+ * คิดในทรานแซกชันเดียวกับที่บันทึก (ล็อกแถวตัวละครไว้แล้ว) สองการรบพร้อมกันจึงได้เลขไม่ซ้ำ
+ */
+export interface BattleAttempt {
+  attemptNo: number;
+  firstAttempt: boolean;
+  previous: { victory: boolean; wavesCleared: number; createdAt: Date } | null;
+}
+
 export interface PersistedBattle {
   battleId: string;
+  attempt: BattleAttempt;
   result: BattleResult & { drops: { gold: number; materials: number; items: EnrichedItem[] } };
   gains: {
     leveledUp: boolean;
@@ -43,7 +55,7 @@ export class BattlePersistenceService {
     // id ของไอเทมจาก engine คิดจาก seed จึงซ้ำข้ามการรบได้ — แทนด้วย UUID ก่อนเก็บ
     for (const item of result.drops.items) item.id = randomUUID();
 
-    const { battleId, before, prog } = await this.prisma.$transaction(async (tx) => {
+    const { battleId, before, prog, attempt } = await this.prisma.$transaction(async (tx) => {
       // ล็อกแถวแล้วคิดผลจากค่าล่าสุด — สองการรบที่จบพร้อมกันต้องไม่เขียนทับกัน
       const row = await lockCharacter(tx, characterId);
 
@@ -112,6 +124,16 @@ export class BattlePersistenceService {
         }
       }
 
+      const samePlace = { characterId, regionId: place.regionId, depth: place.depth };
+      // ทรานแซกชันแบบ interactive ใช้การเชื่อมต่อเดียว — ถามทีละคำสั่ง
+      const priorCount = await tx.battle.count({ where: samePlace });
+      const last = await tx.battle.findFirst({ where: samePlace, orderBy: [{ createdAt: 'desc' }, { id: 'desc' }] });
+      const attempt: BattleAttempt = {
+        attemptNo: priorCount + 1,
+        firstAttempt: priorCount === 0,
+        previous: last ? { victory: last.isVictory, wavesCleared: last.wavesCleared, createdAt: last.createdAt } : null,
+      };
+
       const battle = await tx.battle.create({
         data: {
           characterId,
@@ -124,7 +146,7 @@ export class BattlePersistenceService {
           goldGained: result.drops.gold,
         },
       });
-      return { battleId: battle.id, before: statsOf(row), prog };
+      return { battleId: battle.id, before: statsOf(row), prog, attempt };
     });
 
     // สเตตัสที่เพิ่งได้ — ผู้เล่นไม่ได้กดแจกแต้มเอง ถ้าไม่บอกว่า "ได้ +3 STR เพราะตีเยอะ" จะกลายเป็นเวทมนตร์
@@ -139,6 +161,7 @@ export class BattlePersistenceService {
 
     return {
       battleId,
+      attempt,
       result: {
         ...result,
         drops: { ...result.drops, items: result.drops.items.map((it) => enrichInstance(it, false)) },
