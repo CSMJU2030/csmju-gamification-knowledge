@@ -51,6 +51,21 @@ describe('ตัวตนและสิทธิ์', () => {
     expect(res.body.data).toMatchObject({ id: 'user-002', coreRole: 'student', subsystemRole: 'PLAYER' });
   });
 
+  it('ปุ่มออกจากระบบ: DELETE /api/v1/sessions/current ลบคุกกี้ session (ไม่ต้องมี token · เรียกซ้ำได้)', async () => {
+    // สร้างคำขอตอนจะส่ง (supertest เปิดพอร์ตชั่วคราวต่อคำขอ) — ครั้งแรกมี token ครั้งที่สองไม่มี
+    for (const withToken of [true, false]) {
+      const req = http.delete('/api/v1/sessions/current');
+      const res = await (withToken ? req.set(as('user-002')) : req).expect(200);
+      expect(res.body).toEqual({ success: true, data: { ended: true } });
+      const cookie = String(res.headers['set-cookie'] ?? '');
+      expect(cookie).toMatch(/^core_hub_access_token=;/);
+      expect(cookie).toMatch(/Expires=Thu, 01 Jan 1970/);
+      expect(cookie).toMatch(/HttpOnly/);
+      expect(cookie).toMatch(/SameSite=Lax/);
+      expect(cookie).toMatch(/Path=\//);
+    }
+  });
+
   it('endpoint ที่ไม่มี → 404 envelope · ไม่มี login ของตัวเอง', async () => {
     const res = await http.post('/api/v1/auth/login').set(as('user-002')).send({ email: 'x', password: 'y' }).expect(404);
     expect(res.body).toMatchObject({ success: false, error: { code: 'NOT_FOUND' } });

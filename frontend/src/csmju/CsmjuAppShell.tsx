@@ -20,7 +20,31 @@ import {
 } from 'react';
 import { CsmjuLogo } from './CsmjuLogo';
 import { BellIcon, CloseIcon, LogoutIcon, MenuIcon, NAV_ICONS, SearchIcon, type NavIconName } from './icons';
-import { coreDashboardUrl, redirectToSsoLogin, ssoLogoutUrl, takeReturnPath } from './sso';
+import { coreDashboardUrl, redirectToSsoLogin, signOut, takeReturnPath } from './sso';
+
+/**
+ * ออกจากระบบ — จบ session ของระบบนี้แล้วไปหน้าแรกของ Core Hub (sso.ts signOut)
+ * เป็นปุ่มไม่ใช่ลิงก์ เพราะต้องลบ session ก่อนเปลี่ยนหน้า
+ */
+function SignOutButton() {
+  const [pending, setPending] = useState(false);
+  return (
+    <button
+      type="button"
+      disabled={pending}
+      aria-busy={pending}
+      onClick={() => {
+        setPending(true);
+        void signOut();
+      }}
+      title="ออกจากระบบนี้แล้วไปหน้าแรกของ Core Hub"
+      className="flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border border-white/25 bg-white/10 px-3 py-2.5 text-label-md text-white backdrop-blur-sm transition-colors duration-200 hover:bg-white/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white disabled:cursor-wait disabled:opacity-70"
+    >
+      <LogoutIcon className="h-4 w-4" />
+      {pending ? 'กำลังออกจากระบบ…' : 'ออกจากระบบ'}
+    </button>
+  );
+}
 
 export interface CsmjuNavItem {
   label: string;
@@ -200,14 +224,7 @@ export function CsmjuAppShell({ subsystemName, displayName, nav, primaryAction, 
         >
           กลับหน้าหลัก CSMJU
         </a>
-        <a
-          href={ssoLogoutUrl()}
-          title="ออกจากระบบที่ Core Hub (บัญชีเดียวกันทุกระบบย่อย)"
-          className="flex min-h-11 items-center justify-center gap-2 rounded-lg border border-white/25 bg-white/10 px-3 py-2.5 text-label-md text-white backdrop-blur-sm transition-colors duration-200 hover:bg-white/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
-        >
-          <LogoutIcon className="h-4 w-4" />
-          ออกจากระบบ
-        </a>
+        <SignOutButton />
       </div>
     </div>
   );
