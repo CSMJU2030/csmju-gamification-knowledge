@@ -123,7 +123,9 @@ frontend Next.js ทุกหน้า · playtest รอบ A/B · ทางเ
 - ผลรันจริงทั้งหมดอยู่ใน REPORT.md — run-all-checks 16/18 (ARC-02 รอ D2 · UI-01 เฉพาะเวทีเกม รอ D1) ·
   conformance 62/62 กับ Core Hub จริง (develop 6674ef6 รันในเครื่อง) · ทดสอบเชื่อมระบบที่ docs/local-integration.md
 - ต้องการคำตอบ D1–D6 (docs/design-csmju-migration.md ข้อ 4) โดยเฉพาะ D3 ก่อนลงทะเบียนบน Dev Server
-- ออกจากระบบ: สัญญา 1.0 ไม่มี SSO logout — ปุ่มพาไปหน้าแรกของ Core Hub · session ของระบบนี้หมดเองใน ≤ 15 นาที
+- ออกจากระบบ: ปุ่มจบ session ของระบบนี้ (`DELETE /api/v1/sessions/current` ลบคุกกี้) แล้วไปหน้าแรกของ Core Hub — ไม่แตะ session ของ Core Hub
+  ขอ PL ยืนยันกับ auth-contract ข้อ 9 ("ห้ามสร้าง /logout ของตัวเอง"): route นี้แค่ลบคุกกี้ ไม่ออก token ไม่ตรวจตัวตน
+  เหตุผล: ไม่ลบ = คุกกี้ของเรายังใช้ได้อีก ≤ 15 นาที · ออกจากทุกระบบพร้อมกันต้องรอ SSO logout ของ Core Hub (แผน v1.1)
 - สามข้อใน PR template ขัดกับเอกสารฉบับอื่น จึงติ๊กตามเอกสารหลักแทน: "field เป็น snake_case",
   "ใช้ username" และ "error.code 6 ค่า" (ดู docs/handoff-git.md ข้อ 5)
 ```

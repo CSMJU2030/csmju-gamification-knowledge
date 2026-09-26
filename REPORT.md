@@ -33,7 +33,7 @@
 ```
 
 `node standards/conformance/run.js` — **รันกับ Core Hub จริง** (`csmju-core-hub` branch `develop` `6674ef6` รันในเครื่องโดยไม่แก้โค้ด ·
-`main` `c33a021` seed ไม่ได้ด้วย pnpm — ดู `docs/local-integration.md`) · ยังไม่มี `CORE_HUB_URL` ของ Dev Server
+ดู `docs/local-integration.md`) · ยังไม่มี `CORE_HUB_URL` ของ Dev Server
 
 ```
 
@@ -65,8 +65,8 @@ RESULT: 62 passed · 0 failed · 0 skipped
 |---|---|
 | engine (vitest) | 223 ผ่าน · รวม differential กับ CPython และ golden fixture ของหอคอย · MP ใน event และข้อความสกิล (รอบ A) · EXP ช่วงต้นและกลไกป่า (รอบ B) |
 | backend unit (jest, ไม่ใช้ฐานข้อมูล) | 87 ผ่าน · รวมเคส 403 ของ PermissionsGuard · โปรแกรมตัวอย่างอาชีพ |
-| backend e2e (jest + PostgreSQL 16 จริง) | 24 ผ่าน (เพิ่ม game-data สำหรับผู้สอนที่ไม่มีตัวละคร · ครั้งที่รบที่จุดเดียวกัน + `mpAfter` · ตัวอย่างอาชีพ) |
-| frontend (vitest + jsdom) | 66 ผ่าน · ตัวเล่นฉากรบ (รวมหลอด MP) บันทึกการรบ ตัวแยกข้อผิดพลาดของโปรแกรม round-trip บล็อก↔โค้ด กฎแผนที่ สรุปการเติบโต |
+| backend e2e (jest + PostgreSQL 16 จริง) | 25 ผ่าน (ลบคุกกี้ session ตอนออกจากระบบ ·เพิ่ม game-data สำหรับผู้สอนที่ไม่มีตัวละคร · ครั้งที่รบที่จุดเดียวกัน + `mpAfter` · ตัวอย่างอาชีพ) |
+| frontend (vitest + jsdom) | 71 ผ่าน · ปุ่มออกจากระบบ (ลบ session ของเราเท่านั้น · กัน 401 ระหว่างออก) · ตัวเล่นฉากรบ (รวมหลอด MP) บันทึกการรบ ตัวแยกข้อผิดพลาดของโปรแกรม round-trip บล็อก↔โค้ด กฎแผนที่ สรุปการเติบโต |
 | frontend `next build` | ผ่าน · JS แรกเข้าทุกหน้า 118–129 kB (งบ ≤ 250 kB gzip) · ฉากรบ สไปรต์ เอดิเตอร์+ล่าม แยก chunk โหลดเฉพาะหน้าที่ใช้ |
 | เดินเว็บจริงด้วย Playwright (Core Hub จำลอง + backend + frontend production) | ครบวง: เข้าเว็บไม่มีคุกกี้ → หน้า login ของ Core Hub จำลอง → callback → สร้างตัวละคร → หอคอยชั้น 1 → เวทีรบ → ผลรบ → เลือกอาชีพ → โปรแกรม → แผนที่ → คำประกาศ → รบในภูมิภาค + ดวล → กระเป๋า → ประวัติ → โจทย์ (ผู้เล่นเห็นอย่างเดียว · ผู้สอนสร้าง/แก้ได้ · โปรแกรมตั้งต้นผิด → ข้อความใต้ช่อง) · 360px ไม่มี scroll แนวนอนทุกหน้า · console ไม่มี error นอกจาก 401/404/400 ที่ตั้งใจ |
 | parity กับเซิร์ฟเวอร์เดิม (Express + SQLite) | **132/132 ขั้นตรงกัน** · เทียบบันทึกการรบ 4,074 เหตุการณ์ (หอคอย · ภูมิภาค · กลไกหมายหัว · ดวลออนไลน์สองทาง · ดวลสแนปช็อต · ถูกปฏิเสธ · หมดอายุ) |
@@ -149,7 +149,9 @@ RESULT: 62 passed · 0 failed · 0 skipped
   หมายเหตุ: `check-authorized-deps.sh` ของ v1.0.0 ไม่อ่าน `.compliance-exceptions.yml` แม้ ci-compliance-spec ข้อ 11.1 จะมีตัวอย่าง exception ของ ARC-02 — ต้องให้ DevOps ตัดสินว่าจะเพิ่ม whitelist หรือแก้สคริปต์
 - **ยังไม่ได้รันกับ Core Hub บน Dev Server** — ทดสอบกับ `csmju-core-hub` develop ที่รันในเครื่องแล้ว · ยังไม่มี `CORE_HUB_URL` จริง
 - **`demo-student-subsystem` ยังอ่านไม่ได้** (clone แล้วได้ `could not read Username`) — ชั้น auth จึงยังไม่ใช่ของ reference
-- **ออกจากระบบ** — สัญญา 1.0 ไม่มี SSO logout ปุ่มจึงพาไปหน้าแรกของ Core Hub (ออกจากระบบที่นั่น) · session ของระบบนี้ยังใช้ได้จนหมดอายุ ≤ 15 นาที
+- **ออกจากระบบ** — ปุ่มจบ session ของระบบนี้ (`DELETE /api/v1/sessions/current` ลบคุกกี้) แล้วไปหน้าแรกของ Core Hub · session ของ Core Hub ไม่แตะ
+  (สัญญา 1.0 ไม่มี SSO logout — ยัง login ที่ Core Hub อยู่ เปิดเกมอีกครั้งจะเข้าได้ทันที) · auth-contract ข้อ 9 ห้าม "/logout ของตัวเอง"
+  — route นี้แค่ลบคุกกี้ ไม่ออก token ไม่ตรวจตัวตน (รอ PL ยืนยัน)
 - **`prisma migrate deploy` ยังไม่ได้รันจริง** — เครื่องทดสอบออกเน็ตไป binaries.prisma.sh ไม่ได้ (ดูข้อถัดไป) · บนเครื่องที่ออกเน็ตได้ต้องรันตามคู่มือข้อ 6.3
 - **ชั้น auth ยังไม่ใช่ของ reference** — รอสิทธิ์ `demo-student-subsystem`
 - **UI-01 ตก เฉพาะเวทีเกม** — สีของ sprite เอฟเฟกต์ บล็อกโค้ด และหมุดบนแผนที่ (6 ไฟล์ใต้ `frontend/src/game-stage/`) รอ D1 · ไม่ได้แปลง hex เป็น `rgb()` เพื่อเลี่ยงการตรวจ เพราะเนื้อหายังเป็นสีนอก token อยู่ดี ให้ exception เป็นทางที่ตรวจสอบได้
