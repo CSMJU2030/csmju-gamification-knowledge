@@ -202,6 +202,7 @@ export function CsmjuAppShell({ subsystemName, displayName, nav, primaryAction, 
         </a>
         <a
           href={ssoLogoutUrl()}
+          title="ออกจากระบบที่ Core Hub (บัญชีเดียวกันทุกระบบย่อย)"
           className="flex min-h-11 items-center justify-center gap-2 rounded-lg border border-white/25 bg-white/10 px-3 py-2.5 text-label-md text-white backdrop-blur-sm transition-colors duration-200 hover:bg-white/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
         >
           <LogoutIcon className="h-4 w-4" />

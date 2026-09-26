@@ -9,11 +9,21 @@ function fill(template: string | undefined, fallback: string): string {
   return (template ?? fallback).replace('{subsystem}', encodeURIComponent(SUBSYSTEM));
 }
 
+/*
+ * ค่าเริ่มต้นตรงกับหน้าเว็บ Core Hub ตัวจริง (csmju-core-hub/frontend :3100 · ตรวจกับ develop 6674ef6)
+ * - /api/sso/<subsystem> ขอ handoff ให้แล้วส่งไป callback ของเรา · ยังไม่ login จะผ่าน /login?next=… ก่อนแล้วกลับมาเอง
+ *   (หน้า /login ของ Core Hub ไม่อ่าน ?subsystem= — login แล้วจะค้างที่หน้าแรกของ Core Hub)
+ * - Core Hub ไม่มีหน้า logout แบบลิงก์ และสัญญา 1.0 ยังไม่มี SSO logout (auth-contract ข้อ 11)
+ *   ปุ่มออกจากระบบจึงพาไปหน้าแรกของ Core Hub ซึ่งมีปุ่มออกจากระบบของ Core Hub เอง
+ * - ใช้ localhost ไม่ใช่ 127.0.0.1: /api/sso ของ Core Hub พาไปหน้า login ที่ localhost:3100 เสมอ
+ *   (สร้าง URL จาก request.url ของ Next) และคุกกี้ของสอง host แยกกัน — host อื่นทำให้ login แล้วไม่กลับมา
+ */
+const CORE_HUB_WEB = 'http://localhost:3100';
+
 export const ssoLoginUrl = () =>
-  fill(process.env.NEXT_PUBLIC_SSO_LOGIN_URL, 'http://localhost:3100/login?subsystem={subsystem}');
-export const ssoLogoutUrl = () =>
-  fill(process.env.NEXT_PUBLIC_SSO_LOGOUT_URL, 'http://localhost:3100/logout?subsystem={subsystem}');
-export const coreDashboardUrl = () => fill(process.env.NEXT_PUBLIC_CORE_DASHBOARD_URL, 'http://localhost:3100/');
+  fill(process.env.NEXT_PUBLIC_SSO_LOGIN_URL, `${CORE_HUB_WEB}/api/sso/{subsystem}`);
+export const ssoLogoutUrl = () => fill(process.env.NEXT_PUBLIC_SSO_LOGOUT_URL, `${CORE_HUB_WEB}/`);
+export const coreDashboardUrl = () => fill(process.env.NEXT_PUBLIC_CORE_DASHBOARD_URL, `${CORE_HUB_WEB}/`);
 
 let redirecting = false;
 
