@@ -203,44 +203,6 @@
         ]
       }
     },
-    "/api/v1/sessions/current": {
-      "delete": {
-        "operationId": "Session_endCurrent",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "สำเร็จ",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "success",
-                    "data"
-                  ],
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "enum": [
-                        true
-                      ]
-                    },
-                    "data": {
-                      "$ref": "#/components/schemas/EndedSessionDto"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        },
-        "security": [],
-        "summary": "จบ session ของระบบนี้ — ลบคุกกี้ core_hub_access_token (ไม่แตะ session ของ Core Hub)",
-        "tags": [
-          "auth"
-        ]
-      }
-    },
     "/api/v1/characters": {
       "post": {
         "operationId": "Characters_create",
@@ -2386,21 +2348,6 @@
           "coreRole",
           "subsystemRole",
           "permissions"
-        ]
-      },
-      "EndedSessionDto": {
-        "type": "object",
-        "properties": {
-          "ended": {
-            "type": "boolean",
-            "enum": [
-              true
-            ],
-            "description": "ลบคุกกี้ session ของระบบนี้แล้ว (ตอบ true เสมอ แม้ไม่มีคุกกี้อยู่ก่อน)"
-          }
-        },
-        "required": [
-          "ended"
         ]
       },
       "ProficiencyTripleDto": {

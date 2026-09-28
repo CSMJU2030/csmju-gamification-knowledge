@@ -5,7 +5,6 @@ import { CoreHubJwtGuard } from './guards/core-hub-jwt.guard';
 import { PermissionsGuard } from './guards/permissions.guard';
 import { JwksService } from './jwks.service';
 import { MeController } from './me.controller';
-import { SessionController } from './session.controller';
 import { SsoCallbackController } from './sso-callback.controller';
 
 /**
@@ -13,7 +12,7 @@ import { SsoCallbackController } from './sso-callback.controller';
  * route ใหม่จึงถูกล็อกโดยปริยาย ต้องใส่ @Public เองถึงจะเปิด
  */
 @Module({
-  controllers: [SsoCallbackController, MeController, SessionController],
+  controllers: [SsoCallbackController, MeController],
   providers: [
     JwksService,
     CoreHubTokenVerifier,

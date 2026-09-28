@@ -23,8 +23,8 @@ import { BellIcon, CloseIcon, LogoutIcon, MenuIcon, NAV_ICONS, SearchIcon, type 
 import { coreDashboardUrl, redirectToSsoLogin, signOut, takeReturnPath } from './sso';
 
 /**
- * ออกจากระบบ — จบ session ของระบบนี้แล้วไปหน้าแรกของ Core Hub (sso.ts signOut)
- * เป็นปุ่มไม่ใช่ลิงก์ เพราะต้องลบ session ก่อนเปลี่ยนหน้า
+ * ออกจากระบบ — พากลับหน้าแรกของ Core Hub อย่างเดียว (sso.ts signOut · auth-contract ข้อ 9)
+ * เป็นปุ่มไม่ใช่ลิงก์ เพราะต้องกันไม่ให้ 401 ที่ค้างอยู่พาไป SSO ระหว่างเปลี่ยนหน้า
  */
 function SignOutButton() {
   const [pending, setPending] = useState(false);
@@ -35,9 +35,9 @@ function SignOutButton() {
       aria-busy={pending}
       onClick={() => {
         setPending(true);
-        void signOut();
+        signOut();
       }}
-      title="ออกจากระบบนี้แล้วไปหน้าแรกของ Core Hub"
+      title="กลับไปหน้าแรกของ Core Hub — ออกจากระบบทั้งหมดทำที่ Core Hub"
       className="flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border border-white/25 bg-white/10 px-3 py-2.5 text-label-md text-white backdrop-blur-sm transition-colors duration-200 hover:bg-white/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white disabled:cursor-wait disabled:opacity-70"
     >
       <LogoutIcon className="h-4 w-4" />

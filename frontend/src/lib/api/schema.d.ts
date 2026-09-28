@@ -55,23 +55,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/sessions/current": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        /** จบ session ของระบบนี้ — ลบคุกกี้ core_hub_access_token (ไม่แตะ session ของ Core Hub) */
-        delete: operations["Session_endCurrent"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/v1/characters": {
         parameters: {
             query?: never;
@@ -378,13 +361,6 @@ export interface components {
             permissions: string[];
             /** @description ค่า state ที่ส่งมากับ SSO callback (ส่งกลับให้ client ตรวจ) */
             state?: string;
-        };
-        EndedSessionDto: {
-            /**
-             * @description ลบคุกกี้ session ของระบบนี้แล้ว (ตอบ true เสมอ แม้ไม่มีคุกกี้อยู่ก่อน)
-             * @enum {boolean}
-             */
-            ended: true;
         };
         ProficiencyTripleDto: {
             str: number;
@@ -973,30 +949,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ErrorEnvelopeDto"];
-                };
-            };
-        };
-    };
-    Session_endCurrent: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description สำเร็จ */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        /** @enum {boolean} */
-                        success: true;
-                        data: components["schemas"]["EndedSessionDto"];
-                    };
                 };
             };
         };

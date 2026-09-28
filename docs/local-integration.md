@@ -38,7 +38,7 @@ Core Hub จำลอง (`csmju2030/csmju-core-hub-sim`) ยังใช้ก�
 | ใช้ทำอะไร | URL | ทำไม |
 |---|---|---|
 | 401 → เข้าสู่ระบบ | `http://localhost:3100/api/sso/{subsystem}` | route ของหน้าเว็บ Core Hub ที่ขอ handoff แล้วส่งไป callback ของเรา · ยังไม่ login จะผ่าน `/login?next=…` แล้วกลับมาเอง · หน้า `/login` ไม่อ่าน `?subsystem=` |
-| ปุ่มออกจากระบบ | ① `DELETE /api/v1/sessions/current` (ของเรา) ② ไป `http://localhost:3100/` | ① ลบคุกกี้ session ของเรา (ไม่ลบ = ใช้ได้อีก ≤ 15 นาที) ② ไปหน้าแรกของ Core Hub · session ของ Core Hub ไม่แตะ — ยัง login ที่ Core Hub อยู่ เปิดเกมอีกครั้งจะเข้าได้ทันทีผ่าน SSO · ออกจาก Core Hub ด้วยปุ่มของ Core Hub (สัญญา 1.0 ไม่มี SSO logout) |
+| ปุ่มออกจากระบบ | ไป `http://localhost:3100/` อย่างเดียว | ไม่เรียก API ใด ๆ — ระบบย่อยห้ามมี logout ของตัวเอง (auth-contract ข้อ 9) · ออกจาก Core Hub ด้วยปุ่มของ Core Hub · คุกกี้ของเกมยังใช้ได้จนหมดอายุ ≤ 15 นาที (สัญญา 1.0 ไม่มี SSO logout) |
 | กลับหน้าหลัก | `http://localhost:3100/` | |
 
 ใช้ `localhost` ไม่ใช่ `127.0.0.1`: `/api/sso` ของ Core Hub ส่งไปหน้า login ที่ `localhost:3100` เสมอ ไม่ว่าเบราว์เซอร์เปิดด้วย host ไหน
@@ -61,9 +61,10 @@ Core Hub จำลอง (`csmju2030/csmju-core-hub-sim`) ยังใช้ก�
 | SSO ผิด | ไม่มี Bearer · callback_url ไม่ตรง · ระบบไม่มี | ✅ 401 · 400 · 404 |
 | token | header · claim | `RS256` `core-hub-2026` · `sub email role sid iss aud iat exp` · iss `core-hub` · aud `csmju2030` · อายุ 900 วินาที |
 | W1–W3 | เปิด :3100 → login admin → เมนูระบบย่อย → กดระบบนี้ | ✅ เมนูมี CSMJU Student Service และ Gamification Knowledge — Code Tower → เข้า :3003 `/me` 200 `ADMIN` |
-| W4 † | ปุ่มออกจากระบบใน Code Tower | ✅ → `localhost:3100/` (หน้าแรกของ Core Hub) · Code Tower `/me` 401 · คุกกี้ของ Core Hub ยังอยู่ (ไม่แตะ) |
-| W4b † | เปิดเกมอีกครั้งขณะยัง login ที่ Core Hub | ✅ เข้าได้ทันทีผ่าน SSO `/me` 200 `ADMIN` (พฤติกรรมของ SSO) |
-| W4c–d † | ออกจากเกม → ออกจาก Core Hub ด้วยปุ่มของ Core Hub → เปิดเกม → login เป็น staff | ✅ หน้า login ของ Core Hub → กลับมาที่เกม `/me` 200 `INSTRUCTOR` |
+| W4 † | ปุ่มออกจากระบบใน Code Tower | ✅ → `localhost:3100/` (หน้าแรกของ Core Hub) · คำขอ API ของเกมตอนกด `[]` · คุกกี้ของ Core Hub ยังอยู่ (ไม่แตะ) |
+| W4b † | เปิดเกมอีกครั้งขณะยัง login ที่ Core Hub | ✅ เข้าได้ทันที `/me` 200 `ADMIN` (คุกกี้ของเกมยังไม่หมดอายุ) |
+| W4c † | ออกจากเกม → ออกจาก Core Hub ด้วยปุ่มของ Core Hub → เปิดเกมทันที | ⚠️ ยังเข้าเป็นคนเดิม `/me` 200 `ADMIN` — ข้อจำกัดของสัญญา 1.0 (ไม่มี SSO logout) คุกกี้ของเกมใช้ได้จนหมดอายุ ≤ 15 นาที |
+| W4d–e † | คุกกี้ของเกมหมดอายุ (จำลองด้วยการลบคุกกี้นั้น) → เปิดเกม → login เป็น staff | ✅ หน้า login ของ Core Hub → กลับมาที่เกม `/me` 200 `INSTRUCTOR` |
 | W5 | alumni | ✅ เห็น 2 ระบบ |
 | W6–W7 | เปิด :3003/items โดยไม่มี session | ✅ `localhost:3100/login?next=%2Fapi%2Fsso%2Fcsmju-gamification-knowledge` → login student → กลับมาที่ `/items` `/me` 200 `PLAYER` |
 | W8 | session ของเราหายแต่ Core Hub ยัง login อยู่ → เปิด `/history` | ✅ กลับมาที่ `/history` เองโดยไม่ต้องกรอกอะไร |
@@ -71,7 +72,7 @@ Core Hub จำลอง (`csmju2030/csmju-core-hub-sim`) ยังใช้ก�
 | run-all-checks | branch นี้เทียบ `main` | 16/18 — ARC-02 (รอ D2) · UI-01 เฉพาะเวทีเกม (รอ D1) |
 
 W1–W8 คือ `csmju2030/web-test.mjs` (Playwright · เบราว์เซอร์จริง · ไม่ใส่คุกกี้เอง) — สคริปต์เดียวกันรันกับตัวจำลองได้ผลเหมือนกันทุกข้อ
-† ปุ่มออกจากระบบแบบปัจจุบัน (ลบเฉพาะ session ของเรา) ตรวจกับตัวจำลองซึ่งใช้ URL เดียวกับของจริง — ยังไม่ได้รันซ้ำกับ Core Hub จริง
+† ปุ่มออกจากระบบแบบปัจจุบัน (แค่ไปหน้าแรกของ Core Hub) ตรวจกับตัวจำลองซึ่งใช้ URL เดียวกับของจริง (28 ก.ย. 2569) — ยังไม่ได้รันซ้ำกับ Core Hub จริง
 
 **ก่อนแก้** (ค่าเดิมที่ทำไว้ตามตัวจำลอง) กับ Core Hub จริง:
 `/login?subsystem=` → login แล้วค้างที่หน้าแรกของ Core Hub · `/logout?subsystem=` → 404 และ session ของเรายังอยู่ ·

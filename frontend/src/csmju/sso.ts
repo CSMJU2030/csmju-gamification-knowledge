@@ -13,7 +13,7 @@ function fill(template: string | undefined, fallback: string): string {
  * ค่าเริ่มต้นตรงกับหน้าเว็บ Core Hub ตัวจริง (csmju-core-hub/frontend :3100 · ตรวจกับ develop 6674ef6)
  * - เข้า: /api/sso/<subsystem> ขอ handoff แล้วส่งไป callback ของเรา · ยังไม่ login จะผ่าน /login?next=… ก่อนแล้วกลับมาเอง
  *   (หน้า /login ของ Core Hub ไม่อ่าน ?subsystem= — login แล้วจะค้างที่หน้าแรกของ Core Hub)
- * - ออก: ดู signOut() ข้างล่าง — จบ session ของระบบนี้แล้วไปหน้าแรกของ Core Hub (ออกจาก Core Hub ทำที่นั่น)
+ * - ออก: ดู signOut() ข้างล่าง — แค่พาไปหน้าแรกของ Core Hub (ออกจากระบบจริงทำที่นั่น)
  * - ใช้ localhost ไม่ใช่ 127.0.0.1: /api/sso ของ Core Hub พาไปหน้า login ที่ localhost:3100 เสมอ
  *   และคุกกี้ของสอง host แยกกัน — host อื่นทำให้ login แล้วไม่กลับมา
  */
@@ -24,18 +24,6 @@ export const ssoLoginUrl = () =>
 /** หน้าที่พาไปหลังออกจากระบบ — หน้าแรกของ Core Hub */
 export const ssoLogoutUrl = () => fill(process.env.NEXT_PUBLIC_SSO_LOGOUT_URL, `${CORE_HUB_WEB}/`);
 export const coreDashboardUrl = () => fill(process.env.NEXT_PUBLIC_CORE_DASHBOARD_URL, `${CORE_HUB_WEB}/`);
-
-/** รอคำขอที่ไม่จำเป็นต้องสำเร็จ แต่ไม่เกินเวลาที่กำหนด — ปุ่มออกจากระบบต้องไปต่อเสมอ */
-async function settle(request: () => Promise<unknown>, ms: number): Promise<void> {
-  let timer: ReturnType<typeof setTimeout> | undefined;
-  try {
-    await Promise.race([request(), new Promise((resolve) => (timer = setTimeout(resolve, ms)))]);
-  } catch {
-    // ไม่สำเร็จก็ไปต่อ
-  } finally {
-    clearTimeout(timer);
-  }
-}
 
 let redirecting = false;
 
@@ -62,25 +50,21 @@ export function takeReturnPath(): string | null {
   }
 }
 
-let signingOut = false;
-
 /**
- * ปุ่ม "ออกจากระบบ" — จบ session ของระบบนี้ แล้วไปหน้าแรกของ Core Hub
+ * ปุ่ม "ออกจากระบบ" — พากลับหน้าแรกของ Core Hub อย่างเดียว ไม่เรียก API ใด ๆ
  *
- * 1. DELETE /api/v1/sessions/current — ลบคุกกี้ session ของเรา (ไม่ลบ = ยังเข้าเกมได้อีก ≤ 15 นาที)
- * 2. ไปหน้าแรกของ Core Hub — session ของ Core Hub เป็นของ Core Hub ระบบนี้ไม่แตะ
- *    (สัญญา 1.0 ไม่มี SSO logout · ถ้ายัง login ที่ Core Hub อยู่ เปิดเกมอีกครั้งจะเข้าได้ทันทีผ่าน SSO
- *    ออกจาก Core Hub ด้วยปุ่มของ Core Hub เอง)
+ * ระบบย่อยห้ามมี logout ของตัวเอง (auth-contract ข้อ 9) — ออกจากระบบจริงทำที่ Core Hub ด้วยปุ่มของ Core Hub
+ * ผลที่รู้อยู่แล้วของสัญญา 1.0 (ยังไม่มี SSO logout ข้อ 11): คุกกี้ของเรายังใช้ได้จนหมดอายุ (≤ 15 นาที)
+ * และถ้ายัง login ที่ Core Hub อยู่ เปิดเกมอีกครั้งจะเข้าได้ทันทีผ่าน SSO
+ * เรียกซ้ำได้ ไปครั้งเดียว · กันไม่ให้ 401 ที่ค้างอยู่พาไป SSO แทน
  */
-export async function signOut(): Promise<void> {
-  if (typeof window === 'undefined' || signingOut) return;
-  signingOut = true;
-  redirecting = true; // คำขอที่ค้างอยู่ได้ 401 ระหว่างนี้ ห้ามพาไป SSO (Core Hub ยัง login อยู่ = เด้งกลับเข้ามาใหม่)
+export function signOut(): void {
+  if (typeof window === 'undefined' || redirecting) return;
+  redirecting = true;
   try {
     window.sessionStorage.removeItem(RETURN_KEY);
   } catch {
     // ไม่เป็นไร
   }
-  await settle(() => fetch('/api/v1/sessions/current', { method: 'DELETE', credentials: 'same-origin' }), 5000);
   window.location.assign(ssoLogoutUrl());
 }

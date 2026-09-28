@@ -20,4 +20,4 @@
 | B. exception ใน `.compliance-exceptions.yml` | ต้องแก้ `check-authorized-deps.sh` ให้อ่านไฟล์นี้ก่อน — v1.0.0 ยังไม่อ่าน แม้ ci-compliance-spec ข้อ 11.1 จะมีตัวอย่าง exception ของ ARC-02 |
 | C. ก๊อป engine เข้า backend/src และ frontend/src | สองสำเนาจะเพี้ยนจากกันวันใดวันหนึ่ง — เกิดจริงแล้วในโปรเจกต์นี้รอบ 2W (ตัวสุ่ม EX ของเซิร์ฟเวอร์เพี้ยนจาก engine เงียบ ๆ หลายสัปดาห์) |
 
-ระหว่างรอคำตอบ ARC-02 จะเป็นเช็กเดียวที่ตกใน `run-all-checks` (17/18 ผ่าน)
+ระหว่างรอคำตอบ ARC-02 จะตกใน `run-all-checks` คู่กับ UI-01 ที่รอ D1 (16/18 ผ่าน) · บน GitHub คือ job Security & Stack Scan
