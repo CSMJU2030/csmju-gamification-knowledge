@@ -40,7 +40,7 @@ git push -u origin feature/gamification-knowledge/migrate-code-tower
 
 แล้วเปิด PR เข้า `main` (CI ของ repo นี้รันกับ PR ที่เข้า `main`) — **PR แรกของ repo:** ข้อยกเว้นของ `GH-03` ตาม aie-workflow ขั้น 9 ให้ DevOps เป็นคน merge
 
-**PR #1 ของ repo** (`bump-standards-v1-0-1` · ยังไม่ merge) เปลี่ยน standards เป็น v1.0.1 — merge แล้วให้ rebase branch นี้ตาม `main` ใหม่
+**PR #1 ของ repo** (`bump-standards-v1-0-1`) ปิดไปโดยไม่ merge · มาตรฐาน 1.5.0 ดึงเข้ามาใน branch นี้เลยตามที่ PM บอก (29 ก.ย. 2569 · ไม่แยก PR)
 
 **ขนาด PR:** branch นี้ใหญ่ ถ้า PL อยากได้ PR เล็กตามขั้น 9 แยกได้เป็น
 - PR 1: ย้าย engine เข้า `packages/engine` (+ เพดานความลึกของนิพจน์)
@@ -92,7 +92,7 @@ frontend Next.js ทุกหน้า · playtest รอบ A/B · ทางเ
 ## Checklist
 
 ### มาตรฐานกลาง
-- [x] submodule `standards/` ผูก v1.5.0 (ตรงกับ `.standards-version` · `standards_version` ใน subsystem.yaml และ `uses:` ใน ci.yml — มาจาก PR เลื่อนมาตรฐานที่แยกไว้)
+- [x] submodule `standards/` ผูก v1.5.0 (ตรงกับ `.standards-version` · `standards_version` ใน subsystem.yaml และ `uses:` ใน ci.yml — ดึงเข้ามาใน branch นี้ตามที่ PM บอก)
 - [x] Branch name ตรงรูปแบบ `feature/<subsystem>/<เรื่อง>`
 - [x] Commit message ตาม Conventional Commits ทุก commit
 - [ ] PR นี้โฟกัสเรื่องเดียว — เป็นการย้ายทั้งระบบ แยกได้ตาม docs/handoff-git.md ข้อ 2
@@ -122,7 +122,7 @@ frontend Next.js ทุกหน้า · playtest รอบ A/B · ทางเ
 
 ## หมายเหตุสำหรับ PL
 
-- ผลรันจริงทั้งหมดอยู่ใน REPORT.md — run-all-checks 1.5.0: 16/19 · GH-03 หายเมื่อ PR เลื่อนมาตรฐาน merge ·
+- ผลรันจริงทั้งหมดอยู่ใน REPORT.md — run-all-checks 1.5.0: 16/19 · GH-03 ตกเพราะดึงมาตรฐาน 1.5 เข้ามาใน PR นี้ (ci.yml · standards) ขอ DevOps approve ·
   ARC-02 / UI-01 PM อนุมัติยกเว้นแล้ว รอใส่ .compliance-exceptions.yml (ต้องมีเลข issue) ·
   conformance 69/69 กับตัวจำลอง Core Hub 1.1 · ทดสอบเชื่อมระบบที่ docs/local-integration.md
 - ต้องการคำตอบ D1–D6 (docs/design-csmju-migration.md ข้อ 4) โดยเฉพาะ D3 ก่อนลงทะเบียนบน Dev Server

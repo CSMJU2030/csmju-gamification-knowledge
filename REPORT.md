@@ -10,7 +10,7 @@
 
 `./standards/scripts/run-all-checks.sh .` (ตัวตรวจ v1.5.0 · 19 ข้อ · 29 ก.ย. 2569) — 16/19 ผ่าน:
 
-- **GH-03** — branch นี้รวม PR เลื่อนมาตรฐานไว้ (`ci.yml` และ `standards` เป็นไฟล์ป้องกัน) · หายเองเมื่อ PR เลื่อนมาตรฐาน (`bump-standards-1-5-0`) merge เข้า `main`
+- **GH-03** — PM ให้ดึงมาตรฐาน 1.5 เข้ามาใน branch นี้เลย (ไม่แยก PR) · `ci.yml` และ `standards` เป็นไฟล์ป้องกัน จึงตกตามที่ออกแบบไว้ — DevOps approve ตาม CODEOWNERS
 - **ARC-02** (`@tower/engine`) และ **UI-01** (6 ไฟล์ภาพของเกม) — PM อนุมัติยกเว้นแล้ว 28 ก.ย. · ผ่านเมื่อใส่ `.compliance-exceptions.yml` (รอเลข issue ใน csmju2030-standards)
 - ลองใส่ไฟล์ข้อยกเว้นร่างบนสำเนาแยกแล้ว: ตัวตรวจ 1.5.0 ผ่านครบ รวม ARC-04 (ต้องมี backend NestJS) ข้อใหม่
 
