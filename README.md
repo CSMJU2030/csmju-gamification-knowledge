@@ -3,7 +3,8 @@
 Code Tower หอคอยนักสู้อัตโนมัติ — เกมของระบบย่อย Gamification Knowledge ในโครงการ CSMJU2030
 เกม auto-battle ที่ผู้เล่นเขียนโปรแกรม BloxCode (Python subset) ให้ตัวละครสู้เอง
 
-มาตรฐานกลางอยู่ใน `standards/` (submodule ของ CSMJU2030/csmju2030-standards · v1.5.0 · สัญญา auth 1.1)
+มาตรฐานกลางอยู่ใน `standards/` (submodule ของ CSMJU2030/csmju2030-standards) · โค้ดทำตามสาย 1.1 ขึ้นไป (สัญญา auth 1.1) ·
+เลื่อนเวอร์ชันเป็น 1.5.2 ใน PR แยกตาม `docs/standards-versioning.md` ของ standards
 สถานะงานและผลตรวจล่าสุด: [`REPORT.md`](REPORT.md) · แผนการย้าย: [`docs/design-csmju-migration.md`](docs/design-csmju-migration.md)
 
 ## โครงสร้าง

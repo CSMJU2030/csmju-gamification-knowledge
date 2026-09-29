@@ -3,16 +3,17 @@
 > สถานะ: **ขั้น 1–2 ของแผนย้าย + frontend ชุดจำลอง** (docs/design-csmju-migration.md) · branch `feature/gamification-knowledge/migrate-code-tower`
 > repo `CSMJU2030/csmju-gamification-knowledge` · ชื่อระบบย่อย `csmju-gamification-knowledge` · Code Tower คือชื่อเกม
 > frontend ครบทุกหน้าตาม G0 แต่ใช้ **ชุดจำลองของ template** (`frontend/src/csmju/`) · **ทดสอบกับ Core Hub จริงแล้ว** (csmju-core-hub develop `6674ef6` รันในเครื่อง · สัญญา 1.0)
-> **มาตรฐาน v1.5.0** (29 ก.ย. 2569 · PM ให้เลื่อนเอง): สัญญา auth 1.1 ครบ — `/auth/login` · callback ตามกฎ state · `POST /auth/logout` ออกทั้งระบบ ·
+> **มาตรฐาน 1.5.2** (29 ก.ย. 2569 · เลื่อนใน PR แยก `bump-standards-1-5-0` ตาม standards-versioning.md): สัญญา auth 1.1 ครบ — `/auth/login` · callback ตามกฎ state · `POST /auth/logout` ออกทั้งระบบ ·
 > silent re-SSO · error code 9 ค่า · pnpm 12.3.4 — ทดสอบกับตัวจำลอง Core Hub ที่ปรับเป็น 1.1 (ยังเข้า repo Core Hub จริงไม่ได้)
 
 ## ผลรัน
 
-`./standards/scripts/run-all-checks.sh .` (ตัวตรวจ v1.5.0 · 19 ข้อ · 29 ก.ย. 2569) — 16/19 ผ่าน:
+ชุดตรวจ 1.5.2 (จำลอง CI แบบใหม่: ตัวกลาง `@v1.5.2` เลือกชุดตรวจจาก `.standards-version` · 29 ก.ย. 2569):
 
-- **GH-03** — PM ให้ดึงมาตรฐาน 1.5 เข้ามาใน branch นี้เลย (ไม่แยก PR) · `ci.yml` และ `standards` เป็นไฟล์ป้องกัน จึงตกตามที่ออกแบบไว้ — DevOps approve ตาม CODEOWNERS
+- **เลื่อนเวอร์ชันอยู่ใน PR แยก** (`bump-standards-1-5-0` · แก้แค่ `.standards-version` กับ submodule `standards`) — PR นี้ไม่แตะไฟล์เวอร์ชันและ `.github/` เลย
+  เมื่อ PR เลื่อนเวอร์ชัน merge แล้ว PR นี้จะถูกตรวจด้วยชุด 1.5.2 (กด Update branch ให้ CI รันใหม่) · ก่อนหน้านั้นยังตรวจด้วย 1.0.0
 - **ARC-02** (`@tower/engine`) และ **UI-01** (6 ไฟล์ภาพของเกม) — PM อนุมัติยกเว้นแล้ว 28 ก.ย. · ผ่านเมื่อใส่ `.compliance-exceptions.yml` (รอเลข issue ใน csmju2030-standards)
-- ลองใส่ไฟล์ข้อยกเว้นร่างบนสำเนาแยกแล้ว: ตัวตรวจ 1.5.0 ผ่านครบ รวม ARC-04 (ต้องมี backend NestJS) ข้อใหม่
+- ลองใส่ไฟล์ข้อยกเว้นร่างบนสำเนาแยกแล้ว: ชุดตรวจ 1.5.x ผ่านครบ รวม ARC-04 (ต้องมี backend NestJS) ข้อใหม่
 
 `node standards/conformance/run.js` (conformance 1.1 · 69 ข้อ) — **รันกับตัวจำลอง Core Hub ที่ปรับเป็นสัญญา 1.1** (`csmju2030/csmju-core-hub-sim`:
 เว็บ `/sso/authorize` · `/logout` · API ส่ง state ต่อตรงตัว) · base_url `http://localhost:3003` (หน้าเว็บที่ส่งต่อ `/api/*` `/auth/*` ไป backend)

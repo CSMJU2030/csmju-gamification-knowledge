@@ -40,7 +40,8 @@ git push -u origin feature/gamification-knowledge/migrate-code-tower
 
 แล้วเปิด PR เข้า `main` (CI ของ repo นี้รันกับ PR ที่เข้า `main`) — **PR แรกของ repo:** ข้อยกเว้นของ `GH-03` ตาม aie-workflow ขั้น 9 ให้ DevOps เป็นคน merge
 
-**PR #1 ของ repo** (`bump-standards-v1-0-1`) ปิดไปโดยไม่ merge · มาตรฐาน 1.5.0 ดึงเข้ามาใน branch นี้เลยตามที่ PM บอก (29 ก.ย. 2569 · ไม่แยก PR)
+**PR #1 ของ repo** (`bump-standards-v1-0-1`) ปิดไปโดยไม่ merge · DevOps ย้าย `ci.yml` เป็น `@v1.5.2` แล้ว (PR #5) ·
+เลื่อนเวอร์ชันเป็น 1.5.2 ใน PR แยก `bump-standards-1-5-0` (แก้แค่ `.standards-version` กับ `standards` · standards-versioning.md ข้อ 2) — merge ก่อน PR นี้
 
 **ขนาด PR:** branch นี้ใหญ่ ถ้า PL อยากได้ PR เล็กตามขั้น 9 แยกได้เป็น
 - PR 1: ย้าย engine เข้า `packages/engine` (+ เพดานความลึกของนิพจน์)
@@ -59,7 +60,7 @@ curl -X POST $CORE_HUB_URL/api/v1/subsystems \
     "displayName": "Gamification Knowledge — Code Tower",
     "owner": "<username ของเจ้าของระบบใน Core Hub>",
     "repo": "CSMJU2030/csmju-gamification-knowledge",
-    "standardsVersion": "1.5.0",
+    "standardsVersion": "1.5.2",
     "callbackUrl": "http://localhost:3003/auth/callback",
     "defaultRoleMapping": { "student": "PLAYER", "alumni": "PLAYER", "staff": "INSTRUCTOR", "admin": "ADMIN" },
     "requestedExceptions": []
@@ -79,7 +80,7 @@ curl -X POST $CORE_HUB_URL/api/v1/subsystems \
 ย้าย Code Tower เข้ามาตรฐาน CSMJU2030 เป็นระบบย่อย csmju-gamification-knowledge:
 engine เป็น pnpm workspace · backend ใหม่ (NestJS + Prisma 7 + PostgreSQL) ครบทุกโดเมนของเกม ·
 frontend Next.js ทุกหน้า · playtest รอบ A/B · ทางเข้า/ออก SSO ตาม Core Hub จริง
-ผลการรบตรงกับเซิร์ฟเวอร์เดิม 132/132 ขั้น · มาตรฐาน v1.5.0 (สัญญา auth 1.1) · conformance 69/69 L3 กับตัวจำลอง Core Hub 1.1
+ผลการรบตรงกับเซิร์ฟเวอร์เดิม 132/132 ขั้น · มาตรฐาน 1.5.2 (สัญญา auth 1.1) · conformance 69/69 L3 กับตัวจำลอง Core Hub 1.1
 (ผลเดิม 62/62 กับ csmju-core-hub develop ตามสัญญา 1.0)
 
 ## ประเภทการเปลี่ยนแปลง
@@ -92,7 +93,7 @@ frontend Next.js ทุกหน้า · playtest รอบ A/B · ทางเ
 ## Checklist
 
 ### มาตรฐานกลาง
-- [x] submodule `standards/` ผูก v1.5.0 (ตรงกับ `.standards-version` · `standards_version` ใน subsystem.yaml และ `uses:` ใน ci.yml — ดึงเข้ามาใน branch นี้ตามที่ PM บอก)
+- [x] ไม่แตะ `.github/` · `.standards-version` · submodule `standards` — เลื่อนเป็น 1.5.2 ใน PR แยก `bump-standards-1-5-0`
 - [x] Branch name ตรงรูปแบบ `feature/<subsystem>/<เรื่อง>`
 - [x] Commit message ตาม Conventional Commits ทุก commit
 - [ ] PR นี้โฟกัสเรื่องเดียว — เป็นการย้ายทั้งระบบ แยกได้ตาม docs/handoff-git.md ข้อ 2
@@ -122,7 +123,7 @@ frontend Next.js ทุกหน้า · playtest รอบ A/B · ทางเ
 
 ## หมายเหตุสำหรับ PL
 
-- ผลรันจริงทั้งหมดอยู่ใน REPORT.md — run-all-checks 1.5.0: 16/19 · GH-03 ตกเพราะดึงมาตรฐาน 1.5 เข้ามาใน PR นี้ (ci.yml · standards) ขอ DevOps approve ·
+- ผลรันจริงทั้งหมดอยู่ใน REPORT.md — merge PR เลื่อนเวอร์ชัน 1.5.2 ก่อน แล้วกด Update branch ของ PR นี้ ·
   ARC-02 / UI-01 PM อนุมัติยกเว้นแล้ว รอใส่ .compliance-exceptions.yml (ต้องมีเลข issue) ·
   conformance 69/69 กับตัวจำลอง Core Hub 1.1 · ทดสอบเชื่อมระบบที่ docs/local-integration.md
 - ต้องการคำตอบ D1–D6 (docs/design-csmju-migration.md ข้อ 4) โดยเฉพาะ D3 ก่อนลงทะเบียนบน Dev Server
