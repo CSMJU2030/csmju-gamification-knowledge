@@ -124,7 +124,7 @@ frontend Next.js ทุกหน้า · playtest รอบ A/B · ทางเ
 ## หมายเหตุสำหรับ PL
 
 - ผลรันจริงทั้งหมดอยู่ใน REPORT.md — merge PR เลื่อนเวอร์ชัน 1.5.2 ก่อน แล้วกด Update branch ของ PR นี้ ·
-  ARC-02 / UI-01 PM อนุมัติยกเว้นแล้ว รอใส่ .compliance-exceptions.yml (ต้องมีเลข issue) ·
+  ARC-02 / UI-01 PM อนุมัติยกเว้นแล้ว · .compliance-exceptions.yml อ้าง csmju2030-standards#29 (DevOps approve ตาม CODEOWNERS) ·
   conformance 69/69 กับตัวจำลอง Core Hub 1.1 · ทดสอบเชื่อมระบบที่ docs/local-integration.md
 - ต้องการคำตอบ D1–D6 (docs/design-csmju-migration.md ข้อ 4) โดยเฉพาะ D3 ก่อนลงทะเบียนบน Dev Server
 - สัญญา auth 1.1: `GET /auth/login` (state) · callback ตามข้อ 5.1 · `POST /auth/logout` → หน้า /logout ของ Core Hub (ออกทั้งระบบ) ·

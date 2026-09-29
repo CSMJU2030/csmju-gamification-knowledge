@@ -1,0 +1,64 @@
+# ข้อยกเว้นที่ PM อนุมัติแล้ว 28 ก.ย. 2569 · บันทึกที่ csmju2030-standards#29 (ci-compliance-spec ข้อ 11.1)
+# ตัวตรวจ UI-01 / ARC-02 อ่านไฟล์นี้ตั้งแต่ standards 1.4.0 (สาย 1.0.x: 1.0.3) · แก้ได้เฉพาะเมื่อ DevOps approve
+# ทุกรายการต้องมี issue และ expires · scope เป็นไฟล์หรือโฟลเดอร์ที่ลงท้ายด้วย / (ห้าม "*")
+
+version: 1
+
+exceptions:
+  - check: UI-01
+    scope: "frontend/src/game-stage/battle/effects.ts"
+    reason: "สีเอฟเฟกต์สกิลที่วาดลง canvas ในฉากต่อสู้ — ภาพของเกม ใช้ชุดสีกลางไม่ได้ · เมนู ฟอร์ม ตาราง ใช้ชุดสีกลางตามเดิม"
+    approved_by: ["PM"]
+    issue: "csmju2030-standards#29"
+    expires: "2027-03-31"
+
+  - check: UI-01
+    scope: "frontend/src/game-stage/battle/renderer.ts"
+    reason: "สีตัวเลขดาเมจ แถบเลือด และแสงใต้เท้าที่วาดลง canvas ในฉากต่อสู้ — ภาพของเกม ใช้ชุดสีกลางไม่ได้ · เมนู ฟอร์ม ตาราง ใช้ชุดสีกลางตามเดิม"
+    approved_by: ["PM"]
+    issue: "csmju2030-standards#29"
+    expires: "2027-03-31"
+
+  - check: UI-01
+    scope: "frontend/src/game-stage/battle/spriteCache.ts"
+    reason: "สีที่ใช้ระบายภาพ sprite ลง canvas ในฉากต่อสู้ — ภาพของเกม ใช้ชุดสีกลางไม่ได้ · เมนู ฟอร์ม ตาราง ใช้ชุดสีกลางตามเดิม"
+    approved_by: ["PM"]
+    issue: "csmju2030-standards#29"
+    expires: "2027-03-31"
+
+  - check: UI-01
+    scope: "frontend/src/game-stage/sprites/schema.ts"
+    reason: "palette ของภาพ sprite แบบ pixel art — ภาพของเกม ใช้ชุดสีกลางไม่ได้ · เมนู ฟอร์ม ตาราง ใช้ชุดสีกลางตามเดิม"
+    approved_by: ["PM"]
+    issue: "csmju2030-standards#29"
+    expires: "2027-03-31"
+
+  - check: UI-01
+    scope: "frontend/src/game-stage/world/WorldMapStage.module.css"
+    reason: "หมุดและป้ายบนภาพแผนที่โลกของเกม — ภาพของเกม ใช้ชุดสีกลางไม่ได้ · เมนู ฟอร์ม ตาราง ใช้ชุดสีกลางตามเดิม"
+    approved_by: ["PM"]
+    issue: "csmju2030-standards#29"
+    expires: "2027-03-31"
+
+  - check: UI-01
+    scope: "frontend/src/game-stage/blox/blox.css"
+    reason: "สีบล็อกโค้ด BloxCode แยกตามชนิดคำสั่ง — ภาพของเกม ใช้ชุดสีกลางไม่ได้ · เมนู ฟอร์ม ตาราง ใช้ชุดสีกลางตามเดิม"
+    approved_by: ["PM"]
+    issue: "csmju2030-standards#29"
+    expires: "2027-03-31"
+
+  - check: ARC-02
+    scope: "frontend/package.json"
+    dependency: "@tower/engine"
+    reason: "ตัวคำนวณการต่อสู้และตัวแปลภาษา BloxCode ที่เขียนเองใน repo นี้ (packages/engine) ใช้ทั้ง frontend และ backend · ห้ามใส่ไลบรารีภายนอกนอก whitelist ลงใน packages/engine/package.json"
+    approved_by: ["PM"]
+    issue: "csmju2030-standards#29"
+    expires: "2027-03-31"
+
+  - check: ARC-02
+    scope: "backend/package.json"
+    dependency: "@tower/engine"
+    reason: "ตัวคำนวณการต่อสู้และตัวแปลภาษา BloxCode ที่เขียนเองใน repo นี้ (packages/engine) ใช้ทั้ง frontend และ backend · ห้ามใส่ไลบรารีภายนอกนอก whitelist ลงใน packages/engine/package.json"
+    approved_by: ["PM"]
+    issue: "csmju2030-standards#29"
+    expires: "2027-03-31"

@@ -12,7 +12,7 @@
 
 - **เลื่อนเวอร์ชันอยู่ใน PR แยก** (`bump-standards-1-5-0` · แก้แค่ `.standards-version` กับ submodule `standards`) — PR นี้ไม่แตะไฟล์เวอร์ชันและ `.github/` เลย
   เมื่อ PR เลื่อนเวอร์ชัน merge แล้ว PR นี้จะถูกตรวจด้วยชุด 1.5.2 (กด Update branch ให้ CI รันใหม่) · ก่อนหน้านั้นยังตรวจด้วย 1.0.0
-- **ARC-02** (`@tower/engine`) และ **UI-01** (6 ไฟล์ภาพของเกม) — PM อนุมัติยกเว้นแล้ว 28 ก.ย. · ผ่านเมื่อใส่ `.compliance-exceptions.yml` (รอเลข issue ใน csmju2030-standards)
+- **ARC-02** (`@tower/engine`) และ **UI-01** (6 ไฟล์ภาพของเกม) — PM อนุมัติยกเว้นแล้ว 28 ก.ย. · ใส่ `.compliance-exceptions.yml` แล้ว (8 รายการ · csmju2030-standards#29 · หมดอายุ 2027-03-31) · ผ่านเมื่อตรวจด้วยชุด 1.5.2
 - ลองใส่ไฟล์ข้อยกเว้นร่างบนสำเนาแยกแล้ว: ชุดตรวจ 1.5.x ผ่านครบ รวม ARC-04 (ต้องมี backend NestJS) ข้อใหม่
 
 `node standards/conformance/run.js` (conformance 1.1 · 69 ข้อ) — **รันกับตัวจำลอง Core Hub ที่ปรับเป็นสัญญา 1.1** (`csmju2030/csmju-core-hub-sim`:
@@ -160,8 +160,8 @@ Best Practices ยัง 96 ที่หน้าของผู้สอนส�
 
 ## สิ่งที่ยังทำไม่ได้ / เคสที่ยังไม่ผ่าน
 
-- **ARC-02 ตก จนกว่าจะใส่ข้อยกเว้น** — `@tower/engine` · PM อนุมัติยกเว้นแล้ว 28 ก.ย. (เฉพาะ `frontend/package.json` และ `backend/package.json` ·
-  ห้ามใส่ไลบรารีภายนอกนอก whitelist ใน `packages/engine/package.json`) · ตัวตรวจ 1.4.0 ขึ้นไปอ่าน `.compliance-exceptions.yml` แล้ว · รอเลข issue
+- **ARC-02 — ยกเว้นแล้ว** — `@tower/engine` · PM อนุมัติ 28 ก.ย. (csmju2030-standards#29) (เฉพาะ `frontend/package.json` และ `backend/package.json` ·
+  ห้ามใส่ไลบรารีภายนอกนอก whitelist ใน `packages/engine/package.json`) · ตัวตรวจ 1.4.0 ขึ้นไปอ่าน `.compliance-exceptions.yml` · ชุด 1.0.0 ยังไม่อ่าน จึงต้อง merge PR เลื่อนเวอร์ชันก่อน
 - **ยังไม่ได้รันกับ Core Hub บน Dev Server** — ทดสอบกับ `csmju-core-hub` develop ที่รันในเครื่องแล้ว · ยังไม่มี `CORE_HUB_URL` จริง
 - **`demo-student-subsystem` ยังอ่านไม่ได้** (clone แล้วได้ `could not read Username`) — ชั้น auth จึงยังไม่ใช่ของ reference
 - **ยังไม่ได้ทดสอบกับ Core Hub จริงที่รองรับสัญญา auth 1.1** — ตรวจกับตัวจำลองที่ปรับตามสัญญาแล้ว (conformance 69/69 · เบราว์เซอร์ W1–W9)
@@ -170,7 +170,7 @@ Best Practices ยัง 96 ที่หน้าของผู้สอนส�
   ซึ่งส่งต่อ `/api/*` และ `/auth/*` ไป backend · `register-code-tower.cjs` แก้ให้แล้ว · บน Dev Server ต้องให้ผู้ดูแลทะเบียนแก้
 - **`prisma migrate deploy` ยังไม่ได้รันจริง** — เครื่องทดสอบออกเน็ตไป binaries.prisma.sh ไม่ได้ (ดูข้อถัดไป) · บนเครื่องที่ออกเน็ตได้ต้องรันตามคู่มือข้อ 6.3
 - **ชั้น auth ยังไม่ใช่ของ reference** — รอสิทธิ์ `demo-student-subsystem`
-- **UI-01 ตก เฉพาะเวทีเกม จนกว่าจะใส่ข้อยกเว้น** — สีของ sprite เอฟเฟกต์ บล็อกโค้ด และหมุดบนแผนที่ (6 ไฟล์ใต้ `frontend/src/game-stage/`) · PM อนุมัติยกเว้นแล้ว 28 ก.ย. · ไม่ได้แปลง hex เป็น `rgb()` เพื่อเลี่ยงการตรวจ เพราะเนื้อหายังเป็นสีนอก token อยู่ดี ให้ exception เป็นทางที่ตรวจสอบได้
+- **UI-01 — ยกเว้นแล้ว เฉพาะเวทีเกม** — สีของ sprite เอฟเฟกต์ บล็อกโค้ด และหมุดบนแผนที่ (6 ไฟล์ใต้ `frontend/src/game-stage/`) · PM อนุมัติ 28 ก.ย. (csmju2030-standards#29) · ไม่ได้แปลง hex เป็น `rgb()` เพื่อเลี่ยงการตรวจ เพราะเนื้อหายังเป็นสีนอก token อยู่ดี ให้ exception เป็นทางที่ตรวจสอบได้
 - **frontend ยังเป็นชุดจำลอง** — `src/csmju/` เขียนจากสเปค ไม่ใช่ template จริง (ยังไม่มีสิทธิ์อ่าน `csmju-core-hub`) · โลโก้เป็นตัวอักษรแทนภาพ · ช่องค้นหาและกระดิ่งบน top bar เป็นภาพประกอบ (disable)
 - **Lighthouse วัดบนเครื่องพัฒนา** — Chromium headless · ตัวเลขมือถือแกว่ง ±5 ระหว่างรอบ จึงรายงานค่ากลางของ 3 รอบ · ยังไม่ได้ทดสอบบน Safari iOS / Android จริง (ข้อ 18.2)
 - **ยังไม่ได้ตรวจ migration drift ด้วย Prisma** — `prisma migrate diff` ต้องใช้ schema engine ซึ่งเครื่องที่พัฒนาดาวน์โหลดไม่ได้ (proxy ตอบ 403 ที่ binaries.prisma.sh)
