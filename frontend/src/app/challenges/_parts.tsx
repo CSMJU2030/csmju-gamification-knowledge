@@ -6,7 +6,7 @@
  */
 import { useRouter } from 'next/navigation';
 import { useRef, useState, type FormEvent, type ReactNode } from 'react';
-import { ConfirmDeleteModal, cardClass, inputClass, secondaryButtonClass } from '@/csmju';
+import { ConfirmDeleteModal, cardClass, inputClass, secondaryButtonClass, useUnsavedWork } from '@/csmju';
 import { Alert, Button } from '@/components/feedback';
 import { FormField } from '@/components/FormField';
 import { useToast } from '@/components/Toast';
@@ -106,6 +106,13 @@ export function ChallengeForm({ initial }: { initial?: Challenge }) {
   const [busy, setBusy] = useState(false);
   const titleRef = useRef<HTMLInputElement>(null);
   const liveRef = useRef<HTMLParagraphElement>(null);
+  // โจทย์ที่พิมพ์ค้างไว้ — เซสชันหมดกลางทางต้องไม่พาออกจากหน้าเอง (auth-contract ข้อ 7)
+  useUnsavedWork(
+    title !== (initial?.title ?? '') ||
+      description !== (initial?.description ?? '') ||
+      starterSource !== (initial?.starterSource ?? '') ||
+      regionId !== (initial?.regionId ?? ''),
+  );
 
   const submit = async (e: FormEvent) => {
     e.preventDefault();

@@ -39,9 +39,35 @@
         ]
       }
     },
+    "/auth/login": {
+      "get": {
+        "operationId": "Sso_login",
+        "parameters": [
+          {
+            "name": "next",
+            "required": false,
+            "in": "query",
+            "description": "path ในระบบนี้ที่จะกลับไปหลัง login · ไม่ผ่านกฎใช้หน้าแรก",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "302": {
+            "description": "ไป {CORE_HUB_WEB_URL}/sso/authorize?subsystem=…&state=… พร้อมคุกกี้ state"
+          }
+        },
+        "security": [],
+        "summary": "เริ่มทุกการเข้าสู่ระบบ — สร้าง state แล้วส่งไปเว็บ Core Hub /sso/authorize (ไม่มีหน้าฟอร์ม)",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
     "/auth/callback": {
       "get": {
-        "operationId": "SsoCallback_callback",
+        "operationId": "Sso_callback",
         "parameters": [
           {
             "name": "state",
@@ -80,33 +106,8 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "ตรวจ token ผ่าน และตั้ง session cookie",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "success",
-                    "data"
-                  ],
-                  "properties": {
-                    "success": {
-                      "type": "boolean",
-                      "enum": [
-                        true
-                      ]
-                    },
-                    "data": {
-                      "$ref": "#/components/schemas/MeDto"
-                    }
-                  }
-                }
-              }
-            }
-          },
           "302": {
-            "description": "ตรวจ token ผ่าน และพาไปหน้า UI (เมื่อตั้ง SSO_SUCCESS_REDIRECT)"
+            "description": "สำเร็จ — ตั้งคุกกี้ session แล้วไปหน้า next · หรือไม่มี state (เริ่มจาก Core Hub) — ทิ้ง token แล้วไป /auth/login"
           },
           "400": {
             "description": "BAD_REQUEST หรือ VALIDATION_ERROR",
@@ -140,7 +141,23 @@
           }
         },
         "security": [],
-        "summary": "Central SSO callback — ตรวจ token แล้วตั้ง session cookie",
+        "summary": "Central SSO callback — ผลตามข้อ 5.1 ของสัญญา",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/auth/logout": {
+      "post": {
+        "operationId": "Sso_logout",
+        "parameters": [],
+        "responses": {
+          "303": {
+            "description": "ไป {CORE_HUB_WEB_URL}/logout"
+          }
+        },
+        "security": [],
+        "summary": "ออกจากระบบทั้งระบบ — ลบคุกกี้ของระบบนี้ทั้งสอง แล้วไปหน้า /logout ของ Core Hub",
         "tags": [
           "auth"
         ]
@@ -2265,7 +2282,9 @@
               "FORBIDDEN",
               "NOT_FOUND",
               "CONFLICT",
-              "INTERNAL_ERROR"
+              "TOO_MANY_REQUESTS",
+              "INTERNAL_ERROR",
+              "SERVICE_UNAVAILABLE"
             ]
           },
           "message": {
@@ -2300,6 +2319,19 @@
         "required": [
           "success",
           "error"
+        ]
+      },
+      "SessionInfoDto": {
+        "type": "object",
+        "properties": {
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "คำนวณจาก exp ของ token (ISO 8601)"
+          }
+        },
+        "required": [
+          "expiresAt"
         ]
       },
       "MeDto": {
@@ -2337,9 +2369,8 @@
               "type": "string"
             }
           },
-          "state": {
-            "type": "string",
-            "description": "ค่า state ที่ส่งมากับ SSO callback (ส่งกลับให้ client ตรวจ)"
+          "session": {
+            "$ref": "#/components/schemas/SessionInfoDto"
           }
         },
         "required": [
@@ -2347,7 +2378,8 @@
           "email",
           "coreRole",
           "subsystemRole",
-          "permissions"
+          "permissions",
+          "session"
         ]
       },
       "ProficiencyTripleDto": {

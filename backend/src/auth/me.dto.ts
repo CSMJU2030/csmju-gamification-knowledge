@@ -1,6 +1,12 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 import { CORE_ROLES } from './auth.types';
 import { CORE_ROLE_TO_SUBSYSTEM_ROLE } from './role-mapping';
+
+/** เวลาหมดอายุของ session (สัญญา 1.1 ข้อ 5) — ให้ frontend ต่ออายุล่วงหน้าผ่าน /auth/login ก่อนหน้าที่มีงานค้างจะเจอ 401 */
+export class SessionInfoDto {
+  @ApiProperty({ format: 'date-time', description: 'คำนวณจาก exp ของ token (ISO 8601)' })
+  expiresAt!: string;
+}
 
 export class MeDto {
   @ApiProperty({ description: 'ค่า sub จาก Core Hub token (Global Identity)' })
@@ -18,6 +24,6 @@ export class MeDto {
   @ApiProperty({ type: [String], description: 'permission ของ role นี้ในระบบ Code Tower' })
   permissions!: string[];
 
-  @ApiPropertyOptional({ description: 'ค่า state ที่ส่งมากับ SSO callback (ส่งกลับให้ client ตรวจ)' })
-  state?: string;
+  @ApiProperty({ type: SessionInfoDto })
+  session!: SessionInfoDto;
 }

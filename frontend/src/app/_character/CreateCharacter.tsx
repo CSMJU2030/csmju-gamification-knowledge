@@ -5,7 +5,7 @@
  * ชื่อนี้คือสิ่งที่ผู้เล่นคนอื่นเห็นตอนดวล — ไม่ใช่ชื่อจริงจาก Core Hub
  */
 import { useRef, useState, type FormEvent } from 'react';
-import { cardClass, inputClass } from '@/csmju';
+import { cardClass, inputClass, useUnsavedWork } from '@/csmju';
 import { Alert, Button } from '@/components/feedback';
 import { FormField } from '@/components/FormField';
 import { useToast } from '@/components/Toast';
@@ -29,6 +29,7 @@ export function CreateCharacter({ onCreated }: { onCreated: (c: Character) => vo
   const [busy, setBusy] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const toast = useToast();
+  useUnsavedWork(name.trim() !== '');
 
   const submit = async (e: FormEvent) => {
     e.preventDefault();

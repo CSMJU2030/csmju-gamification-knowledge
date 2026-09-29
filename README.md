@@ -3,7 +3,7 @@
 Code Tower หอคอยนักสู้อัตโนมัติ — เกมของระบบย่อย Gamification Knowledge ในโครงการ CSMJU2030
 เกม auto-battle ที่ผู้เล่นเขียนโปรแกรม BloxCode (Python subset) ให้ตัวละครสู้เอง
 
-มาตรฐานกลางอยู่ใน `standards/` (submodule ของ CSMJU2030/csmju2030-standards · v1.0.0)
+มาตรฐานกลางอยู่ใน `standards/` (submodule ของ CSMJU2030/csmju2030-standards · v1.5.0 · สัญญา auth 1.1)
 สถานะงานและผลตรวจล่าสุด: [`REPORT.md`](REPORT.md) · แผนการย้าย: [`docs/design-csmju-migration.md`](docs/design-csmju-migration.md)
 
 ## โครงสร้าง
@@ -23,7 +23,7 @@ standards/         submodule มาตรฐานกลาง (ห้ามแ�
 git submodule update --init standards/
 pnpm install
 cp backend/.env.example backend/.env      # แก้ DATABASE_URL และ CORE_HUB_URL ให้ตรงเครื่อง
-cp frontend/.env.example frontend/.env.local   # BACKEND_URL และหน้า login/logout ของ Core Hub
+cp frontend/.env.example frontend/.env.local   # BACKEND_URL และปุ่มกลับหน้าหลักของ Core Hub
 createdb code_tower_db                    # ชื่อตาม DATABASE_URL
 pnpm --filter backend exec prisma migrate deploy
 ```
@@ -42,8 +42,9 @@ pnpm --filter frontend start   # http://localhost:3003  (dev: pnpm --filter fron
 
 ต้องมี Core Hub รันอยู่ที่ `CORE_HUB_URL` — ระบบนี้ไม่มี login ของตัวเอง ผู้ใช้เข้าผ่าน SSO ของ Core Hub เท่านั้น
 ทดสอบเชื่อมกับ Core Hub + demo บนเครื่องตัวเอง (ผลรันกับ Core Hub จริง และสิ่งที่เจอใน Core Hub): [`docs/local-integration.md`](docs/local-integration.md)
-ให้ backend พากลับหน้าเว็บหลัง SSO ด้วย `SSO_SUCCESS_REDIRECT=http://localhost:3003/` ใน `backend/.env`
-frontend เรียก API ผ่าน origin ของตัวเอง (`/api/*` และ `/auth/callback` ถูกส่งต่อไป `BACKEND_URL`) จึงไม่ต้องเปิด CORS
+เข้าสู่ระบบเริ่มที่ `/auth/login` ของระบบนี้ แล้วไปเว็บ Core Hub (`CORE_HUB_WEB_URL` ใน `backend/.env`) · ออกจากระบบ = `POST /auth/logout` ออกทั้งระบบ
+frontend เรียก API ผ่าน origin ของตัวเอง (`/api/*` และ `/auth/*` ถูกส่งต่อไป `BACKEND_URL`) จึงไม่ต้องเปิด CORS ·
+origin นี้คือ `base_url` ใน `subsystem.yaml` และ `callback_url` ในทะเบียน (`http://localhost:3003/auth/callback`)
 
 ## ทดสอบ
 

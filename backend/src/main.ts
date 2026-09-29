@@ -4,7 +4,7 @@
  * เส้นทางตาม api-conventions.md ข้อ 1:
  *   /api/v1/<resource>   endpoint ธุรกิจ — prefix 'api' ตั้งที่นี่ ส่วน 'v1/' อยู่ใน @Controller ของแต่ละตัว
  *   /api/health          นอก v1 (ไม่ผูกกับเวอร์ชัน)
- *   /auth/callback       นอก /api (ต้องตรงกับ callback_url ที่ลงทะเบียนกับ Core Hub)
+ *   /auth/login · /auth/callback · /auth/logout   นอก /api (สัญญา auth 1.1 ข้อ 5 · callback ต้องตรงกับที่ลงทะเบียน)
  */
 import { RequestMethod, type INestApplication } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -18,7 +18,13 @@ import type { AppConfig } from './config/configuration';
 
 /** ตั้งค่าที่ต้องเหมือนกันทุกที่ที่สร้างแอป (รันจริง · e2e test · generate:openapi) */
 export function configureApp(app: INestApplication): void {
-  app.setGlobalPrefix('api', { exclude: [{ path: 'auth/callback', method: RequestMethod.GET }] });
+  app.setGlobalPrefix('api', {
+    exclude: [
+      { path: 'auth/login', method: RequestMethod.GET },
+      { path: 'auth/callback', method: RequestMethod.GET },
+      { path: 'auth/logout', method: RequestMethod.POST },
+    ],
+  });
   app.useGlobalPipes(createValidationPipe());
   app.useGlobalFilters(new AllExceptionsFilter());
   app.useGlobalInterceptors(new ResponseEnvelopeInterceptor());

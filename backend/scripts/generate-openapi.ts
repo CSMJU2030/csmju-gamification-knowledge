@@ -13,6 +13,7 @@ const defaults: Record<string, string> = {
   DATABASE_URL: 'postgresql://127.0.0.1:1/openapi_generation_never_connects',
   SUBSYSTEM_ID: 'csmju-gamification-knowledge',
   CORE_HUB_URL: 'http://localhost:3000',
+  CORE_HUB_WEB_URL: 'http://localhost:3100',
   CORE_HUB_JWKS_URL: 'http://localhost:3000/api/v1/.well-known/jwks.json',
   CORE_HUB_ISSUER: 'core-hub',
   CORE_HUB_AUDIENCE: 'csmju2030',

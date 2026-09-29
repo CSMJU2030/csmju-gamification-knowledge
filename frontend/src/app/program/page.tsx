@@ -16,7 +16,16 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useCallback, useEffect, useState } from 'react';
 import { Alert, Button, EmptyState, ErrorState, ForbiddenState, Skeleton } from '@/components/feedback';
 import { useToast } from '@/components/Toast';
-import { CodeIcon, Modal, PageHeader, StatusBadge, dangerButtonClass, primaryButtonClass, secondaryButtonClass } from '@/csmju';
+import {
+  CodeIcon,
+  Modal,
+  PageHeader,
+  StatusBadge,
+  dangerButtonClass,
+  primaryButtonClass,
+  secondaryButtonClass,
+  useUnsavedWork,
+} from '@/csmju';
 import { ApiError, userMessage } from '@/lib/api/client';
 import type { Challenge } from '@/lib/api/types';
 import { useApi } from '@/lib/api/use-api';
@@ -113,6 +122,8 @@ function Workspace({ initial, starterId }: { initial: Program; starterId: string
   const [leaveTo, setLeaveTo] = useState<string | null>(null);
 
   const dirty = source !== saved;
+  // โปรแกรมยังไม่บันทึก — เซสชันหมดกลางทางต้องไม่พาออกจากหน้าเอง (auth-contract ข้อ 7)
+  useUnsavedWork(dirty);
 
   /** การแก้ทุกครั้งทำให้ผลตรวจของเซิร์ฟเวอร์รอบก่อนหมดอายุ — มันตรวจ source คนละชุดกับที่เห็นแล้ว */
   const change = useCallback((next: string) => {

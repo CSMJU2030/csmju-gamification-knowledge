@@ -4,7 +4,8 @@
  *
  * รับ token ได้สองทางและตรวจเหมือนกัน (auth-contract.md ข้อ 6):
  *   Authorization: Bearer <token>              ← มาก่อนเสมอถ้ามี
- *   Cookie: core_hub_access_token=<token>      ← เบราว์เซอร์ที่ผ่าน SSO มาแล้ว
+ *   Cookie: csmju_gamification_knowledge_access_token=<token>   ← เบราว์เซอร์ที่ผ่าน SSO มาแล้ว
+ * คุกกี้อื่นของ localhost (เช่นของเว็บ Core Hub) ไม่อ่าน
  * ตัวตนไม่เคยมาจาก body / query / custom header
  */
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
@@ -16,8 +17,7 @@ import { CoreHubTokenVerifier } from '../core-hub-token.verifier';
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
 import { permissionsFor } from '../permissions';
 import { mapCoreRole } from '../role-mapping';
-
-export const SESSION_COOKIE = 'core_hub_access_token';
+import { SESSION_COOKIE } from '../sso';
 
 /** อ่านคุกกี้ชื่อเดียวจาก header ตรง ๆ (cookie-parser ไม่อยู่ใน whitelist ของ stack) */
 export function readCookie(header: string | undefined, name: string): string | null {

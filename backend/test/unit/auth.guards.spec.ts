@@ -18,16 +18,18 @@ describe('รับ token จาก header หรือคุกกี้', () =
     expect(extractToken(req({ authorization: 'Bearer abc.def.ghi' }))).toBe('abc.def.ghi');
   });
   it('header มาก่อนคุกกี้เสมอ', () => {
-    expect(extractToken(req({ authorization: 'Bearer from-header', cookie: 'core_hub_access_token=from-cookie' }))).toBe('from-header');
+    expect(extractToken(req({ authorization: 'Bearer from-header', cookie: 'csmju_gamification_knowledge_access_token=from-cookie' }))).toBe('from-header');
   });
-  it('ไม่มี header → ใช้คุกกี้ core_hub_access_token', () => {
-    expect(extractToken(req({ cookie: 'theme=dark; core_hub_access_token=tok%2E1; x=1' }))).toBe('tok.1');
+  it('ไม่มี header → ใช้คุกกี้ csmju_gamification_knowledge_access_token (สัญญา 1.1 ข้อ 5.1)', () => {
+    expect(extractToken(req({ cookie: 'theme=dark; csmju_gamification_knowledge_access_token=tok%2E1; x=1' }))).toBe('tok.1');
   });
   it.each([
     ['ไม่มีอะไรเลย', {}],
     ['scheme ไม่ใช่ Bearer', { authorization: 'Basic dXNlcjpwYXNz' }],
     ['Bearer ว่าง', { authorization: 'Bearer ' }],
     ['คุกกี้ชื่ออื่น', { cookie: 'session=abc' }],
+    ['คุกกี้ชื่อเดิมก่อนสัญญา 1.1', { cookie: 'core_hub_access_token=abc' }],
+    ['คุกกี้ของเว็บ Core Hub บน localhost (ต้องไม่อ่าน · ข้อ 6)', { cookie: 'csmju_access_token=abc; csmju_refresh_token=def' }],
   ])('%s → 401', (_label, headers) => {
     expect(() => extractToken(req(headers as Record<string, string>))).toThrow(expect.objectContaining({ errorCode: 'UNAUTHORIZED' }));
   });

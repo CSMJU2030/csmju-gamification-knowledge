@@ -1,5 +1,5 @@
 /** envelope · error code ปิด 7 ค่า · ไม่รั่วรายละเอียดภายใน (api-conventions.md ข้อ 3-5) */
-import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, HttpException, NotFoundException, ServiceUnavailableException } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
 import { validate } from 'class-validator';
 import { ApiError, ERROR_HTTP_STATUS, conflict, validationError } from '../../src/common/api-error';
@@ -11,7 +11,11 @@ import { CreateBattleDto } from '../../src/battles/battle.dto';
 import { CreateChallengeDto, UpdateChallengeDto } from '../../src/challenges/challenge.dto';
 import { UpdateProgramDto } from '../../src/programs/program.dto';
 
-const CLOSED = ['BAD_REQUEST', 'VALIDATION_ERROR', 'UNAUTHORIZED', 'FORBIDDEN', 'NOT_FOUND', 'CONFLICT', 'INTERNAL_ERROR'];
+/** standards/contracts/error-codes.json (1.1 ขึ้นไป · 9 ค่า) — CI checkout ไม่ดึง submodule จึงคัดมาไว้ที่นี่ */
+const CLOSED = [
+  'BAD_REQUEST', 'VALIDATION_ERROR', 'UNAUTHORIZED', 'FORBIDDEN', 'NOT_FOUND', 'CONFLICT',
+  'TOO_MANY_REQUESTS', 'INTERNAL_ERROR', 'SERVICE_UNAVAILABLE',
+];
 
 describe('envelope', () => {
   it('ข้อมูลเดี่ยว → { success: true, data }', () => {
@@ -31,6 +35,8 @@ describe('error envelope', () => {
   it('รหัสทั้งหมดอยู่ในรายการปิด และ VALIDATION_ERROR เป็น 400', () => {
     expect(Object.keys(ERROR_HTTP_STATUS).sort()).toEqual([...CLOSED].sort());
     expect(ERROR_HTTP_STATUS.VALIDATION_ERROR).toBe(400);
+    expect(ERROR_HTTP_STATUS.TOO_MANY_REQUESTS).toBe(429);
+    expect(ERROR_HTTP_STATUS.SERVICE_UNAVAILABLE).toBe(503);
   });
   it('ApiError → code/message/details ตรงตัว', () => {
     expect(toErrorBody(validationError(['a', 'b']))).toEqual({
@@ -43,6 +49,8 @@ describe('error envelope', () => {
     [new NotFoundException('Cannot GET /api/v1/x'), 404, 'NOT_FOUND'],
     [new BadRequestException('x'), 400, 'BAD_REQUEST'],
     [new ForbiddenException(), 403, 'FORBIDDEN'],
+    [new HttpException('x', 429), 429, 'TOO_MANY_REQUESTS'],
+    [new ServiceUnavailableException(), 503, 'SERVICE_UNAVAILABLE'],
   ])('HttpException ของ Nest แปลงเป็นรหัสมาตรฐาน', (exception, status, code) => {
     const { status: s, body } = toErrorBody(exception);
     expect(s).toBe(status);

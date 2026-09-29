@@ -18,4 +18,12 @@ export { StatusBadge } from './StatusBadge';
 export type { StatusTone } from './StatusBadge';
 export * from './icons';
 export * from './ui';
-export { redirectToSsoLogin, signOut, takeReturnPath, ssoLoginUrl, ssoLogoutUrl } from './sso';
+export {
+  LOGIN_PATH,
+  LOGOUT_PATH,
+  coreDashboardUrl,
+  handleUnauthorized,
+  loginUrl,
+  startLogin,
+} from './sso';
+export { useUnsavedWork } from './useUnsavedWork';

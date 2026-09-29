@@ -59,15 +59,16 @@ curl -X POST $CORE_HUB_URL/api/v1/subsystems \
     "displayName": "Gamification Knowledge — Code Tower",
     "owner": "<username ของเจ้าของระบบใน Core Hub>",
     "repo": "CSMJU2030/csmju-gamification-knowledge",
-    "standardsVersion": "1.0.0",
-    "callbackUrl": "http://localhost:3002/auth/callback",
+    "standardsVersion": "1.5.0",
+    "callbackUrl": "http://localhost:3003/auth/callback",
     "defaultRoleMapping": { "student": "PLAYER", "alumni": "PLAYER", "staff": "INSTRUCTOR", "admin": "ADMIN" },
     "requestedExceptions": []
   }'
 ```
 
 - `defaultRoleMapping` ต้องตรงกับ `backend/src/auth/role-mapping.ts` เป๊ะ — ค่านี้คือข้อเสนอ D3 ถ้า PL เปลี่ยน ต้องแก้ทั้งสองที่
-- `callbackUrl` ตอน dev ใช้ `http://localhost:3002/auth/callback` · บน Dev Server ต้องเป็น `https://…/auth/callback`
+- `callbackUrl` คือ origin ของ**หน้าเว็บ** + `/auth/callback` (หน้าเว็บส่งต่อ `/auth/*` ไป backend) — ตอน dev `http://localhost:3003/auth/callback` ·
+  บน Dev Server ต้องเป็น `https://<หน้าเว็บของระบบ>/auth/callback` · ต้องตรงกับ `base_url` + `callback_path` ใน `subsystem.yaml` (conformance L3-04 · L3-07)
 - แล้ว `POST /api/v1/subsystems/:id/approve` และ `/activate` — Core Hub ตอบ **201** · เรียกซ้ำได้ **409**
 
 ## 4. ร่างข้อความ PR (ตาม `.github/pull_request_template.md`)
@@ -78,7 +79,8 @@ curl -X POST $CORE_HUB_URL/api/v1/subsystems \
 ย้าย Code Tower เข้ามาตรฐาน CSMJU2030 เป็นระบบย่อย csmju-gamification-knowledge:
 engine เป็น pnpm workspace · backend ใหม่ (NestJS + Prisma 7 + PostgreSQL) ครบทุกโดเมนของเกม ·
 frontend Next.js ทุกหน้า · playtest รอบ A/B · ทางเข้า/ออก SSO ตาม Core Hub จริง
-ผลการรบตรงกับเซิร์ฟเวอร์เดิม 132/132 ขั้น · conformance 62/62 L3 กับ csmju-core-hub (develop)
+ผลการรบตรงกับเซิร์ฟเวอร์เดิม 132/132 ขั้น · มาตรฐาน v1.5.0 (สัญญา auth 1.1) · conformance 69/69 L3 กับตัวจำลอง Core Hub 1.1
+(ผลเดิม 62/62 กับ csmju-core-hub develop ตามสัญญา 1.0)
 
 ## ประเภทการเปลี่ยนแปลง
 
@@ -90,7 +92,7 @@ frontend Next.js ทุกหน้า · playtest รอบ A/B · ทางเ
 ## Checklist
 
 ### มาตรฐานกลาง
-- [x] submodule `standards/` ผูก v1.0.0 (ตรงกับ `.standards-version` และ `uses:` ใน ci.yml)
+- [x] submodule `standards/` ผูก v1.5.0 (ตรงกับ `.standards-version` · `standards_version` ใน subsystem.yaml และ `uses:` ใน ci.yml — มาจาก PR เลื่อนมาตรฐานที่แยกไว้)
 - [x] Branch name ตรงรูปแบบ `feature/<subsystem>/<เรื่อง>`
 - [x] Commit message ตาม Conventional Commits ทุก commit
 - [ ] PR นี้โฟกัสเรื่องเดียว — เป็นการย้ายทั้งระบบ แยกได้ตาม docs/handoff-git.md ข้อ 2
@@ -120,11 +122,13 @@ frontend Next.js ทุกหน้า · playtest รอบ A/B · ทางเ
 
 ## หมายเหตุสำหรับ PL
 
-- ผลรันจริงทั้งหมดอยู่ใน REPORT.md — run-all-checks 16/18 (ARC-02 รอ D2 · UI-01 เฉพาะเวทีเกม รอ D1) ·
-  conformance 62/62 กับ Core Hub จริง (develop 6674ef6 รันในเครื่อง) · ทดสอบเชื่อมระบบที่ docs/local-integration.md
+- ผลรันจริงทั้งหมดอยู่ใน REPORT.md — run-all-checks 1.5.0: 16/19 · GH-03 หายเมื่อ PR เลื่อนมาตรฐาน merge ·
+  ARC-02 / UI-01 PM อนุมัติยกเว้นแล้ว รอใส่ .compliance-exceptions.yml (ต้องมีเลข issue) ·
+  conformance 69/69 กับตัวจำลอง Core Hub 1.1 · ทดสอบเชื่อมระบบที่ docs/local-integration.md
 - ต้องการคำตอบ D1–D6 (docs/design-csmju-migration.md ข้อ 4) โดยเฉพาะ D3 ก่อนลงทะเบียนบน Dev Server
-- ออกจากระบบ: ปุ่มแค่พาไปหน้าแรกของ Core Hub ไม่เรียก API ใด ๆ — ไม่มี logout ของตัวเองตาม auth-contract ข้อ 9
-  ข้อจำกัดของสัญญา 1.0: คุกกี้ของเกมยังใช้ได้จนหมดอายุ (≤ 15 นาที) แม้ออกจาก Core Hub แล้ว — รอ SSO logout ของ Core Hub (แผน v1.1)
+- สัญญา auth 1.1: `GET /auth/login` (state) · callback ตามข้อ 5.1 · `POST /auth/logout` → หน้า /logout ของ Core Hub (ออกทั้งระบบ) ·
+  silent re-SSO · คุกกี้ `csmju_gamification_knowledge_*` · ทะเบียนต้องเปลี่ยน callback_url เป็นของหน้าเว็บ (`…:3003/auth/callback`)
+  ยังไม่ได้ทดสอบกับ Core Hub จริงที่รองรับ 1.1
 - สามข้อใน PR template ขัดกับเอกสารฉบับอื่น จึงติ๊กตามเอกสารหลักแทน: "field เป็น snake_case",
   "ใช้ username" และ "error.code 6 ค่า" (ดู docs/handoff-git.md ข้อ 5)
 ```

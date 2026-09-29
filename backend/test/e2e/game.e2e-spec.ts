@@ -268,23 +268,131 @@ describe('game-data', () => {
   });
 });
 
-describe('SSO callback', () => {
-  it('token ถูก → 200 + คุกกี้ HttpOnly SameSite=Lax อายุไม่เกิน exp · คุกกี้อย่างเดียวเข้า /me ได้', async () => {
-    const res = await http.get('/auth/callback').query({ access_token: token('user-004', 'alumni'), state: 'xyz' }).expect(200);
-    const cookie = String(res.headers['set-cookie']);
-    expect(cookie).toMatch(/^core_hub_access_token=/);
-    expect(cookie).toMatch(/HttpOnly/);
-    expect(cookie).toMatch(/SameSite=Lax/);
-    expect(Number(/Max-Age=(\d+)/.exec(cookie)![1])).toBeLessThanOrEqual(900);
-    expect(res.body.data).toMatchObject({ id: 'user-004', coreRole: 'alumni', state: 'xyz' });
-    const me = await http.get('/api/v1/me').set('Cookie', cookie.split(';')[0]).expect(200);
-    expect(me.body.data.id).toBe('user-004');
+describe('SSO 1.1 — /auth/login · /auth/callback · /auth/logout (auth-contract ข้อ 5 · 7)', () => {
+  const SESSION = 'csmju_gamification_knowledge_access_token';
+  const STATE = 'csmju_gamification_knowledge_sso_state';
+  const cookies = (res: request.Response): string[] => {
+    const raw = res.headers['set-cookie'] as unknown;
+    return Array.isArray(raw) ? (raw as string[]) : typeof raw === 'string' ? [raw] : [];
+  };
+  const cookieNamed = (res: request.Response, name: string) => cookies(res).find((c) => c.startsWith(`${name}=`));
+  const setsSession = (res: request.Response) => {
+    const c = cookieNamed(res, SESSION);
+    return c !== undefined && !/Max-Age=0\b/i.test(c);
+  };
+
+  /** เริ่ม sign-in แบบเบราว์เซอร์: /auth/login → อ่าน state จาก Location และคุกกี้ state */
+  async function begin(next?: string) {
+    const res = await http.get('/auth/login').query(next === undefined ? {} : { next }).expect(302);
+    const location = new URL(res.headers.location as string);
+    const stateCookie = cookieNamed(res, STATE)!;
+    return { res, location, state: location.searchParams.get('state')!, cookie: stateCookie.split(';')[0] };
+  }
+  /** ขาเข้า callback แบบที่เว็บ Core Hub ส่งกลับมา */
+  const callback = (query: Record<string, string>, cookie?: string) => {
+    const req = http.get('/auth/callback').query(query);
+    return cookie ? req.set('Cookie', cookie) : req;
+  };
+
+  it('login → 302 ไปเว็บ Core Hub /sso/authorize พร้อม subsystem และ state · ไม่ส่ง callback_url · คุกกี้ state HttpOnly Lax Path=/auth/callback ≤ 600 วินาที', async () => {
+    const { res, location, state } = await begin('/items');
+    expect(`${location.origin}${location.pathname}`).toBe('http://localhost:3100/sso/authorize');
+    expect(location.searchParams.get('subsystem')).toBe('csmju-gamification-knowledge');
+    expect(state).toMatch(/^[A-Za-z0-9_-]{43}$/);
+    expect(location.searchParams.has('callback_url')).toBe(false);
+    expect(res.headers['cache-control']).toBe('no-store');
+    const c = cookieNamed(res, STATE)!;
+    expect(c).toMatch(/HttpOnly/);
+    expect(c).toMatch(/SameSite=Lax/);
+    expect(c).toMatch(/Path=\/auth\/callback/);
+    expect(Number(/Max-Age=(\d+)/.exec(c)![1])).toBeGreaterThan(0);
+    expect(Number(/Max-Age=(\d+)/.exec(c)![1])).toBeLessThanOrEqual(600);
+    expect(c.split(';')[0]).toMatch(new RegExp(`^${STATE}=${state}\\.`));
+    // สองรอบได้ state ไม่ซ้ำกัน
+    expect((await begin()).state).not.toBe(state);
   });
 
-  it('token ปลอม → 401 และไม่มี Set-Cookie · ไม่มี token → 400', async () => {
-    const res = await http.get('/auth/callback').query({ access_token: hub.unsigned('user-001', 'admin') }).expect(401);
-    expect(res.headers['set-cookie']).toBeUndefined();
-    await http.get('/auth/callback').expect(400);
+  it('callback ครบขั้น → 302 ไปหน้า next · คุกกี้ session HttpOnly Lax Path=/ อายุไม่เกิน exp · no-store + no-referrer · เผาคุกกี้ state · คุกกี้อย่างเดียวเข้า /me ได้พร้อม session.expiresAt', async () => {
+    const login = await begin('/items?q=ดาบ');
+    const res = await callback({ access_token: token('user-004', 'alumni'), token_type: 'Bearer', expires_in: '900', state: login.state }, login.cookie).expect(302);
+    expect(res.headers.location).toBe('/items?q=%E0%B8%94%E0%B8%B2%E0%B8%9A');
+    expect(res.headers['cache-control']).toBe('no-store');
+    expect(res.headers['referrer-policy']).toBe('no-referrer');
+    const session = cookieNamed(res, SESSION)!;
+    expect(session).toMatch(/HttpOnly/);
+    expect(session).toMatch(/SameSite=Lax/);
+    expect(session).toMatch(/Path=\/(;|$)/);
+    expect(Number(/Max-Age=(\d+)/.exec(session)![1])).toBeLessThanOrEqual(900);
+    expect(cookieNamed(res, STATE)).toMatch(/Max-Age=0/);
+    const me = await http.get('/api/v1/me').set('Cookie', session.split(';')[0]).expect(200);
+    expect(me.body.data).toMatchObject({ id: 'user-004', coreRole: 'alumni', subsystemRole: 'PLAYER' });
+    const expiresAt = Date.parse(me.body.data.session.expiresAt);
+    expect(expiresAt - Date.now()).toBeGreaterThan(800_000);
+    expect(expiresAt - Date.now()).toBeLessThanOrEqual(900_000);
+  });
+
+  it('ไม่มี state (กดจากเมนูของ Core Hub) → ทิ้ง token · 302 /auth/login · ไม่มี Set-Cookie ใด ๆ แม้แต่คุกกี้ state', async () => {
+    const login = await begin();
+    const res = await callback({ access_token: token('user-002') }, login.cookie).expect(302);
+    expect(res.headers.location).toBe('/auth/login');
+    expect(cookies(res)).toEqual([]);
+  });
+
+  it('มี state แต่ไม่มีคุกกี้ state → 401 ไม่ redirect · state ของรอบหนึ่งกับคุกกี้อีกรอบ → 401 · ทั้งสองไม่มีคุกกี้ session', async () => {
+    const orphan = await begin();
+    const noCookie = await callback({ access_token: token('user-002'), state: orphan.state }).expect(401);
+    expect(noCookie.headers.location).toBeUndefined();
+    expect(noCookie.body).toMatchObject({ success: false, error: { code: 'UNAUTHORIZED' } });
+    expect(setsSession(noCookie)).toBe(false);
+
+    const first = await begin();
+    const second = await begin();
+    const crossed = await callback({ access_token: token('user-002'), state: first.state }, second.cookie).expect(401);
+    expect(setsSession(crossed)).toBe(false);
+    expect(cookieNamed(crossed, STATE)).toMatch(/Max-Age=0/);
+  });
+
+  it('state ใช้ได้ครั้งเดียว — คุกกี้ถูกเผาแล้ว ส่งซ้ำด้วยคุกกี้เดิมยังตรงแต่เบราว์เซอร์จริงจะไม่มีคุกกี้แล้ว', async () => {
+    const login = await begin();
+    const ok = await callback({ access_token: token('user-002'), state: login.state }, login.cookie).expect(302);
+    expect(cookieNamed(ok, STATE)).toMatch(/Max-Age=0/);
+    // เบราว์เซอร์ลบคุกกี้ state ตาม Max-Age=0 แล้ว — รอบสองจึงไม่มีคุกกี้ → 401
+    await callback({ access_token: token('user-002'), state: login.state }).expect(401);
+  });
+
+  it('token ปลอม (state ถูก) → 401 · role ที่ระบบไม่รับ → 403 · ไม่มี token → 400 · ทุกกรณีไม่มีคุกกี้ session', async () => {
+    const forged = await begin();
+    const bad = await callback({ access_token: hub.unsigned('user-001', 'admin'), state: forged.state }, forged.cookie).expect(401);
+    expect(setsSession(bad)).toBe(false);
+
+    const guest = await begin();
+    const denied = await callback({ access_token: token('user-003', 'guest' as CoreRoleClaim), state: guest.state }, guest.cookie).expect(403);
+    expect(setsSession(denied)).toBe(false);
+
+    const missing = await http.get('/auth/callback').expect(400);
+    expect(setsSession(missing)).toBe(false);
+  });
+
+  it('next=//evil.example.com และ /auth/logout → ลงที่หน้าแรกของระบบเอง (กัน open redirect)', async () => {
+    for (const next of ['//evil.example.com', '/auth/logout', 'https://evil.example.com/']) {
+      const login = await begin(next);
+      const res = await callback({ access_token: token('user-002'), state: login.state }, login.cookie).expect(302);
+      expect(res.headers.location).toBe('/');
+    }
+  });
+
+  it('POST /auth/logout → 303 ไปหน้า /logout ของเว็บ Core Hub · ลบคุกกี้ทั้งสองด้วย Max-Age=0 และ Path เดิม · no-store', async () => {
+    const res = await http.post('/auth/logout').expect(303);
+    expect(res.headers.location).toBe('http://localhost:3100/logout');
+    expect(res.headers['cache-control']).toBe('no-store');
+    expect(cookieNamed(res, SESSION)).toMatch(/^[^=]+=;.*Max-Age=0.*Path=\/(;|$)/);
+    expect(cookieNamed(res, STATE)).toMatch(/Max-Age=0.*Path=\/auth\/callback/);
+  });
+
+  it('401 ของ API เป็น JSON เสมอ ไม่ redirect ไป login (ข้อ 7)', async () => {
+    const res = await http.get('/api/v1/me').expect(401);
+    expect(res.headers.location).toBeUndefined();
+    expect(res.body).toMatchObject({ success: false, error: { code: 'UNAUTHORIZED' } });
   });
 });
 

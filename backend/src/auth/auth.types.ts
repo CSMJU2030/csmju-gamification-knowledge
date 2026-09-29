@@ -23,6 +23,6 @@ export interface AuthUser {
   coreRole: CoreRole;
   subsystemRole: SubsystemRole;
   permissions: ReadonlySet<Permission>;
-  /** วินาที epoch ที่ token หมดอายุ — ใช้กำหนดอายุคุกกี้ของ SSO callback */
+  /** วินาที epoch ที่ token หมดอายุ — อายุคุกกี้ของ SSO callback และ session.expiresAt ของ /api/v1/me */
   tokenExp: number;
 }

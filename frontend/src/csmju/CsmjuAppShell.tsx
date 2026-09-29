@@ -5,10 +5,10 @@
  * เพราะยังไม่มีสิทธิ์อ่าน template จริง · ของจริงแทนที่ทั้งโฟลเดอร์ `csmju/` เมื่อได้ template
  *
  * หน้าที่ที่ shell ถือไว้ (ระบบย่อยห้ามทำเอง): sidebar · top bar · เมนูผู้ใช้ · ออกจากระบบ
- * กลับ Dashboard · 401 → SSO · skip link · footer
+ * กลับ Dashboard · 401 → silent re-SSO (auth-contract ข้อ 7) · skip link · footer
  */
 import Link from '@/components/AppLink';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import {
   createContext,
   useCallback,
@@ -20,29 +20,67 @@ import {
 } from 'react';
 import { CsmjuLogo } from './CsmjuLogo';
 import { BellIcon, CloseIcon, LogoutIcon, MenuIcon, NAV_ICONS, SearchIcon, type NavIconName } from './icons';
-import { coreDashboardUrl, redirectToSsoLogin, signOut, takeReturnPath } from './sso';
+import {
+  LOGOUT_PATH,
+  coreDashboardUrl,
+  handleUnauthorized,
+  markSigningOut,
+  renewIfExpiring,
+  subscribeSessionNotice,
+  type SessionNotice,
+} from './sso';
 
 /**
- * ออกจากระบบ — พากลับหน้าแรกของ Core Hub อย่างเดียว (sso.ts signOut · auth-contract ข้อ 9)
- * เป็นปุ่มไม่ใช่ลิงก์ เพราะต้องกันไม่ให้ 401 ที่ค้างอยู่พาไป SSO ระหว่างเปลี่ยนหน้า
+ * ออกจากระบบ = ออกทั้งระบบ (auth-contract ข้อ 7) — ฟอร์ม POST /auth/logout จริง ใช้ได้แม้ JS ยังโหลดไม่เสร็จ
+ * backend ลบคุกกี้ของระบบนี้แล้วพาไปหน้า /logout ของ Core Hub ซึ่งออกจาก Core Hub และทุกระบบย่อย
  */
 function SignOutButton() {
   const [pending, setPending] = useState(false);
   return (
-    <button
-      type="button"
-      disabled={pending}
-      aria-busy={pending}
-      onClick={() => {
+    <form
+      method="post"
+      action={LOGOUT_PATH}
+      onSubmit={() => {
+        markSigningOut();
         setPending(true);
-        signOut();
       }}
-      title="กลับไปหน้าแรกของ Core Hub — ออกจากระบบทั้งหมดทำที่ Core Hub"
-      className="flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border border-white/25 bg-white/10 px-3 py-2.5 text-label-md text-white backdrop-blur-sm transition-colors duration-200 hover:bg-white/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white disabled:cursor-wait disabled:opacity-70"
     >
-      <LogoutIcon className="h-4 w-4" />
-      {pending ? 'กำลังออกจากระบบ…' : 'ออกจากระบบ'}
-    </button>
+      <button
+        type="submit"
+        disabled={pending}
+        aria-busy={pending}
+        title="ออกจาก Code Tower และ Core Hub"
+        className="flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border border-white/25 bg-white/10 px-3 py-2.5 text-label-md text-white backdrop-blur-sm transition-colors duration-200 hover:bg-white/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white disabled:cursor-wait disabled:opacity-70"
+      >
+        <LogoutIcon className="h-4 w-4" />
+        {pending ? 'กำลังออกจากระบบ…' : 'ออกจากระบบ'}
+      </button>
+    </form>
+  );
+}
+
+/**
+ * เซสชันหมดอายุแต่ยังพาไปเข้าสู่ระบบเองไม่ได้ (auth-contract ข้อ 7):
+ * - loop: เพิ่งกลับจาก re-SSO ไม่ถึง 30 วินาทีแล้วยัง 401
+ * - unsaved: หน้านี้มีงานยังไม่บันทึก — ห้าม redirect ทับ ให้ผู้ใช้เลือกเอง
+ */
+function SessionNoticeBar({ notice }: { notice: Exclude<SessionNotice, null> }) {
+  return (
+    <div role="alert" className="border-b border-outline-variant bg-surface-container-lowest px-4 py-3 md:px-8">
+      <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-3">
+        <p className="min-w-0 flex-1 text-body-md text-on-surface">
+          {notice.kind === 'unsaved'
+            ? 'เซสชันหมดอายุ — งานที่ยังไม่บันทึกยังอยู่ในหน้านี้ คัดลอกเก็บไว้ก่อนแล้วค่อยเข้าสู่ระบบอีกครั้ง'
+            : 'เข้าสู่ระบบไม่สำเร็จ — ลองอีกครั้ง หากยังไม่ได้ให้ปิดเบราว์เซอร์แล้วเปิดใหม่'}
+        </p>
+        <a
+          href={notice.loginHref}
+          className="btn-gradient inline-flex min-h-11 items-center rounded-lg px-4 py-2 text-label-md text-on-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+        >
+          เข้าสู่ระบบอีกครั้ง
+        </a>
+      </div>
+    </div>
   );
 }
 
@@ -59,6 +97,8 @@ export interface CsmjuUser {
   coreRole: 'student' | 'alumni' | 'staff' | 'admin';
   subsystemRole: string;
   permissions: string[];
+  /** เวลาหมดอายุของ session จาก exp ของ token (สัญญา 1.1) — ใช้ต่ออายุล่วงหน้าตอนเปลี่ยนหน้า */
+  session?: { expiresAt: string };
 }
 
 type UserState =
@@ -102,9 +142,9 @@ export interface CsmjuAppShellProps {
 
 export function CsmjuAppShell({ subsystemName, displayName, nav, primaryAction, children }: CsmjuAppShellProps) {
   const pathname = usePathname() ?? '/';
-  const router = useRouter();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [userState, setUserState] = useState<UserState>({ status: 'loading' });
+  const [sessionNotice, setSessionNotice] = useState<SessionNotice>(null);
   const drawerRef = useRef<HTMLElement>(null);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -114,7 +154,7 @@ export function CsmjuAppShell({ subsystemName, displayName, nav, primaryAction, 
       try {
         const res = await fetch('/api/v1/me', { credentials: 'same-origin', headers: { Accept: 'application/json' } });
         if (res.status === 401) {
-          redirectToSsoLogin();
+          handleUnauthorized();
           return;
         }
         const body = (await res.json().catch(() => null)) as
@@ -126,9 +166,6 @@ export function CsmjuAppShell({ subsystemName, displayName, nav, primaryAction, 
           setUserState({ status: 'forbidden', message: body.error.message });
         } else if (res.ok && body && body.success) {
           setUserState({ status: 'ready', user: body.data });
-          // กลับจาก SSO แล้ว backend พามาที่ `/` เสมอ — พากลับไปหน้าที่ผู้ใช้อยู่ก่อนหมดเซสชัน
-          const back = takeReturnPath();
-          if (back && back !== window.location.pathname + window.location.search) router.replace(back);
         } else {
           setUserState({ status: 'error' });
         }
@@ -139,7 +176,15 @@ export function CsmjuAppShell({ subsystemName, displayName, nav, primaryAction, 
     return () => {
       cancelled = true;
     };
-  }, [router]);
+  }, []);
+
+  useEffect(() => subscribeSessionNotice(setSessionNotice), []);
+
+  // เปลี่ยนหน้าแล้ว session ใกล้หมด → ต่ออายุตอนนี้เลย (ยังไม่มีงานค้างในหน้าใหม่) แทนที่จะรอเจอ 401 กลางงาน
+  const expiresAt = userState.status === 'ready' ? userState.user.session?.expiresAt : undefined;
+  useEffect(() => {
+    renewIfExpiring(expiresAt, window.location.pathname + window.location.search);
+  }, [pathname, expiresAt]);
 
   // เปลี่ยนหน้าแล้วปิด drawer
   useEffect(() => {
@@ -333,6 +378,8 @@ export function CsmjuAppShell({ subsystemName, displayName, nav, primaryAction, 
               </div>
             </div>
           </header>
+
+          {sessionNotice && <SessionNoticeBar notice={sessionNotice} />}
 
           <main id="main-content" tabIndex={-1} className="flex-1 focus:outline-none">
             <div className="mx-auto w-full max-w-[1280px] space-y-8 px-4 py-8 md:px-12 md:py-12">

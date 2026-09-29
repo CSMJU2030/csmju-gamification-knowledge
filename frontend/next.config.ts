@@ -2,7 +2,8 @@ import type { NextConfig } from 'next';
 
 /**
  * เบราว์เซอร์คุยกับ origin เดียว (frontend) แล้ว Next ส่งต่อไป backend
- * คุกกี้ session `core_hub_access_token` ที่ backend ตั้งตอน SSO callback จึงไปกับทุกคำขอ /api โดยไม่ต้องเปิด CORS
+ * คุกกี้ session `csmju_gamification_knowledge_access_token` ที่ backend ตั้งตอน SSO callback จึงไปกับทุกคำขอ /api
+ * โดยไม่ต้องเปิด CORS · origin นี้คือ origin ของระบบ (base_url ใน subsystem.yaml และ callback_url ในทะเบียน)
  */
 const backend = process.env.BACKEND_URL ?? 'http://localhost:3002';
 
@@ -18,7 +19,10 @@ const config: NextConfig = {
   async rewrites() {
     return [
       { source: '/api/:path*', destination: `${backend}/api/:path*` },
+      // Central SSO 1.1 (auth-contract ข้อ 5): login · callback · logout อยู่ที่ backend นอก prefix /api
+      { source: '/auth/login', destination: `${backend}/auth/login` },
       { source: '/auth/callback', destination: `${backend}/auth/callback` },
+      { source: '/auth/logout', destination: `${backend}/auth/logout` },
     ];
   },
 };

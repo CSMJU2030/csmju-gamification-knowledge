@@ -2,53 +2,42 @@
 
 > สถานะ: **ขั้น 1–2 ของแผนย้าย + frontend ชุดจำลอง** (docs/design-csmju-migration.md) · branch `feature/gamification-knowledge/migrate-code-tower`
 > repo `CSMJU2030/csmju-gamification-knowledge` · ชื่อระบบย่อย `csmju-gamification-knowledge` · Code Tower คือชื่อเกม
-> frontend ครบทุกหน้าตาม G0 แต่ใช้ **ชุดจำลองของ template** (`frontend/src/csmju/`) · **ทดสอบกับ Core Hub จริงแล้ว** (csmju-core-hub develop `6674ef6` รันในเครื่อง)
+> frontend ครบทุกหน้าตาม G0 แต่ใช้ **ชุดจำลองของ template** (`frontend/src/csmju/`) · **ทดสอบกับ Core Hub จริงแล้ว** (csmju-core-hub develop `6674ef6` รันในเครื่อง · สัญญา 1.0)
+> **มาตรฐาน v1.5.0** (29 ก.ย. 2569 · PM ให้เลื่อนเอง): สัญญา auth 1.1 ครบ — `/auth/login` · callback ตามกฎ state · `POST /auth/logout` ออกทั้งระบบ ·
+> silent re-SSO · error code 9 ค่า · pnpm 12.3.4 — ทดสอบกับตัวจำลอง Core Hub ที่ปรับเป็น 1.1 (ยังเข้า repo Core Hub จริงไม่ได้)
 
 ## ผลรัน
 
-`./standards/scripts/run-all-checks.sh .` — 16/18 ผ่าน · ตัวที่ตกคือ ARC-02 (`@tower/engine` ทั้ง backend และ frontend) รอ D2
-และ UI-01 (สีของภาพในเวทีเกม `frontend/src/game-stage/**` เท่านั้น) รอ D1 — ส่วนเปลือกระบบไม่มี hex เลย
+`./standards/scripts/run-all-checks.sh .` (ตัวตรวจ v1.5.0 · 19 ข้อ · 29 ก.ย. 2569) — 16/19 ผ่าน:
+
+- **GH-03** — branch นี้รวม PR เลื่อนมาตรฐานไว้ (`ci.yml` และ `standards` เป็นไฟล์ป้องกัน) · หายเองเมื่อ PR เลื่อนมาตรฐาน (`bump-standards-1-5-0`) merge เข้า `main`
+- **ARC-02** (`@tower/engine`) และ **UI-01** (6 ไฟล์ภาพของเกม) — PM อนุมัติยกเว้นแล้ว 28 ก.ย. · ผ่านเมื่อใส่ `.compliance-exceptions.yml` (รอเลข issue ใน csmju2030-standards)
+- ลองใส่ไฟล์ข้อยกเว้นร่างบนสำเนาแยกแล้ว: ตัวตรวจ 1.5.0 ผ่านครบ รวม ARC-04 (ต้องมี backend NestJS) ข้อใหม่
+
+`node standards/conformance/run.js` (conformance 1.1 · 69 ข้อ) — **รันกับตัวจำลอง Core Hub ที่ปรับเป็นสัญญา 1.1** (`csmju2030/csmju-core-hub-sim`:
+เว็บ `/sso/authorize` · `/logout` · API ส่ง state ต่อตรงตัว) · base_url `http://localhost:3003` (หน้าเว็บที่ส่งต่อ `/api/*` `/auth/*` ไป backend)
 
 ```
-  ✅ PASS  Convention Check            check-branch-name.sh
-  ✅ PASS  Convention Check            check-commit-messages.sh
-  ✅ PASS  Convention Check            check-ci-untouched.sh
-  ✅ PASS  Standards Version Check     check-submodule-pointer.sh
-  ✅ PASS  Security & Stack Scan       check-no-secrets.sh
-  ✅ PASS  Security & Stack Scan       check-no-local-storage.sh
-  ✅ PASS  Security & Stack Scan       check-no-jwt-verify.sh
-  ✅ PASS  Security & Stack Scan       check-db-isolation.sh
-  ❌ FAIL  Security & Stack Scan       check-authorized-deps.sh
-  ✅ PASS  API Contract Sync           check-openapi-sync.sh
-  ✅ PASS  API Contract Sync           check-api-conventions.sh
-  ✅ PASS  Data Dictionary Compliance  check-field-aliases.sh
-  ✅ PASS  Data Dictionary Compliance  check-snake-case.sh
-  ✅ PASS  Data Dictionary Compliance  check-no-hardcoded-faculty.sh
-  ✅ PASS  Data Dictionary Compliance  check-money-fields.sh
-  ❌ FAIL  UI Token Compliance         check-ui-tokens.sh
-  ✅ PASS  Code Quality                check-qa.sh
-  ✅ PASS  Exception Validation        check-exceptions.sh
-
-❌ 2 / 18 checks failed — merge would be blocked.
-```
-
-`node standards/conformance/run.js` — **รันกับ Core Hub จริง** (`csmju-core-hub` branch `develop` `6674ef6` รันในเครื่องโดยไม่แก้โค้ด ·
-ดู `docs/local-integration.md`) · ยังไม่มี `CORE_HUB_URL` ของ Dev Server
-
-```
-
-── L3 · SSO — rejected handoffs
-  PASS  L3-12      callback with a tampered token → 401
-  PASS  L3-13      no session cookie is issued for a rejected token
-  PASS  L3-14      callback without a token → 400 or 401
-  PASS  L3-15      Core Hub rejects an unregistered callback_url
+── L3 · SSO — /auth/login starts every sign-in
+  PASS  L3-16      /auth/login → 302 to Core Hub web /sso/authorize with subsystem and state
+  PASS  L3-17      /auth/login sets an HttpOnly csmju_gamification_knowledge_sso_state lasting at most 600 s
+── L3 · SSO — callbacks that must not create a session
+  PASS  L3-18      callback without state → 302 to /auth/login, no session cookie
+  PASS  L3-19      callback with a state but no state cookie → 401, no session cookie
+  PASS  L3-20      state from one /auth/login with the cookie of another → 401
+  PASS  L3-21      next=//evil.example.com still lands on a path of the subsystem itself
+── L3 · SSO — sign-out
+  PASS  L3-22      POST /auth/logout → 303 to Core Hub web /logout and clears csmju_gamification_knowledge_access_token
 
 ────────────────────────────────────────────────────────────
-RESULT: 62 passed · 0 failed · 0 skipped
-✅ CONFORMANT — csmju-gamification-knowledge meets standard v1.0 L3
+RESULT: 69 passed · 0 failed · 0 skipped · 0 warnings · retries: 0
+✅ CONFORMANT — csmju-gamification-knowledge meets standard v1.1 L3
 ```
 
-**ทดสอบกับ Core Hub จริง** (26 ก.ย. 2569 · API และเบราว์เซอร์จริง): ลงทะเบียน → approve → activate · token ของทั้ง 4 role · SSO → callback → คุกกี้ ·
+ผลเดิมกับ **Core Hub จริง** ตามสัญญา 1.0 (26 ก.ย. 2569 · `csmju-core-hub` develop `6674ef6`): `62 passed · 0 failed · 0 skipped` —
+ยังไม่ได้รันซ้ำกับ Core Hub จริงที่รองรับ 1.1 เพราะตอนนี้เข้า repo นั้นไม่ได้
+
+**ทดสอบกับ Core Hub จริง ตามสัญญา 1.0** (26 ก.ย. 2569 · API และเบราว์เซอร์จริง): ลงทะเบียน → approve → activate · token ของทั้ง 4 role · SSO → callback → คุกกี้ ·
 เข้าจากเมนูของ Core Hub · เปิด Code Tower โดยไม่มี session → login ที่ Core Hub → กลับหน้าเดิม · ปุ่มออกจากระบบ — ผลและสิ่งที่แก้อยู่ที่ `docs/local-integration.md`
 (ก่อนหน้านี้ทดสอบกับ Core Hub จำลอง ซึ่งซ่อนปัญหาไว้ 3 ข้อ: หน้า login ไม่อ่าน `?subsystem=` · ไม่มี `/logout` · POST ตอบ 201 ไม่ใช่ 200)
 
@@ -89,9 +78,9 @@ Best Practices ยัง 96 ที่หน้าของผู้สอนส�
 | ชุด | ผล |
 |---|---|
 | engine (vitest) | 223 ผ่าน · รวม differential กับ CPython และ golden fixture ของหอคอย · MP ใน event และข้อความสกิล (รอบ A) · EXP ช่วงต้นและกลไกป่า (รอบ B) |
-| backend unit (jest, ไม่ใช้ฐานข้อมูล) | 87 ผ่าน · รวมเคส 403 ของ PermissionsGuard · โปรแกรมตัวอย่างอาชีพ |
-| backend e2e (jest + PostgreSQL 16 จริง) | 27 ผ่าน (ค้นหาในตารางทั้งสาม · ไม่มี login/logout ของตัวเอง (404) ·เพิ่ม game-data สำหรับผู้สอนที่ไม่มีตัวละคร · ครั้งที่รบที่จุดเดียวกัน + `mpAfter` · ตัวอย่างอาชีพ) |
-| frontend (vitest + jsdom) | 74 ผ่าน · ช่องค้นหา (หน่วง 300ms · Enter · Esc · ล้างจากข้างนอก) · ปุ่มออกจากระบบ (แค่ไปหน้าแรกของ Core Hub ไม่เรียก API · กัน 401 ระหว่างออก) · ตัวเล่นฉากรบ (รวมหลอด MP) บันทึกการรบ ตัวแยกข้อผิดพลาดของโปรแกรม round-trip บล็อก↔โค้ด กฎแผนที่ สรุปการเติบโต |
+| backend unit (jest, ไม่ใช้ฐานข้อมูล) | 122 ผ่าน · กฎ `next` 5 ข้อ · state และคุกกี้ของ SSO 1.1 · error code 9 ค่า · รวมเคส 403 ของ PermissionsGuard · โปรแกรมตัวอย่างอาชีพ |
+| backend e2e (jest + PostgreSQL 16 จริง) | 34 ผ่าน (SSO 1.1 ครบทุกกรณีของข้อ 5.1 · `/auth/logout` 303 · `/me` คืน `session.expiresAt` · ค้นหาในตารางทั้งสาม ·เพิ่ม game-data สำหรับผู้สอนที่ไม่มีตัวละคร · ครั้งที่รบที่จุดเดียวกัน + `mpAfter` · ตัวอย่างอาชีพ) |
+| frontend (vitest + jsdom) | 78 ผ่าน · silent re-SSO (กันวน 30 วินาที · ไม่เด้งทับงานค้าง · ต่ออายุล่วงหน้าตอนเปลี่ยนหน้า) · ช่องค้นหา (หน่วง 300ms · Enter · Esc · ล้างจากข้างนอก) · ตัวเล่นฉากรบ (รวมหลอด MP) บันทึกการรบ ตัวแยกข้อผิดพลาดของโปรแกรม round-trip บล็อก↔โค้ด กฎแผนที่ สรุปการเติบโต |
 | frontend `next build` | ผ่าน · JS แรกเข้าทุกหน้า 119–129 kB (งบ ≤ 250 kB gzip) · ลิงก์ prefetch เมื่อชี้/โฟกัส/แตะเท่านั้น · ฉากรบ สไปรต์ เอดิเตอร์+ล่าม แยก chunk โหลดเฉพาะหน้าที่ใช้ |
 | เดินเว็บจริงด้วย Playwright (Core Hub จำลอง + backend + frontend production) | ครบวง: เข้าเว็บไม่มีคุกกี้ → หน้า login ของ Core Hub จำลอง → callback → สร้างตัวละคร → หอคอยชั้น 1 → เวทีรบ → ผลรบ → เลือกอาชีพ → โปรแกรม → แผนที่ → คำประกาศ → รบในภูมิภาค + ดวล → กระเป๋า → ประวัติ → โจทย์ (ผู้เล่นเห็นอย่างเดียว · ผู้สอนสร้าง/แก้ได้ · โปรแกรมตั้งต้นผิด → ข้อความใต้ช่อง) · 360px ไม่มี scroll แนวนอนทุกหน้า · console ไม่มี error นอกจาก 401/404/400 ที่ตั้งใจ |
 | parity กับเซิร์ฟเวอร์เดิม (Express + SQLite) | **132/132 ขั้นตรงกัน** · เทียบบันทึกการรบ 4,074 เหตุการณ์ (หอคอย · ภูมิภาค · กลไกหมายหัว · ดวลออนไลน์สองทาง · ดวลสแนปช็อต · ถูกปฏิเสธ · หมดอายุ) |
@@ -170,16 +159,17 @@ Best Practices ยัง 96 ที่หน้าของผู้สอนส�
 
 ## สิ่งที่ยังทำไม่ได้ / เคสที่ยังไม่ผ่าน
 
-- **ARC-02 ตก** — `@tower/engine` ไม่อยู่ใน whitelist · รอ D2 (ร่าง issue: `docs/issues/D2-engine-workspace-package.md`)
-  หมายเหตุ: `check-authorized-deps.sh` ของ v1.0.0 ไม่อ่าน `.compliance-exceptions.yml` แม้ ci-compliance-spec ข้อ 11.1 จะมีตัวอย่าง exception ของ ARC-02 — ต้องให้ DevOps ตัดสินว่าจะเพิ่ม whitelist หรือแก้สคริปต์
+- **ARC-02 ตก จนกว่าจะใส่ข้อยกเว้น** — `@tower/engine` · PM อนุมัติยกเว้นแล้ว 28 ก.ย. (เฉพาะ `frontend/package.json` และ `backend/package.json` ·
+  ห้ามใส่ไลบรารีภายนอกนอก whitelist ใน `packages/engine/package.json`) · ตัวตรวจ 1.4.0 ขึ้นไปอ่าน `.compliance-exceptions.yml` แล้ว · รอเลข issue
 - **ยังไม่ได้รันกับ Core Hub บน Dev Server** — ทดสอบกับ `csmju-core-hub` develop ที่รันในเครื่องแล้ว · ยังไม่มี `CORE_HUB_URL` จริง
 - **`demo-student-subsystem` ยังอ่านไม่ได้** (clone แล้วได้ `could not read Username`) — ชั้น auth จึงยังไม่ใช่ของ reference
-- **ออกจากระบบ** — ปุ่ม (บังคับตาม ui-design-system ข้อ 5.1) แค่พาไปหน้าแรกของ Core Hub ไม่เรียก API ใด ๆ · ระบบนี้ไม่มี logout ของตัวเอง (auth-contract ข้อ 9)
-  ข้อจำกัดของสัญญา 1.0 (ยังไม่มี SSO logout ข้อ 11): คุกกี้ของเกมยังใช้ได้จนหมดอายุ ≤ 15 นาที — ตรวจแล้ว (W4c) ว่าออกจาก Core Hub แล้วเปิดเกมทันทียังเข้าเป็นคนเดิมได้
-  เครื่องที่ใช้ร่วมกันต้องรอให้หมดอายุหรือปิดเบราว์เซอร์ · แก้จริงต้องรอ SSO logout ของ Core Hub
+- **ยังไม่ได้ทดสอบกับ Core Hub จริงที่รองรับสัญญา auth 1.1** — ตรวจกับตัวจำลองที่ปรับตามสัญญาแล้ว (conformance 69/69 · เบราว์เซอร์ W1–W9)
+  แต่ยังเข้า repo `csmju-core-hub` ไม่ได้ ถ้า Core Hub ที่ใช้อยู่ยังเป็น 1.0 (ไม่มีหน้า `/sso/authorize`) การเข้าเกมจะไม่ผ่านจนกว่า Core Hub จะอัปเดต
+- **ทะเบียนต้องเปลี่ยน `callback_url`** เป็น `<หน้าเว็บ>/auth/callback` (ตอนพัฒนา `http://localhost:3003/auth/callback`) — origin ของระบบคือหน้าเว็บ
+  ซึ่งส่งต่อ `/api/*` และ `/auth/*` ไป backend · `register-code-tower.cjs` แก้ให้แล้ว · บน Dev Server ต้องให้ผู้ดูแลทะเบียนแก้
 - **`prisma migrate deploy` ยังไม่ได้รันจริง** — เครื่องทดสอบออกเน็ตไป binaries.prisma.sh ไม่ได้ (ดูข้อถัดไป) · บนเครื่องที่ออกเน็ตได้ต้องรันตามคู่มือข้อ 6.3
 - **ชั้น auth ยังไม่ใช่ของ reference** — รอสิทธิ์ `demo-student-subsystem`
-- **UI-01 ตก เฉพาะเวทีเกม** — สีของ sprite เอฟเฟกต์ บล็อกโค้ด และหมุดบนแผนที่ (6 ไฟล์ใต้ `frontend/src/game-stage/`) รอ D1 · ไม่ได้แปลง hex เป็น `rgb()` เพื่อเลี่ยงการตรวจ เพราะเนื้อหายังเป็นสีนอก token อยู่ดี ให้ exception เป็นทางที่ตรวจสอบได้
+- **UI-01 ตก เฉพาะเวทีเกม จนกว่าจะใส่ข้อยกเว้น** — สีของ sprite เอฟเฟกต์ บล็อกโค้ด และหมุดบนแผนที่ (6 ไฟล์ใต้ `frontend/src/game-stage/`) · PM อนุมัติยกเว้นแล้ว 28 ก.ย. · ไม่ได้แปลง hex เป็น `rgb()` เพื่อเลี่ยงการตรวจ เพราะเนื้อหายังเป็นสีนอก token อยู่ดี ให้ exception เป็นทางที่ตรวจสอบได้
 - **frontend ยังเป็นชุดจำลอง** — `src/csmju/` เขียนจากสเปค ไม่ใช่ template จริง (ยังไม่มีสิทธิ์อ่าน `csmju-core-hub`) · โลโก้เป็นตัวอักษรแทนภาพ · ช่องค้นหาและกระดิ่งบน top bar เป็นภาพประกอบ (disable)
 - **Lighthouse วัดบนเครื่องพัฒนา** — Chromium headless · ตัวเลขมือถือแกว่ง ±5 ระหว่างรอบ จึงรายงานค่ากลางของ 3 รอบ · ยังไม่ได้ทดสอบบน Safari iOS / Android จริง (ข้อ 18.2)
 - **ยังไม่ได้ตรวจ migration drift ด้วย Prisma** — `prisma migrate diff` ต้องใช้ schema engine ซึ่งเครื่องที่พัฒนาดาวน์โหลดไม่ได้ (proxy ตอบ 403 ที่ binaries.prisma.sh)

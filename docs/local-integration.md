@@ -2,6 +2,9 @@
 
 > ทำตาม `csmju2030-standards/docs/LOCAL_INTEGRATION_GUIDE.md` (บน `main` ของ standards) ทุกข้อ
 > เอกสารนี้บอกเฉพาะ **จุดที่ระบบนี้ต่างจากตัวอย่าง `equipment`** ในคู่มือ และผลรันกับ **Core Hub จริง** (ไม่ได้แก้อะไรใน repo อื่น)
+>
+> **29 ก.ย. 2569 · เลื่อนเป็นมาตรฐาน v1.5.0 (สัญญา auth 1.1)** — ข้อ 3 และข้อ 4.1 เป็นของปัจจุบัน · ข้อ 4 เป็นผลเดิมตามสัญญา 1.0
+> ยังไม่ได้รันกับ Core Hub จริงที่รองรับ 1.1 (เข้า repo นั้นไม่ได้แล้ว) — ตรวจกับตัวจำลองที่ปรับตามสัญญาแทน
 
 ---
 
@@ -25,27 +28,51 @@ Core Hub จำลอง (`csmju2030/csmju-core-hub-sim`) ยังใช้ก�
 | 3 ฐานข้อมูล | `equipment_db` | `code_tower_db` |
 | 6.1–6.2 สร้าง repo · วางโค้ดจาก demo | ต้องทำ | **ข้าม** — repo มีโค้ดครบแล้ว (ชั้น auth ยังเป็นฉบับเขียนตามสัญญา รอแทนด้วยของ demo) |
 | 6.2 `allowBuilds` | คัดลอกจาก demo | มีแล้วใน `pnpm-workspace.yaml` (prisma · @prisma/engines · esbuild) |
-| 6.3 `.env` | `SUBSYSTEM_ID=csmju-equipment` | `SUBSYSTEM_ID=csmju-gamification-knowledge` · `SSO_SUCCESS_REDIRECT=http://localhost:3003/` |
-| 6.3 frontend | — | `cp frontend/.env.example frontend/.env.local` — ค่าในนั้นตรงกับ Core Hub จริงแล้ว (ข้อ 3) |
-| 6.4 ลงทะเบียน | mapping ไม่มี alumni | `node csmju2030/register-code-tower.cjs` หรือ payload ใน `docs/handoff-git.md` ข้อ 3 — **มี alumni** (ข้อเสนอ D3) |
+| 6.3 `.env` | `SUBSYSTEM_ID=csmju-equipment` | `SUBSYSTEM_ID=csmju-gamification-knowledge` · **`CORE_HUB_WEB_URL=http://localhost:3100`** (สัญญา 1.1) |
+| 6.3 frontend | — | `cp frontend/.env.example frontend/.env.local` — Next ส่งต่อ `/api/*` และ `/auth/*` ไป backend |
+| 6.4 ลงทะเบียน | `callbackUrl` `:3002/auth/callback` · mapping ไม่มี alumni | `node csmju2030/register-code-tower.cjs` หรือ payload ใน `docs/handoff-git.md` ข้อ 3 — **`callbackUrl` `http://localhost:3003/auth/callback`** (origin ของหน้าเว็บ) · **มี alumni** (D3) |
 | 6.5 รัน | `pnpm --filter backend start:dev` | เหมือนกัน + `pnpm --filter frontend build && pnpm --filter frontend start` (:3003) |
 | T3 | `"subsystemRole":"STUDENT"` | `"subsystemRole":"PLAYER"` |
 | T8 | alumni → 403 | alumni → **302** เพราะระบบนี้อนุญาต alumni · กรณีปฏิเสธทดสอบด้วยการถอด alumni ออกชั่วคราว |
 | ทดสอบหน้าเว็บ | alumni เห็น 1 ระบบ | alumni เห็น **2 ระบบ** |
 
-## 3. เข้าและออกผ่าน Core Hub (ค่าใน `frontend/.env.example`)
+## 3. เข้าและออกผ่าน Core Hub (สัญญา auth 1.1 · standards 1.5.0)
 
-| ใช้ทำอะไร | URL | ทำไม |
+origin ของระบบคือ **หน้าเว็บ `http://localhost:3003`** — Next ส่งต่อ `/api/*` และ `/auth/login` `/auth/callback` `/auth/logout` ไป backend :3002
+เบราว์เซอร์จึงคุยกับ origin เดียว: คุกกี้ state และ session ตั้งที่นี่ · `next` เป็น path ของหน้าเว็บ ·
+`base_url` ใน `subsystem.yaml` และ `callback_url` ในทะเบียนจึงเป็น :3003
+
+| ใช้ทำอะไร | ทาง | ข้อกำหนด |
 |---|---|---|
-| 401 → เข้าสู่ระบบ | `http://localhost:3100/api/sso/{subsystem}` | route ของหน้าเว็บ Core Hub ที่ขอ handoff แล้วส่งไป callback ของเรา · ยังไม่ login จะผ่าน `/login?next=…` แล้วกลับมาเอง · หน้า `/login` ไม่อ่าน `?subsystem=` |
-| ปุ่มออกจากระบบ | ไป `http://localhost:3100/` อย่างเดียว | ไม่เรียก API ใด ๆ — ระบบย่อยห้ามมี logout ของตัวเอง (auth-contract ข้อ 9) · ออกจาก Core Hub ด้วยปุ่มของ Core Hub · คุกกี้ของเกมยังใช้ได้จนหมดอายุ ≤ 15 นาที (สัญญา 1.0 ไม่มี SSO logout) |
-| กลับหน้าหลัก | `http://localhost:3100/` | |
+| เข้าสู่ระบบ / 401 | `GET /auth/login?next=<หน้าปัจจุบัน>` → 302 `http://localhost:3100/sso/authorize?subsystem=…&state=…` | state สุ่ม 32 ไบต์ · คุกกี้ `csmju_gamification_knowledge_sso_state` (Path=/auth/callback · 600 วินาที) · ไม่ส่ง `callback_url` |
+| กลับมาจาก Core Hub | `GET /auth/callback?access_token…&state=…` | ตรวจ state กับคุกกี้แบบ constant-time → ตรวจ token 8 ขั้น → คุกกี้ `csmju_gamification_knowledge_access_token` → 302 ไปหน้า `next` · ไม่มี state → ทิ้ง token แล้ว 302 `/auth/login` · state ไม่ตรง → 401 |
+| ปุ่มออกจากระบบ | ฟอร์ม `POST /auth/logout` → 303 `http://localhost:3100/logout` | ลบคุกกี้ของเราทั้งสอง แล้วให้ Core Hub ถามยืนยันและออกทั้งระบบ |
+| กลับหน้าหลัก | `http://localhost:3100/` | `NEXT_PUBLIC_CORE_DASHBOARD_URL` |
 
-ใช้ `localhost` ไม่ใช่ `127.0.0.1`: `/api/sso` ของ Core Hub ส่งไปหน้า login ที่ `localhost:3100` เสมอ ไม่ว่าเบราว์เซอร์เปิดด้วย host ไหน
-และคุกกี้ของสอง host แยกกัน — ถ้าตั้งเป็น `127.0.0.1` คนที่ login ค้างไว้จะถูกพาไปหน้าแรกของ Core Hub แทนที่จะกลับมาที่นี่
-(คู่มือให้เปิด `http://127.0.0.1:3100` — ใช้ได้ แต่ถ้า Code Tower พาไป `localhost:3100` จะต้อง login อีกครั้งหนึ่ง)
+silent re-SSO: API ตอบ 401 → หน้าเว็บพาทั้งหน้าไป `/auth/login?next=` · ถ้าเพิ่งเริ่มไม่ถึง 30 วินาทีแล้วยัง 401 → แสดงปุ่ม "เข้าสู่ระบบอีกครั้ง" แทน ·
+หน้าที่มีงานยังไม่บันทึก (โปรแกรม BloxCode · ฟอร์มโจทย์ · ตั้งชื่อตัวละคร) ไม่พาออกจากหน้าเอง · เปลี่ยนหน้าตอนเหลือไม่ถึง 2 นาทีต่ออายุก่อนเลย
 
-## 4. ผลรันกับ Core Hub จริง (26 ก.ย. 2569 · develop `6674ef6` · ไม่ได้แก้โค้ดของ Core Hub)
+ใช้ `localhost` ไม่ใช่ `127.0.0.1` — คุกกี้ของสอง host แยกกัน
+
+### 3.1 ผลกับตัวจำลอง Core Hub ที่ปรับเป็นสัญญา 1.1 (29 ก.ย. 2569)
+
+ตัวจำลอง `csmju2030/csmju-core-hub-sim`: เว็บมี `/sso/authorize` (ส่ง state ต่อตรงตัว) · `/sso/error` · `/logout` (GET ถาม · POST ออก) ·
+เมนูระบบย่อยชี้ `/sso/authorize?subsystem=` · API `sso/authorize` และ `sso/handoff` ส่ง state กลับ
+
+| ขั้น | ทำอะไร | ผล |
+|---|---|---|
+| conformance | `node standards/conformance/run.js` (base_url :3003) | ✅ **69 passed · 0 failed · 0 skipped · 0 warnings** · L3 ของสัญญา 1.1 |
+| W1–W2 | เปิด :3100 → login admin → เมนูระบบย่อย | ✅ เห็น CSMJU Student Service และ Gamification Knowledge — Code Tower |
+| W3 | กดจากเมนู (ไม่มี state) | ✅ `:3100/sso/authorize` → `:3003/auth/callback` (ทิ้ง token) → `:3003/auth/login` → `:3100/sso/authorize` → `:3003/auth/callback` → `:3003/` · `/me` 200 `ADMIN` ไม่เห็นหน้าอะไรคั่น |
+| W4 | ปุ่มออกจากระบบใน Code Tower | ✅ → `:3100/logout` (หน้าถาม) · คุกกี้ของเกมถูกลบ · `/me` 401 |
+| W4b–d | ยืนยันที่ Core Hub → เปิดเกมทันที → login เป็น staff | ✅ `/login` ของ Core Hub · ไม่เข้าเป็นคนเดิมแล้ว (ปัญหาเครื่องใช้ร่วมกันของ 1.0 หาย) · กลับมาที่เกม `/me` 200 `INSTRUCTOR` |
+| W5 | alumni | ✅ เห็น 2 ระบบ |
+| W6–W7 | เปิด `:3003/items?q=ดาบ` โดยไม่มี session → login student | ✅ `/auth/login` → `/sso/authorize` → `/login` ของ Core Hub → กลับมาที่ `/items?q=ดาบ` `/me` 200 `PLAYER` |
+| W8 | 401 ซ้ำภายใน 30 วินาทีหลัง re-SSO | ✅ ไม่พาไปซ้ำ · แถบ "เข้าสู่ระบบไม่สำเร็จ" + ปุ่ม `/auth/login?next=%2Fbattles` |
+| W8b | พ้น 30 วินาที · token ของเกมหาย · Core Hub ยัง login | ✅ silent re-SSO `/battles` → `/auth/login` → `/sso/authorize` → `/auth/callback` → `/battles` ไม่ต้องกรอกอะไร |
+| W9 | โปรแกรม BloxCode ยังไม่บันทึก แล้ว session หมด | ✅ อยู่หน้าเดิม · แถบ "เซสชันหมดอายุ — งานที่ยังไม่บันทึกยังอยู่ในหน้านี้" + ปุ่ม `/auth/login?next=%2Fprogram` |
+
+## 4. ผลเดิมกับ Core Hub จริง ตามสัญญา 1.0 (26 ก.ย. 2569 · develop `6674ef6` · ไม่ได้แก้โค้ดของ Core Hub)
 
 | # | ทดสอบ | ผล |
 |---|---|---|
@@ -71,8 +98,8 @@ Core Hub จำลอง (`csmju2030/csmju-core-hub-sim`) ยังใช้ก�
 | conformance | `node standards/conformance/run.js` | ✅ 62 passed · 0 failed · 0 skipped · L3 |
 | run-all-checks | branch นี้เทียบ `main` | 16/18 — ARC-02 (รอ D2) · UI-01 เฉพาะเวทีเกม (รอ D1) |
 
-W1–W8 คือ `csmju2030/web-test.mjs` (Playwright · เบราว์เซอร์จริง · ไม่ใส่คุกกี้เอง) — สคริปต์เดียวกันรันกับตัวจำลองได้ผลเหมือนกันทุกข้อ
-† ปุ่มออกจากระบบแบบปัจจุบัน (แค่ไปหน้าแรกของ Core Hub) ตรวจกับตัวจำลองซึ่งใช้ URL เดียวกับของจริง (28 ก.ย. 2569) — ยังไม่ได้รันซ้ำกับ Core Hub จริง
+W1–W8 คือ `csmju2030/web-test.mjs` รุ่นสัญญา 1.0 (Playwright · เบราว์เซอร์จริง · ไม่ใส่คุกกี้เอง) — ตอนนี้สคริปต์เป็นรุ่น 1.1 (ข้อ 3.1)
+† ปุ่มออกจากระบบแบบสัญญา 1.0 (แค่ไปหน้าแรกของ Core Hub · 28 ก.ย. 2569) ตรวจกับตัวจำลอง — แทนด้วย `POST /auth/logout` ของสัญญา 1.1 แล้ว
 
 **ก่อนแก้** (ค่าเดิมที่ทำไว้ตามตัวจำลอง) กับ Core Hub จริง:
 `/login?subsystem=` → login แล้วค้างที่หน้าแรกของ Core Hub · `/logout?subsystem=` → 404 และ session ของเรายังอยู่ ·
@@ -104,4 +131,4 @@ node csmju2030/register-code-tower.cjs     # ลงทะเบียน + appro
 
 ตัวจำลอง (ทางลัดสำหรับลองเล่น): `node csmju2030/run-web/start.cjs` — ขั้นตอนบน Windows อยู่ใน `csmju2030/README.md`
 
-- คู่มือบอกว่า pnpm ต้องเป็น 12.x แต่ `new-subsystem.sh` ตั้ง `packageManager` เป็น `pnpm@9.15.9` · repo นี้ใช้ `pnpm@10.28.0` (lockfile v9) — แจ้ง PL ให้ยืนยันเวอร์ชันเดียว
+- pnpm: standards 1.4.0 กำหนดเลขเดียวทั้งโครงการ `12.3.4` — repo นี้ตั้ง `packageManager: pnpm@12.3.4` แล้ว (pnpm 10 ในเครื่องจะสลับเป็น 12.3.4 ให้เอง)

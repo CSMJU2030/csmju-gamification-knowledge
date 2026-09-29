@@ -104,6 +104,7 @@ export function testEnv(hub: FakeCoreHub, databaseUrl = 'postgresql://127.0.0.1:
     DATABASE_URL: databaseUrl,
     SUBSYSTEM_ID: 'csmju-gamification-knowledge',
     CORE_HUB_URL: hub.url,
+    CORE_HUB_WEB_URL: 'http://localhost:3100',
     CORE_HUB_JWKS_URL: hub.jwksUrl,
     CORE_HUB_ISSUER: 'core-hub',
     CORE_HUB_AUDIENCE: 'csmju2030',

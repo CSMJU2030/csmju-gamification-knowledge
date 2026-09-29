@@ -3,7 +3,7 @@
  */
 import { plainToInstance } from 'class-transformer';
 import {
-  IsIn, IsInt, IsNotEmpty, IsOptional, IsString, Max, Min, validateSync,
+  IsIn, IsInt, IsNotEmpty, IsOptional, IsString, IsUrl, Max, Min, validateSync,
 } from 'class-validator';
 
 /** ชื่อระบบย่อยนี้ในทะเบียน Core Hub — ต้องตรงกับ subsystem.yaml และ data.service ของ /api/health */
@@ -24,6 +24,10 @@ class EnvironmentVariables {
 
   @IsString() @IsNotEmpty()
   CORE_HUB_URL!: string;
+
+  /** เว็บของ Core Hub (หน้า login · /sso/authorize · /logout) — แยกจาก CORE_HUB_URL ที่เป็น API */
+  @IsUrl({ require_tld: false, protocols: ['http', 'https'], require_protocol: true })
+  CORE_HUB_WEB_URL!: string;
 
   @IsString() @IsNotEmpty()
   CORE_HUB_JWKS_URL!: string;
@@ -49,8 +53,6 @@ class EnvironmentVariables {
   @IsOptional() @IsInt() @Min(0) @Max(60)
   JWT_CLOCK_TOLERANCE_SEC?: number;
 
-  @IsOptional() @IsString()
-  SSO_SUCCESS_REDIRECT?: string;
 }
 
 export function validateEnv(config: Record<string, unknown>): Record<string, unknown> {

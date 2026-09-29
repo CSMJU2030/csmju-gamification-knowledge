@@ -22,6 +22,8 @@ const CODE_BY_STATUS: Record<number, ErrorCode> = {
   403: 'FORBIDDEN',
   404: 'NOT_FOUND',
   409: 'CONFLICT',
+  429: 'TOO_MANY_REQUESTS',
+  503: 'SERVICE_UNAVAILABLE',
 };
 
 const MESSAGE_BY_CODE: Record<ErrorCode, string> = {
@@ -31,7 +33,9 @@ const MESSAGE_BY_CODE: Record<ErrorCode, string> = {
   FORBIDDEN: 'สิทธิ์ไม่พอสำหรับการกระทำนี้',
   NOT_FOUND: 'ไม่พบสิ่งที่ร้องขอ',
   CONFLICT: 'สถานะปัจจุบันไม่อนุญาตให้ทำสิ่งนี้',
+  TOO_MANY_REQUESTS: 'มีคำขอมากเกินไป — รอสักครู่แล้วลองใหม่',
   INTERNAL_ERROR: 'เกิดข้อผิดพลาดภายในเซิร์ฟเวอร์',
+  SERVICE_UNAVAILABLE: 'ระบบยังไม่พร้อมชั่วคราว — รอสักครู่แล้วลองใหม่',
 };
 
 /**

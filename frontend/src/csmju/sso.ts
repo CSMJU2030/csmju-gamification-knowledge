@@ -1,70 +1,110 @@
 /**
- * ทางเข้า/ออกผ่าน Core Hub (auth-contract ข้อ 5 · 7) — ระบบย่อยไม่มีหน้า login ของตัวเอง
- * ค่ามาจาก NEXT_PUBLIC_* (ฝังตอน build) ดู frontend/.env.example
+ * ทางเข้า/ออกตามสัญญา auth 1.1 (auth-contract ข้อ 5 · 7) — ระบบย่อยไม่มีหน้าฟอร์ม login ของตัวเอง
+ *
+ * - เข้า: ทุกการเข้าสู่ระบบเริ่มที่ `/auth/login?next=` ของเราเอง (Next ส่งต่อไป backend) ซึ่งสร้าง state
+ *   แล้วพาเบราว์เซอร์ไปเว็บ Core Hub · กลับมาที่หน้า `next` เอง — ไม่ต้องจำหน้าไว้ฝั่งเบราว์เซอร์อีก
+ * - 401 (token หมดอายุ) → silent re-SSO: พาทั้งหน้าไป `/auth/login?next=<หน้าปัจจุบัน>` (ห้ามใช้ fetch)
+ *   · กันวน: ถ้าเพิ่งเริ่ม re-SSO ไม่ถึง 30 วินาทีแล้วยัง 401 → แสดงปุ่ม "เข้าสู่ระบบอีกครั้ง" แทน
+ *   · หน้าที่มีงานค้าง (useUnsavedWork · holdUnsavedWork) ห้าม redirect ทับ → แสดงปุ่มให้ผู้ใช้เลือกเอง
+ *   · ต่ออายุล่วงหน้าตอนเปลี่ยนหน้า เมื่อ session.expiresAt จาก /api/v1/me ใกล้หมด (renewIfExpiring)
+ * - ออก: `POST /auth/logout` (ฟอร์มจริง) — backend ลบคุกกี้ของเราแล้วพาไปหน้า /logout ของ Core Hub = ออกทั้งระบบ
  */
-const SUBSYSTEM = 'csmju-gamification-knowledge';
-const RETURN_KEY = 'csmju:return-to';
+export const LOGIN_PATH = '/auth/login';
+export const LOGOUT_PATH = '/auth/logout';
+/** สัญญาข้อ 7: กลับจาก re-SSO ไม่ถึง 30 วินาทีแล้วยัง 401 = วน */
+export const LOOP_GUARD_MS = 30_000;
+/** ต่ออายุล่วงหน้าเมื่อเหลือไม่ถึงเท่านี้ ตอนเปลี่ยนหน้า (ยังไม่มีงานค้างให้เสีย) */
+export const RENEW_BEFORE_MS = 120_000;
+const STARTED_KEY = 'csmju:sso-started-at';
 
-function fill(template: string | undefined, fallback: string): string {
-  return (template ?? fallback).replace('{subsystem}', encodeURIComponent(SUBSYSTEM));
+/** หน้าแรกของ Core Hub (ปุ่ม "กลับหน้าหลัก CSMJU") — ค่ามาจาก NEXT_PUBLIC_* ตอน build */
+export const coreDashboardUrl = () => process.env.NEXT_PUBLIC_CORE_DASHBOARD_URL ?? 'http://localhost:3100/';
+
+export const loginUrl = (next?: string) => (next ? `${LOGIN_PATH}?next=${encodeURIComponent(next)}` : LOGIN_PATH);
+
+const currentPath = () => window.location.pathname + window.location.search;
+
+export type SessionNotice = null | { kind: 'loop' | 'unsaved'; loginHref: string };
+
+let leaving = false;
+let unsavedCount = 0;
+let notice: SessionNotice = null;
+const listeners = new Set<(n: SessionNotice) => void>();
+
+function publish(next: SessionNotice): void {
+  notice = next;
+  for (const listener of listeners) listener(notice);
 }
 
-/*
- * ค่าเริ่มต้นตรงกับหน้าเว็บ Core Hub ตัวจริง (csmju-core-hub/frontend :3100 · ตรวจกับ develop 6674ef6)
- * - เข้า: /api/sso/<subsystem> ขอ handoff แล้วส่งไป callback ของเรา · ยังไม่ login จะผ่าน /login?next=… ก่อนแล้วกลับมาเอง
- *   (หน้า /login ของ Core Hub ไม่อ่าน ?subsystem= — login แล้วจะค้างที่หน้าแรกของ Core Hub)
- * - ออก: ดู signOut() ข้างล่าง — แค่พาไปหน้าแรกของ Core Hub (ออกจากระบบจริงทำที่นั่น)
- * - ใช้ localhost ไม่ใช่ 127.0.0.1: /api/sso ของ Core Hub พาไปหน้า login ที่ localhost:3100 เสมอ
- *   และคุกกี้ของสอง host แยกกัน — host อื่นทำให้ login แล้วไม่กลับมา
- */
-const CORE_HUB_WEB = 'http://localhost:3100';
-
-export const ssoLoginUrl = () =>
-  fill(process.env.NEXT_PUBLIC_SSO_LOGIN_URL, `${CORE_HUB_WEB}/api/sso/{subsystem}`);
-/** หน้าที่พาไปหลังออกจากระบบ — หน้าแรกของ Core Hub */
-export const ssoLogoutUrl = () => fill(process.env.NEXT_PUBLIC_SSO_LOGOUT_URL, `${CORE_HUB_WEB}/`);
-export const coreDashboardUrl = () => fill(process.env.NEXT_PUBLIC_CORE_DASHBOARD_URL, `${CORE_HUB_WEB}/`);
-
-let redirecting = false;
-
-/** 401 → จำหน้าที่อยู่ (ไม่ใช่ token) แล้วพาไป SSO — เรียกซ้ำได้ ไปครั้งเดียว */
-export function redirectToSsoLogin(): void {
-  if (typeof window === 'undefined' || redirecting) return;
-  redirecting = true;
-  try {
-    window.sessionStorage.setItem(RETURN_KEY, window.location.pathname + window.location.search);
-  } catch {
-    // sessionStorage ใช้ไม่ได้ — กลับมาที่หน้าแรกแทน
-  }
-  window.location.assign(ssoLoginUrl());
+/** shell ฟังเพื่อแสดงแถบ "เซสชันหมดอายุ" พร้อมปุ่มเข้าสู่ระบบอีกครั้ง */
+export function subscribeSessionNotice(listener: (n: SessionNotice) => void): () => void {
+  listeners.add(listener);
+  listener(notice);
+  return () => {
+    listeners.delete(listener);
+  };
 }
 
-/** หลัง SSO กลับมาที่ `/` — ถ้าเคยจำหน้าไว้ คืน path นั้นครั้งเดียว */
-export function takeReturnPath(): string | null {
+function readStartedAt(): number {
   try {
-    const path = window.sessionStorage.getItem(RETURN_KEY);
-    window.sessionStorage.removeItem(RETURN_KEY);
-    return path && path.startsWith('/') && !path.startsWith('//') ? path : null;
+    return Number(window.sessionStorage.getItem(STARTED_KEY)) || 0;
   } catch {
-    return null;
+    return 0;
   }
+}
+
+/** เริ่ม sign-in ใหม่แบบ top-level navigation — เรียกซ้ำได้ ไปครั้งเดียว */
+export function startLogin(next: string = currentPath()): void {
+  if (typeof window === 'undefined' || leaving) return;
+  leaving = true;
+  try {
+    window.sessionStorage.setItem(STARTED_KEY, String(Date.now()));
+  } catch {
+    // sessionStorage ใช้ไม่ได้ — กันวนไม่ได้แต่ยังเข้าได้
+  }
+  window.location.assign(loginUrl(next));
+}
+
+/** API ตอบ 401 — ตัดสินว่าจะพาไป re-SSO เลย หรือถามผู้ใช้ก่อน */
+export function handleUnauthorized(): void {
+  if (typeof window === 'undefined' || leaving) return;
+  const loginHref = loginUrl(currentPath());
+  if (Date.now() - readStartedAt() < LOOP_GUARD_MS) {
+    publish({ kind: 'loop', loginHref });
+    return;
+  }
+  if (unsavedCount > 0) {
+    publish({ kind: 'unsaved', loginHref });
+    return;
+  }
+  startLogin();
 }
 
 /**
- * ปุ่ม "ออกจากระบบ" — พากลับหน้าแรกของ Core Hub อย่างเดียว ไม่เรียก API ใด ๆ
- *
- * ระบบย่อยห้ามมี logout ของตัวเอง (auth-contract ข้อ 9) — ออกจากระบบจริงทำที่ Core Hub ด้วยปุ่มของ Core Hub
- * ผลที่รู้อยู่แล้วของสัญญา 1.0 (ยังไม่มี SSO logout ข้อ 11): คุกกี้ของเรายังใช้ได้จนหมดอายุ (≤ 15 นาที)
- * และถ้ายัง login ที่ Core Hub อยู่ เปิดเกมอีกครั้งจะเข้าได้ทันทีผ่าน SSO
- * เรียกซ้ำได้ ไปครั้งเดียว · กันไม่ให้ 401 ที่ค้างอยู่พาไป SSO แทน
+ * หน้าที่มีงานยังไม่บันทึกประกาศไว้ (ผ่าน hook useUnsavedWork) — ระหว่างนี้ 401 จะไม่พาออกจากหน้าเอง
+ * คืนฟังก์ชันปลดการประกาศ
  */
-export function signOut(): void {
-  if (typeof window === 'undefined' || redirecting) return;
-  redirecting = true;
-  try {
-    window.sessionStorage.removeItem(RETURN_KEY);
-  } catch {
-    // ไม่เป็นไร
-  }
-  window.location.assign(ssoLogoutUrl());
+export function holdUnsavedWork(): () => void {
+  unsavedCount += 1;
+  let released = false;
+  return () => {
+    if (released) return;
+    released = true;
+    unsavedCount -= 1;
+  };
+}
+
+/** ตอนเปลี่ยนหน้า: session ใกล้หมด (ดูจาก /api/v1/me) → ต่ออายุเลยก่อนหน้าใหม่จะมีงานค้าง */
+export function renewIfExpiring(expiresAt: string | undefined, next: string, now: number = Date.now()): boolean {
+  if (!expiresAt || unsavedCount > 0) return false;
+  const at = Date.parse(expiresAt);
+  if (!Number.isFinite(at) || at - now > RENEW_BEFORE_MS) return false;
+  if (now - readStartedAt() < LOOP_GUARD_MS) return false;
+  startLogin(next);
+  return true;
+}
+
+/** ฟอร์ม POST /auth/logout กำลังส่ง — 401 ที่ค้างอยู่ห้ามพาไป login ทับ */
+export function markSigningOut(): void {
+  leaving = true;
 }

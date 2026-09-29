@@ -11,6 +11,8 @@ export interface AppConfig {
   subsystemId: string;
   coreHub: {
     url: string;
+    /** เว็บของ Core Hub ที่ /auth/login ส่งเบราว์เซอร์ไป และที่ /auth/logout พาไปหน้า /logout (สัญญา 1.1) */
+    webUrl: string;
     jwksUrl: string;
     issuer: string;
     audience: string;
@@ -21,8 +23,6 @@ export interface AppConfig {
     requestTimeoutMs: number;
   };
   jwtClockToleranceSec: number;
-  /** ถ้าตั้งไว้ `GET /auth/callback` จะพาไปหน้านี้ (302) หลังตั้ง session แล้ว — ว่าง = ตอบ JSON */
-  ssoSuccessRedirect: string | null;
 }
 
 const num = (value: string | undefined, fallback: number): number =>
@@ -37,6 +37,7 @@ export function configuration(): AppConfig {
     subsystemId: env.SUBSYSTEM_ID ?? '',
     coreHub: {
       url: env.CORE_HUB_URL ?? '',
+      webUrl: (env.CORE_HUB_WEB_URL ?? '').replace(/\/+$/, ''),
       jwksUrl: env.CORE_HUB_JWKS_URL ?? '',
       issuer: env.CORE_HUB_ISSUER ?? '',
       audience: env.CORE_HUB_AUDIENCE ?? '',
@@ -47,6 +48,5 @@ export function configuration(): AppConfig {
       requestTimeoutMs: num(env.JWKS_REQUEST_TIMEOUT_MS, 5_000),
     },
     jwtClockToleranceSec: num(env.JWT_CLOCK_TOLERANCE_SEC, 5),
-    ssoSuccessRedirect: env.SSO_SUCCESS_REDIRECT?.trim() ? env.SSO_SUCCESS_REDIRECT.trim() : null,
   };
 }

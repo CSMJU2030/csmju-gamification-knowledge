@@ -2,11 +2,11 @@
  * ตัวเรียก API ของ Code Tower — ห่อ envelope `{ success, data/error, meta }` ตาม api-conventions ข้อ 3–4
  *
  * - เรียกผ่าน origin เดียวกับหน้าเว็บ (`/api/v1/...`) — Next ส่งต่อไป backend (next.config.ts)
- *   คุกกี้ HttpOnly `core_hub_access_token` จึงไปกับคำขอเอง ไม่มี token ในโค้ดฝั่งเบราว์เซอร์เลย (SEC-03)
- * - 401 → พากลับ SSO ของ Core Hub ทันที (ui-design-system ข้อ 9.3) แล้วโยน ApiError ให้หน้าหยุดทำงาน
- * - error อื่นโยน ApiError ที่มี `code` มาตรฐาน 7 ค่า + `details` ให้หน้าตัดสินใจแสดงผลตามตาราง G0 ข้อ 6
+ *   คุกกี้ HttpOnly `csmju_gamification_knowledge_access_token` จึงไปกับคำขอเอง ไม่มี token ในโค้ดฝั่งเบราว์เซอร์เลย (SEC-03)
+ * - 401 → silent re-SSO ผ่าน /auth/login (auth-contract ข้อ 7 · csmju/sso.ts) แล้วโยน ApiError ให้หน้าหยุดทำงาน
+ * - error อื่นโยน ApiError ที่มี `code` มาตรฐาน 9 ค่า + `details` ให้หน้าตัดสินใจแสดงผลตามตาราง G0 ข้อ 6
  */
-import { redirectToSsoLogin } from '@/csmju';
+import { handleUnauthorized } from '@/csmju';
 import type { ErrorCode, PageMeta } from './types';
 
 export class ApiError extends Error {
@@ -46,14 +46,18 @@ const KNOWN_CODES: readonly string[] = [
   'FORBIDDEN',
   'NOT_FOUND',
   'CONFLICT',
+  'TOO_MANY_REQUESTS',
   'INTERNAL_ERROR',
+  'SERVICE_UNAVAILABLE',
 ];
 
 const FALLBACK_MESSAGE: Record<string, string> = {
   NETWORK_ERROR: 'เชื่อมต่อระบบไม่ได้ กรุณาตรวจสอบอินเทอร์เน็ตแล้วลองอีกครั้ง',
   FORBIDDEN: 'คุณไม่มีสิทธิ์ใช้งานส่วนนี้ หากคิดว่าเป็นความผิดพลาด กรุณาติดต่อผู้ดูแลระบบ',
   NOT_FOUND: 'ไม่พบข้อมูลที่คุณกำลังค้นหา อาจถูกลบไปแล้วหรือลิงก์ไม่ถูกต้อง',
+  TOO_MANY_REQUESTS: 'มีคำขอมากเกินไป กรุณารอสักครู่แล้วลองอีกครั้ง',
   INTERNAL_ERROR: 'ระบบขัดข้องชั่วคราว กรุณาลองอีกครั้ง',
+  SERVICE_UNAVAILABLE: 'ระบบยังไม่พร้อมชั่วคราว กรุณารอสักครู่แล้วลองอีกครั้ง',
 };
 
 export async function apiRequest<T>(path: string, options: RequestOptions = {}): Promise<ApiResult<T>> {
@@ -86,7 +90,7 @@ export async function apiRequest<T>(path: string, options: RequestOptions = {}):
     | null;
 
   if (res.status === 401) {
-    redirectToSsoLogin();
+    handleUnauthorized();
     throw new ApiError(401, 'UNAUTHORIZED', 'เซสชันหมดอายุ กำลังพาไปเข้าสู่ระบบใหม่');
   }
 

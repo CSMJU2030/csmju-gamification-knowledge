@@ -21,6 +21,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/auth/login": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** เริ่มทุกการเข้าสู่ระบบ — สร้าง state แล้วส่งไปเว็บ Core Hub /sso/authorize (ไม่มีหน้าฟอร์ม) */
+        get: operations["Sso_login"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/auth/callback": {
         parameters: {
             query?: never;
@@ -28,10 +45,27 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Central SSO callback — ตรวจ token แล้วตั้ง session cookie */
-        get: operations["SsoCallback_callback"];
+        /** Central SSO callback — ผลตามข้อ 5.1 ของสัญญา */
+        get: operations["Sso_callback"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/logout": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** ออกจากระบบทั้งระบบ — ลบคุกกี้ของระบบนี้ทั้งสอง แล้วไปหน้า /logout ของ Core Hub */
+        post: operations["Sso_logout"];
         delete?: never;
         options?: never;
         head?: never;
@@ -338,7 +372,7 @@ export interface components {
         };
         ErrorDetailDto: {
             /** @enum {string} */
-            code: "BAD_REQUEST" | "VALIDATION_ERROR" | "UNAUTHORIZED" | "FORBIDDEN" | "NOT_FOUND" | "CONFLICT" | "INTERNAL_ERROR";
+            code: "BAD_REQUEST" | "VALIDATION_ERROR" | "UNAUTHORIZED" | "FORBIDDEN" | "NOT_FOUND" | "CONFLICT" | "TOO_MANY_REQUESTS" | "INTERNAL_ERROR" | "SERVICE_UNAVAILABLE";
             message: string;
             /** @description ใช้กับ VALIDATION_ERROR */
             details?: string[];
@@ -347,6 +381,13 @@ export interface components {
             /** @enum {boolean} */
             success: false;
             error: components["schemas"]["ErrorDetailDto"];
+        };
+        SessionInfoDto: {
+            /**
+             * Format: date-time
+             * @description คำนวณจาก exp ของ token (ISO 8601)
+             */
+            expiresAt: string;
         };
         MeDto: {
             /** @description ค่า sub จาก Core Hub token (Global Identity) */
@@ -359,8 +400,7 @@ export interface components {
             subsystemRole: "PLAYER" | "INSTRUCTOR" | "ADMIN";
             /** @description permission ของ role นี้ในระบบ Code Tower */
             permissions: string[];
-            /** @description ค่า state ที่ส่งมากับ SSO callback (ส่งกลับให้ client ตรวจ) */
-            state?: string;
+            session: components["schemas"]["SessionInfoDto"];
         };
         ProficiencyTripleDto: {
             str: number;
@@ -848,7 +888,28 @@ export interface operations {
             };
         };
     };
-    SsoCallback_callback: {
+    Sso_login: {
+        parameters: {
+            query?: {
+                /** @description path ในระบบนี้ที่จะกลับไปหลัง login · ไม่ผ่านกฎใช้หน้าแรก */
+                next?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description ไป {CORE_HUB_WEB_URL}/sso/authorize?subsystem=…&state=… พร้อมคุกกี้ state */
+            302: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    Sso_callback: {
         parameters: {
             query: {
                 state?: string;
@@ -862,20 +923,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description ตรวจ token ผ่าน และตั้ง session cookie */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        /** @enum {boolean} */
-                        success: true;
-                        data: components["schemas"]["MeDto"];
-                    };
-                };
-            };
-            /** @description ตรวจ token ผ่าน และพาไปหน้า UI (เมื่อตั้ง SSO_SUCCESS_REDIRECT) */
+            /** @description สำเร็จ — ตั้งคุกกี้ session แล้วไปหน้า next · หรือไม่มี state (เริ่มจาก Core Hub) — ทิ้ง token แล้วไป /auth/login */
             302: {
                 headers: {
                     [name: string]: unknown;
@@ -908,6 +956,24 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["ErrorEnvelopeDto"];
                 };
+            };
+        };
+    };
+    Sso_logout: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description ไป {CORE_HUB_WEB_URL}/logout */
+            303: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };

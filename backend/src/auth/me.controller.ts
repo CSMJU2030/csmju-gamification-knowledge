@@ -13,6 +13,7 @@ export function toMe(user: AuthUser): MeDto {
     coreRole: user.coreRole,
     subsystemRole: user.subsystemRole,
     permissions: [...user.permissions].sort(),
+    session: { expiresAt: new Date(user.tokenExp * 1000).toISOString() },
   };
 }
 

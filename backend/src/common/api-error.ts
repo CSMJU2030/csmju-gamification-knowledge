@@ -1,5 +1,5 @@
 /**
- * ข้อผิดพลาดของ API — `error.code` มีได้เฉพาะ 7 ค่าในรายการปิดของมาตรฐาน
+ * ข้อผิดพลาดของ API — `error.code` มีได้เฉพาะ 9 ค่าในรายการปิดของมาตรฐาน
  * (standards/contracts/error-codes.json) ห้ามคิดค่าใหม่เอง
  */
 import { HttpException } from '@nestjs/common';
@@ -11,7 +11,9 @@ export const ERROR_HTTP_STATUS = {
   FORBIDDEN: 403,
   NOT_FOUND: 404,
   CONFLICT: 409,
+  TOO_MANY_REQUESTS: 429,
   INTERNAL_ERROR: 500,
+  SERVICE_UNAVAILABLE: 503,
 } as const;
 
 export type ErrorCode = keyof typeof ERROR_HTTP_STATUS;
