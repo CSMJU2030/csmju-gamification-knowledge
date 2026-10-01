@@ -94,7 +94,8 @@ export interface CsmjuNavItem {
 export interface CsmjuUser {
   id: string;
   email: string;
-  coreRole: 'student' | 'alumni' | 'staff' | 'admin';
+  /** core role 6 ค่า (standards 1.7.0) — guest ไม่มาถึงที่นี่เพราะระบบนี้ตอบ 403 */
+  coreRole: 'student' | 'alumni' | 'staff' | 'lecturer' | 'guest' | 'admin';
   subsystemRole: string;
   permissions: string[];
   /** เวลาหมดอายุของ session จาก exp ของ token (สัญญา 1.1) — ใช้ต่ออายุล่วงหน้าตอนเปลี่ยนหน้า */
@@ -117,7 +118,9 @@ export function useCsmjuUser(): UserState {
 const CORE_ROLE_TH: Record<CsmjuUser['coreRole'], string> = {
   student: 'นักศึกษา',
   alumni: 'ศิษย์เก่า',
-  staff: 'บุคลากร/อาจารย์',
+  staff: 'บุคลากร',
+  lecturer: 'อาจารย์',
+  guest: 'ผู้เยี่ยมชม',
   admin: 'ผู้ดูแลระบบ',
 };
 

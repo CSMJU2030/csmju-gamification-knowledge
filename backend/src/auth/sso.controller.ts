@@ -1,8 +1,9 @@
 /**
- * Central SSO ฝั่งระบบย่อย ตามสัญญา 1.1 (auth-contract.md ข้อ 5 · 5.1 · 5.2 · 7) · public · อยู่นอก prefix /api
+ * Central SSO ฝั่งระบบย่อย ตามสัญญา 1.2 (auth-contract.md ข้อ 5 · 5.1 · 5.2 · 7) · public · อยู่นอก prefix /api
  *
  *   GET  /auth/login?next=   สร้าง state → คุกกี้ state → 302 ไปเว็บ Core Hub /sso/authorize (ไม่ส่ง callback_url)
- *   GET  /auth/callback      ตรวจ state กับคุกกี้ → ตรวจ token ครบ 8 ขั้น → คุกกี้ session → 302 ไปหน้า next
+ *   GET  /auth/callback      ตรวจ state กับคุกกี้ → ตรวจ token ครบ 10 ขั้น → คุกกี้ session → 302 ไปหน้า next
+ *                            ไม่สำเร็จ: JSON envelope ตามปกติ · เบราว์เซอร์ที่ขอ text/html ได้หน้าพร้อมปุ่ม (status เดิม)
  *   POST /auth/logout        ลบคุกกี้ของตัวเองทั้งสอง → 303 ไปหน้า /logout ของ Core Hub (ออกทั้งระบบ)
  *
  * ไม่มีหน้าฟอร์ม ไม่ออก token หรือ session ของตัวเอง — session คือ Core Hub token ที่ verify แล้วเท่านั้น
@@ -15,12 +16,13 @@ import { Controller, Get, HttpCode, Logger, Post, Query, Req, Res } from '@nestj
 import { ConfigService } from '@nestjs/config';
 import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import type { Request, Response } from 'express';
-import { badRequest, unauthorized } from '../common/api-error';
+import { ApiError, badRequest, unauthorized } from '../common/api-error';
 import { ApiErrors } from '../common/swagger';
 import type { AppConfig } from '../config/configuration';
 import { CoreHubTokenVerifier } from './core-hub-token.verifier';
 import { Public } from './decorators/public.decorator';
 import { readCookie, toAuthUser } from './guards/core-hub-jwt.guard';
+import { ssoErrorPage, wantsHtml } from './sso-error-page';
 import {
   CALLBACK_PATH,
   CORE_HUB_AUTHORIZE_PATH,
@@ -100,7 +102,21 @@ export class SsoController {
   ): Promise<void> {
     res.setHeader('Cache-Control', 'no-store');
     res.setHeader('Referrer-Policy', 'no-referrer');
+    try {
+      await this.completeCallback(accessToken, state, req, res);
+    } catch (error) {
+      // เบราว์เซอร์: หน้าพร้อมปุ่ม "เข้าสู่ระบบอีกครั้ง" (ข้อ 5.1) แทน JSON ดิบ · คุกกี้ state ถูกเผาไปแล้วตามเดิม
+      if (!(error instanceof ApiError) || !wantsHtml(req)) throw error;
+      const status = error.getStatus();
+      res.setHeader(
+        'Content-Security-Policy',
+        "default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'",
+      );
+      res.status(status).type('html').send(ssoErrorPage(status, `${this.coreHubWeb}/`));
+    }
+  }
 
+  private async completeCallback(accessToken: unknown, state: unknown, req: Request, res: Response): Promise<void> {
     const hasState = typeof state === 'string' && state !== '';
     // เผาคุกกี้ state ก่อนตรวจอะไรทั้งนั้น — state ใช้ได้ครั้งเดียวไม่ว่าผลจะออกมาแบบไหน
     const stored = hasState ? parseStateCookie(readCookie(req.headers.cookie, STATE_COOKIE)) : null;
@@ -125,8 +141,8 @@ export class SsoController {
       throw unauthorized('state ไม่ตรงกับการเข้าสู่ระบบที่เริ่มไว้ — เริ่มใหม่ที่ /auth/login');
     }
 
-    // ตรวจครบ 8 ขั้น + แมป role ก่อนตั้งคุกกี้ session — พังตรงไหนก็ไม่มีคุกกี้ session ออกไป (401 / 403)
-    const user = toAuthUser(await this.verifier.verify(accessToken));
+    // ตรวจครบ 10 ขั้น + แมป role ก่อนตั้งคุกกี้ session — พังตรงไหนก็ไม่มีคุกกี้ session ออกไป (401 / 403)
+    const user = toAuthUser(await this.verifier.verify(accessToken, CALLBACK_PATH));
     const remainingMs = user.tokenExp * 1000 - Date.now();
     if (remainingMs <= 0) throw unauthorized('token หมดอายุแล้ว — เข้าสู่ระบบผ่าน Core Hub ใหม่');
 

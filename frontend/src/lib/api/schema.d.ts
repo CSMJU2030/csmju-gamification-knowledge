@@ -395,7 +395,7 @@ export interface components {
             /** Format: email */
             email: string;
             /** @enum {string} */
-            coreRole: "student" | "alumni" | "staff" | "admin";
+            coreRole: "student" | "alumni" | "staff" | "lecturer" | "guest" | "admin";
             /** @enum {string} */
             subsystemRole: "PLAYER" | "INSTRUCTOR" | "ADMIN";
             /** @description permission ของ role นี้ในระบบ Code Tower */

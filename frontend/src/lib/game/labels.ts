@@ -169,7 +169,9 @@ export const ROLE_BADGE: Record<string, string> = {
 export const ROLE_TH: Record<string, string> = {
   student: 'นักศึกษา',
   alumni: 'ศิษย์เก่า',
-  staff: 'บุคลากร/อาจารย์',
+  staff: 'บุคลากร',
+  lecturer: 'อาจารย์',
+  guest: 'ผู้เยี่ยมชม',
   admin: 'ผู้ดูแลระบบ',
 };
 

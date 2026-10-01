@@ -2351,6 +2351,8 @@
               "student",
               "alumni",
               "staff",
+              "lecturer",
+              "guest",
               "admin"
             ]
           },

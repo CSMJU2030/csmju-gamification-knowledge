@@ -1,6 +1,6 @@
 /**
- * CoreHubJwtGuard — ทุก route ที่ไม่ใช่ @Public ต้องมี token ที่ผ่านการตรวจครบ 8 ขั้น (→ 401)
- * แล้วแมป core role เป็น role ของระบบนี้ (role ที่ไม่มีในตาราง → 403)
+ * CoreHubJwtGuard — ทุก route ที่ไม่ใช่ @Public ต้องมี token ที่ผ่านการตรวจครบ 10 ขั้น (→ 401)
+ * แล้วแมป core role เป็น role ของระบบนี้ (role ที่ไม่มีในตาราง → 403 + log authorization.role_mapping_failed)
  *
  * รับ token ได้สองทางและตรวจเหมือนกัน (auth-contract.md ข้อ 6):
  *   Authorization: Bearer <token>              ← มาก่อนเสมอถ้ามี
@@ -8,7 +8,7 @@
  * คุกกี้อื่นของ localhost (เช่นของเว็บ Core Hub) ไม่อ่าน
  * ตัวตนไม่เคยมาจาก body / query / custom header
  */
-import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
+import { CanActivate, ExecutionContext, Injectable, Logger } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import type { Request } from 'express';
 import { forbidden, unauthorized } from '../../common/api-error';
@@ -48,11 +48,20 @@ export function extractToken(req: Request): string {
   throw unauthorized();
 }
 
+const authLogger = new Logger('Auth');
+
+/** role ที่แมปไม่ได้ — event ปิดของ contracts/log-events.json · ระบุผู้ใช้ด้วย sub อย่างเดียว */
+function roleMappingFailed(claims: VerifiedClaims) {
+  const coreRole = typeof claims.role === 'string' ? claims.role.slice(0, 32) : null;
+  authLogger.warn(JSON.stringify({ event: 'authorization.role_mapping_failed', sub: claims.sub, coreRole }));
+  return forbidden('core role นี้เข้าใช้ Code Tower ไม่ได้');
+}
+
 /** claim ที่ verify แล้ว → ผู้ใช้ของระบบนี้ · role ที่ระบบนี้ไม่รับ = รู้ตัวตนแล้วแต่ไม่มีสิทธิ์ → 403 */
 export function toAuthUser(claims: VerifiedClaims): AuthUser {
-  if (!isCoreRole(claims.role)) throw forbidden('core role นี้เข้าใช้ Code Tower ไม่ได้');
+  if (!isCoreRole(claims.role)) throw roleMappingFailed(claims);
   const subsystemRole = mapCoreRole(claims.role);
-  if (!subsystemRole) throw forbidden('core role นี้เข้าใช้ Code Tower ไม่ได้');
+  if (!subsystemRole) throw roleMappingFailed(claims);
   return {
     coreUserId: claims.sub,
     email: claims.email,
@@ -78,7 +87,8 @@ export class CoreHubJwtGuard implements CanActivate {
     if (isPublic) return true;
 
     const req = context.switchToHttp().getRequest<Request & { user?: AuthUser }>();
-    const claims = await this.verifier.verify(extractToken(req));
+    // log ได้แค่ path — req.path ไม่มี query (log-events.json 1.1: ห้าม log URL ที่มี query)
+    const claims = await this.verifier.verify(extractToken(req), req.path);
     req.user = toAuthUser(claims);
     return true;
   }

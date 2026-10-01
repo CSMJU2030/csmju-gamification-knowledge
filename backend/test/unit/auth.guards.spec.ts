@@ -1,10 +1,10 @@
 /**
  * guard ทั้งสองชั้น — 401 เมื่อไม่รู้ว่าเป็นใคร · 403 เมื่อรู้แล้วแต่สิทธิ์ไม่พอ (authorization.md ข้อ 6: ต้องมีเคส 403)
  */
-import type { ExecutionContext } from '@nestjs/common';
+import { type ExecutionContext, Logger } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import type { Request } from 'express';
-import type { AuthUser } from '../../src/auth/auth.types';
+import { type AuthUser, CORE_ROLES } from '../../src/auth/auth.types';
 import { PERMISSIONS_KEY } from '../../src/auth/decorators/require-permissions.decorator';
 import { extractToken, readCookie, toAuthUser } from '../../src/auth/guards/core-hub-jwt.guard';
 import { PermissionsGuard } from '../../src/auth/guards/permissions.guard';
@@ -38,15 +38,33 @@ describe('รับ token จาก header หรือคุกกี้', () =
   });
 });
 
-describe('role mapping', () => {
-  it('แมปครบ 4 core role ตามข้อเสนอ D3', () => {
-    expect(CORE_ROLE_TO_SUBSYSTEM_ROLE).toEqual({ student: 'PLAYER', alumni: 'PLAYER', staff: 'INSTRUCTOR', admin: 'ADMIN' });
-    expect(mapCoreRole('staff')).toBe('INSTRUCTOR');
+describe('role mapping (authorization.md 1.1 · core role 6 ค่า)', () => {
+  it('รับ 5 role: lecturer ใช้สิทธิ์ชุดเดียวกับ staff · guest ไม่อยู่ในตาราง', () => {
+    expect(CORE_ROLE_TO_SUBSYSTEM_ROLE).toEqual({
+      student: 'PLAYER', alumni: 'PLAYER', staff: 'INSTRUCTOR', lecturer: 'INSTRUCTOR', admin: 'ADMIN',
+    });
+    expect(CORE_ROLES).toEqual(['student', 'alumni', 'staff', 'lecturer', 'guest', 'admin']);
+    expect(mapCoreRole('lecturer')).toBe('INSTRUCTOR');
+    expect(mapCoreRole('guest')).toBeNull();
   });
-  it('core role นอกรายการปิด → 403 (รู้ตัวตนแล้ว ไม่ใช่ 401)', () => {
-    expect(() => toAuthUser({ sub: 'user-9', email: '', role: 'superuser', exp: 0 })).toThrow(
+  it('lecturer สร้างโจทย์ได้เหมือน staff', () => {
+    const lecturer = toAuthUser({ sub: 'user-lec', email: '', role: 'lecturer', exp: 0 });
+    expect(lecturer.subsystemRole).toBe('INSTRUCTOR');
+    expect(lecturer.permissions.has(Permission.CHALLENGE_CREATE)).toBe(true);
+  });
+  it.each(['guest', 'superuser', 42, undefined])('role %p ที่ระบบไม่รับ → 403 (รู้ตัวตนแล้ว ไม่ใช่ 401) + log role_mapping_failed ด้วย sub เท่านั้น', (role) => {
+    const warn = jest.spyOn(Logger.prototype, 'warn').mockImplementation(() => undefined);
+    expect(() => toAuthUser({ sub: 'user-9', email: 'guest@example.com', role, exp: 0 })).toThrow(
       expect.objectContaining({ errorCode: 'FORBIDDEN' }),
     );
+    const line = JSON.parse(String(warn.mock.calls[0][0]));
+    expect(line).toEqual({
+      event: 'authorization.role_mapping_failed',
+      sub: 'user-9',
+      coreRole: typeof role === 'string' ? role : null,
+    });
+    expect(String(warn.mock.calls[0][0])).not.toContain('guest@example.com');
+    warn.mockRestore();
   });
   it('ผู้เล่นมีแต่สิทธิ์ :own ของเกม — ไม่มีสิทธิ์สร้างโจทย์', () => {
     const player = ROLE_PERMISSIONS.PLAYER;

@@ -366,11 +366,67 @@ describe('SSO 1.1 — /auth/login · /auth/callback · /auth/logout (auth-contra
     expect(setsSession(bad)).toBe(false);
 
     const guest = await begin();
-    const denied = await callback({ access_token: token('user-003', 'guest' as CoreRoleClaim), state: guest.state }, guest.cookie).expect(403);
+    const denied = await callback({ access_token: token('user-003', 'guest'), state: guest.state }, guest.cookie).expect(403);
     expect(setsSession(denied)).toBe(false);
 
     const missing = await http.get('/auth/callback').expect(400);
     expect(setsSession(missing)).toBe(false);
+  });
+
+  it('สัญญา 1.2: token อายุยาวแบบ refresh token หรือ azp ของระบบอื่น (state ถูก) → 401 ไม่มีคุกกี้ session', async () => {
+    const t = Math.floor(Date.now() / 1000);
+    for (const payload of [{ iat: t, exp: t + 7 * 24 * 3600 }, { azp: 'csmju-equipment' }]) {
+      const login = await begin();
+      const res = await callback({ access_token: hub.sign('user-002', 'student', { payload }), state: login.state }, login.cookie).expect(401);
+      expect(setsSession(res)).toBe(false);
+    }
+    const own = await begin('/world');
+    await callback({ access_token: hub.sign('user-002', 'student', { payload: { azp: 'csmju-gamification-knowledge' } }), state: own.state }, own.cookie)
+      .expect(302)
+      .expect('Location', '/world');
+  });
+
+  it('เบราว์เซอร์ (Accept text/html): state ไม่ตรง/ไม่มีคุกกี้ → 401 หน้า HTML พร้อมปุ่ม "เข้าสู่ระบบอีกครั้ง" ไป /auth/login · ไม่สะท้อน query · ไม่มีคุกกี้ session', async () => {
+    const accept = 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8';
+    const orphan = await begin();
+    const page = await callback({ access_token: token('user-002'), state: orphan.state }).set('Accept', accept).expect(401);
+    expect(page.headers['content-type']).toMatch(/^text\/html; charset=utf-8/);
+    expect(page.headers['cache-control']).toBe('no-store');
+    expect(page.headers['referrer-policy']).toBe('no-referrer');
+    expect(page.headers['content-security-policy']).toContain("default-src 'none'");
+    expect(page.text).toContain('เข้าสู่ระบบอีกครั้ง');
+    expect(page.text).toContain('href="/auth/login"');
+    expect(page.text).not.toContain(orphan.state);
+    expect(page.text).not.toContain('eyJ');
+    expect(page.text).not.toMatch(/<script/i);
+    expect(setsSession(page)).toBe(false);
+
+    const first = await begin();
+    const second = await begin();
+    const crossed = await callback({ access_token: token('user-002'), state: first.state }, second.cookie).set('Accept', accept).expect(401);
+    expect(crossed.text).toContain('href="/auth/login"');
+    expect(cookieNamed(crossed, STATE)).toMatch(/Max-Age=0/);
+
+    // role ที่ระบบไม่รับ → 403 หน้าบอกว่าไม่มีสิทธิ์ พร้อมลิงก์กลับหน้าหลักของ Core Hub
+    const guest = await begin();
+    const denied = await callback({ access_token: token('user-003', 'guest'), state: guest.state }, guest.cookie).set('Accept', accept).expect(403);
+    expect(denied.text).toContain('บัญชีของคุณไม่มีสิทธิ์เข้าระบบนี้');
+    expect(denied.text).toContain('href="http://localhost:3100/"');
+    expect(setsSession(denied)).toBe(false);
+
+    // script และ conformance (Accept: application/json) ยังได้ JSON envelope เหมือนเดิม
+    const json = await callback({ access_token: token('user-002'), state: (await begin()).state }).set('Accept', 'application/json').expect(401);
+    expect(json.body).toMatchObject({ success: false, error: { code: 'UNAUTHORIZED' } });
+  });
+
+  it('core role ใหม่: lecturer → INSTRUCTOR สร้างโจทย์ได้ · guest → 403 FORBIDDEN (conformance L1-28/L1-29)', async () => {
+    const me = await http.get('/api/v1/me').set(as('user-lec', 'lecturer')).expect(200);
+    expect(me.body.data).toMatchObject({ id: 'user-lec', coreRole: 'lecturer', subsystemRole: 'INSTRUCTOR' });
+    const created = await http.post('/api/v1/challenges').set(as('user-lec', 'lecturer')).send({ title: 'โจทย์ของอาจารย์' }).expect(201);
+    await http.delete(`/api/v1/challenges/${created.body.data.id}`).set(as('user-lec', 'lecturer')).expect(200);
+
+    const guest = await http.get('/api/v1/me').set(as('user-guest', 'guest')).expect(403);
+    expect(guest.body).toMatchObject({ success: false, error: { code: 'FORBIDDEN' } });
   });
 
   it('next=//evil.example.com และ /auth/logout → ลงที่หน้าแรกของระบบเอง (กัน open redirect)', async () => {

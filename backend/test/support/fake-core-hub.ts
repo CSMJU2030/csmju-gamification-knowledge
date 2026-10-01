@@ -8,7 +8,7 @@ import { createServer, type Server } from 'node:http';
 import { generateKeyPairSync, createHmac, createSign, randomUUID, type KeyObject } from 'node:crypto';
 import type { AddressInfo } from 'node:net';
 
-export type CoreRoleClaim = 'student' | 'alumni' | 'staff' | 'admin';
+export type CoreRoleClaim = 'student' | 'alumni' | 'staff' | 'lecturer' | 'guest' | 'admin';
 
 const b64url = (v: unknown) => Buffer.from(typeof v === 'string' ? v : JSON.stringify(v)).toString('base64url');
 
