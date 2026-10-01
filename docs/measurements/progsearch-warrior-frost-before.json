@@ -1,0 +1,177 @@
+{
+  "class": "warrior",
+  "pass": 0.8,
+  "maxLevel": 40,
+  "seedsFull": 64,
+  "bestOverall": "def turn():\n    if me.mp_pct >= 50:\n        cast(\"power_strike\", deadliest(enemies))\n    else:\n        attack(deadliest(enemies))\n",
+  "bestOneLine": "def turn():\n    cast(\"power_strike\", weakest(enemies))\n",
+  "cells": [
+    {
+      "region": "frostland",
+      "depth": 1,
+      "floor": 5,
+      "bestOneLine": 1,
+      "bestOneLineSrc": "attack(weakest(enemies))",
+      "naive": 1,
+      "best": 1,
+      "bestSrc": "def turn():\n    if me.mp_pct >= 50:\n        cast(\"power_strike\", deadliest(enemies))\n    else:\n        attack(deadliest(enemies))\n",
+      "value": 0
+    },
+    {
+      "region": "frostland",
+      "depth": 2,
+      "floor": 6,
+      "bestOneLine": 1,
+      "bestOneLineSrc": "attack(weakest(enemies))",
+      "naive": 1,
+      "best": 1,
+      "bestSrc": "def turn():\n    if me.mp_pct >= 50:\n        cast(\"power_strike\", deadliest(enemies))\n    else:\n        attack(deadliest(enemies))\n",
+      "value": 0
+    },
+    {
+      "region": "frostland",
+      "depth": 3,
+      "floor": 7,
+      "bestOneLine": 1,
+      "bestOneLineSrc": "attack(deadliest(enemies))",
+      "naive": 2,
+      "best": 1,
+      "bestSrc": "def turn():\n    if me.mp_pct >= 50:\n        cast(\"power_strike\", deadliest(enemies))\n    else:\n        attack(deadliest(enemies))\n",
+      "value": 0
+    },
+    {
+      "region": "frostland",
+      "depth": 4,
+      "floor": 8,
+      "bestOneLine": 1,
+      "bestOneLineSrc": "cast(\"power_strike\", weakest(enemies))",
+      "naive": 2,
+      "best": 1,
+      "bestSrc": "def turn():\n    if me.mp_pct >= 50:\n        cast(\"power_strike\", deadliest(enemies))\n    else:\n        attack(deadliest(enemies))\n",
+      "value": 0
+    },
+    {
+      "region": "frostland",
+      "depth": 5,
+      "floor": 9,
+      "bestOneLine": 2,
+      "bestOneLineSrc": "cast(\"power_strike\", weakest(enemies))",
+      "naive": 3,
+      "best": 1,
+      "bestSrc": "def turn():\n    if me.mp_pct >= 50:\n        cast(\"power_strike\", deadliest(enemies))\n    else:\n        attack(deadliest(enemies))\n",
+      "value": 1
+    }
+  ],
+  "top": [
+    {
+      "src": "def turn():\n    if me.mp_pct >= 50:\n        cast(\"power_strike\", deadliest(enemies))\n    else:\n        attack(deadliest(enemies))\n",
+      "total": 5,
+      "profile": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "src": "def turn():\n    if me.mp_pct >= 50:\n        cast(\"power_strike\", deadliest(enemies))\n    elif count(enemies) >= 3:\n        attack(fastest(enemies))\n    else:\n        attack(deadliest(enemies))\n",
+      "total": 5,
+      "profile": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "src": "def turn():\n    if me.mp_pct >= 50:\n        cast(\"power_strike\", deadliest(enemies))\n    elif count(enemies) >= 3:\n        cast(\"power_strike\", weakest(enemies))\n    else:\n        attack(deadliest(enemies))\n",
+      "total": 5,
+      "profile": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "src": "def turn():\n    if me.mp_pct >= 50:\n        cast(\"power_strike\", deadliest(enemies))\n    elif count(enemies) >= 3:\n        cast(\"power_strike\", fastest(enemies))\n    else:\n        attack(deadliest(enemies))\n",
+      "total": 5,
+      "profile": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "src": "def turn():\n    if me.mp_pct >= 50:\n        cast(\"power_strike\", deadliest(enemies))\n    elif count(enemies) >= 4:\n        attack(weakest(enemies))\n    else:\n        attack(deadliest(enemies))\n",
+      "total": 5,
+      "profile": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "src": "def turn():\n    if me.mp_pct >= 50:\n        cast(\"power_strike\", deadliest(enemies))\n    elif count(enemies) >= 4:\n        attack(strongest(enemies))\n    else:\n        attack(deadliest(enemies))\n",
+      "total": 5,
+      "profile": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "src": "def turn():\n    if me.mp_pct >= 50:\n        cast(\"power_strike\", deadliest(enemies))\n    elif count(enemies) >= 4:\n        attack(fastest(enemies))\n    else:\n        attack(deadliest(enemies))\n",
+      "total": 5,
+      "profile": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "src": "def turn():\n    if me.mp_pct >= 50:\n        cast(\"power_strike\", deadliest(enemies))\n    elif count(enemies) >= 4:\n        cast(\"power_strike\", weakest(enemies))\n    else:\n        attack(deadliest(enemies))\n",
+      "total": 5,
+      "profile": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "src": "def turn():\n    if me.mp_pct >= 50:\n        cast(\"power_strike\", deadliest(enemies))\n    elif count(enemies) >= 4:\n        cast(\"power_strike\", fastest(enemies))\n    else:\n        attack(deadliest(enemies))\n",
+      "total": 5,
+      "profile": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "src": "def turn():\n    if me.mp_pct >= 50:\n        cast(\"power_strike\", deadliest(enemies))\n    elif count(enemies) == 1:\n        attack(weakest(enemies))\n    else:\n        attack(deadliest(enemies))\n",
+      "total": 5,
+      "profile": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    }
+  ]
+}

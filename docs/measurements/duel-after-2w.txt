@@ -1,0 +1,17 @@
+คลาสเดียวกัน สเตตัสเท่ากัน ต่างกันแค่โปรแกรม — คนเขียนเป็นชนะกี่ %
+hpMult | warrior | mage | guardian | รอบเฉลี่ย
+     1 |     97% |    100% |    100% | 4.7
+   1.5 |     97% |    100% |    100% | 6.7
+     2 |     93% |    100% |    100% | 8.3
+   2.5 |    100% |    100% |    100% | 10.2
+     3 |    100% |    100% |    100% | 12.5
+คู่                      | รอบเฉลี่ย | ชนะ (ฝั่งซ้าย) | timeout
+warrior vs warrior       |       4.9 |          17/30 | 0
+warrior vs mage          |       5.4 |          24/30 | 0
+warrior vs guardian      |      18.4 |           4/30 | 0
+mage vs warrior          |       5.3 |           6/30 | 0
+mage vs mage             |       5.8 |          15/30 | 0
+mage vs guardian         |      10.2 |          30/30 | 0
+guardian vs warrior      |      18.4 |          26/30 | 0
+guardian vs mage         |      10.2 |           0/30 | 0
+guardian vs guardian     |      60.0 |          15/30 | 30

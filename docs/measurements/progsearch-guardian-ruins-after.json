@@ -1,0 +1,177 @@
+{
+  "class": "guardian",
+  "pass": 0.8,
+  "maxLevel": 40,
+  "seedsFull": 64,
+  "bestOverall": "def turn():\n    if count(enemies) >= 2:\n        cast(\"shield_bash\", fastest(enemies))\n    else:\n        attack(weakest(enemies))\n",
+  "bestOneLine": "def turn():\n    cast(\"shield_bash\", fastest(enemies))\n",
+  "cells": [
+    {
+      "region": "ruins",
+      "depth": 1,
+      "floor": 4,
+      "bestOneLine": 2,
+      "bestOneLineSrc": "cast(\"shield_bash\", weakest(enemies))",
+      "naive": 3,
+      "best": 2,
+      "bestSrc": "def turn():\n    if count(enemies) >= 2:\n        cast(\"shield_bash\", fastest(enemies))\n    else:\n        attack(weakest(enemies))\n",
+      "value": 0
+    },
+    {
+      "region": "ruins",
+      "depth": 2,
+      "floor": 5,
+      "bestOneLine": 4,
+      "bestOneLineSrc": "cast(\"shield_bash\", weakest(enemies))",
+      "naive": 5,
+      "best": 3,
+      "bestSrc": "def turn():\n    if count(enemies) >= 2:\n        cast(\"shield_bash\", fastest(enemies))\n    else:\n        attack(weakest(enemies))\n",
+      "value": 1
+    },
+    {
+      "region": "ruins",
+      "depth": 3,
+      "floor": 6,
+      "bestOneLine": 4,
+      "bestOneLineSrc": "cast(\"shield_bash\", fastest(enemies))",
+      "naive": 6,
+      "best": 4,
+      "bestSrc": "def turn():\n    if count(enemies) >= 2:\n        cast(\"shield_bash\", fastest(enemies))\n    else:\n        attack(weakest(enemies))\n",
+      "value": 0
+    },
+    {
+      "region": "ruins",
+      "depth": 4,
+      "floor": 7,
+      "bestOneLine": 5,
+      "bestOneLineSrc": "cast(\"shield_bash\", weakest(enemies))",
+      "naive": 7,
+      "best": 4,
+      "bestSrc": "def turn():\n    if count(enemies) >= 2:\n        cast(\"shield_bash\", fastest(enemies))\n    else:\n        attack(weakest(enemies))\n",
+      "value": 1
+    },
+    {
+      "region": "ruins",
+      "depth": 5,
+      "floor": 8,
+      "bestOneLine": 5,
+      "bestOneLineSrc": "cast(\"shield_bash\", weakest(enemies))",
+      "naive": 7,
+      "best": 5,
+      "bestSrc": "def turn():\n    if count(enemies) >= 2:\n        cast(\"shield_bash\", fastest(enemies))\n    else:\n        attack(weakest(enemies))\n",
+      "value": 0
+    }
+  ],
+  "top": [
+    {
+      "src": "def turn():\n    if count(enemies) >= 2:\n        cast(\"shield_bash\", fastest(enemies))\n    else:\n        attack(weakest(enemies))\n",
+      "total": 18,
+      "profile": [
+        2,
+        3,
+        4,
+        4,
+        5
+      ]
+    },
+    {
+      "src": "def turn():\n    if count(enemies) >= 2:\n        cast(\"shield_bash\", fastest(enemies))\n    else:\n        attack(strongest(enemies))\n",
+      "total": 18,
+      "profile": [
+        2,
+        3,
+        4,
+        4,
+        5
+      ]
+    },
+    {
+      "src": "def turn():\n    if count(enemies) >= 2:\n        cast(\"shield_bash\", fastest(enemies))\n    else:\n        attack(deadliest(enemies))\n",
+      "total": 18,
+      "profile": [
+        2,
+        3,
+        4,
+        4,
+        5
+      ]
+    },
+    {
+      "src": "def turn():\n    if count(enemies) >= 2:\n        cast(\"shield_bash\", fastest(enemies))\n    else:\n        attack(fastest(enemies))\n",
+      "total": 18,
+      "profile": [
+        2,
+        3,
+        4,
+        4,
+        5
+      ]
+    },
+    {
+      "src": "def turn():\n    if count(enemies) == 1:\n        attack(weakest(enemies))\n    else:\n        cast(\"shield_bash\", fastest(enemies))\n",
+      "total": 18,
+      "profile": [
+        2,
+        3,
+        4,
+        4,
+        5
+      ]
+    },
+    {
+      "src": "def turn():\n    if count(enemies) == 1:\n        attack(strongest(enemies))\n    else:\n        cast(\"shield_bash\", fastest(enemies))\n",
+      "total": 18,
+      "profile": [
+        2,
+        3,
+        4,
+        4,
+        5
+      ]
+    },
+    {
+      "src": "def turn():\n    if count(enemies) == 1:\n        attack(deadliest(enemies))\n    else:\n        cast(\"shield_bash\", fastest(enemies))\n",
+      "total": 18,
+      "profile": [
+        2,
+        3,
+        4,
+        4,
+        5
+      ]
+    },
+    {
+      "src": "def turn():\n    if count(enemies) == 1:\n        attack(fastest(enemies))\n    else:\n        cast(\"shield_bash\", fastest(enemies))\n",
+      "total": 18,
+      "profile": [
+        2,
+        3,
+        4,
+        4,
+        5
+      ]
+    },
+    {
+      "src": "def turn():\n    if weakest(enemies).hp_pct < 30:\n        attack(weakest(enemies))\n    else:\n        cast(\"shield_bash\", weakest(enemies))\n",
+      "total": 18,
+      "profile": [
+        2,
+        3,
+        4,
+        4,
+        5
+      ]
+    },
+    {
+      "src": "def turn():\n    if weakest(enemies).hp_pct < 30:\n        attack(weakest(enemies))\n    else:\n        cast(\"shield_bash\", fastest(enemies))\n",
+      "total": 18,
+      "profile": [
+        2,
+        3,
+        4,
+        4,
+        5
+      ]
+    }
+  ]
+}

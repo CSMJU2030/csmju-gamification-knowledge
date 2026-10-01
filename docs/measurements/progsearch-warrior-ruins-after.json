@@ -1,0 +1,177 @@
+{
+  "class": "warrior",
+  "pass": 0.8,
+  "maxLevel": 40,
+  "seedsFull": 64,
+  "bestOverall": "def turn():\n    if count(enemies) >= 2:\n        cast(\"whirlwind\", enemies)\n    else:\n        attack(weakest(enemies))\n",
+  "bestOneLine": "def turn():\n    cast(\"whirlwind\", enemies)\n",
+  "cells": [
+    {
+      "region": "ruins",
+      "depth": 1,
+      "floor": 4,
+      "bestOneLine": 3,
+      "bestOneLineSrc": "attack(weakest(enemies))",
+      "naive": 3,
+      "best": 3,
+      "bestSrc": "def turn():\n    cast(\"power_strike\", fastest(enemies))\n",
+      "value": 0
+    },
+    {
+      "region": "ruins",
+      "depth": 2,
+      "floor": 5,
+      "bestOneLine": 5,
+      "bestOneLineSrc": "attack(fastest(enemies))",
+      "naive": 7,
+      "best": 5,
+      "bestSrc": "def turn():\n    if count(enemies) >= 2:\n        cast(\"whirlwind\", enemies)\n    else:\n        attack(weakest(enemies))\n",
+      "value": 0
+    },
+    {
+      "region": "ruins",
+      "depth": 3,
+      "floor": 6,
+      "bestOneLine": 5,
+      "bestOneLineSrc": "cast(\"whirlwind\", enemies)",
+      "naive": 8,
+      "best": 5,
+      "bestSrc": "def turn():\n    if count(enemies) >= 2:\n        cast(\"whirlwind\", enemies)\n    else:\n        attack(weakest(enemies))\n",
+      "value": 0
+    },
+    {
+      "region": "ruins",
+      "depth": 4,
+      "floor": 7,
+      "bestOneLine": 5,
+      "bestOneLineSrc": "cast(\"whirlwind\", enemies)",
+      "naive": 7,
+      "best": 5,
+      "bestSrc": "def turn():\n    if count(enemies) >= 2:\n        cast(\"whirlwind\", enemies)\n    else:\n        attack(weakest(enemies))\n",
+      "value": 0
+    },
+    {
+      "region": "ruins",
+      "depth": 5,
+      "floor": 8,
+      "bestOneLine": 6,
+      "bestOneLineSrc": "cast(\"whirlwind\", enemies)",
+      "naive": 8,
+      "best": 5,
+      "bestSrc": "def turn():\n    if count(enemies) >= 2:\n        cast(\"whirlwind\", enemies)\n    else:\n        attack(weakest(enemies))\n",
+      "value": 1
+    }
+  ],
+  "top": [
+    {
+      "src": "def turn():\n    if count(enemies) >= 2:\n        cast(\"whirlwind\", enemies)\n    else:\n        attack(weakest(enemies))\n",
+      "total": 25,
+      "profile": [
+        5,
+        5,
+        5,
+        5,
+        5
+      ]
+    },
+    {
+      "src": "def turn():\n    if count(enemies) >= 2:\n        cast(\"whirlwind\", enemies)\n    else:\n        attack(strongest(enemies))\n",
+      "total": 25,
+      "profile": [
+        5,
+        5,
+        5,
+        5,
+        5
+      ]
+    },
+    {
+      "src": "def turn():\n    if count(enemies) >= 2:\n        cast(\"whirlwind\", enemies)\n    else:\n        attack(deadliest(enemies))\n",
+      "total": 25,
+      "profile": [
+        5,
+        5,
+        5,
+        5,
+        5
+      ]
+    },
+    {
+      "src": "def turn():\n    if count(enemies) >= 2:\n        cast(\"whirlwind\", enemies)\n    else:\n        attack(fastest(enemies))\n",
+      "total": 25,
+      "profile": [
+        5,
+        5,
+        5,
+        5,
+        5
+      ]
+    },
+    {
+      "src": "def turn():\n    if count(enemies) == 1:\n        attack(weakest(enemies))\n    else:\n        cast(\"whirlwind\", enemies)\n",
+      "total": 25,
+      "profile": [
+        5,
+        5,
+        5,
+        5,
+        5
+      ]
+    },
+    {
+      "src": "def turn():\n    if count(enemies) == 1:\n        attack(strongest(enemies))\n    else:\n        cast(\"whirlwind\", enemies)\n",
+      "total": 25,
+      "profile": [
+        5,
+        5,
+        5,
+        5,
+        5
+      ]
+    },
+    {
+      "src": "def turn():\n    if count(enemies) == 1:\n        attack(deadliest(enemies))\n    else:\n        cast(\"whirlwind\", enemies)\n",
+      "total": 25,
+      "profile": [
+        5,
+        5,
+        5,
+        5,
+        5
+      ]
+    },
+    {
+      "src": "def turn():\n    if count(enemies) == 1:\n        attack(fastest(enemies))\n    else:\n        cast(\"whirlwind\", enemies)\n",
+      "total": 25,
+      "profile": [
+        5,
+        5,
+        5,
+        5,
+        5
+      ]
+    },
+    {
+      "src": "def turn():\n    if count(enemies) >= 2:\n        cast(\"whirlwind\", enemies)\n    elif can_cast(\"whirlwind\"):\n        cast(\"power_strike\", weakest(enemies))\n    else:\n        attack(weakest(enemies))\n",
+      "total": 25,
+      "profile": [
+        5,
+        5,
+        5,
+        5,
+        5
+      ]
+    },
+    {
+      "src": "def turn():\n    if count(enemies) >= 2:\n        cast(\"whirlwind\", enemies)\n    elif can_cast(\"whirlwind\"):\n        cast(\"power_strike\", strongest(enemies))\n    else:\n        attack(weakest(enemies))\n",
+      "total": 25,
+      "profile": [
+        5,
+        5,
+        5,
+        5,
+        5
+      ]
+    }
+  ]
+}

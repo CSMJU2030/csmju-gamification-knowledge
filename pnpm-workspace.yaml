@@ -1,3 +1,13 @@
 packages:
   - 'frontend'
   - 'backend'
+  - 'packages/*'
+
+# pnpm 10+ ไม่ให้ dependency รันสคริปต์ตอนติดตั้ง ยกเว้นที่อนุญาตไว้ (LOCAL_INTEGRATION_GUIDE ข้อ 6.2 · ภาคผนวก)
+allowBuilds:
+  prisma: true
+  '@prisma/engines': true
+  esbuild: true
+  '@parcel/watcher': false
+  unrs-resolver: false
+  '@scarf/scarf': false

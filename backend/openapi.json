@@ -1,0 +1,3987 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/api/health": {
+      "get": {
+        "operationId": "Health_check",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "สำเร็จ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ]
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/HealthDto"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [],
+        "summary": "ตรวจว่าระบบพร้อมใช้งาน (public)",
+        "tags": [
+          "health"
+        ]
+      }
+    },
+    "/auth/login": {
+      "get": {
+        "operationId": "Sso_login",
+        "parameters": [
+          {
+            "name": "next",
+            "required": false,
+            "in": "query",
+            "description": "path ในระบบนี้ที่จะกลับไปหลัง login · ไม่ผ่านกฎใช้หน้าแรก",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "302": {
+            "description": "ไป {CORE_HUB_WEB_URL}/sso/authorize?subsystem=…&state=… พร้อมคุกกี้ state"
+          }
+        },
+        "security": [],
+        "summary": "เริ่มทุกการเข้าสู่ระบบ — สร้าง state แล้วส่งไปเว็บ Core Hub /sso/authorize (ไม่มีหน้าฟอร์ม)",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/auth/callback": {
+      "get": {
+        "operationId": "Sso_callback",
+        "parameters": [
+          {
+            "name": "state",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "expires_in",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "token_type",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "enum": [
+                "Bearer"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "access_token",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "302": {
+            "description": "สำเร็จ — ตั้งคุกกี้ session แล้วไปหน้า next · หรือไม่มี state (เริ่มจาก Core Hub) — ทิ้ง token แล้วไป /auth/login"
+          },
+          "400": {
+            "description": "BAD_REQUEST หรือ VALIDATION_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "UNAUTHORIZED — ไม่มี token หรือ token ใช้ไม่ได้",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "FORBIDDEN — สิทธิ์ไม่พอ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [],
+        "summary": "Central SSO callback — ผลตามข้อ 5.1 ของสัญญา",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/auth/logout": {
+      "post": {
+        "operationId": "Sso_logout",
+        "parameters": [],
+        "responses": {
+          "303": {
+            "description": "ไป {CORE_HUB_WEB_URL}/logout"
+          }
+        },
+        "security": [],
+        "summary": "ออกจากระบบทั้งระบบ — ลบคุกกี้ของระบบนี้ทั้งสอง แล้วไปหน้า /logout ของ Core Hub",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/v1/me": {
+      "get": {
+        "operationId": "Me_me",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "สำเร็จ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ]
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/MeDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "UNAUTHORIZED — ไม่มี token หรือ token ใช้ไม่ได้",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "FORBIDDEN — สิทธิ์ไม่พอ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "ตัวตนของผู้ใช้ปัจจุบัน",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/v1/characters": {
+      "post": {
+        "operationId": "Characters_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCharacterDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "สร้างแล้ว",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ]
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/CharacterDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "BAD_REQUEST หรือ VALIDATION_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "UNAUTHORIZED — ไม่มี token หรือ token ใช้ไม่ได้",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "FORBIDDEN — สิทธิ์ไม่พอ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "CONFLICT — สถานะปัจจุบันไม่อนุญาต",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "สร้างตัวละครของผู้ใช้ปัจจุบัน (หนึ่งคนมีได้ตัวเดียว)",
+        "tags": [
+          "characters"
+        ]
+      }
+    },
+    "/api/v1/characters/current": {
+      "get": {
+        "operationId": "Characters_current",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "สำเร็จ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ]
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/CharacterDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "UNAUTHORIZED — ไม่มี token หรือ token ใช้ไม่ได้",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "FORBIDDEN — สิทธิ์ไม่พอ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "ตัวละครของผู้ใช้ปัจจุบัน",
+        "tags": [
+          "characters"
+        ]
+      },
+      "patch": {
+        "operationId": "Characters_update",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCharacterDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "สำเร็จ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ]
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/CharacterDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "BAD_REQUEST หรือ VALIDATION_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "UNAUTHORIZED — ไม่มี token หรือ token ใช้ไม่ได้",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "FORBIDDEN — สิทธิ์ไม่พอ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "CONFLICT — สถานะปัจจุบันไม่อนุญาต",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "เลือกอาชีพ — ครั้งเดียว หลังผ่านชั้น 1",
+        "tags": [
+          "characters"
+        ]
+      }
+    },
+    "/api/v1/characters/current/class-trials": {
+      "post": {
+        "operationId": "Characters_classTrial",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateClassTrialDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "สำเร็จ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ]
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/ClassTrialDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "BAD_REQUEST หรือ VALIDATION_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "UNAUTHORIZED — ไม่มี token หรือ token ใช้ไม่ได้",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "FORBIDDEN — สิทธิ์ไม่พอ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "CONFLICT — สถานะปัจจุบันไม่อนุญาต",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "ตัวอย่างการรบของอาชีพก่อนเลือก — ตัวละครจริง เวฟเดียวกันทุกอาชีพ ไม่ได้รางวัลและไม่บันทึก",
+        "tags": [
+          "characters"
+        ]
+      }
+    },
+    "/api/v1/programs/current": {
+      "get": {
+        "operationId": "Programs_current",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "สำเร็จ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ]
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/ProgramDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "UNAUTHORIZED — ไม่มี token หรือ token ใช้ไม่ได้",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "FORBIDDEN — สิทธิ์ไม่พอ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "โปรแกรมปัจจุบัน + ไวยากรณ์และสกิลที่ใช้ได้",
+        "tags": [
+          "programs"
+        ]
+      },
+      "patch": {
+        "description": "details แต่ละตัวเป็น \"<บรรทัด>:<คอลัมน์>:<ชื่อข้อผิดพลาด>:<ข้อความไทย>\"",
+        "operationId": "Programs_update",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateProgramDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "สำเร็จ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ]
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/ProgramDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "BAD_REQUEST หรือ VALIDATION_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "UNAUTHORIZED — ไม่มี token หรือ token ใช้ไม่ได้",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "FORBIDDEN — สิทธิ์ไม่พอ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "บันทึกโปรแกรม — ไม่ผ่าน parse/validate ตอบ 400 VALIDATION_ERROR",
+        "tags": [
+          "programs"
+        ]
+      }
+    },
+    "/api/v1/items": {
+      "get": {
+        "operationId": "Items_list",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100000,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "type": "number"
+            }
+          },
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "description": "คำค้นหา ไม่สนตัวพิมพ์เล็ก/ใหญ่ · ว่าง = ทั้งหมด",
+            "schema": {
+              "maxLength": 100,
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "สำเร็จ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data",
+                    "meta"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ]
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/ItemDto"
+                      }
+                    },
+                    "meta": {
+                      "$ref": "#/components/schemas/PageMetaDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "BAD_REQUEST หรือ VALIDATION_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "UNAUTHORIZED — ไม่มี token หรือ token ใช้ไม่ได้",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "FORBIDDEN — สิทธิ์ไม่พอ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "ไอเทมทั้งหมดในกระเป๋า เรียงตามลำดับที่ได้มา · q ค้นในชื่อไอเทม",
+        "tags": [
+          "items"
+        ]
+      }
+    },
+    "/api/v1/items/{id}": {
+      "patch": {
+        "operationId": "Items_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateItemDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "สำเร็จ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ]
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/ItemDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "BAD_REQUEST หรือ VALIDATION_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "UNAUTHORIZED — ไม่มี token หรือ token ใช้ไม่ได้",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "FORBIDDEN — สิทธิ์ไม่พอ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "CONFLICT — สถานะปัจจุบันไม่อนุญาต",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "สวมหรือถอดไอเทม",
+        "tags": [
+          "items"
+        ]
+      },
+      "delete": {
+        "operationId": "Items_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "สำเร็จ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ]
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/SalvagedItemDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "BAD_REQUEST หรือ VALIDATION_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "UNAUTHORIZED — ไม่มี token หรือ token ใช้ไม่ได้",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "FORBIDDEN — สิทธิ์ไม่พอ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "CONFLICT — สถานะปัจจุบันไม่อนุญาต",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "ย่อยไอเทมเป็นวัสดุ",
+        "tags": [
+          "items"
+        ]
+      }
+    },
+    "/api/v1/item-upgrades": {
+      "post": {
+        "operationId": "ItemUpgrades_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateItemUpgradeDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "สำเร็จ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ]
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/ItemUpgradeDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "BAD_REQUEST หรือ VALIDATION_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "UNAUTHORIZED — ไม่มี token หรือ token ใช้ไม่ได้",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "FORBIDDEN — สิทธิ์ไม่พอ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "CONFLICT — สถานะปัจจุบันไม่อนุญาต",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "ตีบวกไอเทม +1 ด้วยทองและวัสดุ",
+        "tags": [
+          "items"
+        ]
+      }
+    },
+    "/api/v1/regions": {
+      "get": {
+        "operationId": "Regions_list",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100000,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "สำเร็จ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data",
+                    "meta"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ]
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/RegionDto"
+                      }
+                    },
+                    "meta": {
+                      "$ref": "#/components/schemas/PageMetaDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "BAD_REQUEST หรือ VALIDATION_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "UNAUTHORIZED — ไม่มี token หรือ token ใช้ไม่ได้",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "FORBIDDEN — สิทธิ์ไม่พอ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "ภูมิภาคบนแผนที่ + ความคืบหน้าของผู้ใช้ + จำนวนผู้เล่นในโซน",
+        "tags": [
+          "world"
+        ]
+      }
+    },
+    "/api/v1/region-runs": {
+      "post": {
+        "operationId": "RegionRuns_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateRegionRunDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "สำเร็จ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ]
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/RegionRunDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "BAD_REQUEST หรือ VALIDATION_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "UNAUTHORIZED — ไม่มี token หรือ token ใช้ไม่ได้",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "FORBIDDEN — สิทธิ์ไม่พอ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "CONFLICT — สถานะปัจจุบันไม่อนุญาต",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "เข้าโซน — คืนคำประกาศของรอบ (EX · คู่ดวล · ล็อกเลเวล)",
+        "tags": [
+          "world"
+        ]
+      }
+    },
+    "/api/v1/region-runs/{id}": {
+      "delete": {
+        "operationId": "RegionRuns_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "สำเร็จ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ]
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/DeletedDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "BAD_REQUEST หรือ VALIDATION_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "UNAUTHORIZED — ไม่มี token หรือ token ใช้ไม่ได้",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "FORBIDDEN — สิทธิ์ไม่พอ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "ออกจากโซน",
+        "tags": [
+          "world"
+        ]
+      }
+    },
+    "/api/v1/battles": {
+      "post": {
+        "operationId": "Battles_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateBattleDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "สำเร็จ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ]
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/BattleOutcomeDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "BAD_REQUEST หรือ VALIDATION_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "UNAUTHORIZED — ไม่มี token หรือ token ใช้ไม่ได้",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "FORBIDDEN — สิทธิ์ไม่พอ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "CONFLICT — สถานะปัจจุบันไม่อนุญาต",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "รบ — ท้าทายหอคอย (towerFloor) หรือรบรอบในภูมิภาค (regionRunId)",
+        "tags": [
+          "battles"
+        ]
+      },
+      "get": {
+        "operationId": "Battles_list",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100000,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "type": "number"
+            }
+          },
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "description": "คำค้นหา ไม่สนตัวพิมพ์เล็ก/ใหญ่ · ว่าง = ทั้งหมด",
+            "schema": {
+              "maxLength": 100,
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "สำเร็จ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data",
+                    "meta"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ]
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/BattleSummaryDto"
+                      }
+                    },
+                    "meta": {
+                      "$ref": "#/components/schemas/PageMetaDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "BAD_REQUEST หรือ VALIDATION_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "UNAUTHORIZED — ไม่มี token หรือ token ใช้ไม่ได้",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "FORBIDDEN — สิทธิ์ไม่พอ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "ประวัติการรบแบบย่อ ล่าสุดก่อน · q ค้นในชื่อสถานที่ (หอคอย หรือชื่อภูมิภาค)",
+        "tags": [
+          "battles"
+        ]
+      }
+    },
+    "/api/v1/tower-progress": {
+      "get": {
+        "operationId": "TowerProgress_get",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "สำเร็จ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ]
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/TowerProgressDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "UNAUTHORIZED — ไม่มี token หรือ token ใช้ไม่ได้",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "FORBIDDEN — สิทธิ์ไม่พอ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "ความคืบหน้าของหอคอย",
+        "tags": [
+          "battles"
+        ]
+      }
+    },
+    "/api/v1/game-data": {
+      "get": {
+        "operationId": "GameData_get",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "สำเร็จ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ]
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/GameDataDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "UNAUTHORIZED — ไม่มี token หรือ token ใช้ไม่ได้",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "FORBIDDEN — สิทธิ์ไม่พอ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "ชื่อไทยของสกิล/ไอเทม/คุณสมบัติ + ข้อมูลอาชีพ",
+        "tags": [
+          "game-data"
+        ]
+      }
+    },
+    "/api/v1/challenges": {
+      "get": {
+        "operationId": "Challenges_list",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100000,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "type": "number"
+            }
+          },
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "description": "คำค้นหา ไม่สนตัวพิมพ์เล็ก/ใหญ่ · ว่าง = ทั้งหมด",
+            "schema": {
+              "maxLength": 100,
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "สำเร็จ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data",
+                    "meta"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ]
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/ChallengeDto"
+                      }
+                    },
+                    "meta": {
+                      "$ref": "#/components/schemas/PageMetaDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "BAD_REQUEST หรือ VALIDATION_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "UNAUTHORIZED — ไม่มี token หรือ token ใช้ไม่ได้",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "FORBIDDEN — สิทธิ์ไม่พอ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "โจทย์ทั้งหมด ล่าสุดก่อน · q ค้นในชื่อและคำอธิบาย",
+        "tags": [
+          "challenges"
+        ]
+      },
+      "post": {
+        "operationId": "Challenges_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateChallengeDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "สำเร็จ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ]
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/ChallengeDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "BAD_REQUEST หรือ VALIDATION_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "UNAUTHORIZED — ไม่มี token หรือ token ใช้ไม่ได้",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "FORBIDDEN — สิทธิ์ไม่พอ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "สร้างโจทย์ (ผู้สอน)",
+        "tags": [
+          "challenges"
+        ]
+      }
+    },
+    "/api/v1/challenges/{id}": {
+      "get": {
+        "operationId": "Challenges_get",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "สำเร็จ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ]
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/ChallengeDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "BAD_REQUEST หรือ VALIDATION_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "UNAUTHORIZED — ไม่มี token หรือ token ใช้ไม่ได้",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "FORBIDDEN — สิทธิ์ไม่พอ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "โจทย์หนึ่งข้อ",
+        "tags": [
+          "challenges"
+        ]
+      },
+      "patch": {
+        "operationId": "Challenges_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateChallengeDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "สำเร็จ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ]
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/ChallengeDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "BAD_REQUEST หรือ VALIDATION_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "UNAUTHORIZED — ไม่มี token หรือ token ใช้ไม่ได้",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "FORBIDDEN — สิทธิ์ไม่พอ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "แก้โจทย์ (เจ้าของหรือผู้ดูแล)",
+        "tags": [
+          "challenges"
+        ]
+      },
+      "delete": {
+        "operationId": "Challenges_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "สำเร็จ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ]
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/DeletedDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "BAD_REQUEST หรือ VALIDATION_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "UNAUTHORIZED — ไม่มี token หรือ token ใช้ไม่ได้",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "FORBIDDEN — สิทธิ์ไม่พอ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "ลบโจทย์ (เจ้าของหรือผู้ดูแล)",
+        "tags": [
+          "challenges"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "Code Tower — csmju-gamification-knowledge",
+    "description": "ระบบย่อย Code Tower ของ CSMJU2030 · ตัวตนมาจาก Core Hub (RS256 + JWKS) · response ทุกตัวห่อด้วย envelope { success, data[, meta] } / { success: false, error }",
+    "version": "1.0.0",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [],
+  "components": {
+    "securitySchemes": {
+      "coreHubBearer": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "type": "http"
+      },
+      "ssoCookie": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "core_hub_access_token"
+      }
+    },
+    "schemas": {
+      "HealthDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "ok"
+            ]
+          },
+          "service": {
+            "type": "string",
+            "example": "csmju-gamification-knowledge"
+          }
+        },
+        "required": [
+          "status",
+          "service"
+        ]
+      },
+      "PageMetaDto": {
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "number"
+          },
+          "page": {
+            "type": "number"
+          },
+          "limit": {
+            "type": "number"
+          },
+          "totalPages": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "total",
+          "page",
+          "limit",
+          "totalPages"
+        ]
+      },
+      "ErrorDetailDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "enum": [
+              "BAD_REQUEST",
+              "VALIDATION_ERROR",
+              "UNAUTHORIZED",
+              "FORBIDDEN",
+              "NOT_FOUND",
+              "CONFLICT",
+              "TOO_MANY_REQUESTS",
+              "INTERNAL_ERROR",
+              "SERVICE_UNAVAILABLE"
+            ]
+          },
+          "message": {
+            "type": "string"
+          },
+          "details": {
+            "description": "ใช้กับ VALIDATION_ERROR",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "code",
+          "message"
+        ]
+      },
+      "ErrorEnvelopeDto": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "enum": [
+              false
+            ]
+          },
+          "error": {
+            "$ref": "#/components/schemas/ErrorDetailDto"
+          }
+        },
+        "required": [
+          "success",
+          "error"
+        ]
+      },
+      "SessionInfoDto": {
+        "type": "object",
+        "properties": {
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "คำนวณจาก exp ของ token (ISO 8601)"
+          }
+        },
+        "required": [
+          "expiresAt"
+        ]
+      },
+      "MeDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "ค่า sub จาก Core Hub token (Global Identity)"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "coreRole": {
+            "type": "string",
+            "enum": [
+              "student",
+              "alumni",
+              "staff",
+              "lecturer",
+              "guest",
+              "admin"
+            ]
+          },
+          "subsystemRole": {
+            "type": "string",
+            "enum": [
+              "PLAYER",
+              "INSTRUCTOR",
+              "ADMIN"
+            ]
+          },
+          "permissions": {
+            "description": "permission ของ role นี้ในระบบ Code Tower",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "session": {
+            "$ref": "#/components/schemas/SessionInfoDto"
+          }
+        },
+        "required": [
+          "id",
+          "email",
+          "coreRole",
+          "subsystemRole",
+          "permissions",
+          "session"
+        ]
+      },
+      "ProficiencyTripleDto": {
+        "type": "object",
+        "properties": {
+          "str": {
+            "type": "number"
+          },
+          "int": {
+            "type": "number"
+          },
+          "vit": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "str",
+          "int",
+          "vit"
+        ]
+      },
+      "ProficiencyDto": {
+        "type": "object",
+        "properties": {
+          "work": {
+            "description": "งานดิบตั้งแต่เลเวลที่แล้ว",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ProficiencyTripleDto"
+              }
+            ]
+          },
+          "share": {
+            "description": "สัดส่วนหลังถ่วงน้ำหนัก รวม 1.0",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ProficiencyTripleDto"
+              }
+            ]
+          },
+          "projectedPoints": {
+            "description": "ถ้าเลเวลอัพตอนนี้จะได้ช่องละกี่แต้ม",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ProficiencyTripleDto"
+              }
+            ]
+          },
+          "pointsPerLevel": {
+            "type": "number"
+          },
+          "usingClassDefault": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "work",
+          "share",
+          "projectedPoints",
+          "pointsPerLevel",
+          "usingClassDefault"
+        ]
+      },
+      "StatsDto": {
+        "type": "object",
+        "properties": {
+          "str": {
+            "type": "number"
+          },
+          "int": {
+            "type": "number"
+          },
+          "vit": {
+            "type": "number"
+          },
+          "agi": {
+            "type": "number"
+          },
+          "luk": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "str",
+          "int",
+          "vit",
+          "agi",
+          "luk"
+        ]
+      },
+      "DerivedStatsDto": {
+        "type": "object",
+        "properties": {
+          "maxHp": {
+            "type": "number"
+          },
+          "maxMp": {
+            "type": "number"
+          },
+          "atk": {
+            "type": "number",
+            "description": "พลังโจมตีกายภาพ"
+          },
+          "matk": {
+            "type": "number",
+            "description": "พลังเวท"
+          },
+          "def": {
+            "type": "number"
+          },
+          "mdef": {
+            "type": "number"
+          },
+          "speed": {
+            "type": "number"
+          },
+          "critRate": {
+            "type": "number",
+            "description": "0..1"
+          },
+          "critDmg": {
+            "type": "number",
+            "description": "ตัวคูณ เช่น 1.5"
+          },
+          "evasion": {
+            "type": "number",
+            "description": "0..1"
+          },
+          "dropBonus": {
+            "type": "number",
+            "description": "0..1"
+          }
+        },
+        "required": [
+          "maxHp",
+          "maxMp",
+          "atk",
+          "matk",
+          "def",
+          "mdef",
+          "speed",
+          "critRate",
+          "critDmg",
+          "evasion",
+          "dropBonus"
+        ]
+      },
+      "StatValueDto": {
+        "type": "object",
+        "properties": {
+          "stat": {
+            "type": "string"
+          },
+          "value": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "stat",
+          "value"
+        ]
+      },
+      "ItemDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "baseId": {
+            "type": "string"
+          },
+          "slot": {
+            "type": "string",
+            "enum": [
+              "weapon",
+              "armor",
+              "helmet",
+              "accessory"
+            ]
+          },
+          "rarity": {
+            "type": "string",
+            "enum": [
+              "common",
+              "uncommon",
+              "rare",
+              "epic",
+              "legendary"
+            ]
+          },
+          "upgradeLevel": {
+            "type": "number"
+          },
+          "droppedFloor": {
+            "type": "number"
+          },
+          "affixes": {
+            "description": "คุณสมบัติเสริม",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StatValueDto"
+            }
+          },
+          "nameTh": {
+            "type": "string"
+          },
+          "mainStat": {
+            "description": "ค่าหลักหลังตีบวกแล้ว",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/StatValueDto"
+              }
+            ]
+          },
+          "equipped": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "baseId",
+          "slot",
+          "rarity",
+          "upgradeLevel",
+          "droppedFloor",
+          "affixes",
+          "nameTh",
+          "mainStat",
+          "equipped"
+        ]
+      },
+      "EquipmentDto": {
+        "type": "object",
+        "properties": {
+          "weapon": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ItemDto"
+              }
+            ]
+          },
+          "armor": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ItemDto"
+              }
+            ]
+          },
+          "helmet": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ItemDto"
+              }
+            ]
+          },
+          "accessory": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ItemDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "weapon",
+          "armor",
+          "helmet",
+          "accessory"
+        ]
+      },
+      "SkillSummaryDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "nameTh": {
+            "type": "string"
+          },
+          "unlockLevel": {
+            "type": "number"
+          },
+          "mpCost": {
+            "type": "number"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "physical",
+              "magic",
+              "heal",
+              "shield",
+              "taunt"
+            ]
+          },
+          "aoe": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "nameTh",
+          "unlockLevel",
+          "mpCost",
+          "kind",
+          "aoe"
+        ]
+      },
+      "CharacterDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "classId": {
+            "type": "string",
+            "enum": [
+              "novice",
+              "warrior",
+              "mage",
+              "guardian"
+            ]
+          },
+          "level": {
+            "type": "number"
+          },
+          "exp": {
+            "type": "number"
+          },
+          "expToNext": {
+            "type": "number"
+          },
+          "proficiency": {
+            "$ref": "#/components/schemas/ProficiencyDto"
+          },
+          "stats": {
+            "$ref": "#/components/schemas/StatsDto"
+          },
+          "derived": {
+            "description": "ค่าที่คำนวณแล้ว (maxHp, atk, …)",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/DerivedStatsDto"
+              }
+            ]
+          },
+          "gold": {
+            "type": "number"
+          },
+          "materials": {
+            "type": "number"
+          },
+          "equipment": {
+            "$ref": "#/components/schemas/EquipmentDto"
+          },
+          "skills": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SkillSummaryDto"
+            }
+          },
+          "highestFloorCleared": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "displayName",
+          "classId",
+          "level",
+          "exp",
+          "expToNext",
+          "proficiency",
+          "stats",
+          "derived",
+          "gold",
+          "materials",
+          "equipment",
+          "skills",
+          "highestFloorCleared"
+        ]
+      },
+      "CreateCharacterDto": {
+        "type": "object",
+        "properties": {
+          "displayName": {
+            "type": "string",
+            "example": "นักสู้หมายเลข1",
+            "pattern": "^[A-Za-z0-9_฀-๿]{3,20}$"
+          }
+        },
+        "required": [
+          "displayName"
+        ]
+      },
+      "UpdateCharacterDto": {
+        "type": "object",
+        "properties": {
+          "classId": {
+            "type": "string",
+            "enum": [
+              "warrior",
+              "mage",
+              "guardian"
+            ],
+            "description": "เลือกอาชีพได้ครั้งเดียว หลังผ่านชั้น 1"
+          }
+        },
+        "required": [
+          "classId"
+        ]
+      },
+      "CombatTargetDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "damage": {
+            "type": "number"
+          },
+          "heal": {
+            "type": "number"
+          },
+          "shield": {
+            "type": "number"
+          },
+          "crit": {
+            "type": "boolean"
+          },
+          "evaded": {
+            "type": "boolean"
+          },
+          "killed": {
+            "type": "boolean"
+          },
+          "hpAfter": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "hpAfter"
+        ]
+      },
+      "CombatEventDto": {
+        "type": "object",
+        "properties": {
+          "turn": {
+            "type": "number"
+          },
+          "wave": {
+            "type": "number"
+          },
+          "actorId": {
+            "type": "string"
+          },
+          "actorName": {
+            "type": "string"
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "attack",
+              "skill",
+              "defend"
+            ]
+          },
+          "skillId": {
+            "type": "string"
+          },
+          "targets": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CombatTargetDto"
+            }
+          },
+          "note": {
+            "type": "string",
+            "enum": [
+              "wave_start",
+              "wave_clear",
+              "defend",
+              "windup"
+            ]
+          },
+          "line": {
+            "type": "number",
+            "description": "บรรทัดในโปรแกรม BloxCode ที่ตัดสินใจเทิร์นนี้ (0 = การกระทำสำรอง)"
+          },
+          "codeWarnings": {
+            "description": "คำเตือนตอนรันโปรแกรม",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "mpAfter": {
+            "type": "number",
+            "description": "MP ของผู้ลงมือหลังจบเทิร์นนี้ (หักค่าร่ายและฟื้นตอนจบเทิร์นแล้ว) — ไม่มีใน event ของระบบ"
+          }
+        },
+        "required": [
+          "turn",
+          "wave",
+          "actorId",
+          "actorName",
+          "action",
+          "targets"
+        ]
+      },
+      "ClassTrialResultDto": {
+        "type": "object",
+        "properties": {
+          "victory": {
+            "type": "boolean"
+          },
+          "wavesCleared": {
+            "type": "number"
+          },
+          "events": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CombatEventDto"
+            }
+          }
+        },
+        "required": [
+          "victory",
+          "wavesCleared",
+          "events"
+        ]
+      },
+      "ClassTrialSummaryDto": {
+        "type": "object",
+        "properties": {
+          "turns": {
+            "type": "number",
+            "description": "จำนวนเทิร์นที่ตัวละครได้ลงมือ"
+          },
+          "skillCasts": {
+            "type": "number",
+            "description": "ร่ายสกิลกี่ครั้ง"
+          },
+          "damageDealt": {
+            "type": "number"
+          },
+          "damageTaken": {
+            "type": "number"
+          },
+          "hpLeftPct": {
+            "type": "number",
+            "description": "เลือดที่เหลือตอนจบ (% ของหลอด)"
+          }
+        },
+        "required": [
+          "turns",
+          "skillCasts",
+          "damageDealt",
+          "damageTaken",
+          "hpLeftPct"
+        ]
+      },
+      "ClassTrialDto": {
+        "type": "object",
+        "properties": {
+          "classId": {
+            "type": "string",
+            "enum": [
+              "warrior",
+              "mage",
+              "guardian"
+            ]
+          },
+          "level": {
+            "type": "number",
+            "description": "เลเวลของตัวละครที่ใช้ (เลเวลปัจจุบัน)"
+          },
+          "floor": {
+            "type": "number",
+            "description": "ชั้นของเวฟตัวอย่าง (ชั้นที่ผ่านล่าสุด อย่างน้อย 1)"
+          },
+          "waves": {
+            "type": "number",
+            "description": "จำนวนเวฟของตัวอย่าง"
+          },
+          "program": {
+            "type": "string",
+            "description": "โปรแกรมตัวอย่าง — เขียนด้วยไวยากรณ์ที่ใช้ได้ตั้งแต่ผ่านชั้น 1"
+          },
+          "skills": {
+            "description": "สกิลที่โปรแกรมตัวอย่างเรียก (ที่ปลดแล้วที่เลเวลนี้)",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "maxHp": {
+            "type": "number"
+          },
+          "maxMp": {
+            "type": "number"
+          },
+          "result": {
+            "$ref": "#/components/schemas/ClassTrialResultDto"
+          },
+          "summary": {
+            "$ref": "#/components/schemas/ClassTrialSummaryDto"
+          }
+        },
+        "required": [
+          "classId",
+          "level",
+          "floor",
+          "waves",
+          "program",
+          "skills",
+          "maxHp",
+          "maxMp",
+          "result",
+          "summary"
+        ]
+      },
+      "CreateClassTrialDto": {
+        "type": "object",
+        "properties": {
+          "classId": {
+            "type": "string",
+            "enum": [
+              "warrior",
+              "mage",
+              "guardian"
+            ],
+            "description": "อาชีพที่อยากเห็นตัวอย่าง"
+          }
+        },
+        "required": [
+          "classId"
+        ]
+      },
+      "ProgramSkillDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "nameTh": {
+            "type": "string"
+          },
+          "mpCost": {
+            "type": "number"
+          },
+          "aoe": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "nameTh",
+          "mpCost",
+          "aoe"
+        ]
+      },
+      "ProgramDto": {
+        "type": "object",
+        "properties": {
+          "source": {
+            "type": "string"
+          },
+          "unlockedFeatures": {
+            "description": "ไวยากรณ์ที่ปลดล็อกแล้ว",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "availableSkills": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProgramSkillDto"
+            }
+          },
+          "highestFloorCleared": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "source",
+          "unlockedFeatures",
+          "availableSkills",
+          "highestFloorCleared"
+        ]
+      },
+      "UpdateProgramDto": {
+        "type": "object",
+        "properties": {
+          "source": {
+            "type": "string",
+            "description": "โปรแกรม BloxCode (Python subset) — ต้องมี def turn():",
+            "maxLength": 20000
+          }
+        },
+        "required": [
+          "source"
+        ]
+      },
+      "UpdateItemDto": {
+        "type": "object",
+        "properties": {
+          "equipped": {
+            "type": "boolean",
+            "description": "true = สวมใส่ (ของเดิมในช่องเดียวกันถูกถอดให้) · false = ถอด"
+          }
+        },
+        "required": [
+          "equipped"
+        ]
+      },
+      "SalvagedItemDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "deleted": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          },
+          "materialsGained": {
+            "type": "number",
+            "description": "วัสดุที่ได้จากการย่อยชิ้นนี้"
+          },
+          "materials": {
+            "type": "number",
+            "description": "วัสดุคงเหลือหลังย่อย"
+          }
+        },
+        "required": [
+          "id",
+          "deleted",
+          "materialsGained",
+          "materials"
+        ]
+      },
+      "ItemUpgradeDto": {
+        "type": "object",
+        "properties": {
+          "item": {
+            "$ref": "#/components/schemas/ItemDto"
+          },
+          "goldSpent": {
+            "type": "number"
+          },
+          "materialsSpent": {
+            "type": "number"
+          },
+          "gold": {
+            "type": "number",
+            "description": "ทองคงเหลือ"
+          },
+          "materials": {
+            "type": "number",
+            "description": "วัสดุคงเหลือ"
+          }
+        },
+        "required": [
+          "item",
+          "goldSpent",
+          "materialsSpent",
+          "gold",
+          "materials"
+        ]
+      },
+      "CreateItemUpgradeDto": {
+        "type": "object",
+        "properties": {
+          "itemId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "itemId"
+        ]
+      },
+      "HotspotDto": {
+        "type": "object",
+        "properties": {
+          "x": {
+            "type": "number"
+          },
+          "y": {
+            "type": "number"
+          },
+          "r": {
+            "type": "number",
+            "description": "รัศมี (สัดส่วนของความกว้าง)"
+          }
+        },
+        "required": [
+          "x",
+          "y",
+          "r"
+        ]
+      },
+      "RegionDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "nameTh": {
+            "type": "string"
+          },
+          "floorBase": {
+            "type": "number"
+          },
+          "depths": {
+            "type": "number",
+            "description": "จำนวนรอบของโซน (0 = เมือง ไม่มีการรบ)"
+          },
+          "floorRange": {
+            "minItems": 2,
+            "maxItems": 2,
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          },
+          "lessonTh": {
+            "type": "string"
+          },
+          "eliteChance": {
+            "type": "number"
+          },
+          "hotspot": {
+            "$ref": "#/components/schemas/HotspotDto"
+          },
+          "depthCleared": {
+            "type": "number"
+          },
+          "maxDepthAllowed": {
+            "type": "number"
+          },
+          "completed": {
+            "type": "boolean"
+          },
+          "unlocked": {
+            "type": "boolean"
+          },
+          "playersHere": {
+            "type": "number",
+            "description": "จำนวนผู้เล่นที่อยู่ในโซนนี้ตอนนี้"
+          }
+        },
+        "required": [
+          "id",
+          "nameTh",
+          "floorBase",
+          "depths",
+          "floorRange",
+          "lessonTh",
+          "eliteChance",
+          "hotspot",
+          "depthCleared",
+          "maxDepthAllowed",
+          "completed",
+          "unlocked",
+          "playersHere"
+        ]
+      },
+      "EliteDto": {
+        "type": "object",
+        "properties": {
+          "wave": {
+            "type": "number"
+          },
+          "archetypeId": {
+            "type": "string"
+          },
+          "nameTh": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "wave",
+          "archetypeId",
+          "nameTh"
+        ]
+      },
+      "DuelAnnounceDto": {
+        "type": "object",
+        "properties": {
+          "displayName": {
+            "type": "string"
+          },
+          "classId": {
+            "type": "string"
+          },
+          "level": {
+            "type": "number"
+          },
+          "live": {
+            "type": "boolean",
+            "description": "true = อยู่ในโซนตอนนี้จริง · false = สแนปช็อต"
+          }
+        },
+        "required": [
+          "displayName",
+          "classId",
+          "level",
+          "live"
+        ]
+      },
+      "LevelSyncDto": {
+        "type": "object",
+        "properties": {
+          "level": {
+            "type": "number"
+          },
+          "realLevel": {
+            "type": "number"
+          },
+          "applies": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "level",
+          "realLevel",
+          "applies"
+        ]
+      },
+      "RegionRunDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "regionId": {
+            "type": "string"
+          },
+          "depth": {
+            "type": "number"
+          },
+          "floor": {
+            "type": "number"
+          },
+          "nameTh": {
+            "type": "string"
+          },
+          "lessonTh": {
+            "type": "string"
+          },
+          "elite": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/EliteDto"
+              }
+            ]
+          },
+          "duel": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/DuelAnnounceDto"
+              }
+            ]
+          },
+          "sync": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/LevelSyncDto"
+              }
+            ]
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "regionId",
+          "depth",
+          "floor",
+          "nameTh",
+          "lessonTh",
+          "expiresAt"
+        ]
+      },
+      "CreateRegionRunDto": {
+        "type": "object",
+        "properties": {
+          "regionId": {
+            "type": "string",
+            "example": "frostland",
+            "description": "id ของภูมิภาค (จาก GET /api/v1/regions)"
+          },
+          "depth": {
+            "type": "number",
+            "minimum": 1,
+            "description": "รอบที่เท่าไรของโซน (เข้าได้ถึง maxDepthAllowed)"
+          }
+        },
+        "required": [
+          "regionId",
+          "depth"
+        ]
+      },
+      "DeletedDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "deleted": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "deleted"
+        ]
+      },
+      "BattleDropsDto": {
+        "type": "object",
+        "properties": {
+          "gold": {
+            "type": "number"
+          },
+          "materials": {
+            "type": "number"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ItemDto"
+            }
+          }
+        },
+        "required": [
+          "gold",
+          "materials",
+          "items"
+        ]
+      },
+      "BattleResultDto": {
+        "type": "object",
+        "properties": {
+          "victory": {
+            "type": "boolean"
+          },
+          "wavesCleared": {
+            "type": "number"
+          },
+          "events": {
+            "description": "บันทึกการรบ (CombatEvent ของ engine)",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CombatEventDto"
+            }
+          },
+          "drops": {
+            "$ref": "#/components/schemas/BattleDropsDto"
+          },
+          "expGained": {
+            "type": "number"
+          },
+          "seed": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "victory",
+          "wavesCleared",
+          "events",
+          "drops",
+          "expGained",
+          "seed"
+        ]
+      },
+      "DuelBlockDto": {
+        "type": "object",
+        "properties": {
+          "opponent": {
+            "$ref": "#/components/schemas/DuelAnnounceDto"
+          },
+          "events": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CombatEventDto"
+            }
+          },
+          "won": {
+            "type": "boolean"
+          },
+          "byTimeout": {
+            "type": "boolean"
+          },
+          "rounds": {
+            "type": "number"
+          },
+          "opponentProgram": {
+            "type": "string",
+            "description": "โปรแกรมของคู่ดวล — ฝ่ายแพ้เปิดดูได้ (รอบ 2W §5.4)"
+          }
+        },
+        "required": [
+          "opponent",
+          "events",
+          "won",
+          "byTimeout",
+          "rounds",
+          "opponentProgram"
+        ]
+      },
+      "PreviousAttemptDto": {
+        "type": "object",
+        "properties": {
+          "victory": {
+            "type": "boolean"
+          },
+          "wavesCleared": {
+            "type": "number"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "victory",
+          "wavesCleared",
+          "createdAt"
+        ]
+      },
+      "BattleAttemptDto": {
+        "type": "object",
+        "properties": {
+          "attemptNo": {
+            "type": "number",
+            "minimum": 1,
+            "description": "ครั้งที่ของการรบที่จุดนี้ (1 = ครั้งแรก)"
+          },
+          "firstAttempt": {
+            "type": "boolean",
+            "description": "ครั้งแรกที่จุดนี้ — หน้าเว็บให้ดูฉากจนจบก่อน"
+          },
+          "previous": {
+            "nullable": true,
+            "description": "ผลครั้งก่อนที่จุดนี้ (null = ไม่เคยรบ)",
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PreviousAttemptDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "attemptNo",
+          "firstAttempt",
+          "previous"
+        ]
+      },
+      "BattleOutcomeDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "id ของบันทึกการรบแบบย่อ (GET /api/v1/battles)"
+          },
+          "result": {
+            "$ref": "#/components/schemas/BattleResultDto"
+          },
+          "announce": {
+            "description": "มีเฉพาะการรบในภูมิภาค",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/RegionRunDto"
+              }
+            ]
+          },
+          "duel": {
+            "nullable": true,
+            "description": "มีเฉพาะการรบในภูมิภาค",
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/DuelBlockDto"
+              }
+            ]
+          },
+          "character": {
+            "description": "ตัวละครหลังบันทึกผลแล้ว",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CharacterDto"
+              }
+            ]
+          },
+          "leveledUp": {
+            "type": "boolean"
+          },
+          "newLevel": {
+            "type": "number"
+          },
+          "statsGained": {
+            "description": "สเตตัสที่ได้จากการเลเวลอัพรอบนี้",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/StatsDto"
+              }
+            ]
+          },
+          "attempt": {
+            "$ref": "#/components/schemas/BattleAttemptDto"
+          }
+        },
+        "required": [
+          "id",
+          "result",
+          "character",
+          "leveledUp",
+          "attempt"
+        ]
+      },
+      "CreateBattleDto": {
+        "type": "object",
+        "properties": {
+          "towerFloor": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 10,
+            "description": "ชั้นของหอคอยที่จะท้าทาย"
+          },
+          "regionRunId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "id ของรอบจาก POST /api/v1/region-runs"
+          }
+        }
+      },
+      "BattleSummaryDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "regionId": {
+            "type": "string"
+          },
+          "depth": {
+            "type": "number"
+          },
+          "floor": {
+            "type": "number"
+          },
+          "victory": {
+            "type": "boolean"
+          },
+          "wavesCleared": {
+            "type": "number"
+          },
+          "expGained": {
+            "type": "number"
+          },
+          "goldGained": {
+            "type": "number"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "regionId",
+          "depth",
+          "floor",
+          "victory",
+          "wavesCleared",
+          "expGained",
+          "goldGained",
+          "createdAt"
+        ]
+      },
+      "TowerProgressDto": {
+        "type": "object",
+        "properties": {
+          "highestFloorCleared": {
+            "type": "number",
+            "description": "ชั้นสูงสุดของหอคอยที่ผ่านแล้ว (ใบคะแนนของหอคอยเอง)"
+          },
+          "maxFloor": {
+            "type": "number"
+          },
+          "globalHighestFloor": {
+            "type": "number",
+            "description": "ความยากสูงสุดที่ผ่านแล้ว \"ที่ไหนก็ได้\" — ตัวปลดล็อกภูมิภาคและไวยากรณ์"
+          }
+        },
+        "required": [
+          "highestFloorCleared",
+          "maxFloor",
+          "globalHighestFloor"
+        ]
+      },
+      "ClassInfoDto": {
+        "type": "object",
+        "properties": {
+          "nameTh": {
+            "type": "string"
+          },
+          "growthHint": {
+            "type": "string"
+          },
+          "baseStats": {
+            "$ref": "#/components/schemas/StatsDto"
+          }
+        },
+        "required": [
+          "nameTh",
+          "growthHint",
+          "baseStats"
+        ]
+      },
+      "SkillDefDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "nameTh": {
+            "type": "string"
+          },
+          "classId": {
+            "type": "string",
+            "enum": [
+              "novice",
+              "warrior",
+              "mage",
+              "guardian",
+              "monster"
+            ]
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "physical",
+              "magic",
+              "heal",
+              "shield",
+              "taunt"
+            ]
+          },
+          "power": {
+            "type": "number",
+            "description": "physical/magic = % ของ atk/matk (100 = 1 เท่า) · heal = % ของเลือดสูงสุดของเป้า · shield = % ของเลือดสูงสุดของผู้ร่าย · taunt ไม่ใช้"
+          },
+          "mpCost": {
+            "type": "number"
+          },
+          "aoe": {
+            "type": "boolean"
+          },
+          "unlockLevel": {
+            "type": "number"
+          },
+          "descTh": {
+            "type": "string",
+            "description": "คำอธิบายสำหรับผู้เล่น (มีเฉพาะสกิลของอาชีพ)"
+          },
+          "animation": {
+            "type": "string",
+            "description": "ชื่อแอนิเมชันเอฟเฟกต์ที่ฉากรบใช้วาด"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "nameTh",
+          "classId",
+          "kind",
+          "power",
+          "mpCost",
+          "aoe",
+          "unlockLevel"
+        ]
+      },
+      "RegionNameDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "nameTh": {
+            "type": "string"
+          },
+          "depths": {
+            "type": "number",
+            "description": "จำนวนรอบของโซน (0 = เมือง ไม่มีการรบ)"
+          }
+        },
+        "required": [
+          "id",
+          "nameTh",
+          "depths"
+        ]
+      },
+      "GameDataDto": {
+        "type": "object",
+        "properties": {
+          "skills": {
+            "description": "สกิลของทุกอาชีพและของมอนสเตอร์",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SkillDefDto"
+            }
+          },
+          "affixNames": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "rarities": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "baseItemNames": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "classes": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ClassInfoDto"
+            }
+          },
+          "regions": {
+            "description": "ภูมิภาคทั้งหมดบนแผนที่ (id + ชื่อไทย) — ใช้กับฟอร์มโจทย์และประวัติการรบ",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RegionNameDto"
+            }
+          }
+        },
+        "required": [
+          "skills",
+          "affixNames",
+          "rarities",
+          "baseItemNames",
+          "classes",
+          "regions"
+        ]
+      },
+      "ChallengeDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "coreUserId": {
+            "type": "string",
+            "description": "core_user_id ของผู้สร้าง"
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "starterSource": {
+            "type": "string"
+          },
+          "regionId": {
+            "type": "string",
+            "nullable": true,
+            "description": "ภูมิภาคที่ผูก · null = ไม่ผูก"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "coreUserId",
+          "title",
+          "description",
+          "starterSource",
+          "regionId",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "CreateChallengeDto": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "example": "ตั้งการ์ดเมื่อถูกหมายหัว",
+            "maxLength": 120
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 4000
+          },
+          "starterSource": {
+            "type": "string",
+            "description": "โปรแกรมตั้งต้นให้ผู้เล่น — ต้อง parse ผ่าน · เว้นไว้ = โปรแกรมพื้นฐาน",
+            "maxLength": 20000
+          },
+          "regionId": {
+            "type": "string",
+            "example": "frostland",
+            "nullable": true,
+            "description": "ภูมิภาคที่โจทย์นี้ผูกด้วย (ถ้ามี)"
+          }
+        },
+        "required": [
+          "title"
+        ]
+      },
+      "UpdateChallengeDto": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "maxLength": 120
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 4000
+          },
+          "starterSource": {
+            "type": "string",
+            "maxLength": 20000
+          },
+          "regionId": {
+            "type": "string",
+            "nullable": true,
+            "description": "null = เลิกผูกกับภูมิภาค"
+          }
+        }
+      }
+    }
+  },
+  "security": [
+    {
+      "coreHubBearer": []
+    },
+    {
+      "ssoCookie": []
+    }
+  ]
+}

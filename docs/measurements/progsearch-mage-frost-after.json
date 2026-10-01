@@ -1,0 +1,177 @@
+{
+  "class": "mage",
+  "pass": 0.8,
+  "maxLevel": 40,
+  "seedsFull": 64,
+  "bestOverall": "def turn():\n    if has_debuff(\"marked\"):\n        defend()\n    elif weakest(enemies).hp_pct < 50:\n        cast(\"firebolt\", weakest(enemies))\n    else:\n        cast(\"firebolt\", strongest(enemies))\n",
+  "bestOneLine": "def turn():\n    cast(\"blizzard\", enemies)\n",
+  "cells": [
+    {
+      "region": "frostland",
+      "depth": 1,
+      "floor": 5,
+      "bestOneLine": 3,
+      "bestOneLineSrc": "cast(\"firebolt\", deadliest(enemies))",
+      "naive": null,
+      "best": 1,
+      "bestSrc": "def turn():\n    if has_debuff(\"marked\"):\n        defend()\n    elif weakest(enemies).hp_pct < 50:\n        cast(\"firebolt\", weakest(enemies))\n    else:\n        cast(\"firebolt\", strongest(enemies))\n",
+      "value": 2
+    },
+    {
+      "region": "frostland",
+      "depth": 2,
+      "floor": 6,
+      "bestOneLine": 4,
+      "bestOneLineSrc": "cast(\"firebolt\", weakest(enemies))",
+      "naive": null,
+      "best": 1,
+      "bestSrc": "def turn():\n    if has_debuff(\"marked\"):\n        defend()\n    elif weakest(enemies).hp_pct < 50:\n        cast(\"firebolt\", weakest(enemies))\n    else:\n        cast(\"firebolt\", strongest(enemies))\n",
+      "value": 3
+    },
+    {
+      "region": "frostland",
+      "depth": 3,
+      "floor": 7,
+      "bestOneLine": 4,
+      "bestOneLineSrc": "cast(\"blizzard\", enemies)",
+      "naive": null,
+      "best": 1,
+      "bestSrc": "def turn():\n    if has_debuff(\"marked\"):\n        defend()\n    elif weakest(enemies).hp_pct < 50:\n        cast(\"firebolt\", weakest(enemies))\n    else:\n        cast(\"firebolt\", strongest(enemies))\n",
+      "value": 3
+    },
+    {
+      "region": "frostland",
+      "depth": 4,
+      "floor": 8,
+      "bestOneLine": 5,
+      "bestOneLineSrc": "cast(\"blizzard\", enemies)",
+      "naive": null,
+      "best": 2,
+      "bestSrc": "def turn():\n    if has_debuff(\"marked\"):\n        defend()\n    elif weakest(enemies).hp_pct < 50:\n        cast(\"firebolt\", weakest(enemies))\n    else:\n        cast(\"firebolt\", strongest(enemies))\n",
+      "value": 3
+    },
+    {
+      "region": "frostland",
+      "depth": 5,
+      "floor": 9,
+      "bestOneLine": 6,
+      "bestOneLineSrc": "cast(\"firebolt\", deadliest(enemies))",
+      "naive": null,
+      "best": 2,
+      "bestSrc": "def turn():\n    if has_debuff(\"marked\"):\n        defend()\n    elif weakest(enemies).hp_pct < 50:\n        cast(\"firebolt\", weakest(enemies))\n    else:\n        cast(\"firebolt\", strongest(enemies))\n",
+      "value": 4
+    }
+  ],
+  "top": [
+    {
+      "src": "def turn():\n    if has_debuff(\"marked\"):\n        defend()\n    elif weakest(enemies).hp_pct < 50:\n        cast(\"firebolt\", weakest(enemies))\n    else:\n        cast(\"firebolt\", strongest(enemies))\n",
+      "total": 7,
+      "profile": [
+        1,
+        1,
+        1,
+        2,
+        2
+      ]
+    },
+    {
+      "src": "def turn():\n    if has_debuff(\"marked\"):\n        defend()\n    else:\n        cast(\"firebolt\", deadliest(enemies))\n",
+      "total": 8,
+      "profile": [
+        2,
+        1,
+        1,
+        2,
+        2
+      ]
+    },
+    {
+      "src": "def turn():\n    if has_debuff(\"marked\"):\n        defend()\n    elif me.hp_pct < 70:\n        cast(\"firebolt\", deadliest(enemies))\n    else:\n        cast(\"firebolt\", weakest(enemies))\n",
+      "total": 8,
+      "profile": [
+        2,
+        1,
+        1,
+        2,
+        2
+      ]
+    },
+    {
+      "src": "def turn():\n    if has_debuff(\"marked\"):\n        defend()\n    elif me.hp_pct < 50:\n        cast(\"firebolt\", deadliest(enemies))\n    else:\n        cast(\"firebolt\", fastest(enemies))\n",
+      "total": 8,
+      "profile": [
+        2,
+        1,
+        1,
+        2,
+        2
+      ]
+    },
+    {
+      "src": "def turn():\n    if has_debuff(\"marked\"):\n        defend()\n    elif me.hp_pct < 70:\n        cast(\"firebolt\", deadliest(enemies))\n    else:\n        cast(\"firebolt\", fastest(enemies))\n",
+      "total": 8,
+      "profile": [
+        2,
+        1,
+        1,
+        2,
+        2
+      ]
+    },
+    {
+      "src": "def turn():\n    if has_debuff(\"marked\"):\n        defend()\n    elif count(enemies) >= 3:\n        cast(\"firebolt\", weakest(enemies))\n    else:\n        cast(\"firebolt\", deadliest(enemies))\n",
+      "total": 8,
+      "profile": [
+        2,
+        1,
+        1,
+        2,
+        2
+      ]
+    },
+    {
+      "src": "def turn():\n    if has_debuff(\"marked\"):\n        defend()\n    elif count(enemies) >= 3:\n        cast(\"firebolt\", fastest(enemies))\n    else:\n        cast(\"firebolt\", deadliest(enemies))\n",
+      "total": 8,
+      "profile": [
+        2,
+        1,
+        1,
+        2,
+        2
+      ]
+    },
+    {
+      "src": "def turn():\n    if has_debuff(\"marked\"):\n        defend()\n    elif count(enemies) >= 4:\n        cast(\"firebolt\", weakest(enemies))\n    else:\n        cast(\"firebolt\", deadliest(enemies))\n",
+      "total": 8,
+      "profile": [
+        2,
+        1,
+        1,
+        2,
+        2
+      ]
+    },
+    {
+      "src": "def turn():\n    if has_debuff(\"marked\"):\n        defend()\n    elif count(enemies) >= 4:\n        cast(\"firebolt\", fastest(enemies))\n    else:\n        cast(\"firebolt\", deadliest(enemies))\n",
+      "total": 8,
+      "profile": [
+        2,
+        1,
+        1,
+        2,
+        2
+      ]
+    },
+    {
+      "src": "def turn():\n    if has_debuff(\"marked\"):\n        defend()\n    else:\n        cast(\"firebolt\", weakest(enemies))\n",
+      "total": 9,
+      "profile": [
+        2,
+        1,
+        2,
+        2,
+        2
+      ]
+    }
+  ]
+}

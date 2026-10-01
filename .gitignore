@@ -11,3 +11,6 @@ generated/
 *.pem
 *.key
 !.env.example
+.next-*/
+frontend/next-env.d.ts
+*.tsbuildinfo

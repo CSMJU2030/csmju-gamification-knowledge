@@ -1,0 +1,6703 @@
+{
+  "note": "สร้างจาก build ก่อน refactor รอบ 2W — ถ้าค่าใดเปลี่ยน แปลว่าความยากเดิมเพี้ยน",
+  "battles": [
+    {
+      "key": "novice/lv1/f1/none/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 254,
+      "exp": 496,
+      "gold": 341,
+      "items": 5,
+      "sha": "9fdf45e07dae81011a9b92ed2808c7f1"
+    },
+    {
+      "key": "novice/lv1/f1/none/s424242",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 250,
+      "exp": 496,
+      "gold": 341,
+      "items": 2,
+      "sha": "6b52a1459e1f9f6c158b34c7aebceb3b"
+    },
+    {
+      "key": "novice/lv1/f1/none/s987654321",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 229,
+      "exp": 464,
+      "gold": 319,
+      "items": 5,
+      "sha": "235812bdf3f35c4b56b3a09acef5d593"
+    },
+    {
+      "key": "novice/lv1/f1/naive/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 254,
+      "exp": 496,
+      "gold": 341,
+      "items": 5,
+      "sha": "f01c016a439a065bae8ecab636a505cf"
+    },
+    {
+      "key": "novice/lv1/f1/naive/s424242",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 250,
+      "exp": 496,
+      "gold": 341,
+      "items": 2,
+      "sha": "44453b5beef24168a09968ad63b73da8"
+    },
+    {
+      "key": "novice/lv1/f1/naive/s987654321",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 229,
+      "exp": 464,
+      "gold": 319,
+      "items": 5,
+      "sha": "925e42237a98aef76b429075368ad7d7"
+    },
+    {
+      "key": "novice/lv1/f1/smart/s1",
+      "victory": false,
+      "wavesCleared": 7,
+      "events": 262,
+      "exp": 336,
+      "gold": 231,
+      "items": 3,
+      "sha": "78c5fed40f3a345817e36ce99715c742"
+    },
+    {
+      "key": "novice/lv1/f1/smart/s424242",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 250,
+      "exp": 496,
+      "gold": 341,
+      "items": 2,
+      "sha": "ba65e31c2b6e83253a48c76898ef4d53"
+    },
+    {
+      "key": "novice/lv1/f1/smart/s987654321",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 229,
+      "exp": 464,
+      "gold": 319,
+      "items": 5,
+      "sha": "bee8354506a0f42b1b16bc57b700b7ad"
+    },
+    {
+      "key": "novice/lv1/f2/none/s1",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 14,
+      "exp": 24,
+      "gold": 17,
+      "items": 0,
+      "sha": "f6f0b19798be9b27fd49b83c28004f67"
+    },
+    {
+      "key": "novice/lv1/f2/none/s424242",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 10,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "f925a43c59a69e0d0e06f857fee2f13d"
+    },
+    {
+      "key": "novice/lv1/f2/none/s987654321",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 14,
+      "exp": 24,
+      "gold": 17,
+      "items": 0,
+      "sha": "1b71c0e19a9213fb5571269d29915df6"
+    },
+    {
+      "key": "novice/lv1/f2/naive/s1",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 14,
+      "exp": 24,
+      "gold": 17,
+      "items": 0,
+      "sha": "70d7035083f314027aa2e53775d4aefd"
+    },
+    {
+      "key": "novice/lv1/f2/naive/s424242",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 10,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "ae372b7a0e888e468ea09544b1ea0a98"
+    },
+    {
+      "key": "novice/lv1/f2/naive/s987654321",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 14,
+      "exp": 24,
+      "gold": 17,
+      "items": 0,
+      "sha": "1536902ad712865d8851413ce38dc3a8"
+    },
+    {
+      "key": "novice/lv1/f2/smart/s1",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 16,
+      "exp": 24,
+      "gold": 17,
+      "items": 0,
+      "sha": "83e7e710f1302dec51ca5bd5e12e3de6"
+    },
+    {
+      "key": "novice/lv1/f2/smart/s424242",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 12,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "cbf96c196591d4af14bbe1e276436880"
+    },
+    {
+      "key": "novice/lv1/f2/smart/s987654321",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 16,
+      "exp": 24,
+      "gold": 17,
+      "items": 0,
+      "sha": "93a8487346ac3709e877c6e788e0e182"
+    },
+    {
+      "key": "novice/lv1/f3/none/s1",
+      "victory": false,
+      "wavesCleared": 1,
+      "events": 36,
+      "exp": 64,
+      "gold": 46,
+      "items": 0,
+      "sha": "5ff8793f6660ec45196725f394c116b4"
+    },
+    {
+      "key": "novice/lv1/f3/none/s424242",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 6,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "d5a43744c70335b4758e4beb73c7980b"
+    },
+    {
+      "key": "novice/lv1/f3/none/s987654321",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 8,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "8076d15c0ae56fc5f2d93088d858495c"
+    },
+    {
+      "key": "novice/lv1/f3/naive/s1",
+      "victory": false,
+      "wavesCleared": 1,
+      "events": 36,
+      "exp": 64,
+      "gold": 46,
+      "items": 0,
+      "sha": "cbb9e12eee865571bbe54bc2c907257c"
+    },
+    {
+      "key": "novice/lv1/f3/naive/s424242",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 6,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "841113e8149efb5a6ef6f14c57396c5c"
+    },
+    {
+      "key": "novice/lv1/f3/naive/s987654321",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 8,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "c73158638a6e3963b8c269105577731a"
+    },
+    {
+      "key": "novice/lv1/f3/smart/s1",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 53,
+      "exp": 32,
+      "gold": 23,
+      "items": 0,
+      "sha": "de58aee22aed983a3fa45e7670162126"
+    },
+    {
+      "key": "novice/lv1/f3/smart/s424242",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 6,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "c75d527da76ebb97e7a8eb0160b5cd3b"
+    },
+    {
+      "key": "novice/lv1/f3/smart/s987654321",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 8,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "cdfc090ad22089e75b67697894495c19"
+    },
+    {
+      "key": "novice/lv1/f5/none/s1",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 9,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "8e6dae72d22dbc784d3e6d21655b7003"
+    },
+    {
+      "key": "novice/lv1/f5/none/s424242",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 8,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "8f97bf8d5ac877c4464c9a9574c20e9b"
+    },
+    {
+      "key": "novice/lv1/f5/none/s987654321",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 15,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "48c8f7f5313d13ae14450de1e88792a4"
+    },
+    {
+      "key": "novice/lv1/f5/naive/s1",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 9,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "a4f35b7de7381c27b032eb574aabee8c"
+    },
+    {
+      "key": "novice/lv1/f5/naive/s424242",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 8,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "4db243ebc71e29832369112502c50db5"
+    },
+    {
+      "key": "novice/lv1/f5/naive/s987654321",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 15,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "f12a230feddfbe324467df74a4b113c3"
+    },
+    {
+      "key": "novice/lv1/f5/smart/s1",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 9,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "64b910db1216cb22929cc80362e4db5e"
+    },
+    {
+      "key": "novice/lv1/f5/smart/s424242",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 8,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "f6a24cb3eb2c6bb84f97c9b2fb9d1881"
+    },
+    {
+      "key": "novice/lv1/f5/smart/s987654321",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 18,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "ea9a64654d561d75c1f1e140d16748eb"
+    },
+    {
+      "key": "novice/lv1/f8/none/s1",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 15,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "117a7384925cd1558ad76b4fdbcee0ac"
+    },
+    {
+      "key": "novice/lv1/f8/none/s424242",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 5,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "224c866fe1f8847e9adfdbb1a54d15d4"
+    },
+    {
+      "key": "novice/lv1/f8/none/s987654321",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 6,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "586a0dda56073c42d45194b65992c724"
+    },
+    {
+      "key": "novice/lv1/f8/naive/s1",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 15,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "fe608ee3f90946c413028b5397a3de1f"
+    },
+    {
+      "key": "novice/lv1/f8/naive/s424242",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 5,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "196398b305aa040722bca5903aa140b6"
+    },
+    {
+      "key": "novice/lv1/f8/naive/s987654321",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 6,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "6b9a589a3d4ff06caf00befa2bb9f2d1"
+    },
+    {
+      "key": "novice/lv1/f8/smart/s1",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 18,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "a7542947aab1c00a77a0c5cb3fe0d60a"
+    },
+    {
+      "key": "novice/lv1/f8/smart/s424242",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 5,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "95e152b004fcef47e829314ebfe0fe5e"
+    },
+    {
+      "key": "novice/lv1/f8/smart/s987654321",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 6,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "a77d52efe029b82422b94153d14e0a5d"
+    },
+    {
+      "key": "novice/lv1/f10/none/s1",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 8,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "9458ad85edf3b3f7c680c1575eed6828"
+    },
+    {
+      "key": "novice/lv1/f10/none/s424242",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 11,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "88a6ece8b2cd6e8fdc07703d015de899"
+    },
+    {
+      "key": "novice/lv1/f10/none/s987654321",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 5,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "9b6b6cd15c2ec7cc03131ec62c600274"
+    },
+    {
+      "key": "novice/lv1/f10/naive/s1",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 8,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "10d9aa2868962534a2b132b9cbf18007"
+    },
+    {
+      "key": "novice/lv1/f10/naive/s424242",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 11,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "56785d0e2675308ce27265017ce6b828"
+    },
+    {
+      "key": "novice/lv1/f10/naive/s987654321",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 5,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "591ebf1dffff23dc435286a87c6466e4"
+    },
+    {
+      "key": "novice/lv1/f10/smart/s1",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 9,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "d2d334b460708510b69d1b370ca694ee"
+    },
+    {
+      "key": "novice/lv1/f10/smart/s424242",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 12,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "0bdba908039f299958da2df6e589d151"
+    },
+    {
+      "key": "novice/lv1/f10/smart/s987654321",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 5,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "12d99c398351ffa93bcf50631222afc3"
+    },
+    {
+      "key": "novice/lv8/f1/none/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 90,
+      "exp": 496,
+      "gold": 341,
+      "items": 2,
+      "sha": "78e2788f0ee0fdde97196ad4c668941d"
+    },
+    {
+      "key": "novice/lv8/f1/none/s424242",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 90,
+      "exp": 496,
+      "gold": 341,
+      "items": 4,
+      "sha": "bc29b2c0af374b6ffc9c658eaa320180"
+    },
+    {
+      "key": "novice/lv8/f1/none/s987654321",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 80,
+      "exp": 464,
+      "gold": 319,
+      "items": 3,
+      "sha": "25f59095aa1143918d4f7712f7226d88"
+    },
+    {
+      "key": "novice/lv8/f1/naive/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 90,
+      "exp": 496,
+      "gold": 341,
+      "items": 2,
+      "sha": "6f8171f4a624f20a791f939e4a708b73"
+    },
+    {
+      "key": "novice/lv8/f1/naive/s424242",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 90,
+      "exp": 496,
+      "gold": 341,
+      "items": 4,
+      "sha": "76048347d2011ce0cf5bdeddb2a0a6af"
+    },
+    {
+      "key": "novice/lv8/f1/naive/s987654321",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 80,
+      "exp": 464,
+      "gold": 319,
+      "items": 3,
+      "sha": "94ae793b90e124bb49703123a21a35b2"
+    },
+    {
+      "key": "novice/lv8/f1/smart/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 90,
+      "exp": 496,
+      "gold": 341,
+      "items": 2,
+      "sha": "56e4fe8b85162ddfa3ad7415f94df32d"
+    },
+    {
+      "key": "novice/lv8/f1/smart/s424242",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 90,
+      "exp": 496,
+      "gold": 341,
+      "items": 4,
+      "sha": "65b0aba1bcdbe72ea8325b44df67d4c6"
+    },
+    {
+      "key": "novice/lv8/f1/smart/s987654321",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 80,
+      "exp": 464,
+      "gold": 319,
+      "items": 3,
+      "sha": "b148c4da6c6854af8ec2c2966208516c"
+    },
+    {
+      "key": "novice/lv8/f2/none/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 119,
+      "exp": 720,
+      "gold": 510,
+      "items": 1,
+      "sha": "1a6543f6d624706fc19b74f06c11076c"
+    },
+    {
+      "key": "novice/lv8/f2/none/s424242",
+      "victory": false,
+      "wavesCleared": 8,
+      "events": 110,
+      "exp": 576,
+      "gold": 408,
+      "items": 5,
+      "sha": "1dc212a371f65bcd1ae5178caca66344"
+    },
+    {
+      "key": "novice/lv8/f2/none/s987654321",
+      "victory": false,
+      "wavesCleared": 6,
+      "events": 79,
+      "exp": 384,
+      "gold": 272,
+      "items": 1,
+      "sha": "234dff6238890f3bec9b8e1cff5ce900"
+    },
+    {
+      "key": "novice/lv8/f2/naive/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 119,
+      "exp": 720,
+      "gold": 510,
+      "items": 1,
+      "sha": "f7bd1f7546cdc60fd0ef2f5cc251048d"
+    },
+    {
+      "key": "novice/lv8/f2/naive/s424242",
+      "victory": false,
+      "wavesCleared": 8,
+      "events": 110,
+      "exp": 576,
+      "gold": 408,
+      "items": 5,
+      "sha": "501c9ce36605d4c904f5df04000afe2b"
+    },
+    {
+      "key": "novice/lv8/f2/naive/s987654321",
+      "victory": false,
+      "wavesCleared": 6,
+      "events": 79,
+      "exp": 384,
+      "gold": 272,
+      "items": 1,
+      "sha": "8d473ba7d3a40ce58d73377f668385de"
+    },
+    {
+      "key": "novice/lv8/f2/smart/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 124,
+      "exp": 720,
+      "gold": 510,
+      "items": 2,
+      "sha": "6fb0da6ad2023eade45665bcffd0f210"
+    },
+    {
+      "key": "novice/lv8/f2/smart/s424242",
+      "victory": false,
+      "wavesCleared": 5,
+      "events": 106,
+      "exp": 336,
+      "gold": 238,
+      "items": 2,
+      "sha": "f1705ab5a24773f3972d4967f5363653"
+    },
+    {
+      "key": "novice/lv8/f2/smart/s987654321",
+      "victory": false,
+      "wavesCleared": 5,
+      "events": 81,
+      "exp": 312,
+      "gold": 221,
+      "items": 1,
+      "sha": "48b658441e8210745bdadf1c0fc7b660"
+    },
+    {
+      "key": "novice/lv8/f3/none/s1",
+      "victory": false,
+      "wavesCleared": 4,
+      "events": 58,
+      "exp": 320,
+      "gold": 230,
+      "items": 2,
+      "sha": "51cfa94438f581221733ba4b7965c73b"
+    },
+    {
+      "key": "novice/lv8/f3/none/s424242",
+      "victory": false,
+      "wavesCleared": 1,
+      "events": 29,
+      "exp": 96,
+      "gold": 69,
+      "items": 0,
+      "sha": "15958829a703845510bcecbbfd716093"
+    },
+    {
+      "key": "novice/lv8/f3/none/s987654321",
+      "victory": false,
+      "wavesCleared": 3,
+      "events": 54,
+      "exp": 256,
+      "gold": 184,
+      "items": 0,
+      "sha": "53f39ba18d3015fa5e0182f912dbea5e"
+    },
+    {
+      "key": "novice/lv8/f3/naive/s1",
+      "victory": false,
+      "wavesCleared": 4,
+      "events": 58,
+      "exp": 320,
+      "gold": 230,
+      "items": 2,
+      "sha": "d9e67696b8bf35a5dfff7f7b250990ec"
+    },
+    {
+      "key": "novice/lv8/f3/naive/s424242",
+      "victory": false,
+      "wavesCleared": 1,
+      "events": 29,
+      "exp": 96,
+      "gold": 69,
+      "items": 0,
+      "sha": "2beaf621d8adb1ad2c339cc66dba37f9"
+    },
+    {
+      "key": "novice/lv8/f3/naive/s987654321",
+      "victory": false,
+      "wavesCleared": 3,
+      "events": 54,
+      "exp": 256,
+      "gold": 184,
+      "items": 0,
+      "sha": "e23269951b89896a7a94c68edd435f2d"
+    },
+    {
+      "key": "novice/lv8/f3/smart/s1",
+      "victory": false,
+      "wavesCleared": 3,
+      "events": 81,
+      "exp": 192,
+      "gold": 138,
+      "items": 1,
+      "sha": "8fe69a1bf982bb31ba426fb9222a8c20"
+    },
+    {
+      "key": "novice/lv8/f3/smart/s424242",
+      "victory": false,
+      "wavesCleared": 1,
+      "events": 35,
+      "exp": 64,
+      "gold": 46,
+      "items": 0,
+      "sha": "d4eabd5ac8384e96dc17ab933eaeebe2"
+    },
+    {
+      "key": "novice/lv8/f3/smart/s987654321",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 34,
+      "exp": 32,
+      "gold": 23,
+      "items": 0,
+      "sha": "947526788856d98deea1badfeb1ce722"
+    },
+    {
+      "key": "novice/lv8/f5/none/s1",
+      "victory": false,
+      "wavesCleared": 1,
+      "events": 27,
+      "exp": 144,
+      "gold": 105,
+      "items": 0,
+      "sha": "b51b2ff7aee0723477968b8ef2ed2fe7"
+    },
+    {
+      "key": "novice/lv8/f5/none/s424242",
+      "victory": false,
+      "wavesCleared": 2,
+      "events": 38,
+      "exp": 240,
+      "gold": 175,
+      "items": 1,
+      "sha": "2e1e3b800b35e2019ec5bb5d42333c83"
+    },
+    {
+      "key": "novice/lv8/f5/none/s987654321",
+      "victory": false,
+      "wavesCleared": 2,
+      "events": 38,
+      "exp": 240,
+      "gold": 175,
+      "items": 1,
+      "sha": "df25b5a2cb8ad37cf32a79da16b50dd0"
+    },
+    {
+      "key": "novice/lv8/f5/naive/s1",
+      "victory": false,
+      "wavesCleared": 1,
+      "events": 27,
+      "exp": 144,
+      "gold": 105,
+      "items": 0,
+      "sha": "207fa9ec6081d62317c8c2baec045e51"
+    },
+    {
+      "key": "novice/lv8/f5/naive/s424242",
+      "victory": false,
+      "wavesCleared": 2,
+      "events": 38,
+      "exp": 240,
+      "gold": 175,
+      "items": 1,
+      "sha": "f17da035dbb3e0a330a40a90fac72a08"
+    },
+    {
+      "key": "novice/lv8/f5/naive/s987654321",
+      "victory": false,
+      "wavesCleared": 2,
+      "events": 38,
+      "exp": 240,
+      "gold": 175,
+      "items": 1,
+      "sha": "4e13330cece0efae3c4ee8ac7257a8d4"
+    },
+    {
+      "key": "novice/lv8/f5/smart/s1",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 25,
+      "exp": 48,
+      "gold": 35,
+      "items": 0,
+      "sha": "87019fa6390de7dffcd557ad080d0747"
+    },
+    {
+      "key": "novice/lv8/f5/smart/s424242",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 24,
+      "exp": 48,
+      "gold": 35,
+      "items": 0,
+      "sha": "010737f1df62402f5e58f10401eaab00"
+    },
+    {
+      "key": "novice/lv8/f5/smart/s987654321",
+      "victory": false,
+      "wavesCleared": 1,
+      "events": 36,
+      "exp": 144,
+      "gold": 105,
+      "items": 1,
+      "sha": "70063ce175b6adcf1a3f5e3cf2468064"
+    },
+    {
+      "key": "novice/lv8/f8/none/s1",
+      "victory": false,
+      "wavesCleared": 3,
+      "events": 66,
+      "exp": 504,
+      "gold": 371,
+      "items": 2,
+      "sha": "aa85ee4cfe4abb36cb56e685775a4200"
+    },
+    {
+      "key": "novice/lv8/f8/none/s424242",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 17,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "bd9b717c4a20c5dd892e7c1b27829ca8"
+    },
+    {
+      "key": "novice/lv8/f8/none/s987654321",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 15,
+      "exp": 72,
+      "gold": 53,
+      "items": 0,
+      "sha": "4805171ee90f9e29ef6692ff70fbfe32"
+    },
+    {
+      "key": "novice/lv8/f8/naive/s1",
+      "victory": false,
+      "wavesCleared": 3,
+      "events": 66,
+      "exp": 504,
+      "gold": 371,
+      "items": 2,
+      "sha": "e505a66e84415fbe6290122c7a495ad5"
+    },
+    {
+      "key": "novice/lv8/f8/naive/s424242",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 17,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "ecbbbcaccad82d2c0a17536ba73efab6"
+    },
+    {
+      "key": "novice/lv8/f8/naive/s987654321",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 15,
+      "exp": 72,
+      "gold": 53,
+      "items": 0,
+      "sha": "8db19ee2eb45981d45b85567f04bcc26"
+    },
+    {
+      "key": "novice/lv8/f8/smart/s1",
+      "victory": false,
+      "wavesCleared": 3,
+      "events": 70,
+      "exp": 432,
+      "gold": 318,
+      "items": 1,
+      "sha": "5a04d9b02dc9c51bcf1a02c6fcb1b1d1"
+    },
+    {
+      "key": "novice/lv8/f8/smart/s424242",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 24,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "96a726605ce465a2e59157a531cf11c6"
+    },
+    {
+      "key": "novice/lv8/f8/smart/s987654321",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 19,
+      "exp": 72,
+      "gold": 53,
+      "items": 1,
+      "sha": "e63f0ae98a504a4cbcf5ca51632d306f"
+    },
+    {
+      "key": "novice/lv8/f10/none/s1",
+      "victory": false,
+      "wavesCleared": 2,
+      "events": 44,
+      "exp": 352,
+      "gold": 260,
+      "items": 0,
+      "sha": "b120950541273d82d6841f5643513d79"
+    },
+    {
+      "key": "novice/lv8/f10/none/s424242",
+      "victory": false,
+      "wavesCleared": 2,
+      "events": 67,
+      "exp": 440,
+      "gold": 325,
+      "items": 0,
+      "sha": "520a803dcd751d6a7557cf1c4c8deeff"
+    },
+    {
+      "key": "novice/lv8/f10/none/s987654321",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 11,
+      "exp": 88,
+      "gold": 65,
+      "items": 0,
+      "sha": "d96315dfb578a6eb2b919fc15c1100c8"
+    },
+    {
+      "key": "novice/lv8/f10/naive/s1",
+      "victory": false,
+      "wavesCleared": 2,
+      "events": 44,
+      "exp": 352,
+      "gold": 260,
+      "items": 0,
+      "sha": "33d2c08457234aeaa5a9da6923bed61f"
+    },
+    {
+      "key": "novice/lv8/f10/naive/s424242",
+      "victory": false,
+      "wavesCleared": 2,
+      "events": 67,
+      "exp": 440,
+      "gold": 325,
+      "items": 0,
+      "sha": "32bb70c1c6b0c8083c1306dc7c662146"
+    },
+    {
+      "key": "novice/lv8/f10/naive/s987654321",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 11,
+      "exp": 88,
+      "gold": 65,
+      "items": 0,
+      "sha": "e61249b28993d9c86dece70acd081ca3"
+    },
+    {
+      "key": "novice/lv8/f10/smart/s1",
+      "victory": false,
+      "wavesCleared": 1,
+      "events": 88,
+      "exp": 264,
+      "gold": 195,
+      "items": 0,
+      "sha": "c9f9cf475eac269c9a1852392358d2f2"
+    },
+    {
+      "key": "novice/lv8/f10/smart/s424242",
+      "victory": false,
+      "wavesCleared": 1,
+      "events": 75,
+      "exp": 264,
+      "gold": 195,
+      "items": 1,
+      "sha": "0813d890ed41febfffd5d08ca7f9071c"
+    },
+    {
+      "key": "novice/lv8/f10/smart/s987654321",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 11,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "654bab064e16cbf969cf71345d711046"
+    },
+    {
+      "key": "novice/lv20/f1/none/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 88,
+      "exp": 496,
+      "gold": 341,
+      "items": 2,
+      "sha": "b23eb25576049c3cd40013bd7fb2dd21"
+    },
+    {
+      "key": "novice/lv20/f1/none/s424242",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 88,
+      "exp": 496,
+      "gold": 341,
+      "items": 4,
+      "sha": "6b2f625569b938b7e507919039d4b9cb"
+    },
+    {
+      "key": "novice/lv20/f1/none/s987654321",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 78,
+      "exp": 464,
+      "gold": 319,
+      "items": 2,
+      "sha": "8065bd7f814cd6f54841e324402cbe31"
+    },
+    {
+      "key": "novice/lv20/f1/naive/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 88,
+      "exp": 496,
+      "gold": 341,
+      "items": 2,
+      "sha": "07fd665d76c53c87e6b4599782d94072"
+    },
+    {
+      "key": "novice/lv20/f1/naive/s424242",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 88,
+      "exp": 496,
+      "gold": 341,
+      "items": 4,
+      "sha": "9e9f3c6110f1238b3041595e4e8dd9b1"
+    },
+    {
+      "key": "novice/lv20/f1/naive/s987654321",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 78,
+      "exp": 464,
+      "gold": 319,
+      "items": 2,
+      "sha": "80d250041b834fa947523ddaeda2600e"
+    },
+    {
+      "key": "novice/lv20/f1/smart/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 88,
+      "exp": 496,
+      "gold": 341,
+      "items": 2,
+      "sha": "610ee24a978952df9060d2344050ab6b"
+    },
+    {
+      "key": "novice/lv20/f1/smart/s424242",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 88,
+      "exp": 496,
+      "gold": 341,
+      "items": 4,
+      "sha": "091d2104eb49f5622482ded078e58610"
+    },
+    {
+      "key": "novice/lv20/f1/smart/s987654321",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 78,
+      "exp": 464,
+      "gold": 319,
+      "items": 2,
+      "sha": "97894b4584383d29b34580a1655ffc15"
+    },
+    {
+      "key": "novice/lv20/f2/none/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 85,
+      "exp": 720,
+      "gold": 510,
+      "items": 6,
+      "sha": "2e466cec076dbe7426005893071b02e6"
+    },
+    {
+      "key": "novice/lv20/f2/none/s424242",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 87,
+      "exp": 744,
+      "gold": 527,
+      "items": 5,
+      "sha": "8dfcb3fd42b0905428ba225e7e414f74"
+    },
+    {
+      "key": "novice/lv20/f2/none/s987654321",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 81,
+      "exp": 744,
+      "gold": 527,
+      "items": 2,
+      "sha": "6bb9f077a80d6f79a23662a3589e24d2"
+    },
+    {
+      "key": "novice/lv20/f2/naive/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 85,
+      "exp": 720,
+      "gold": 510,
+      "items": 6,
+      "sha": "6d057d917ac125c4e4a1e4914bbc2ed2"
+    },
+    {
+      "key": "novice/lv20/f2/naive/s424242",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 87,
+      "exp": 744,
+      "gold": 527,
+      "items": 5,
+      "sha": "a9d54f2d37b96d938c526df8fb0be494"
+    },
+    {
+      "key": "novice/lv20/f2/naive/s987654321",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 81,
+      "exp": 744,
+      "gold": 527,
+      "items": 2,
+      "sha": "4b0941445ff2d8d5a92eeb1fbcae0864"
+    },
+    {
+      "key": "novice/lv20/f2/smart/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 87,
+      "exp": 720,
+      "gold": 510,
+      "items": 6,
+      "sha": "92492965a55712eb7871d78968ffdb61"
+    },
+    {
+      "key": "novice/lv20/f2/smart/s424242",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 88,
+      "exp": 744,
+      "gold": 527,
+      "items": 4,
+      "sha": "64cc905599fa988ab74403c17b6b077f"
+    },
+    {
+      "key": "novice/lv20/f2/smart/s987654321",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 82,
+      "exp": 744,
+      "gold": 527,
+      "items": 4,
+      "sha": "b7477f96e31a9d86589f315ef7bb861b"
+    },
+    {
+      "key": "novice/lv20/f3/none/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 101,
+      "exp": 992,
+      "gold": 713,
+      "items": 4,
+      "sha": "372bbfebca49015ca61b76f953d202bc"
+    },
+    {
+      "key": "novice/lv20/f3/none/s424242",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 100,
+      "exp": 960,
+      "gold": 690,
+      "items": 2,
+      "sha": "41b75478d88dfe40453d8209c7964286"
+    },
+    {
+      "key": "novice/lv20/f3/none/s987654321",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 100,
+      "exp": 992,
+      "gold": 713,
+      "items": 5,
+      "sha": "2ead87a68820148f8735c700ff446e47"
+    },
+    {
+      "key": "novice/lv20/f3/naive/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 101,
+      "exp": 992,
+      "gold": 713,
+      "items": 4,
+      "sha": "ae4001070d8a6a6130bb51d97bb0ce5d"
+    },
+    {
+      "key": "novice/lv20/f3/naive/s424242",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 100,
+      "exp": 960,
+      "gold": 690,
+      "items": 2,
+      "sha": "bfeecc6cd8efe0a0bffb71a18a06566e"
+    },
+    {
+      "key": "novice/lv20/f3/naive/s987654321",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 100,
+      "exp": 992,
+      "gold": 713,
+      "items": 5,
+      "sha": "677733497e54b740ebabaaeba43187af"
+    },
+    {
+      "key": "novice/lv20/f3/smart/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 102,
+      "exp": 992,
+      "gold": 713,
+      "items": 4,
+      "sha": "56fd8ec8c23cca03cf1f49e4a39bf802"
+    },
+    {
+      "key": "novice/lv20/f3/smart/s424242",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 96,
+      "exp": 960,
+      "gold": 690,
+      "items": 4,
+      "sha": "a7ecfe5cf9e22e2ab0a7e5c14bd0b28a"
+    },
+    {
+      "key": "novice/lv20/f3/smart/s987654321",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 99,
+      "exp": 992,
+      "gold": 713,
+      "items": 5,
+      "sha": "49f907c2a49b7cc2060f8419966d8e49"
+    },
+    {
+      "key": "novice/lv20/f5/none/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 109,
+      "exp": 1440,
+      "gold": 1050,
+      "items": 6,
+      "sha": "b01710335b1fd9d0fd2e5cfeb916d602"
+    },
+    {
+      "key": "novice/lv20/f5/none/s424242",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 122,
+      "exp": 1536,
+      "gold": 1120,
+      "items": 4,
+      "sha": "c1ce832f40c0086efd69e9b9205a4dd9"
+    },
+    {
+      "key": "novice/lv20/f5/none/s987654321",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 119,
+      "exp": 1536,
+      "gold": 1120,
+      "items": 4,
+      "sha": "00a2806fda183383d1b2ea09371ee682"
+    },
+    {
+      "key": "novice/lv20/f5/naive/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 109,
+      "exp": 1440,
+      "gold": 1050,
+      "items": 6,
+      "sha": "9bf72b9b130479466ba355ad8238c429"
+    },
+    {
+      "key": "novice/lv20/f5/naive/s424242",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 122,
+      "exp": 1536,
+      "gold": 1120,
+      "items": 4,
+      "sha": "93faa1be90260d60d96d4b6e4130f48e"
+    },
+    {
+      "key": "novice/lv20/f5/naive/s987654321",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 119,
+      "exp": 1536,
+      "gold": 1120,
+      "items": 4,
+      "sha": "7b4af5ba2686cc8270153e2544175a03"
+    },
+    {
+      "key": "novice/lv20/f5/smart/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 113,
+      "exp": 1440,
+      "gold": 1050,
+      "items": 5,
+      "sha": "7ef9a88be516cd96b61645a19c2b0c0b"
+    },
+    {
+      "key": "novice/lv20/f5/smart/s424242",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 129,
+      "exp": 1536,
+      "gold": 1120,
+      "items": 3,
+      "sha": "1adcd8d14fd2cd29aa4e8d23d26ed635"
+    },
+    {
+      "key": "novice/lv20/f5/smart/s987654321",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 128,
+      "exp": 1536,
+      "gold": 1120,
+      "items": 4,
+      "sha": "9aa3b117c008e9805ac57d8ed348c55f"
+    },
+    {
+      "key": "novice/lv20/f8/none/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 141,
+      "exp": 2160,
+      "gold": 1590,
+      "items": 5,
+      "sha": "fca2fe3956890f683171dda2735990bc"
+    },
+    {
+      "key": "novice/lv20/f8/none/s424242",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 154,
+      "exp": 2232,
+      "gold": 1643,
+      "items": 2,
+      "sha": "40bc92ac163e50ac9823a94ea4428e45"
+    },
+    {
+      "key": "novice/lv20/f8/none/s987654321",
+      "victory": false,
+      "wavesCleared": 8,
+      "events": 132,
+      "exp": 1800,
+      "gold": 1325,
+      "items": 6,
+      "sha": "8549938f15a9c37161edb8d1ae1501eb"
+    },
+    {
+      "key": "novice/lv20/f8/naive/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 141,
+      "exp": 2160,
+      "gold": 1590,
+      "items": 5,
+      "sha": "d61e362c2d8ce80a924c0c40aa965a51"
+    },
+    {
+      "key": "novice/lv20/f8/naive/s424242",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 154,
+      "exp": 2232,
+      "gold": 1643,
+      "items": 2,
+      "sha": "9eaf1cf3b69fdc3348070647ed239a6e"
+    },
+    {
+      "key": "novice/lv20/f8/naive/s987654321",
+      "victory": false,
+      "wavesCleared": 8,
+      "events": 132,
+      "exp": 1800,
+      "gold": 1325,
+      "items": 6,
+      "sha": "d758c5bcf2613673b02ab9eab514d54f"
+    },
+    {
+      "key": "novice/lv20/f8/smart/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 149,
+      "exp": 2160,
+      "gold": 1590,
+      "items": 3,
+      "sha": "c1b1563f31d1c6e565ed2e00c1ba82bf"
+    },
+    {
+      "key": "novice/lv20/f8/smart/s424242",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 154,
+      "exp": 2232,
+      "gold": 1643,
+      "items": 4,
+      "sha": "c627ffa28aa784daed702f1e718845f4"
+    },
+    {
+      "key": "novice/lv20/f8/smart/s987654321",
+      "victory": false,
+      "wavesCleared": 9,
+      "events": 177,
+      "exp": 1872,
+      "gold": 1378,
+      "items": 5,
+      "sha": "a9a54a654a08f7da8a5336021b17176a"
+    },
+    {
+      "key": "novice/lv20/f10/none/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 170,
+      "exp": 2640,
+      "gold": 1950,
+      "items": 8,
+      "sha": "5f186049a607c437e3a380837ba00715"
+    },
+    {
+      "key": "novice/lv20/f10/none/s424242",
+      "victory": false,
+      "wavesCleared": 9,
+      "events": 177,
+      "exp": 2376,
+      "gold": 1755,
+      "items": 2,
+      "sha": "cc9fa36318bf834f1a3d5f7231fdc677"
+    },
+    {
+      "key": "novice/lv20/f10/none/s987654321",
+      "victory": false,
+      "wavesCleared": 9,
+      "events": 193,
+      "exp": 2464,
+      "gold": 1820,
+      "items": 6,
+      "sha": "03218fa68ecf94807c501d63286bb374"
+    },
+    {
+      "key": "novice/lv20/f10/naive/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 170,
+      "exp": 2640,
+      "gold": 1950,
+      "items": 8,
+      "sha": "b9fbf81ee090af6e0a8b28a5b3d9996e"
+    },
+    {
+      "key": "novice/lv20/f10/naive/s424242",
+      "victory": false,
+      "wavesCleared": 9,
+      "events": 177,
+      "exp": 2376,
+      "gold": 1755,
+      "items": 2,
+      "sha": "42c95de514e034de9e53b4bef6e7175e"
+    },
+    {
+      "key": "novice/lv20/f10/naive/s987654321",
+      "victory": false,
+      "wavesCleared": 9,
+      "events": 193,
+      "exp": 2464,
+      "gold": 1820,
+      "items": 6,
+      "sha": "62c85d29894937c5209bf21939fd94d8"
+    },
+    {
+      "key": "novice/lv20/f10/smart/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 180,
+      "exp": 2640,
+      "gold": 1950,
+      "items": 7,
+      "sha": "54e9bfd2710c30982a78f8a25cc003e1"
+    },
+    {
+      "key": "novice/lv20/f10/smart/s424242",
+      "victory": false,
+      "wavesCleared": 8,
+      "events": 186,
+      "exp": 2024,
+      "gold": 1495,
+      "items": 1,
+      "sha": "9d2a596f79bc871f7ff5b2333a868390"
+    },
+    {
+      "key": "novice/lv20/f10/smart/s987654321",
+      "victory": false,
+      "wavesCleared": 7,
+      "events": 174,
+      "exp": 1936,
+      "gold": 1430,
+      "items": 5,
+      "sha": "f616c45c92fc513cc6d63aa0f757c351"
+    },
+    {
+      "key": "warrior/lv1/f1/none/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 189,
+      "exp": 496,
+      "gold": 341,
+      "items": 6,
+      "sha": "04890bc098db9aa37a3fac3c29719631"
+    },
+    {
+      "key": "warrior/lv1/f1/none/s424242",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 192,
+      "exp": 496,
+      "gold": 341,
+      "items": 3,
+      "sha": "dff93ee337e160868b92910d4ff62037"
+    },
+    {
+      "key": "warrior/lv1/f1/none/s987654321",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 165,
+      "exp": 464,
+      "gold": 319,
+      "items": 2,
+      "sha": "9e956a911398de13876c6d44941f90ca"
+    },
+    {
+      "key": "warrior/lv1/f1/naive/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 189,
+      "exp": 496,
+      "gold": 341,
+      "items": 6,
+      "sha": "967d92e102e2fb003e311dbb9da4d983"
+    },
+    {
+      "key": "warrior/lv1/f1/naive/s424242",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 194,
+      "exp": 496,
+      "gold": 341,
+      "items": 3,
+      "sha": "c9c18d052a05c6e76ac43f5f9be5125e"
+    },
+    {
+      "key": "warrior/lv1/f1/naive/s987654321",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 167,
+      "exp": 464,
+      "gold": 319,
+      "items": 3,
+      "sha": "a9f5839c5f0a32950c32cc5f91b16065"
+    },
+    {
+      "key": "warrior/lv1/f1/smart/s1",
+      "victory": false,
+      "wavesCleared": 7,
+      "events": 188,
+      "exp": 336,
+      "gold": 231,
+      "items": 3,
+      "sha": "082ce4dbb50939c334c8a37fe772c9f7"
+    },
+    {
+      "key": "warrior/lv1/f1/smart/s424242",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 194,
+      "exp": 496,
+      "gold": 341,
+      "items": 3,
+      "sha": "e1b7989c95bad142d6168db3533f7736"
+    },
+    {
+      "key": "warrior/lv1/f1/smart/s987654321",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 167,
+      "exp": 464,
+      "gold": 319,
+      "items": 3,
+      "sha": "7b057c88ce7a2614d2339b78c7adb3dd"
+    },
+    {
+      "key": "warrior/lv1/f2/none/s1",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 13,
+      "exp": 24,
+      "gold": 17,
+      "items": 0,
+      "sha": "55621323788e8276c2766c07e72bcefc"
+    },
+    {
+      "key": "warrior/lv1/f2/none/s424242",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 9,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "904b5ec251b5d77372e42b8a6ab6471d"
+    },
+    {
+      "key": "warrior/lv1/f2/none/s987654321",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 12,
+      "exp": 24,
+      "gold": 17,
+      "items": 0,
+      "sha": "a1fe84fa0935b4b635515dfaa9189319"
+    },
+    {
+      "key": "warrior/lv1/f2/naive/s1",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 13,
+      "exp": 24,
+      "gold": 17,
+      "items": 0,
+      "sha": "e7c7a9d3d286015380a79056add46e46"
+    },
+    {
+      "key": "warrior/lv1/f2/naive/s424242",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 9,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "0b3d003036a6f6aaa7937789fa578399"
+    },
+    {
+      "key": "warrior/lv1/f2/naive/s987654321",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 12,
+      "exp": 24,
+      "gold": 17,
+      "items": 0,
+      "sha": "e25c9b31fdb717d4ae8b7aa596276c6f"
+    },
+    {
+      "key": "warrior/lv1/f2/smart/s1",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 15,
+      "exp": 24,
+      "gold": 17,
+      "items": 0,
+      "sha": "704eba0fcb010fa1b9e83c6edcdc20b7"
+    },
+    {
+      "key": "warrior/lv1/f2/smart/s424242",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 10,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "431089bee8b965e875f7feaf63b2de1d"
+    },
+    {
+      "key": "warrior/lv1/f2/smart/s987654321",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 14,
+      "exp": 24,
+      "gold": 17,
+      "items": 0,
+      "sha": "045507597c7f618f74decd960d37fb89"
+    },
+    {
+      "key": "warrior/lv1/f3/none/s1",
+      "victory": false,
+      "wavesCleared": 1,
+      "events": 28,
+      "exp": 64,
+      "gold": 46,
+      "items": 0,
+      "sha": "56437ae37f67fd7d6f184e70a3856f17"
+    },
+    {
+      "key": "warrior/lv1/f3/none/s424242",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 7,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "993d449a067cb5f16e4c08091d66b943"
+    },
+    {
+      "key": "warrior/lv1/f3/none/s987654321",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 7,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "fa6f8d31bdd2520aebbc717d5f2c1060"
+    },
+    {
+      "key": "warrior/lv1/f3/naive/s1",
+      "victory": false,
+      "wavesCleared": 1,
+      "events": 28,
+      "exp": 64,
+      "gold": 46,
+      "items": 0,
+      "sha": "7211d16469faaaa6bc9dbf5233b20369"
+    },
+    {
+      "key": "warrior/lv1/f3/naive/s424242",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 7,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "146fbb2b7d4af84abfcdddff7110f5e3"
+    },
+    {
+      "key": "warrior/lv1/f3/naive/s987654321",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 7,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "05801d8d901f2f782e460f58ee619180"
+    },
+    {
+      "key": "warrior/lv1/f3/smart/s1",
+      "victory": false,
+      "wavesCleared": 1,
+      "events": 31,
+      "exp": 64,
+      "gold": 46,
+      "items": 0,
+      "sha": "e47152dd97d14881176447013d87282a"
+    },
+    {
+      "key": "warrior/lv1/f3/smart/s424242",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 9,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "36e651e2257c8e2242bb114407342352"
+    },
+    {
+      "key": "warrior/lv1/f3/smart/s987654321",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 7,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "4149164b421be0c18682f602aca902e5"
+    },
+    {
+      "key": "warrior/lv1/f5/none/s1",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 8,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "af0de33582877c9410c416f8c2f7af32"
+    },
+    {
+      "key": "warrior/lv1/f5/none/s424242",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 6,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "6ea169ae413f4d597bfb44ee1a9d2a4e"
+    },
+    {
+      "key": "warrior/lv1/f5/none/s987654321",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 14,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "3a2405a9650696812f9e25274e64c7cd"
+    },
+    {
+      "key": "warrior/lv1/f5/naive/s1",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 8,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "4f7cf9058dea626fa9da6bc427c9ef77"
+    },
+    {
+      "key": "warrior/lv1/f5/naive/s424242",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 6,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "9d23b2e34a0c624aa0a3bca2b8e21134"
+    },
+    {
+      "key": "warrior/lv1/f5/naive/s987654321",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 14,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "0a760902dff191678154c707364d8974"
+    },
+    {
+      "key": "warrior/lv1/f5/smart/s1",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 9,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "19abcb5ef0ba1543938535be6b497312"
+    },
+    {
+      "key": "warrior/lv1/f5/smart/s424242",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 6,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "3ff4290e83e1cbc57e17b81f00d1d034"
+    },
+    {
+      "key": "warrior/lv1/f5/smart/s987654321",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 17,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "5d98a0c3d19b48ac63815fa2efab203b"
+    },
+    {
+      "key": "warrior/lv1/f8/none/s1",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 14,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "8ed2cd24452afec292e78225e115d4c8"
+    },
+    {
+      "key": "warrior/lv1/f8/none/s424242",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 5,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "e99865a9ffbcfc36de96acbad9f07cc4"
+    },
+    {
+      "key": "warrior/lv1/f8/none/s987654321",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 6,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "3c8d96729585a84fb75fa3922425d12c"
+    },
+    {
+      "key": "warrior/lv1/f8/naive/s1",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 14,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "e4d03277582cd2e43348b3d93a53c54d"
+    },
+    {
+      "key": "warrior/lv1/f8/naive/s424242",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 5,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "504f01636d3c91875f59e0f4f41b5838"
+    },
+    {
+      "key": "warrior/lv1/f8/naive/s987654321",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 6,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "3191af4377ed2816dbc55e42251d1a28"
+    },
+    {
+      "key": "warrior/lv1/f8/smart/s1",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 18,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "029f5ba4808503af88734003b13f7491"
+    },
+    {
+      "key": "warrior/lv1/f8/smart/s424242",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 5,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "1cb4dd51188e6cb6dc16168b71eb606b"
+    },
+    {
+      "key": "warrior/lv1/f8/smart/s987654321",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 6,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "512e7e7a3884d767ad8da691d116e560"
+    },
+    {
+      "key": "warrior/lv1/f10/none/s1",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 8,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "5601d465605e55c5ab981bf6ab578747"
+    },
+    {
+      "key": "warrior/lv1/f10/none/s424242",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 11,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "e47a5cf4d3b005093fe14d44c36ac877"
+    },
+    {
+      "key": "warrior/lv1/f10/none/s987654321",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 3,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "7d93ad6536ad3293011f3e92cb90b342"
+    },
+    {
+      "key": "warrior/lv1/f10/naive/s1",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 8,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "cf0fa43ba2f0db28eeddbd65c25585be"
+    },
+    {
+      "key": "warrior/lv1/f10/naive/s424242",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 11,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "f97657b7981c122f4dcb8d09c22a8de4"
+    },
+    {
+      "key": "warrior/lv1/f10/naive/s987654321",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 3,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "7d93ad6536ad3293011f3e92cb90b342"
+    },
+    {
+      "key": "warrior/lv1/f10/smart/s1",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 8,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "85a40e02e120fafd06429f6f5aa96394"
+    },
+    {
+      "key": "warrior/lv1/f10/smart/s424242",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 11,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "6c10395bc91e7d15dcfdfe50825fcdca"
+    },
+    {
+      "key": "warrior/lv1/f10/smart/s987654321",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 3,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "7d93ad6536ad3293011f3e92cb90b342"
+    },
+    {
+      "key": "warrior/lv8/f1/none/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 52,
+      "exp": 496,
+      "gold": 341,
+      "items": 6,
+      "sha": "d505eedab0d7924d2ab6df16790ca0ff"
+    },
+    {
+      "key": "warrior/lv8/f1/none/s424242",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 52,
+      "exp": 496,
+      "gold": 341,
+      "items": 4,
+      "sha": "d4c2e3ecc5420c21511acba2d93b8b10"
+    },
+    {
+      "key": "warrior/lv8/f1/none/s987654321",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 50,
+      "exp": 464,
+      "gold": 319,
+      "items": 2,
+      "sha": "4ce1766c1d18b3022bed0ae66959cd06"
+    },
+    {
+      "key": "warrior/lv8/f1/naive/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 90,
+      "exp": 496,
+      "gold": 341,
+      "items": 2,
+      "sha": "42144fa381360e58c7e9dd572428cdde"
+    },
+    {
+      "key": "warrior/lv8/f1/naive/s424242",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 90,
+      "exp": 496,
+      "gold": 341,
+      "items": 4,
+      "sha": "28e9d6743bd420e4a68156b9fdc17edc"
+    },
+    {
+      "key": "warrior/lv8/f1/naive/s987654321",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 80,
+      "exp": 464,
+      "gold": 319,
+      "items": 3,
+      "sha": "ffbaf441b82c833f2b7867306da46bd6"
+    },
+    {
+      "key": "warrior/lv8/f1/smart/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 90,
+      "exp": 496,
+      "gold": 341,
+      "items": 2,
+      "sha": "26c647793ee341f02e66d8418daa1852"
+    },
+    {
+      "key": "warrior/lv8/f1/smart/s424242",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 90,
+      "exp": 496,
+      "gold": 341,
+      "items": 4,
+      "sha": "51ef4cd8a4c4f5e3f12f5b415b6a0f04"
+    },
+    {
+      "key": "warrior/lv8/f1/smart/s987654321",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 80,
+      "exp": 464,
+      "gold": 319,
+      "items": 3,
+      "sha": "7392fe06effb32f70cd4cc749262dfaa"
+    },
+    {
+      "key": "warrior/lv8/f2/none/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 71,
+      "exp": 720,
+      "gold": 510,
+      "items": 4,
+      "sha": "e18b8cfb64f7cacf38a768cbd46afa4d"
+    },
+    {
+      "key": "warrior/lv8/f2/none/s424242",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 81,
+      "exp": 744,
+      "gold": 527,
+      "items": 4,
+      "sha": "2c5c0d0bad8e0ddb26c8fec10061e70c"
+    },
+    {
+      "key": "warrior/lv8/f2/none/s987654321",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 82,
+      "exp": 744,
+      "gold": 527,
+      "items": 5,
+      "sha": "7969455ad4af683c536f3693139722bc"
+    },
+    {
+      "key": "warrior/lv8/f2/naive/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 110,
+      "exp": 720,
+      "gold": 510,
+      "items": 4,
+      "sha": "3988641c6a9082d93769baaa4b9d8562"
+    },
+    {
+      "key": "warrior/lv8/f2/naive/s424242",
+      "victory": false,
+      "wavesCleared": 6,
+      "events": 84,
+      "exp": 432,
+      "gold": 306,
+      "items": 2,
+      "sha": "b5c092bd925420a133a6496eae3cee9e"
+    },
+    {
+      "key": "warrior/lv8/f2/naive/s987654321",
+      "victory": false,
+      "wavesCleared": 6,
+      "events": 77,
+      "exp": 384,
+      "gold": 272,
+      "items": 3,
+      "sha": "a067e8656e7544d94885dfb23126e27b"
+    },
+    {
+      "key": "warrior/lv8/f2/smart/s1",
+      "victory": false,
+      "wavesCleared": 7,
+      "events": 128,
+      "exp": 504,
+      "gold": 357,
+      "items": 0,
+      "sha": "9b946365f3165a88666e7c455b097a35"
+    },
+    {
+      "key": "warrior/lv8/f2/smart/s424242",
+      "victory": false,
+      "wavesCleared": 5,
+      "events": 97,
+      "exp": 336,
+      "gold": 238,
+      "items": 2,
+      "sha": "360c6fb38e414b12b83a83ebaba781e4"
+    },
+    {
+      "key": "warrior/lv8/f2/smart/s987654321",
+      "victory": false,
+      "wavesCleared": 5,
+      "events": 81,
+      "exp": 312,
+      "gold": 221,
+      "items": 3,
+      "sha": "769c478e752327e8c1918f2a6b38ab1c"
+    },
+    {
+      "key": "warrior/lv8/f3/none/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 104,
+      "exp": 992,
+      "gold": 713,
+      "items": 2,
+      "sha": "17a8c20de66763f1c05c9771e8e45a3f"
+    },
+    {
+      "key": "warrior/lv8/f3/none/s424242",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 90,
+      "exp": 960,
+      "gold": 690,
+      "items": 3,
+      "sha": "4fca6847a4209ae7ffa039068d13e2ca"
+    },
+    {
+      "key": "warrior/lv8/f3/none/s987654321",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 102,
+      "exp": 992,
+      "gold": 713,
+      "items": 6,
+      "sha": "7c9fd7d1d36345f684ed94e452f4af53"
+    },
+    {
+      "key": "warrior/lv8/f3/naive/s1",
+      "victory": false,
+      "wavesCleared": 4,
+      "events": 57,
+      "exp": 320,
+      "gold": 230,
+      "items": 4,
+      "sha": "a9b0157cd346ee1f33468909ccc1ee1c"
+    },
+    {
+      "key": "warrior/lv8/f3/naive/s424242",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 131,
+      "exp": 960,
+      "gold": 690,
+      "items": 5,
+      "sha": "75a60aefa64bdbdceefee3aea1f15488"
+    },
+    {
+      "key": "warrior/lv8/f3/naive/s987654321",
+      "victory": false,
+      "wavesCleared": 6,
+      "events": 100,
+      "exp": 576,
+      "gold": 414,
+      "items": 2,
+      "sha": "ae4875cfb0f239c4cf7afdd8a0bd1ec2"
+    },
+    {
+      "key": "warrior/lv8/f3/smart/s1",
+      "victory": false,
+      "wavesCleared": 2,
+      "events": 46,
+      "exp": 160,
+      "gold": 115,
+      "items": 0,
+      "sha": "4543894453067f4c02bd3be7b76d51b6"
+    },
+    {
+      "key": "warrior/lv8/f3/smart/s424242",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 143,
+      "exp": 960,
+      "gold": 690,
+      "items": 4,
+      "sha": "42e1d8978472b3ab3b65cd1509822416"
+    },
+    {
+      "key": "warrior/lv8/f3/smart/s987654321",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 166,
+      "exp": 992,
+      "gold": 713,
+      "items": 6,
+      "sha": "68b7ab4a769a076da7da8fa10cbd19c5"
+    },
+    {
+      "key": "warrior/lv8/f5/none/s1",
+      "victory": false,
+      "wavesCleared": 1,
+      "events": 24,
+      "exp": 144,
+      "gold": 105,
+      "items": 0,
+      "sha": "ce6103cdd6dc4af36a2e923d626b4e48"
+    },
+    {
+      "key": "warrior/lv8/f5/none/s424242",
+      "victory": false,
+      "wavesCleared": 2,
+      "events": 36,
+      "exp": 240,
+      "gold": 175,
+      "items": 2,
+      "sha": "ec4ecf8b843f5af74a4960aca61284d3"
+    },
+    {
+      "key": "warrior/lv8/f5/none/s987654321",
+      "victory": false,
+      "wavesCleared": 2,
+      "events": 36,
+      "exp": 240,
+      "gold": 175,
+      "items": 2,
+      "sha": "e8015980e7a24b07edebe2a1eefc2ae6"
+    },
+    {
+      "key": "warrior/lv8/f5/naive/s1",
+      "victory": false,
+      "wavesCleared": 1,
+      "events": 24,
+      "exp": 144,
+      "gold": 105,
+      "items": 0,
+      "sha": "761d12602cc6b42f8f8d020134e0cb19"
+    },
+    {
+      "key": "warrior/lv8/f5/naive/s424242",
+      "victory": false,
+      "wavesCleared": 2,
+      "events": 36,
+      "exp": 240,
+      "gold": 175,
+      "items": 2,
+      "sha": "7bfdd15e71ac134657507ff5ac1a41c7"
+    },
+    {
+      "key": "warrior/lv8/f5/naive/s987654321",
+      "victory": false,
+      "wavesCleared": 2,
+      "events": 36,
+      "exp": 240,
+      "gold": 175,
+      "items": 2,
+      "sha": "c975bcdddd165167b4741bd172833880"
+    },
+    {
+      "key": "warrior/lv8/f5/smart/s1",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 24,
+      "exp": 48,
+      "gold": 35,
+      "items": 0,
+      "sha": "32ccd444e024ecaa33e03c1d1cd095cc"
+    },
+    {
+      "key": "warrior/lv8/f5/smart/s424242",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 25,
+      "exp": 48,
+      "gold": 35,
+      "items": 0,
+      "sha": "68c0e6cda411be19291888bd7eeda35e"
+    },
+    {
+      "key": "warrior/lv8/f5/smart/s987654321",
+      "victory": false,
+      "wavesCleared": 1,
+      "events": 35,
+      "exp": 144,
+      "gold": 105,
+      "items": 0,
+      "sha": "171e5032361c845a82bb7b0105db44a6"
+    },
+    {
+      "key": "warrior/lv8/f8/none/s1",
+      "victory": false,
+      "wavesCleared": 3,
+      "events": 61,
+      "exp": 504,
+      "gold": 371,
+      "items": 0,
+      "sha": "22517e6921f6646cc8ad8dedec38c011"
+    },
+    {
+      "key": "warrior/lv8/f8/none/s424242",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 21,
+      "exp": 72,
+      "gold": 53,
+      "items": 0,
+      "sha": "19072fe48ff40df8d2f57a8a7ade15df"
+    },
+    {
+      "key": "warrior/lv8/f8/none/s987654321",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 15,
+      "exp": 72,
+      "gold": 53,
+      "items": 0,
+      "sha": "428b638b4f7200fb326dc1e7a3b8c807"
+    },
+    {
+      "key": "warrior/lv8/f8/naive/s1",
+      "victory": false,
+      "wavesCleared": 3,
+      "events": 60,
+      "exp": 504,
+      "gold": 371,
+      "items": 3,
+      "sha": "1135ac991c73b7aca141a8790678b6fd"
+    },
+    {
+      "key": "warrior/lv8/f8/naive/s424242",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 21,
+      "exp": 72,
+      "gold": 53,
+      "items": 0,
+      "sha": "6458c10a416d4d46caa7d3e9c9105f3f"
+    },
+    {
+      "key": "warrior/lv8/f8/naive/s987654321",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 15,
+      "exp": 72,
+      "gold": 53,
+      "items": 0,
+      "sha": "e7ba95d2bce8021c35272d47dfbbfb6d"
+    },
+    {
+      "key": "warrior/lv8/f8/smart/s1",
+      "victory": false,
+      "wavesCleared": 3,
+      "events": 64,
+      "exp": 432,
+      "gold": 318,
+      "items": 0,
+      "sha": "67fc90dbe5598590285d74e6e7f68d60"
+    },
+    {
+      "key": "warrior/lv8/f8/smart/s424242",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 24,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "e123a48ceed66a9e25499cb423e8c423"
+    },
+    {
+      "key": "warrior/lv8/f8/smart/s987654321",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 19,
+      "exp": 72,
+      "gold": 53,
+      "items": 1,
+      "sha": "b26b1205ce9093b6b851638115aed6c4"
+    },
+    {
+      "key": "warrior/lv8/f10/none/s1",
+      "victory": false,
+      "wavesCleared": 2,
+      "events": 44,
+      "exp": 352,
+      "gold": 260,
+      "items": 0,
+      "sha": "c6da4384ea2de9512a79546cfeaa41a1"
+    },
+    {
+      "key": "warrior/lv8/f10/none/s424242",
+      "victory": false,
+      "wavesCleared": 2,
+      "events": 64,
+      "exp": 440,
+      "gold": 325,
+      "items": 0,
+      "sha": "7ab004aeb97bc488ce87098045441092"
+    },
+    {
+      "key": "warrior/lv8/f10/none/s987654321",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 9,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "73507aa6ce04fd9af5915ddf66fe70ec"
+    },
+    {
+      "key": "warrior/lv8/f10/naive/s1",
+      "victory": false,
+      "wavesCleared": 2,
+      "events": 44,
+      "exp": 352,
+      "gold": 260,
+      "items": 0,
+      "sha": "6e1d0772bbe0d864fda44bc3bcdf73f0"
+    },
+    {
+      "key": "warrior/lv8/f10/naive/s424242",
+      "victory": false,
+      "wavesCleared": 2,
+      "events": 64,
+      "exp": 440,
+      "gold": 325,
+      "items": 0,
+      "sha": "e2b90475aeac0a2b4ea6be948ad210e2"
+    },
+    {
+      "key": "warrior/lv8/f10/naive/s987654321",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 9,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "f3309530d872dd96d8d580de3eb651f1"
+    },
+    {
+      "key": "warrior/lv8/f10/smart/s1",
+      "victory": false,
+      "wavesCleared": 1,
+      "events": 80,
+      "exp": 264,
+      "gold": 195,
+      "items": 0,
+      "sha": "270b8a893b0e9b8d1d5f8b62e988e468"
+    },
+    {
+      "key": "warrior/lv8/f10/smart/s424242",
+      "victory": false,
+      "wavesCleared": 1,
+      "events": 76,
+      "exp": 264,
+      "gold": 195,
+      "items": 0,
+      "sha": "e30d3281ddf843bb9053c513f0e6620e"
+    },
+    {
+      "key": "warrior/lv8/f10/smart/s987654321",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 14,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "f7c32968a42d6c336750d75be19365d5"
+    },
+    {
+      "key": "warrior/lv20/f1/none/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 50,
+      "exp": 496,
+      "gold": 341,
+      "items": 6,
+      "sha": "ab79507393860aafdf8e54862efbe783"
+    },
+    {
+      "key": "warrior/lv20/f1/none/s424242",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 50,
+      "exp": 496,
+      "gold": 341,
+      "items": 4,
+      "sha": "b44725171e9bb627322de9440ce1212f"
+    },
+    {
+      "key": "warrior/lv20/f1/none/s987654321",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 48,
+      "exp": 464,
+      "gold": 319,
+      "items": 3,
+      "sha": "c14f428d115b3895f3f100febb39c6d9"
+    },
+    {
+      "key": "warrior/lv20/f1/naive/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 88,
+      "exp": 496,
+      "gold": 341,
+      "items": 2,
+      "sha": "99dbddba9cfddd3424a42f17ecff46d6"
+    },
+    {
+      "key": "warrior/lv20/f1/naive/s424242",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 88,
+      "exp": 496,
+      "gold": 341,
+      "items": 4,
+      "sha": "b914eb2a45700e08cc04e94c6ffcd176"
+    },
+    {
+      "key": "warrior/lv20/f1/naive/s987654321",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 78,
+      "exp": 464,
+      "gold": 319,
+      "items": 2,
+      "sha": "bf0bc51f212c4a7d8b1be0b56f8f589b"
+    },
+    {
+      "key": "warrior/lv20/f1/smart/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 88,
+      "exp": 496,
+      "gold": 341,
+      "items": 2,
+      "sha": "8b26d926ae4972c823afe3e18beec3bf"
+    },
+    {
+      "key": "warrior/lv20/f1/smart/s424242",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 88,
+      "exp": 496,
+      "gold": 341,
+      "items": 4,
+      "sha": "f584d9a55df6cd2439b4d6dd7666e2b6"
+    },
+    {
+      "key": "warrior/lv20/f1/smart/s987654321",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 78,
+      "exp": 464,
+      "gold": 319,
+      "items": 2,
+      "sha": "7d2fbc2fcfea2a00fa0a0a381a506238"
+    },
+    {
+      "key": "warrior/lv20/f2/none/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 46,
+      "exp": 720,
+      "gold": 510,
+      "items": 4,
+      "sha": "a49783dd15a9a2eafc88dbffab9cec7a"
+    },
+    {
+      "key": "warrior/lv20/f2/none/s424242",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 45,
+      "exp": 744,
+      "gold": 527,
+      "items": 3,
+      "sha": "bc4ed15da9386d0801df0d60c3a8fafe"
+    },
+    {
+      "key": "warrior/lv20/f2/none/s987654321",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 42,
+      "exp": 744,
+      "gold": 527,
+      "items": 6,
+      "sha": "ef842fc2e98c84e16b8f0b9d814da3ee"
+    },
+    {
+      "key": "warrior/lv20/f2/naive/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 80,
+      "exp": 720,
+      "gold": 510,
+      "items": 6,
+      "sha": "a5e3804175f8070db3e6e9731fc7daab"
+    },
+    {
+      "key": "warrior/lv20/f2/naive/s424242",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 83,
+      "exp": 744,
+      "gold": 527,
+      "items": 4,
+      "sha": "a948a7e573024bb068b4d7935c5a04bb"
+    },
+    {
+      "key": "warrior/lv20/f2/naive/s987654321",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 87,
+      "exp": 744,
+      "gold": 527,
+      "items": 6,
+      "sha": "ae70ff65c6435d70dc54038ca32ab54a"
+    },
+    {
+      "key": "warrior/lv20/f2/smart/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 80,
+      "exp": 720,
+      "gold": 510,
+      "items": 6,
+      "sha": "a37203d5c868f31cd921e39760a8788f"
+    },
+    {
+      "key": "warrior/lv20/f2/smart/s424242",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 83,
+      "exp": 744,
+      "gold": 527,
+      "items": 4,
+      "sha": "f92a54e42ca3f57f9b7f9521d7cc6e35"
+    },
+    {
+      "key": "warrior/lv20/f2/smart/s987654321",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 80,
+      "exp": 744,
+      "gold": 527,
+      "items": 3,
+      "sha": "c3f20a3330f808e191525601a22dc0e8"
+    },
+    {
+      "key": "warrior/lv20/f3/none/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 56,
+      "exp": 992,
+      "gold": 713,
+      "items": 9,
+      "sha": "8c8891e5bc88445f92ecc1dcf7442e0a"
+    },
+    {
+      "key": "warrior/lv20/f3/none/s424242",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 57,
+      "exp": 960,
+      "gold": 690,
+      "items": 9,
+      "sha": "6d7065d6e839a616d1d838ef0132644e"
+    },
+    {
+      "key": "warrior/lv20/f3/none/s987654321",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 58,
+      "exp": 992,
+      "gold": 713,
+      "items": 4,
+      "sha": "d934f79e93c4440ba4c593959effceaa"
+    },
+    {
+      "key": "warrior/lv20/f3/naive/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 94,
+      "exp": 992,
+      "gold": 713,
+      "items": 5,
+      "sha": "08d91621a853109abc6f6c12042e1a8c"
+    },
+    {
+      "key": "warrior/lv20/f3/naive/s424242",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 92,
+      "exp": 960,
+      "gold": 690,
+      "items": 2,
+      "sha": "384b5729df36524f3ac652e3e05bc432"
+    },
+    {
+      "key": "warrior/lv20/f3/naive/s987654321",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 94,
+      "exp": 992,
+      "gold": 713,
+      "items": 3,
+      "sha": "dee65689eaded18edd0af4efe03df02e"
+    },
+    {
+      "key": "warrior/lv20/f3/smart/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 93,
+      "exp": 992,
+      "gold": 713,
+      "items": 6,
+      "sha": "3fb1e294e550c30783c1f12d62f6496b"
+    },
+    {
+      "key": "warrior/lv20/f3/smart/s424242",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 92,
+      "exp": 960,
+      "gold": 690,
+      "items": 2,
+      "sha": "c5284db403ede97c4edf77fd7f4d131a"
+    },
+    {
+      "key": "warrior/lv20/f3/smart/s987654321",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 97,
+      "exp": 992,
+      "gold": 713,
+      "items": 4,
+      "sha": "d9ae06d876e6bcf40af9560aee57a297"
+    },
+    {
+      "key": "warrior/lv20/f5/none/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 74,
+      "exp": 1440,
+      "gold": 1050,
+      "items": 5,
+      "sha": "230b948bfe272b17fcc11fc13fe4edfe"
+    },
+    {
+      "key": "warrior/lv20/f5/none/s424242",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 73,
+      "exp": 1536,
+      "gold": 1120,
+      "items": 4,
+      "sha": "95a9149e518213a26ddd3434fe5467b4"
+    },
+    {
+      "key": "warrior/lv20/f5/none/s987654321",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 75,
+      "exp": 1536,
+      "gold": 1120,
+      "items": 4,
+      "sha": "9b90817b89bca2aed320ed958484e299"
+    },
+    {
+      "key": "warrior/lv20/f5/naive/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 107,
+      "exp": 1440,
+      "gold": 1050,
+      "items": 6,
+      "sha": "7c6b1e98ff43a5d627baa461d3474446"
+    },
+    {
+      "key": "warrior/lv20/f5/naive/s424242",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 120,
+      "exp": 1536,
+      "gold": 1120,
+      "items": 3,
+      "sha": "9a629dd000ec4c20616fce444d01858a"
+    },
+    {
+      "key": "warrior/lv20/f5/naive/s987654321",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 120,
+      "exp": 1536,
+      "gold": 1120,
+      "items": 3,
+      "sha": "781c6285c815f7ee801cbd41e23d89b0"
+    },
+    {
+      "key": "warrior/lv20/f5/smart/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 115,
+      "exp": 1440,
+      "gold": 1050,
+      "items": 5,
+      "sha": "71d27b07706f5e54b3f26c3179c25ab0"
+    },
+    {
+      "key": "warrior/lv20/f5/smart/s424242",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 127,
+      "exp": 1536,
+      "gold": 1120,
+      "items": 4,
+      "sha": "0fe6369fc33006e46234bad0c8261c3a"
+    },
+    {
+      "key": "warrior/lv20/f5/smart/s987654321",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 124,
+      "exp": 1536,
+      "gold": 1120,
+      "items": 3,
+      "sha": "8abe5dd20f68ea4091ae74bc70c5a5c9"
+    },
+    {
+      "key": "warrior/lv20/f8/none/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 99,
+      "exp": 2160,
+      "gold": 1590,
+      "items": 4,
+      "sha": "e614ba367f34513c9c9b2c1561376578"
+    },
+    {
+      "key": "warrior/lv20/f8/none/s424242",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 97,
+      "exp": 2232,
+      "gold": 1643,
+      "items": 7,
+      "sha": "fd7ab4e25f28c97f8f9608ed4459b42c"
+    },
+    {
+      "key": "warrior/lv20/f8/none/s987654321",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 112,
+      "exp": 2304,
+      "gold": 1696,
+      "items": 6,
+      "sha": "a6f9f089d7e8aef46b20d503d904ba7f"
+    },
+    {
+      "key": "warrior/lv20/f8/naive/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 144,
+      "exp": 2160,
+      "gold": 1590,
+      "items": 4,
+      "sha": "64b4d518d86fb4e09ed600b631b95e02"
+    },
+    {
+      "key": "warrior/lv20/f8/naive/s424242",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 143,
+      "exp": 2232,
+      "gold": 1643,
+      "items": 7,
+      "sha": "939d0547fce6752c1d49e0f38b63665d"
+    },
+    {
+      "key": "warrior/lv20/f8/naive/s987654321",
+      "victory": false,
+      "wavesCleared": 8,
+      "events": 132,
+      "exp": 1800,
+      "gold": 1325,
+      "items": 6,
+      "sha": "32a82718af775a3aadfb83db8a248f90"
+    },
+    {
+      "key": "warrior/lv20/f8/smart/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 150,
+      "exp": 2160,
+      "gold": 1590,
+      "items": 2,
+      "sha": "d30327a4d5f49e101b00f072bbca86b5"
+    },
+    {
+      "key": "warrior/lv20/f8/smart/s424242",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 161,
+      "exp": 2232,
+      "gold": 1643,
+      "items": 3,
+      "sha": "291a7633a273880129cfeb7a52ab928b"
+    },
+    {
+      "key": "warrior/lv20/f8/smart/s987654321",
+      "victory": false,
+      "wavesCleared": 8,
+      "events": 190,
+      "exp": 1728,
+      "gold": 1272,
+      "items": 5,
+      "sha": "0bb1b26176f2cc9b0ad06ec304da4177"
+    },
+    {
+      "key": "warrior/lv20/f10/none/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 123,
+      "exp": 2640,
+      "gold": 1950,
+      "items": 6,
+      "sha": "a965c94c87e9212846a38998b01b224e"
+    },
+    {
+      "key": "warrior/lv20/f10/none/s424242",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 125,
+      "exp": 2816,
+      "gold": 2080,
+      "items": 6,
+      "sha": "74397819164c9c82d9c2ce9a4fff634c"
+    },
+    {
+      "key": "warrior/lv20/f10/none/s987654321",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 134,
+      "exp": 2904,
+      "gold": 2145,
+      "items": 4,
+      "sha": "1987ab72724164711f684c497ff1e01d"
+    },
+    {
+      "key": "warrior/lv20/f10/naive/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 165,
+      "exp": 2640,
+      "gold": 1950,
+      "items": 6,
+      "sha": "5f600acd628e2a2142ccf6c52e576c05"
+    },
+    {
+      "key": "warrior/lv20/f10/naive/s424242",
+      "victory": false,
+      "wavesCleared": 9,
+      "events": 173,
+      "exp": 2376,
+      "gold": 1755,
+      "items": 1,
+      "sha": "918a6b8aa6b6cbce518987b6cbbf632c"
+    },
+    {
+      "key": "warrior/lv20/f10/naive/s987654321",
+      "victory": false,
+      "wavesCleared": 9,
+      "events": 192,
+      "exp": 2464,
+      "gold": 1820,
+      "items": 6,
+      "sha": "996ebe51de9805e47761da03f17a7f7f"
+    },
+    {
+      "key": "warrior/lv20/f10/smart/s1",
+      "victory": false,
+      "wavesCleared": 9,
+      "events": 222,
+      "exp": 2200,
+      "gold": 1625,
+      "items": 1,
+      "sha": "647120e78321b337e19e6da0ecff69c4"
+    },
+    {
+      "key": "warrior/lv20/f10/smart/s424242",
+      "victory": false,
+      "wavesCleared": 8,
+      "events": 186,
+      "exp": 2024,
+      "gold": 1495,
+      "items": 2,
+      "sha": "fc6c74620e49fcdaba493be69bb34455"
+    },
+    {
+      "key": "warrior/lv20/f10/smart/s987654321",
+      "victory": false,
+      "wavesCleared": 7,
+      "events": 192,
+      "exp": 1760,
+      "gold": 1300,
+      "items": 4,
+      "sha": "df852bc525633e782c244075778f0834"
+    },
+    {
+      "key": "mage/lv1/f1/none/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 92,
+      "exp": 496,
+      "gold": 341,
+      "items": 3,
+      "sha": "7381ee7d8d5d80214a4798c9fac829a7"
+    },
+    {
+      "key": "mage/lv1/f1/none/s424242",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 90,
+      "exp": 496,
+      "gold": 341,
+      "items": 5,
+      "sha": "942a9644896c6df3434d2fbb8d7b88fe"
+    },
+    {
+      "key": "mage/lv1/f1/none/s987654321",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 82,
+      "exp": 464,
+      "gold": 319,
+      "items": 2,
+      "sha": "03fd93c6f729d28872debc43eeeb1596"
+    },
+    {
+      "key": "mage/lv1/f1/naive/s1",
+      "victory": false,
+      "wavesCleared": 2,
+      "events": 89,
+      "exp": 80,
+      "gold": 55,
+      "items": 1,
+      "sha": "b94f2edc717c6e252a605e8bc026edf3"
+    },
+    {
+      "key": "mage/lv1/f1/naive/s424242",
+      "victory": false,
+      "wavesCleared": 3,
+      "events": 102,
+      "exp": 96,
+      "gold": 66,
+      "items": 1,
+      "sha": "b48d744710b051a9ee7e514eae1289c9"
+    },
+    {
+      "key": "mage/lv1/f1/naive/s987654321",
+      "victory": false,
+      "wavesCleared": 3,
+      "events": 107,
+      "exp": 96,
+      "gold": 66,
+      "items": 2,
+      "sha": "cd76f77f2005a44c47bf9593ebf04ac2"
+    },
+    {
+      "key": "mage/lv1/f1/smart/s1",
+      "victory": false,
+      "wavesCleared": 1,
+      "events": 83,
+      "exp": 32,
+      "gold": 22,
+      "items": 0,
+      "sha": "d883810de6db89dd1a79dd34319fb3f2"
+    },
+    {
+      "key": "mage/lv1/f1/smart/s424242",
+      "victory": false,
+      "wavesCleared": 1,
+      "events": 100,
+      "exp": 48,
+      "gold": 33,
+      "items": 0,
+      "sha": "70ededfd97b5ee85fe7d406a5a464737"
+    },
+    {
+      "key": "mage/lv1/f1/smart/s987654321",
+      "victory": false,
+      "wavesCleared": 1,
+      "events": 103,
+      "exp": 48,
+      "gold": 33,
+      "items": 1,
+      "sha": "2810c8e7c3a7ac2490910e15bf6cd875"
+    },
+    {
+      "key": "mage/lv1/f2/none/s1",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 10,
+      "exp": 24,
+      "gold": 17,
+      "items": 0,
+      "sha": "350c16d4194aa2553b98ca70a0f74b18"
+    },
+    {
+      "key": "mage/lv1/f2/none/s424242",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 8,
+      "exp": 24,
+      "gold": 17,
+      "items": 0,
+      "sha": "2a6001719fab00cde0b6e018b9fcfe97"
+    },
+    {
+      "key": "mage/lv1/f2/none/s987654321",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 11,
+      "exp": 24,
+      "gold": 17,
+      "items": 0,
+      "sha": "0cb88c7857238b44743a7634c8b5c832"
+    },
+    {
+      "key": "mage/lv1/f2/naive/s1",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 13,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "85f057bde93d129f44106e095c40df30"
+    },
+    {
+      "key": "mage/lv1/f2/naive/s424242",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 7,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "437059e00abe59f2b7edcda98b377f00"
+    },
+    {
+      "key": "mage/lv1/f2/naive/s987654321",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 10,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "516915be15677f82a8b15aae4d129e7a"
+    },
+    {
+      "key": "mage/lv1/f2/smart/s1",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 13,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "524b2e621ee4b0a3020b7cfd051cf279"
+    },
+    {
+      "key": "mage/lv1/f2/smart/s424242",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 7,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "fceaa32e3964e668057f49b568dfe384"
+    },
+    {
+      "key": "mage/lv1/f2/smart/s987654321",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 13,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "ec7d59f588c53bd81f2763b329823840"
+    },
+    {
+      "key": "mage/lv1/f3/none/s1",
+      "victory": false,
+      "wavesCleared": 1,
+      "events": 19,
+      "exp": 96,
+      "gold": 69,
+      "items": 1,
+      "sha": "126551a1a2509e58e0ae355e19ee8d7b"
+    },
+    {
+      "key": "mage/lv1/f3/none/s424242",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 6,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "44fdbee119d058c617ad91dc3501090a"
+    },
+    {
+      "key": "mage/lv1/f3/none/s987654321",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 6,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "fcbb1bfc254459c61beaf59b666f342a"
+    },
+    {
+      "key": "mage/lv1/f3/naive/s1",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 20,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "f71899ea513cedae91c4b62d3241fc0b"
+    },
+    {
+      "key": "mage/lv1/f3/naive/s424242",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 6,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "1a244a87921bd9acac3c4d032170a63e"
+    },
+    {
+      "key": "mage/lv1/f3/naive/s987654321",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 6,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "eb32a2b800ad0018cc899520beb3a248"
+    },
+    {
+      "key": "mage/lv1/f3/smart/s1",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 24,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "f38593f4da1c557957cd39e1e1e2c953"
+    },
+    {
+      "key": "mage/lv1/f3/smart/s424242",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 6,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "5be1533ec0bb46e537ae0323a1a78370"
+    },
+    {
+      "key": "mage/lv1/f3/smart/s987654321",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 7,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "1d8139b1e153813de921b1d6a770ed3a"
+    },
+    {
+      "key": "mage/lv1/f5/none/s1",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 6,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "7567a5b022dd702a7744eb25bca35bbc"
+    },
+    {
+      "key": "mage/lv1/f5/none/s424242",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 6,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "a8a7bd7161ea292c2d21121f4e491605"
+    },
+    {
+      "key": "mage/lv1/f5/none/s987654321",
+      "victory": false,
+      "wavesCleared": 1,
+      "events": 18,
+      "exp": 96,
+      "gold": 70,
+      "items": 0,
+      "sha": "3b3b6432d161578dd3a362d853b802ab"
+    },
+    {
+      "key": "mage/lv1/f5/naive/s1",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 6,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "78e58eedf0bbe8f881d4c3aca9fd9286"
+    },
+    {
+      "key": "mage/lv1/f5/naive/s424242",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 6,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "9eed075b529f3788e5c6bbd788d8a81f"
+    },
+    {
+      "key": "mage/lv1/f5/naive/s987654321",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 12,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "83b1e1eea9fca62b6be937d2a5507446"
+    },
+    {
+      "key": "mage/lv1/f5/smart/s1",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 6,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "fd3ce8069fada3cf363d3458a932e5ec"
+    },
+    {
+      "key": "mage/lv1/f5/smart/s424242",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 6,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "d320231ede58ee9fd9762b46eebf60b0"
+    },
+    {
+      "key": "mage/lv1/f5/smart/s987654321",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 14,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "370bdc89b8e6759a42f70780c04b5dd2"
+    },
+    {
+      "key": "mage/lv1/f8/none/s1",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 11,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "05c9be68e521ec5924b7ea5db861aa50"
+    },
+    {
+      "key": "mage/lv1/f8/none/s424242",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 5,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "ff40c3ce08e819cba85495b61ca20a32"
+    },
+    {
+      "key": "mage/lv1/f8/none/s987654321",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 6,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "c0175e29873ca5d7e9ea3360b9275985"
+    },
+    {
+      "key": "mage/lv1/f8/naive/s1",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 11,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "522de14d6fec9b609edf1668c6c924bf"
+    },
+    {
+      "key": "mage/lv1/f8/naive/s424242",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 5,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "b2e17258583674e562784e7350888eac"
+    },
+    {
+      "key": "mage/lv1/f8/naive/s987654321",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 6,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "e94236f6ab951c8cee3b98ffc5e56e51"
+    },
+    {
+      "key": "mage/lv1/f8/smart/s1",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 12,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "cd0fb186653bfc6649fa7a5b12be1407"
+    },
+    {
+      "key": "mage/lv1/f8/smart/s424242",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 5,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "296048ebc2565a2988c7044cd749923a"
+    },
+    {
+      "key": "mage/lv1/f8/smart/s987654321",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 6,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "87e255c53092737dfb95097f62f3377e"
+    },
+    {
+      "key": "mage/lv1/f10/none/s1",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 6,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "b90396f63bf5e5b9ae12445cd628371f"
+    },
+    {
+      "key": "mage/lv1/f10/none/s424242",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 8,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "830bc3ec1556cfcf3a0dcd0820f76d36"
+    },
+    {
+      "key": "mage/lv1/f10/none/s987654321",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 3,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "d93db4d53c73dc2f71b7dcc023d56704"
+    },
+    {
+      "key": "mage/lv1/f10/naive/s1",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 6,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "24d3dec2b6661ddf2d2bbbe8e6857def"
+    },
+    {
+      "key": "mage/lv1/f10/naive/s424242",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 8,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "dd6911eb18c4c5d6a7dc7dbbdd51b747"
+    },
+    {
+      "key": "mage/lv1/f10/naive/s987654321",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 3,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "d93db4d53c73dc2f71b7dcc023d56704"
+    },
+    {
+      "key": "mage/lv1/f10/smart/s1",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 6,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "4f289112ee76f85c86804c0fcc6dc7da"
+    },
+    {
+      "key": "mage/lv1/f10/smart/s424242",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 9,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "d3cfb0f9be3f4fb52865cc8310c08732"
+    },
+    {
+      "key": "mage/lv1/f10/smart/s987654321",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 3,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "d93db4d53c73dc2f71b7dcc023d56704"
+    },
+    {
+      "key": "mage/lv8/f1/none/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 85,
+      "exp": 496,
+      "gold": 341,
+      "items": 2,
+      "sha": "bd8c2cf673924994ab07d0b2c4bd7d17"
+    },
+    {
+      "key": "mage/lv8/f1/none/s424242",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 82,
+      "exp": 496,
+      "gold": 341,
+      "items": 4,
+      "sha": "168d27a183e717e8dbcc9621267ab6b8"
+    },
+    {
+      "key": "mage/lv8/f1/none/s987654321",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 81,
+      "exp": 464,
+      "gold": 319,
+      "items": 4,
+      "sha": "7b9fc909512f2b850f66c70304748878"
+    },
+    {
+      "key": "mage/lv8/f1/naive/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 92,
+      "exp": 496,
+      "gold": 341,
+      "items": 1,
+      "sha": "ee4b760b2f8d75128dd48e7c47e7662f"
+    },
+    {
+      "key": "mage/lv8/f1/naive/s424242",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 92,
+      "exp": 496,
+      "gold": 341,
+      "items": 4,
+      "sha": "eb646529fd05a0bd4c1fa251b878fa51"
+    },
+    {
+      "key": "mage/lv8/f1/naive/s987654321",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 82,
+      "exp": 464,
+      "gold": 319,
+      "items": 2,
+      "sha": "d812fa538e8fca3fa6a46485b1afc40e"
+    },
+    {
+      "key": "mage/lv8/f1/smart/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 92,
+      "exp": 496,
+      "gold": 341,
+      "items": 1,
+      "sha": "7e1c73af8414eca588b84d4ad4adc669"
+    },
+    {
+      "key": "mage/lv8/f1/smart/s424242",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 92,
+      "exp": 496,
+      "gold": 341,
+      "items": 4,
+      "sha": "e88407619576fca33cb9d0faf951b0bc"
+    },
+    {
+      "key": "mage/lv8/f1/smart/s987654321",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 82,
+      "exp": 464,
+      "gold": 319,
+      "items": 2,
+      "sha": "62e56ffabb0962a361d29b12d3f8af4b"
+    },
+    {
+      "key": "mage/lv8/f2/none/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 149,
+      "exp": 720,
+      "gold": 510,
+      "items": 2,
+      "sha": "028ff2d33b1d108f8386d77667af15ad"
+    },
+    {
+      "key": "mage/lv8/f2/none/s424242",
+      "victory": false,
+      "wavesCleared": 5,
+      "events": 83,
+      "exp": 288,
+      "gold": 204,
+      "items": 2,
+      "sha": "3cd6025b9feeb4ea1898e0bec93f0c89"
+    },
+    {
+      "key": "mage/lv8/f2/none/s987654321",
+      "victory": false,
+      "wavesCleared": 5,
+      "events": 100,
+      "exp": 288,
+      "gold": 204,
+      "items": 4,
+      "sha": "6802721ad3aee1cf62657faf24aa807e"
+    },
+    {
+      "key": "mage/lv8/f2/naive/s1",
+      "victory": false,
+      "wavesCleared": 5,
+      "events": 68,
+      "exp": 312,
+      "gold": 221,
+      "items": 1,
+      "sha": "9553ca5d6ab544e833d7582af5c8ca3a"
+    },
+    {
+      "key": "mage/lv8/f2/naive/s424242",
+      "victory": false,
+      "wavesCleared": 2,
+      "events": 41,
+      "exp": 120,
+      "gold": 85,
+      "items": 1,
+      "sha": "f9aa1766fd906beb628c9ad8cf12841b"
+    },
+    {
+      "key": "mage/lv8/f2/naive/s987654321",
+      "victory": false,
+      "wavesCleared": 4,
+      "events": 58,
+      "exp": 240,
+      "gold": 170,
+      "items": 1,
+      "sha": "808d0f6486398354f482558b383a72b6"
+    },
+    {
+      "key": "mage/lv8/f2/smart/s1",
+      "victory": false,
+      "wavesCleared": 5,
+      "events": 86,
+      "exp": 312,
+      "gold": 221,
+      "items": 2,
+      "sha": "5cc78ddd33a18538a09f3626fdf45e26"
+    },
+    {
+      "key": "mage/lv8/f2/smart/s424242",
+      "victory": false,
+      "wavesCleared": 1,
+      "events": 48,
+      "exp": 72,
+      "gold": 51,
+      "items": 1,
+      "sha": "17f9263948508a38faa13ed99d6e5858"
+    },
+    {
+      "key": "mage/lv8/f2/smart/s987654321",
+      "victory": false,
+      "wavesCleared": 3,
+      "events": 63,
+      "exp": 144,
+      "gold": 102,
+      "items": 0,
+      "sha": "1d3b9a492c1d2cc45e6dc6c18cb24350"
+    },
+    {
+      "key": "mage/lv8/f3/none/s1",
+      "victory": false,
+      "wavesCleared": 4,
+      "events": 75,
+      "exp": 320,
+      "gold": 230,
+      "items": 4,
+      "sha": "b279589fdd7366d2f08f1d8f72c05116"
+    },
+    {
+      "key": "mage/lv8/f3/none/s424242",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 167,
+      "exp": 960,
+      "gold": 690,
+      "items": 4,
+      "sha": "b5ee7211aa716c2359d4c165480811ac"
+    },
+    {
+      "key": "mage/lv8/f3/none/s987654321",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 177,
+      "exp": 992,
+      "gold": 713,
+      "items": 4,
+      "sha": "f87f763bb55fc2af7e0d2f5888bc495b"
+    },
+    {
+      "key": "mage/lv8/f3/naive/s1",
+      "victory": false,
+      "wavesCleared": 4,
+      "events": 60,
+      "exp": 320,
+      "gold": 230,
+      "items": 2,
+      "sha": "e56d2c78cc23ab93ec8cc85405c0592f"
+    },
+    {
+      "key": "mage/lv8/f3/naive/s424242",
+      "victory": false,
+      "wavesCleared": 1,
+      "events": 26,
+      "exp": 96,
+      "gold": 69,
+      "items": 0,
+      "sha": "61135d67be43a1bcbd7e56018e3284a9"
+    },
+    {
+      "key": "mage/lv8/f3/naive/s987654321",
+      "victory": false,
+      "wavesCleared": 3,
+      "events": 52,
+      "exp": 256,
+      "gold": 184,
+      "items": 1,
+      "sha": "602e98de421c183156f0c3b270978635"
+    },
+    {
+      "key": "mage/lv8/f3/smart/s1",
+      "victory": false,
+      "wavesCleared": 2,
+      "events": 51,
+      "exp": 160,
+      "gold": 115,
+      "items": 0,
+      "sha": "fa42480c66e1ffc3269cb9b518028516"
+    },
+    {
+      "key": "mage/lv8/f3/smart/s424242",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 31,
+      "exp": 32,
+      "gold": 23,
+      "items": 0,
+      "sha": "33a9c5e8d30b02a83a7a5a6cf762439c"
+    },
+    {
+      "key": "mage/lv8/f3/smart/s987654321",
+      "victory": false,
+      "wavesCleared": 2,
+      "events": 49,
+      "exp": 160,
+      "gold": 115,
+      "items": 0,
+      "sha": "f858666fc956f535b50af646bcffaa35"
+    },
+    {
+      "key": "mage/lv8/f5/none/s1",
+      "victory": false,
+      "wavesCleared": 3,
+      "events": 87,
+      "exp": 384,
+      "gold": 280,
+      "items": 1,
+      "sha": "b577c79ce8c7d820c6c84e2c4ded3245"
+    },
+    {
+      "key": "mage/lv8/f5/none/s424242",
+      "victory": false,
+      "wavesCleared": 3,
+      "events": 75,
+      "exp": 288,
+      "gold": 210,
+      "items": 2,
+      "sha": "94db5d51e8afe8d517ed279ac96fb069"
+    },
+    {
+      "key": "mage/lv8/f5/none/s987654321",
+      "victory": false,
+      "wavesCleared": 4,
+      "events": 98,
+      "exp": 528,
+      "gold": 385,
+      "items": 2,
+      "sha": "3fdcb984fa087187a04e8d266bdb5cb9"
+    },
+    {
+      "key": "mage/lv8/f5/naive/s1",
+      "victory": false,
+      "wavesCleared": 1,
+      "events": 25,
+      "exp": 96,
+      "gold": 70,
+      "items": 0,
+      "sha": "571f7e1bfe49b8a99722614816be08ea"
+    },
+    {
+      "key": "mage/lv8/f5/naive/s424242",
+      "victory": false,
+      "wavesCleared": 2,
+      "events": 34,
+      "exp": 192,
+      "gold": 140,
+      "items": 0,
+      "sha": "af6292f53c217e3df2a89c4295db95bc"
+    },
+    {
+      "key": "mage/lv8/f5/naive/s987654321",
+      "victory": false,
+      "wavesCleared": 1,
+      "events": 33,
+      "exp": 144,
+      "gold": 105,
+      "items": 1,
+      "sha": "54eab45f2898f37f43fc10ffa5cb8520"
+    },
+    {
+      "key": "mage/lv8/f5/smart/s1",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 22,
+      "exp": 48,
+      "gold": 35,
+      "items": 0,
+      "sha": "1bee23e3b6322b937ef2dcb5435af066"
+    },
+    {
+      "key": "mage/lv8/f5/smart/s424242",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 21,
+      "exp": 48,
+      "gold": 35,
+      "items": 0,
+      "sha": "3d91cdfdb3480efd2ce5863c28c9581e"
+    },
+    {
+      "key": "mage/lv8/f5/smart/s987654321",
+      "victory": false,
+      "wavesCleared": 1,
+      "events": 38,
+      "exp": 144,
+      "gold": 105,
+      "items": 0,
+      "sha": "f32eb70fb76dd1d03ae703da8f2d1b7f"
+    },
+    {
+      "key": "mage/lv8/f8/none/s1",
+      "victory": false,
+      "wavesCleared": 3,
+      "events": 81,
+      "exp": 432,
+      "gold": 318,
+      "items": 0,
+      "sha": "68da377584168e1ede8d3b597945f9fc"
+    },
+    {
+      "key": "mage/lv8/f8/none/s424242",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 35,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "74e7d2af3c2207676fd689381d19b049"
+    },
+    {
+      "key": "mage/lv8/f8/none/s987654321",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 36,
+      "exp": 72,
+      "gold": 53,
+      "items": 1,
+      "sha": "7154247fdd69c92162fca473b86f4cb1"
+    },
+    {
+      "key": "mage/lv8/f8/naive/s1",
+      "victory": false,
+      "wavesCleared": 3,
+      "events": 69,
+      "exp": 432,
+      "gold": 318,
+      "items": 1,
+      "sha": "d0616aecb2ffdd18cdcbfd8b2922f622"
+    },
+    {
+      "key": "mage/lv8/f8/naive/s424242",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 15,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "15b7b557ed7daf0b187c84a1c7dea42b"
+    },
+    {
+      "key": "mage/lv8/f8/naive/s987654321",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 15,
+      "exp": 72,
+      "gold": 53,
+      "items": 0,
+      "sha": "6d6e0cfa20cae330152a92dc87d86f39"
+    },
+    {
+      "key": "mage/lv8/f8/smart/s1",
+      "victory": false,
+      "wavesCleared": 3,
+      "events": 74,
+      "exp": 432,
+      "gold": 318,
+      "items": 2,
+      "sha": "ab12e607ca3b2b0fd4c8a93bdb20e4aa"
+    },
+    {
+      "key": "mage/lv8/f8/smart/s424242",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 17,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "808f11a59e631915c9d1ec1bf91b661b"
+    },
+    {
+      "key": "mage/lv8/f8/smart/s987654321",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 17,
+      "exp": 72,
+      "gold": 53,
+      "items": 0,
+      "sha": "d7ba2a0790bddfb2ea52981246626179"
+    },
+    {
+      "key": "mage/lv8/f10/none/s1",
+      "victory": false,
+      "wavesCleared": 2,
+      "events": 78,
+      "exp": 352,
+      "gold": 260,
+      "items": 0,
+      "sha": "81c614a2195f9089d94ca5dfc200633b"
+    },
+    {
+      "key": "mage/lv8/f10/none/s424242",
+      "victory": false,
+      "wavesCleared": 3,
+      "events": 118,
+      "exp": 616,
+      "gold": 455,
+      "items": 0,
+      "sha": "827b6a870b41600e57805f8ca084b020"
+    },
+    {
+      "key": "mage/lv8/f10/none/s987654321",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 23,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "f33ab6ff4cfb6580ac6464133029f054"
+    },
+    {
+      "key": "mage/lv8/f10/naive/s1",
+      "victory": false,
+      "wavesCleared": 1,
+      "events": 41,
+      "exp": 264,
+      "gold": 195,
+      "items": 0,
+      "sha": "8311a6d0721c55098e0919bb372faee0"
+    },
+    {
+      "key": "mage/lv8/f10/naive/s424242",
+      "victory": false,
+      "wavesCleared": 1,
+      "events": 52,
+      "exp": 264,
+      "gold": 195,
+      "items": 1,
+      "sha": "a168ad3b03fe5573db1d4128a31aefe1"
+    },
+    {
+      "key": "mage/lv8/f10/naive/s987654321",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 9,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "043b92dc5902698d2627356510c52422"
+    },
+    {
+      "key": "mage/lv8/f10/smart/s1",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 60,
+      "exp": 88,
+      "gold": 65,
+      "items": 1,
+      "sha": "0251c62e979c70e65ac00113cb2dc678"
+    },
+    {
+      "key": "mage/lv8/f10/smart/s424242",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 59,
+      "exp": 88,
+      "gold": 65,
+      "items": 0,
+      "sha": "336d6c877ab92f3c8f64b748f82eaeb8"
+    },
+    {
+      "key": "mage/lv8/f10/smart/s987654321",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 12,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "f2dfe5927ef9b23c58f564189195a595"
+    },
+    {
+      "key": "mage/lv20/f1/none/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 78,
+      "exp": 496,
+      "gold": 341,
+      "items": 3,
+      "sha": "4ab8d70e16dbe0c4506f9ab20cc4cf2f"
+    },
+    {
+      "key": "mage/lv20/f1/none/s424242",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 78,
+      "exp": 496,
+      "gold": 341,
+      "items": 4,
+      "sha": "7d8d01bc22fdbbc3ffd6bbcdfc4c92f2"
+    },
+    {
+      "key": "mage/lv20/f1/none/s987654321",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 76,
+      "exp": 464,
+      "gold": 319,
+      "items": 2,
+      "sha": "2bfcabe208398a21efd84c0593963af4"
+    },
+    {
+      "key": "mage/lv20/f1/naive/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 88,
+      "exp": 496,
+      "gold": 341,
+      "items": 2,
+      "sha": "d408c7b7269b9b7afc781c75a9635337"
+    },
+    {
+      "key": "mage/lv20/f1/naive/s424242",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 88,
+      "exp": 496,
+      "gold": 341,
+      "items": 4,
+      "sha": "d53d71dfde408b8bbd2a2cf97d04ad85"
+    },
+    {
+      "key": "mage/lv20/f1/naive/s987654321",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 78,
+      "exp": 464,
+      "gold": 319,
+      "items": 2,
+      "sha": "88a26f3093388224b783303606684b0c"
+    },
+    {
+      "key": "mage/lv20/f1/smart/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 88,
+      "exp": 496,
+      "gold": 341,
+      "items": 2,
+      "sha": "325c1aa1cd8338b7f4fccebaafb71107"
+    },
+    {
+      "key": "mage/lv20/f1/smart/s424242",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 88,
+      "exp": 496,
+      "gold": 341,
+      "items": 4,
+      "sha": "597f5d4e57ccbcf4bb34c4370f2647c5"
+    },
+    {
+      "key": "mage/lv20/f1/smart/s987654321",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 78,
+      "exp": 464,
+      "gold": 319,
+      "items": 2,
+      "sha": "f8d9259d5a55204ba1657d5d5994356b"
+    },
+    {
+      "key": "mage/lv20/f2/none/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 115,
+      "exp": 720,
+      "gold": 510,
+      "items": 2,
+      "sha": "7ca3566f715cdeb64659b36ddecb6979"
+    },
+    {
+      "key": "mage/lv20/f2/none/s424242",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 128,
+      "exp": 744,
+      "gold": 527,
+      "items": 6,
+      "sha": "d54ebf138f7f1f6649b69c6df0cc1089"
+    },
+    {
+      "key": "mage/lv20/f2/none/s987654321",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 136,
+      "exp": 744,
+      "gold": 527,
+      "items": 4,
+      "sha": "5d499b810c6a2a8a48e3b3a86197a43f"
+    },
+    {
+      "key": "mage/lv20/f2/naive/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 80,
+      "exp": 720,
+      "gold": 510,
+      "items": 6,
+      "sha": "603fae18d4bf084f2653a10dcb0d9b88"
+    },
+    {
+      "key": "mage/lv20/f2/naive/s424242",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 83,
+      "exp": 744,
+      "gold": 527,
+      "items": 4,
+      "sha": "5710fd9c2255aa297ad7c09bfc30ad30"
+    },
+    {
+      "key": "mage/lv20/f2/naive/s987654321",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 87,
+      "exp": 744,
+      "gold": 527,
+      "items": 6,
+      "sha": "92b9e28a01daf3907df794299c20ca03"
+    },
+    {
+      "key": "mage/lv20/f2/smart/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 80,
+      "exp": 720,
+      "gold": 510,
+      "items": 6,
+      "sha": "ed3f3a88f0d905a9a1441a95a3e08ed2"
+    },
+    {
+      "key": "mage/lv20/f2/smart/s424242",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 83,
+      "exp": 744,
+      "gold": 527,
+      "items": 4,
+      "sha": "7d617b8990c711ce8a195ce71acfa422"
+    },
+    {
+      "key": "mage/lv20/f2/smart/s987654321",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 82,
+      "exp": 744,
+      "gold": 527,
+      "items": 4,
+      "sha": "e33ebb2add7ac93db8099e4d38ac07a1"
+    },
+    {
+      "key": "mage/lv20/f3/none/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 153,
+      "exp": 992,
+      "gold": 713,
+      "items": 5,
+      "sha": "8909e1d68d64a5b0df282dca9e73c505"
+    },
+    {
+      "key": "mage/lv20/f3/none/s424242",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 144,
+      "exp": 960,
+      "gold": 690,
+      "items": 3,
+      "sha": "fd399b43d906921a781cbcfe838030f5"
+    },
+    {
+      "key": "mage/lv20/f3/none/s987654321",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 144,
+      "exp": 992,
+      "gold": 713,
+      "items": 2,
+      "sha": "343a21c3abec74b48e2bb7cb2a73a9bc"
+    },
+    {
+      "key": "mage/lv20/f3/naive/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 94,
+      "exp": 992,
+      "gold": 713,
+      "items": 5,
+      "sha": "2d1d247c3eab6057cfd52b92be72c4f5"
+    },
+    {
+      "key": "mage/lv20/f3/naive/s424242",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 97,
+      "exp": 960,
+      "gold": 690,
+      "items": 3,
+      "sha": "295c73817eaf74170be41eba82d95f0c"
+    },
+    {
+      "key": "mage/lv20/f3/naive/s987654321",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 94,
+      "exp": 992,
+      "gold": 713,
+      "items": 3,
+      "sha": "4e4671065088ca6b745301a7ced3f5cd"
+    },
+    {
+      "key": "mage/lv20/f3/smart/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 93,
+      "exp": 992,
+      "gold": 713,
+      "items": 6,
+      "sha": "7c3780ba1e7ce50a1ee32b248625e516"
+    },
+    {
+      "key": "mage/lv20/f3/smart/s424242",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 92,
+      "exp": 960,
+      "gold": 690,
+      "items": 2,
+      "sha": "ef9b31a08649102b26c25164a30f81b1"
+    },
+    {
+      "key": "mage/lv20/f3/smart/s987654321",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 98,
+      "exp": 992,
+      "gold": 713,
+      "items": 4,
+      "sha": "69b5b579033fd2e3dfcc3520fb45454e"
+    },
+    {
+      "key": "mage/lv20/f5/none/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 193,
+      "exp": 1440,
+      "gold": 1050,
+      "items": 3,
+      "sha": "5e06489c964a4b081f07b44f6c880d88"
+    },
+    {
+      "key": "mage/lv20/f5/none/s424242",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 221,
+      "exp": 1536,
+      "gold": 1120,
+      "items": 7,
+      "sha": "3f929c34c289f0831bcce88f107b4c38"
+    },
+    {
+      "key": "mage/lv20/f5/none/s987654321",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 201,
+      "exp": 1536,
+      "gold": 1120,
+      "items": 3,
+      "sha": "d2a5e2ce0ffc7568a079196d2e8c3414"
+    },
+    {
+      "key": "mage/lv20/f5/naive/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 107,
+      "exp": 1440,
+      "gold": 1050,
+      "items": 6,
+      "sha": "08e560c11df7d3166baa4b9f1b75a26f"
+    },
+    {
+      "key": "mage/lv20/f5/naive/s424242",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 120,
+      "exp": 1536,
+      "gold": 1120,
+      "items": 3,
+      "sha": "850c5acf5ad7c07ccb2abc5778e27aca"
+    },
+    {
+      "key": "mage/lv20/f5/naive/s987654321",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 120,
+      "exp": 1536,
+      "gold": 1120,
+      "items": 3,
+      "sha": "666cb710ab0bf71a3accdcabd92abb3b"
+    },
+    {
+      "key": "mage/lv20/f5/smart/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 115,
+      "exp": 1440,
+      "gold": 1050,
+      "items": 5,
+      "sha": "d2d06fb088417bb1d33bd6ffe0afdc6e"
+    },
+    {
+      "key": "mage/lv20/f5/smart/s424242",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 127,
+      "exp": 1536,
+      "gold": 1120,
+      "items": 4,
+      "sha": "b6ca57e7ae96d48a4e27316cc949a5fd"
+    },
+    {
+      "key": "mage/lv20/f5/smart/s987654321",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 124,
+      "exp": 1536,
+      "gold": 1120,
+      "items": 3,
+      "sha": "1683729b130ed64832a01b3d590b5c82"
+    },
+    {
+      "key": "mage/lv20/f8/none/s1",
+      "victory": false,
+      "wavesCleared": 6,
+      "events": 182,
+      "exp": 1224,
+      "gold": 901,
+      "items": 4,
+      "sha": "77140743d6fa135e9fbe8c3ad2cbfc7e"
+    },
+    {
+      "key": "mage/lv20/f8/none/s424242",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 326,
+      "exp": 2232,
+      "gold": 1643,
+      "items": 5,
+      "sha": "c511a544eba66be6758881a1c0009fe5"
+    },
+    {
+      "key": "mage/lv20/f8/none/s987654321",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 344,
+      "exp": 2304,
+      "gold": 1696,
+      "items": 2,
+      "sha": "9163fe097f98d0a3dcdbfccb038d9e47"
+    },
+    {
+      "key": "mage/lv20/f8/naive/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 151,
+      "exp": 2160,
+      "gold": 1590,
+      "items": 1,
+      "sha": "18aca06305e38161ea9a2c7117f4fe28"
+    },
+    {
+      "key": "mage/lv20/f8/naive/s424242",
+      "victory": false,
+      "wavesCleared": 4,
+      "events": 72,
+      "exp": 792,
+      "gold": 583,
+      "items": 2,
+      "sha": "0cde9eac016dd5dd057aa66855314f40"
+    },
+    {
+      "key": "mage/lv20/f8/naive/s987654321",
+      "victory": false,
+      "wavesCleared": 8,
+      "events": 133,
+      "exp": 1656,
+      "gold": 1219,
+      "items": 4,
+      "sha": "28cca86086c14b260c42a9674de23967"
+    },
+    {
+      "key": "mage/lv20/f8/smart/s1",
+      "victory": false,
+      "wavesCleared": 7,
+      "events": 149,
+      "exp": 1296,
+      "gold": 954,
+      "items": 2,
+      "sha": "63e85628638dfa871adfc917fc2b8c11"
+    },
+    {
+      "key": "mage/lv20/f8/smart/s424242",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 182,
+      "exp": 2232,
+      "gold": 1643,
+      "items": 2,
+      "sha": "39456764d1540051808d4715a278ab2a"
+    },
+    {
+      "key": "mage/lv20/f8/smart/s987654321",
+      "victory": false,
+      "wavesCleared": 8,
+      "events": 157,
+      "exp": 1584,
+      "gold": 1166,
+      "items": 2,
+      "sha": "1a6104e0e908627376f14295ff25a1af"
+    },
+    {
+      "key": "mage/lv20/f10/none/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 350,
+      "exp": 2640,
+      "gold": 1950,
+      "items": 5,
+      "sha": "6a4d3d486cb53850e47a2db838c6b94b"
+    },
+    {
+      "key": "mage/lv20/f10/none/s424242",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 344,
+      "exp": 2816,
+      "gold": 2080,
+      "items": 4,
+      "sha": "fa36b5a90cdff25fe141796b56681725"
+    },
+    {
+      "key": "mage/lv20/f10/none/s987654321",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 380,
+      "exp": 2904,
+      "gold": 2145,
+      "items": 6,
+      "sha": "8632d6bc6b5ccfc8ed7a0798f5357728"
+    },
+    {
+      "key": "mage/lv20/f10/naive/s1",
+      "victory": false,
+      "wavesCleared": 9,
+      "events": 171,
+      "exp": 2200,
+      "gold": 1625,
+      "items": 6,
+      "sha": "4c908fe8a70ddf41360ee53ce22b9a24"
+    },
+    {
+      "key": "mage/lv20/f10/naive/s424242",
+      "victory": false,
+      "wavesCleared": 8,
+      "events": 165,
+      "exp": 2112,
+      "gold": 1560,
+      "items": 0,
+      "sha": "58081169004dea35b66f72dd806b63a6"
+    },
+    {
+      "key": "mage/lv20/f10/naive/s987654321",
+      "victory": false,
+      "wavesCleared": 9,
+      "events": 186,
+      "exp": 2464,
+      "gold": 1820,
+      "items": 5,
+      "sha": "4bae66d3127d086d929a5220b3db597b"
+    },
+    {
+      "key": "mage/lv20/f10/smart/s1",
+      "victory": false,
+      "wavesCleared": 7,
+      "events": 176,
+      "exp": 1760,
+      "gold": 1300,
+      "items": 2,
+      "sha": "4e66a2ffcc8f3c56e13b9baf6e435275"
+    },
+    {
+      "key": "mage/lv20/f10/smart/s424242",
+      "victory": false,
+      "wavesCleared": 8,
+      "events": 198,
+      "exp": 2024,
+      "gold": 1495,
+      "items": 2,
+      "sha": "651d1a2056894ebd58924c40d64e3da2"
+    },
+    {
+      "key": "mage/lv20/f10/smart/s987654321",
+      "victory": false,
+      "wavesCleared": 6,
+      "events": 161,
+      "exp": 1496,
+      "gold": 1105,
+      "items": 1,
+      "sha": "546d3e1d2c5c5284aa55fc6c700b8ae6"
+    },
+    {
+      "key": "guardian/lv1/f1/none/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 295,
+      "exp": 496,
+      "gold": 341,
+      "items": 2,
+      "sha": "059c519abe39bf462fa902a77fd72b9a"
+    },
+    {
+      "key": "guardian/lv1/f1/none/s424242",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 271,
+      "exp": 496,
+      "gold": 341,
+      "items": 9,
+      "sha": "1df99752c8e17c6294acc5f911067118"
+    },
+    {
+      "key": "guardian/lv1/f1/none/s987654321",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 245,
+      "exp": 464,
+      "gold": 319,
+      "items": 5,
+      "sha": "a991ac80ea6cdc6a3cc7c1d0a483ceb0"
+    },
+    {
+      "key": "guardian/lv1/f1/naive/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 295,
+      "exp": 496,
+      "gold": 341,
+      "items": 2,
+      "sha": "858c6f299563d1650999ba5a5e097498"
+    },
+    {
+      "key": "guardian/lv1/f1/naive/s424242",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 271,
+      "exp": 496,
+      "gold": 341,
+      "items": 9,
+      "sha": "9a216a440a681f59bbb0011d2f17abc8"
+    },
+    {
+      "key": "guardian/lv1/f1/naive/s987654321",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 245,
+      "exp": 464,
+      "gold": 319,
+      "items": 5,
+      "sha": "0d6063ca521d18ca647e885d9f1fcf55"
+    },
+    {
+      "key": "guardian/lv1/f1/smart/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 295,
+      "exp": 496,
+      "gold": 341,
+      "items": 2,
+      "sha": "7970381896f284f4618882600c687e12"
+    },
+    {
+      "key": "guardian/lv1/f1/smart/s424242",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 271,
+      "exp": 496,
+      "gold": 341,
+      "items": 9,
+      "sha": "8f67cdb65917758439a4185a51fe4c59"
+    },
+    {
+      "key": "guardian/lv1/f1/smart/s987654321",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 245,
+      "exp": 464,
+      "gold": 319,
+      "items": 5,
+      "sha": "cca20d4372a3d39ae9931913fd3c558f"
+    },
+    {
+      "key": "guardian/lv1/f2/none/s1",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 24,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "4c9ba522ef7663af1c93918272123e1a"
+    },
+    {
+      "key": "guardian/lv1/f2/none/s424242",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 11,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "e066470aa56111623e4db7d3e11e9d00"
+    },
+    {
+      "key": "guardian/lv1/f2/none/s987654321",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 18,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "48b86ae7d491a604deec85eb3e1dfaa2"
+    },
+    {
+      "key": "guardian/lv1/f2/naive/s1",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 19,
+      "exp": 24,
+      "gold": 17,
+      "items": 0,
+      "sha": "2312101b0c61f403bf0384c9dab5036c"
+    },
+    {
+      "key": "guardian/lv1/f2/naive/s424242",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 11,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "db083d1b33018f6d9c9ff447a14fc112"
+    },
+    {
+      "key": "guardian/lv1/f2/naive/s987654321",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 18,
+      "exp": 24,
+      "gold": 17,
+      "items": 0,
+      "sha": "b50c518010abf8bbd12c204577db269a"
+    },
+    {
+      "key": "guardian/lv1/f2/smart/s1",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 20,
+      "exp": 24,
+      "gold": 17,
+      "items": 0,
+      "sha": "fb62357cfa9211198fb24b5b8264fb36"
+    },
+    {
+      "key": "guardian/lv1/f2/smart/s424242",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 11,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "4d0241f574b7675a28ab0611b4fc50fa"
+    },
+    {
+      "key": "guardian/lv1/f2/smart/s987654321",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 24,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "cc188aff6d5d172f9dd87da5562e416b"
+    },
+    {
+      "key": "guardian/lv1/f3/none/s1",
+      "victory": false,
+      "wavesCleared": 1,
+      "events": 45,
+      "exp": 64,
+      "gold": 46,
+      "items": 0,
+      "sha": "d95614581a5dc7db085d24219a90d8cb"
+    },
+    {
+      "key": "guardian/lv1/f3/none/s424242",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 9,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "0b5deab431474bdba8950e764dc893dd"
+    },
+    {
+      "key": "guardian/lv1/f3/none/s987654321",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 9,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "e710c3b1e6a5335eea7a9ccbeeab3bd1"
+    },
+    {
+      "key": "guardian/lv1/f3/naive/s1",
+      "victory": false,
+      "wavesCleared": 1,
+      "events": 41,
+      "exp": 64,
+      "gold": 46,
+      "items": 0,
+      "sha": "449b74c844877ed644985e7e66fcfc73"
+    },
+    {
+      "key": "guardian/lv1/f3/naive/s424242",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 9,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "86b7edc901aba8a1040dc2eb21903298"
+    },
+    {
+      "key": "guardian/lv1/f3/naive/s987654321",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 9,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "d693f99b8fa514142d0a63b379f2366a"
+    },
+    {
+      "key": "guardian/lv1/f3/smart/s1",
+      "victory": false,
+      "wavesCleared": 1,
+      "events": 44,
+      "exp": 64,
+      "gold": 46,
+      "items": 1,
+      "sha": "e2100676a6d3c46e7b3564c9c59325b5"
+    },
+    {
+      "key": "guardian/lv1/f3/smart/s424242",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 11,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "db95b0d6b48cea488fb819d37c7edf54"
+    },
+    {
+      "key": "guardian/lv1/f3/smart/s987654321",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 11,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "f399a9a487b6b8b8dcb77be89156d570"
+    },
+    {
+      "key": "guardian/lv1/f5/none/s1",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 12,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "95be174bce86127a9be69303ad652026"
+    },
+    {
+      "key": "guardian/lv1/f5/none/s424242",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 9,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "f30c3beb82fb669bdcb3ca561e4890c0"
+    },
+    {
+      "key": "guardian/lv1/f5/none/s987654321",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 21,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "205a36a4b5d0cacd21e95833b7833f11"
+    },
+    {
+      "key": "guardian/lv1/f5/naive/s1",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 12,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "9dd83a63fd3ef394353ea033e8609141"
+    },
+    {
+      "key": "guardian/lv1/f5/naive/s424242",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 9,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "f154cda3bf525aa274ff2cbc86cbba61"
+    },
+    {
+      "key": "guardian/lv1/f5/naive/s987654321",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 21,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "31dd3760e1d4e9575d70d7cc9fcdb268"
+    },
+    {
+      "key": "guardian/lv1/f5/smart/s1",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 12,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "4b0d6c23d7fd7de28b689234f3dbd1ed"
+    },
+    {
+      "key": "guardian/lv1/f5/smart/s424242",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 12,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "71ecd30b06697c1ecbc398014aaa9bc5"
+    },
+    {
+      "key": "guardian/lv1/f5/smart/s987654321",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 24,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "fe419479d8e42af02eaa93cbcff01f28"
+    },
+    {
+      "key": "guardian/lv1/f8/none/s1",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 20,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "c46efe2974e5d416cdc2cad448288247"
+    },
+    {
+      "key": "guardian/lv1/f8/none/s424242",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 9,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "6b81b183df76da06834a16fe3ae4f003"
+    },
+    {
+      "key": "guardian/lv1/f8/none/s987654321",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 9,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "adf709353fdb314bd8b19092265eb322"
+    },
+    {
+      "key": "guardian/lv1/f8/naive/s1",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 20,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "d769186f6f4bee01c3503f439778da18"
+    },
+    {
+      "key": "guardian/lv1/f8/naive/s424242",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 9,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "402b1ab6818893aa6bd74fdd6dec2a0d"
+    },
+    {
+      "key": "guardian/lv1/f8/naive/s987654321",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 9,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "7522e76db60a04a0607ccee536f10f96"
+    },
+    {
+      "key": "guardian/lv1/f8/smart/s1",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 26,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "6aaf281425a152d807c6e4060048d10e"
+    },
+    {
+      "key": "guardian/lv1/f8/smart/s424242",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 9,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "ed421283d4a68bee562bb6c2079b15b6"
+    },
+    {
+      "key": "guardian/lv1/f8/smart/s987654321",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 9,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "74cf061e38ea02abdbfee7d7b3772912"
+    },
+    {
+      "key": "guardian/lv1/f10/none/s1",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 11,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "1c6050812b1a6d004009d017f19dbaf3"
+    },
+    {
+      "key": "guardian/lv1/f10/none/s424242",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 15,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "bdb65177db2100120e295d0cc762f94e"
+    },
+    {
+      "key": "guardian/lv1/f10/none/s987654321",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 5,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "663701f293767abf5c9f9b6f17eda1e4"
+    },
+    {
+      "key": "guardian/lv1/f10/naive/s1",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 11,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "901a00cc3fd098d853a7db361e59834f"
+    },
+    {
+      "key": "guardian/lv1/f10/naive/s424242",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 15,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "a6e52ac3e52af7afee48b5854a2e2eeb"
+    },
+    {
+      "key": "guardian/lv1/f10/naive/s987654321",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 5,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "03648c272fd91fbc8d43d555d2692249"
+    },
+    {
+      "key": "guardian/lv1/f10/smart/s1",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 11,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "71d7afbec68358043a1a8af891e11878"
+    },
+    {
+      "key": "guardian/lv1/f10/smart/s424242",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 18,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "78bde239e5eb2439983af3c54bdbc410"
+    },
+    {
+      "key": "guardian/lv1/f10/smart/s987654321",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 6,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "f8b0b323b52a6a3a0a62508d945a7530"
+    },
+    {
+      "key": "guardian/lv8/f1/none/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 94,
+      "exp": 496,
+      "gold": 341,
+      "items": 2,
+      "sha": "2ee6919ae38f4c1008da045bfb768dc2"
+    },
+    {
+      "key": "guardian/lv8/f1/none/s424242",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 100,
+      "exp": 496,
+      "gold": 341,
+      "items": 4,
+      "sha": "e4c753ccb687c067af04c15277ef6cc1"
+    },
+    {
+      "key": "guardian/lv8/f1/none/s987654321",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 87,
+      "exp": 464,
+      "gold": 319,
+      "items": 3,
+      "sha": "b8c80f84c92fcf363432c4c1b6e04289"
+    },
+    {
+      "key": "guardian/lv8/f1/naive/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 94,
+      "exp": 496,
+      "gold": 341,
+      "items": 2,
+      "sha": "e9e268489e14014d70edf349340711ec"
+    },
+    {
+      "key": "guardian/lv8/f1/naive/s424242",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 100,
+      "exp": 496,
+      "gold": 341,
+      "items": 4,
+      "sha": "28404aa13bd4158148802c37b019e814"
+    },
+    {
+      "key": "guardian/lv8/f1/naive/s987654321",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 87,
+      "exp": 464,
+      "gold": 319,
+      "items": 3,
+      "sha": "0d7f0f707dcbeb3c1266b7caa8a54257"
+    },
+    {
+      "key": "guardian/lv8/f1/smart/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 94,
+      "exp": 496,
+      "gold": 341,
+      "items": 2,
+      "sha": "68ee111e6d5d2b5f7cfc3bc577c2c964"
+    },
+    {
+      "key": "guardian/lv8/f1/smart/s424242",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 100,
+      "exp": 496,
+      "gold": 341,
+      "items": 4,
+      "sha": "ed078e69b184ae0b65a8d75956302518"
+    },
+    {
+      "key": "guardian/lv8/f1/smart/s987654321",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 87,
+      "exp": 464,
+      "gold": 319,
+      "items": 3,
+      "sha": "88527ae54a1abb96b393a14d19ec0503"
+    },
+    {
+      "key": "guardian/lv8/f2/none/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 148,
+      "exp": 720,
+      "gold": 510,
+      "items": 2,
+      "sha": "b47860cf6450c4349fdc082102e840b9"
+    },
+    {
+      "key": "guardian/lv8/f2/none/s424242",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 169,
+      "exp": 744,
+      "gold": 527,
+      "items": 4,
+      "sha": "9effb1e4d2d3f7791c15710dd8d5ce25"
+    },
+    {
+      "key": "guardian/lv8/f2/none/s987654321",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 160,
+      "exp": 744,
+      "gold": 527,
+      "items": 6,
+      "sha": "665b4c64e7aa4e0e8db560dabd368a3c"
+    },
+    {
+      "key": "guardian/lv8/f2/naive/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 123,
+      "exp": 720,
+      "gold": 510,
+      "items": 2,
+      "sha": "4e7070612e54f68092eabd56559dde5d"
+    },
+    {
+      "key": "guardian/lv8/f2/naive/s424242",
+      "victory": false,
+      "wavesCleared": 8,
+      "events": 122,
+      "exp": 600,
+      "gold": 425,
+      "items": 4,
+      "sha": "ba5a0fb217a40ec4591f8a2e39071378"
+    },
+    {
+      "key": "guardian/lv8/f2/naive/s987654321",
+      "victory": false,
+      "wavesCleared": 6,
+      "events": 85,
+      "exp": 384,
+      "gold": 272,
+      "items": 3,
+      "sha": "de8109f7d1aa6653e1b6636f25facca6"
+    },
+    {
+      "key": "guardian/lv8/f2/smart/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 133,
+      "exp": 720,
+      "gold": 510,
+      "items": 2,
+      "sha": "a0aa930ae171917ffd33829254728f60"
+    },
+    {
+      "key": "guardian/lv8/f2/smart/s424242",
+      "victory": false,
+      "wavesCleared": 5,
+      "events": 100,
+      "exp": 312,
+      "gold": 221,
+      "items": 2,
+      "sha": "3e2e23f0cafbc7de51d71382a9e70d52"
+    },
+    {
+      "key": "guardian/lv8/f2/smart/s987654321",
+      "victory": false,
+      "wavesCleared": 5,
+      "events": 89,
+      "exp": 312,
+      "gold": 221,
+      "items": 3,
+      "sha": "517f908c65c645906b51caa1fb375b66"
+    },
+    {
+      "key": "guardian/lv8/f3/none/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 193,
+      "exp": 992,
+      "gold": 713,
+      "items": 2,
+      "sha": "c04e279bf4670c8d38cecc27b00a93d1"
+    },
+    {
+      "key": "guardian/lv8/f3/none/s424242",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 178,
+      "exp": 960,
+      "gold": 690,
+      "items": 4,
+      "sha": "a963f00a65ee2c86470ca2d056c2581d"
+    },
+    {
+      "key": "guardian/lv8/f3/none/s987654321",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 29,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "b787ba8168d1124ed77a42a92fc5b989"
+    },
+    {
+      "key": "guardian/lv8/f3/naive/s1",
+      "victory": false,
+      "wavesCleared": 4,
+      "events": 61,
+      "exp": 320,
+      "gold": 230,
+      "items": 2,
+      "sha": "8a969cc333c8ecdf97cded92d9133634"
+    },
+    {
+      "key": "guardian/lv8/f3/naive/s424242",
+      "victory": false,
+      "wavesCleared": 1,
+      "events": 32,
+      "exp": 96,
+      "gold": 69,
+      "items": 0,
+      "sha": "3242cb9c491314413e30e62fecfba9b1"
+    },
+    {
+      "key": "guardian/lv8/f3/naive/s987654321",
+      "victory": false,
+      "wavesCleared": 4,
+      "events": 69,
+      "exp": 320,
+      "gold": 230,
+      "items": 3,
+      "sha": "73c7d5e9093a9a7eff98f5df1082503b"
+    },
+    {
+      "key": "guardian/lv8/f3/smart/s1",
+      "victory": false,
+      "wavesCleared": 4,
+      "events": 81,
+      "exp": 288,
+      "gold": 207,
+      "items": 1,
+      "sha": "639b6e88cf5c12d3aee65b6082540921"
+    },
+    {
+      "key": "guardian/lv8/f3/smart/s424242",
+      "victory": false,
+      "wavesCleared": 1,
+      "events": 37,
+      "exp": 64,
+      "gold": 46,
+      "items": 0,
+      "sha": "10548c7cf495c2b860d368ab3d425dfd"
+    },
+    {
+      "key": "guardian/lv8/f3/smart/s987654321",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 38,
+      "exp": 32,
+      "gold": 23,
+      "items": 0,
+      "sha": "325306ac9ece3fb37dc4ffdec2264efc"
+    },
+    {
+      "key": "guardian/lv8/f5/none/s1",
+      "victory": false,
+      "wavesCleared": 6,
+      "events": 176,
+      "exp": 720,
+      "gold": 525,
+      "items": 2,
+      "sha": "5269fa53f2b6ed668c69ba5bb5c93310"
+    },
+    {
+      "key": "guardian/lv8/f5/none/s424242",
+      "victory": false,
+      "wavesCleared": 3,
+      "events": 120,
+      "exp": 336,
+      "gold": 245,
+      "items": 0,
+      "sha": "8af6a9aa1112acc93a1e2760c388af22"
+    },
+    {
+      "key": "guardian/lv8/f5/none/s987654321",
+      "victory": false,
+      "wavesCleared": 5,
+      "events": 142,
+      "exp": 576,
+      "gold": 420,
+      "items": 1,
+      "sha": "b4acc06a25abcbb86a5e8ebef4f46926"
+    },
+    {
+      "key": "guardian/lv8/f5/naive/s1",
+      "victory": false,
+      "wavesCleared": 1,
+      "events": 31,
+      "exp": 144,
+      "gold": 105,
+      "items": 0,
+      "sha": "f481e84de7d461c64663ebe51f048cf3"
+    },
+    {
+      "key": "guardian/lv8/f5/naive/s424242",
+      "victory": false,
+      "wavesCleared": 3,
+      "events": 46,
+      "exp": 288,
+      "gold": 210,
+      "items": 1,
+      "sha": "f505e4cd44cad11da0c93afdb49eb366"
+    },
+    {
+      "key": "guardian/lv8/f5/naive/s987654321",
+      "victory": false,
+      "wavesCleared": 2,
+      "events": 42,
+      "exp": 240,
+      "gold": 175,
+      "items": 1,
+      "sha": "fa9b2d8db1ef256bab244bf28e530df1"
+    },
+    {
+      "key": "guardian/lv8/f5/smart/s1",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 29,
+      "exp": 48,
+      "gold": 35,
+      "items": 1,
+      "sha": "f39a2323fae3f62fd6d7dbfaa168d48c"
+    },
+    {
+      "key": "guardian/lv8/f5/smart/s424242",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 28,
+      "exp": 48,
+      "gold": 35,
+      "items": 1,
+      "sha": "161329bd44536c4956f4a12b986e7c71"
+    },
+    {
+      "key": "guardian/lv8/f5/smart/s987654321",
+      "victory": false,
+      "wavesCleared": 1,
+      "events": 42,
+      "exp": 144,
+      "gold": 105,
+      "items": 1,
+      "sha": "570f04ebf5c3439b5670ba6d6ed1f1aa"
+    },
+    {
+      "key": "guardian/lv8/f8/none/s1",
+      "victory": false,
+      "wavesCleared": 3,
+      "events": 78,
+      "exp": 432,
+      "gold": 318,
+      "items": 0,
+      "sha": "7ef8b1a8b416d3b12cd7b311ce05954b"
+    },
+    {
+      "key": "guardian/lv8/f8/none/s424242",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 41,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "6f25e07db379643c48c874aa04a8ba1e"
+    },
+    {
+      "key": "guardian/lv8/f8/none/s987654321",
+      "victory": false,
+      "wavesCleared": 1,
+      "events": 64,
+      "exp": 144,
+      "gold": 106,
+      "items": 0,
+      "sha": "353bb30693ff46a610a503c1ca725d62"
+    },
+    {
+      "key": "guardian/lv8/f8/naive/s1",
+      "victory": false,
+      "wavesCleared": 3,
+      "events": 70,
+      "exp": 504,
+      "gold": 371,
+      "items": 2,
+      "sha": "e28207bf4bdb0c3b1a176c4649b80ad8"
+    },
+    {
+      "key": "guardian/lv8/f8/naive/s424242",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 26,
+      "exp": 72,
+      "gold": 53,
+      "items": 1,
+      "sha": "cc7f55a1f8a367e1fea8d2a9327d97f9"
+    },
+    {
+      "key": "guardian/lv8/f8/naive/s987654321",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 17,
+      "exp": 72,
+      "gold": 53,
+      "items": 1,
+      "sha": "f65d3ec0f8112e715aa33b4dd75cc474"
+    },
+    {
+      "key": "guardian/lv8/f8/smart/s1",
+      "victory": false,
+      "wavesCleared": 3,
+      "events": 78,
+      "exp": 432,
+      "gold": 318,
+      "items": 2,
+      "sha": "1f5d4ca948a6d6ee2df612ce2ecd8404"
+    },
+    {
+      "key": "guardian/lv8/f8/smart/s424242",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 24,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "57d30a228d76cacdc70c6e83ff247ec4"
+    },
+    {
+      "key": "guardian/lv8/f8/smart/s987654321",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 21,
+      "exp": 72,
+      "gold": 53,
+      "items": 0,
+      "sha": "0d587606b0db67c79d714ba36060485a"
+    },
+    {
+      "key": "guardian/lv8/f10/none/s1",
+      "victory": false,
+      "wavesCleared": 2,
+      "events": 86,
+      "exp": 352,
+      "gold": 260,
+      "items": 0,
+      "sha": "0eba3c764c94a3bfb9ee558af7ba100f"
+    },
+    {
+      "key": "guardian/lv8/f10/none/s424242",
+      "victory": false,
+      "wavesCleared": 4,
+      "events": 144,
+      "exp": 792,
+      "gold": 585,
+      "items": 0,
+      "sha": "7195299b343e5c39c3ad770de0a7938e"
+    },
+    {
+      "key": "guardian/lv8/f10/none/s987654321",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 14,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "3d059bebf25535ccbf837e60c0c6710b"
+    },
+    {
+      "key": "guardian/lv8/f10/naive/s1",
+      "victory": false,
+      "wavesCleared": 2,
+      "events": 47,
+      "exp": 352,
+      "gold": 260,
+      "items": 3,
+      "sha": "bb55203ed9d039c0cef3e6fbe9fe3054"
+    },
+    {
+      "key": "guardian/lv8/f10/naive/s424242",
+      "victory": false,
+      "wavesCleared": 3,
+      "events": 90,
+      "exp": 616,
+      "gold": 455,
+      "items": 0,
+      "sha": "70eb81ac0d62c7f085fe6acaf58c6119"
+    },
+    {
+      "key": "guardian/lv8/f10/naive/s987654321",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 11,
+      "exp": 88,
+      "gold": 65,
+      "items": 0,
+      "sha": "d92bc36a3db9985cdf24b3154499e19b"
+    },
+    {
+      "key": "guardian/lv8/f10/smart/s1",
+      "victory": false,
+      "wavesCleared": 2,
+      "events": 50,
+      "exp": 352,
+      "gold": 260,
+      "items": 1,
+      "sha": "e3d430f0be3608d9d7c6bf0943b6b516"
+    },
+    {
+      "key": "guardian/lv8/f10/smart/s424242",
+      "victory": false,
+      "wavesCleared": 2,
+      "events": 90,
+      "exp": 352,
+      "gold": 260,
+      "items": 0,
+      "sha": "62b16c8c75658144ec124f5ad872fc25"
+    },
+    {
+      "key": "guardian/lv8/f10/smart/s987654321",
+      "victory": false,
+      "wavesCleared": 0,
+      "events": 12,
+      "exp": 0,
+      "gold": 0,
+      "items": 0,
+      "sha": "75a9d87324196693f401f684dffd7f0a"
+    },
+    {
+      "key": "guardian/lv20/f1/none/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 92,
+      "exp": 496,
+      "gold": 341,
+      "items": 1,
+      "sha": "220b3bb8673d811c7c23e302277e79f9"
+    },
+    {
+      "key": "guardian/lv20/f1/none/s424242",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 96,
+      "exp": 496,
+      "gold": 341,
+      "items": 5,
+      "sha": "b4495c14a052d01230fef092a1dd5b36"
+    },
+    {
+      "key": "guardian/lv20/f1/none/s987654321",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 83,
+      "exp": 464,
+      "gold": 319,
+      "items": 2,
+      "sha": "34a97325527e08770955ec83986d54f5"
+    },
+    {
+      "key": "guardian/lv20/f1/naive/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 92,
+      "exp": 496,
+      "gold": 341,
+      "items": 1,
+      "sha": "b75b9ee434ed4ac4b1c3e0b32758086e"
+    },
+    {
+      "key": "guardian/lv20/f1/naive/s424242",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 96,
+      "exp": 496,
+      "gold": 341,
+      "items": 5,
+      "sha": "0824713ec5dc40087b2cd1716ee37db2"
+    },
+    {
+      "key": "guardian/lv20/f1/naive/s987654321",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 83,
+      "exp": 464,
+      "gold": 319,
+      "items": 2,
+      "sha": "683b662d47aaa8f5fcc3370305a65f26"
+    },
+    {
+      "key": "guardian/lv20/f1/smart/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 92,
+      "exp": 496,
+      "gold": 341,
+      "items": 1,
+      "sha": "d25fc076fd6b8663a48958a9441d1627"
+    },
+    {
+      "key": "guardian/lv20/f1/smart/s424242",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 96,
+      "exp": 496,
+      "gold": 341,
+      "items": 5,
+      "sha": "981bf96a08a31c54dbfa32a0c6ab53e4"
+    },
+    {
+      "key": "guardian/lv20/f1/smart/s987654321",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 83,
+      "exp": 464,
+      "gold": 319,
+      "items": 2,
+      "sha": "4b42c48bfb6932ca054d70c72eaec788"
+    },
+    {
+      "key": "guardian/lv20/f2/none/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 91,
+      "exp": 720,
+      "gold": 510,
+      "items": 5,
+      "sha": "bab66535241b7d4fb56e62110ba2fe73"
+    },
+    {
+      "key": "guardian/lv20/f2/none/s424242",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 102,
+      "exp": 744,
+      "gold": 527,
+      "items": 6,
+      "sha": "d13d5fe8308cd8a71a81ff62edffe5ab"
+    },
+    {
+      "key": "guardian/lv20/f2/none/s987654321",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 96,
+      "exp": 744,
+      "gold": 527,
+      "items": 9,
+      "sha": "7766ad00fd12c240f54e667c9316c7a3"
+    },
+    {
+      "key": "guardian/lv20/f2/naive/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 91,
+      "exp": 720,
+      "gold": 510,
+      "items": 5,
+      "sha": "e77914f091252c089b75b922a566132c"
+    },
+    {
+      "key": "guardian/lv20/f2/naive/s424242",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 102,
+      "exp": 744,
+      "gold": 527,
+      "items": 6,
+      "sha": "3f263771420379bc0876368a83cf21f2"
+    },
+    {
+      "key": "guardian/lv20/f2/naive/s987654321",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 93,
+      "exp": 744,
+      "gold": 527,
+      "items": 8,
+      "sha": "ef71a2c25afaeff4d2711329169fe2fb"
+    },
+    {
+      "key": "guardian/lv20/f2/smart/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 91,
+      "exp": 720,
+      "gold": 510,
+      "items": 5,
+      "sha": "2bcd4afca41a1a519f5b0e21c20b7450"
+    },
+    {
+      "key": "guardian/lv20/f2/smart/s424242",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 102,
+      "exp": 744,
+      "gold": 527,
+      "items": 6,
+      "sha": "96f7d00de79f4602c38fe95414f6afa4"
+    },
+    {
+      "key": "guardian/lv20/f2/smart/s987654321",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 96,
+      "exp": 744,
+      "gold": 527,
+      "items": 9,
+      "sha": "168602b8a9986bae1d59f8d84b58f98f"
+    },
+    {
+      "key": "guardian/lv20/f3/none/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 103,
+      "exp": 992,
+      "gold": 713,
+      "items": 4,
+      "sha": "22fe7331be13fe980e28698cc89f7c60"
+    },
+    {
+      "key": "guardian/lv20/f3/none/s424242",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 98,
+      "exp": 960,
+      "gold": 690,
+      "items": 3,
+      "sha": "95bc62aa4ca7f739d86a818a6db5535a"
+    },
+    {
+      "key": "guardian/lv20/f3/none/s987654321",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 103,
+      "exp": 992,
+      "gold": 713,
+      "items": 8,
+      "sha": "6eda40cec0d582fb4706d780b155d583"
+    },
+    {
+      "key": "guardian/lv20/f3/naive/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 103,
+      "exp": 992,
+      "gold": 713,
+      "items": 4,
+      "sha": "dc694b3e0c2a0f6d76fe2463a68df067"
+    },
+    {
+      "key": "guardian/lv20/f3/naive/s424242",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 98,
+      "exp": 960,
+      "gold": 690,
+      "items": 3,
+      "sha": "eee5a3e50449ec699a0dc368b04ec41b"
+    },
+    {
+      "key": "guardian/lv20/f3/naive/s987654321",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 103,
+      "exp": 992,
+      "gold": 713,
+      "items": 8,
+      "sha": "8923ba9a9876766fc4f481a0398de1fc"
+    },
+    {
+      "key": "guardian/lv20/f3/smart/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 103,
+      "exp": 992,
+      "gold": 713,
+      "items": 4,
+      "sha": "2ed330fa9983a1d092767d8109221d93"
+    },
+    {
+      "key": "guardian/lv20/f3/smart/s424242",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 98,
+      "exp": 960,
+      "gold": 690,
+      "items": 3,
+      "sha": "9831cd53a46cf1f157d4cc475ae7cabc"
+    },
+    {
+      "key": "guardian/lv20/f3/smart/s987654321",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 103,
+      "exp": 992,
+      "gold": 713,
+      "items": 8,
+      "sha": "30e39783e8cdfed12dfcb03d83e167b5"
+    },
+    {
+      "key": "guardian/lv20/f5/none/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 116,
+      "exp": 1440,
+      "gold": 1050,
+      "items": 6,
+      "sha": "714a0b5fec3e6ca0b765494f43282a81"
+    },
+    {
+      "key": "guardian/lv20/f5/none/s424242",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 129,
+      "exp": 1536,
+      "gold": 1120,
+      "items": 4,
+      "sha": "9e3e97e9f9a6b98e5a19cc159d0675e3"
+    },
+    {
+      "key": "guardian/lv20/f5/none/s987654321",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 133,
+      "exp": 1536,
+      "gold": 1120,
+      "items": 6,
+      "sha": "2e7bcc47b8ef60d70eb34980ea0c2059"
+    },
+    {
+      "key": "guardian/lv20/f5/naive/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 109,
+      "exp": 1440,
+      "gold": 1050,
+      "items": 6,
+      "sha": "8c3a3eb53c52984a978feb2a158ea533"
+    },
+    {
+      "key": "guardian/lv20/f5/naive/s424242",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 122,
+      "exp": 1536,
+      "gold": 1120,
+      "items": 4,
+      "sha": "57825e99a229207a2cdc4b463711131f"
+    },
+    {
+      "key": "guardian/lv20/f5/naive/s987654321",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 119,
+      "exp": 1536,
+      "gold": 1120,
+      "items": 4,
+      "sha": "2ae8c33d29c3fed2992c62c352602dfe"
+    },
+    {
+      "key": "guardian/lv20/f5/smart/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 113,
+      "exp": 1440,
+      "gold": 1050,
+      "items": 5,
+      "sha": "deea30452eae72e3e1f247daf047cb10"
+    },
+    {
+      "key": "guardian/lv20/f5/smart/s424242",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 129,
+      "exp": 1536,
+      "gold": 1120,
+      "items": 3,
+      "sha": "ac833eaa4cc2fdce52c6e4bb2db5eb75"
+    },
+    {
+      "key": "guardian/lv20/f5/smart/s987654321",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 128,
+      "exp": 1536,
+      "gold": 1120,
+      "items": 4,
+      "sha": "50906cda21075f572968c046f64f2b9d"
+    },
+    {
+      "key": "guardian/lv20/f8/none/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 173,
+      "exp": 2160,
+      "gold": 1590,
+      "items": 3,
+      "sha": "e782a6adae660131bb0188751ab850db"
+    },
+    {
+      "key": "guardian/lv20/f8/none/s424242",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 169,
+      "exp": 2232,
+      "gold": 1643,
+      "items": 5,
+      "sha": "7bfc9d0f96103956332eabfbe719f9b8"
+    },
+    {
+      "key": "guardian/lv20/f8/none/s987654321",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 219,
+      "exp": 2304,
+      "gold": 1696,
+      "items": 5,
+      "sha": "8994263d9c065ecd047473cdf5f3b5dc"
+    },
+    {
+      "key": "guardian/lv20/f8/naive/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 150,
+      "exp": 2160,
+      "gold": 1590,
+      "items": 1,
+      "sha": "d82eee0102800535c4c097d06421ced7"
+    },
+    {
+      "key": "guardian/lv20/f8/naive/s424242",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 155,
+      "exp": 2232,
+      "gold": 1643,
+      "items": 3,
+      "sha": "197cd052d37e5387fce960912be70a75"
+    },
+    {
+      "key": "guardian/lv20/f8/naive/s987654321",
+      "victory": false,
+      "wavesCleared": 8,
+      "events": 131,
+      "exp": 1728,
+      "gold": 1272,
+      "items": 4,
+      "sha": "3b92f9e0a131f24ea5ccdf512237730a"
+    },
+    {
+      "key": "guardian/lv20/f8/smart/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 149,
+      "exp": 2160,
+      "gold": 1590,
+      "items": 3,
+      "sha": "d4cc3e90e6a2719e51c09af042951d9b"
+    },
+    {
+      "key": "guardian/lv20/f8/smart/s424242",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 154,
+      "exp": 2232,
+      "gold": 1643,
+      "items": 4,
+      "sha": "5244bb256d40d0b2ea54792f45529eef"
+    },
+    {
+      "key": "guardian/lv20/f8/smart/s987654321",
+      "victory": false,
+      "wavesCleared": 9,
+      "events": 304,
+      "exp": 1944,
+      "gold": 1431,
+      "items": 2,
+      "sha": "aaf38ccdf756c61bf16087a8d0fb75a0"
+    },
+    {
+      "key": "guardian/lv20/f10/none/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 196,
+      "exp": 2640,
+      "gold": 1950,
+      "items": 3,
+      "sha": "4bda78b850c28bb6799088bd8655666e"
+    },
+    {
+      "key": "guardian/lv20/f10/none/s424242",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 230,
+      "exp": 2816,
+      "gold": 2080,
+      "items": 7,
+      "sha": "411e9a5bc8a5b0893f88ea4f4d74e39b"
+    },
+    {
+      "key": "guardian/lv20/f10/none/s987654321",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 227,
+      "exp": 2904,
+      "gold": 2145,
+      "items": 5,
+      "sha": "4bdf60e1f1431e0aad0153511f4a5c2c"
+    },
+    {
+      "key": "guardian/lv20/f10/naive/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 175,
+      "exp": 2640,
+      "gold": 1950,
+      "items": 6,
+      "sha": "1239b007a7932f01208eebf311f8552d"
+    },
+    {
+      "key": "guardian/lv20/f10/naive/s424242",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 182,
+      "exp": 2816,
+      "gold": 2080,
+      "items": 3,
+      "sha": "9291143c86e985b89e6d43fc55369040"
+    },
+    {
+      "key": "guardian/lv20/f10/naive/s987654321",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 201,
+      "exp": 2904,
+      "gold": 2145,
+      "items": 5,
+      "sha": "74687aff5e860ec4adb8f9dbb5f158a0"
+    },
+    {
+      "key": "guardian/lv20/f10/smart/s1",
+      "victory": true,
+      "wavesCleared": 10,
+      "events": 188,
+      "exp": 2640,
+      "gold": 1950,
+      "items": 3,
+      "sha": "3aab828d9543b453c7fc36a5e81036f3"
+    },
+    {
+      "key": "guardian/lv20/f10/smart/s424242",
+      "victory": false,
+      "wavesCleared": 9,
+      "events": 258,
+      "exp": 2376,
+      "gold": 1755,
+      "items": 2,
+      "sha": "65d79ee0c1ed67a44c8861e35d4b6ff8"
+    },
+    {
+      "key": "guardian/lv20/f10/smart/s987654321",
+      "victory": false,
+      "wavesCleared": 7,
+      "events": 177,
+      "exp": 1936,
+      "gold": 1430,
+      "items": 5,
+      "sha": "8b2c58a27cd6ffa83dbcbfdff99ac438"
+    }
+  ],
+  "waves": [
+    {
+      "key": "f1/p1/s1",
+      "sha": "5d03b47c6a038eff6ec551c2e9dcf6b8"
+    },
+    {
+      "key": "f1/p1/s424242",
+      "sha": "ec1c52b0a430d5581b5ce7855f42cdf7"
+    },
+    {
+      "key": "f1/p1/s987654321",
+      "sha": "fb819cc91e91608df52abf194e4a1b5d"
+    },
+    {
+      "key": "f1/p2/s1",
+      "sha": "ced7a51db373a2bac21c034aa6fcadc7"
+    },
+    {
+      "key": "f1/p2/s424242",
+      "sha": "a19b36bf42a6e2d7dde519e02e6907e9"
+    },
+    {
+      "key": "f1/p2/s987654321",
+      "sha": "66738c0df3904ce40806ec64afbb08ce"
+    },
+    {
+      "key": "f1/p3/s1",
+      "sha": "dd398a2629d9a7bc0beaa0393baddb2f"
+    },
+    {
+      "key": "f1/p3/s424242",
+      "sha": "8ea175c8f8213c5d5cb07722954090fe"
+    },
+    {
+      "key": "f1/p3/s987654321",
+      "sha": "9fd637f4e6fba674be209c7453d8ae06"
+    },
+    {
+      "key": "f2/p1/s1",
+      "sha": "828cb4fd6e5fa5677e921e04a6f60175"
+    },
+    {
+      "key": "f2/p1/s424242",
+      "sha": "e933d808b62f43f27d69e7be5cc485e5"
+    },
+    {
+      "key": "f2/p1/s987654321",
+      "sha": "26c7864c6bbc1e06fa02111a68a4275f"
+    },
+    {
+      "key": "f2/p2/s1",
+      "sha": "d6c0acdec9ebf804427913969a6f5b39"
+    },
+    {
+      "key": "f2/p2/s424242",
+      "sha": "b83b7e792995f3b4513008eabafa1f60"
+    },
+    {
+      "key": "f2/p2/s987654321",
+      "sha": "646ca995e06ccd5a7a2c09843eaf7bd1"
+    },
+    {
+      "key": "f2/p3/s1",
+      "sha": "5dbd66b1f006c26a29fcec703c4b40ac"
+    },
+    {
+      "key": "f2/p3/s424242",
+      "sha": "3fdee03d279c9b0df96eaa48e9e19e4c"
+    },
+    {
+      "key": "f2/p3/s987654321",
+      "sha": "dfa3f62e9fa34ff35e388ff8471d4320"
+    },
+    {
+      "key": "f3/p1/s1",
+      "sha": "64e93d455539c7a1459d6b3db63db8c5"
+    },
+    {
+      "key": "f3/p1/s424242",
+      "sha": "91023f010ea3e81f7a893a30b1fb2aed"
+    },
+    {
+      "key": "f3/p1/s987654321",
+      "sha": "c82a34f97dd84f889f680210072cf803"
+    },
+    {
+      "key": "f3/p2/s1",
+      "sha": "efba356aa54ba5520ace759a2bfa6132"
+    },
+    {
+      "key": "f3/p2/s424242",
+      "sha": "1f5d8066d86801a827e08b466a18111a"
+    },
+    {
+      "key": "f3/p2/s987654321",
+      "sha": "1c340ebfeceb656f9cb192c6b9ac0447"
+    },
+    {
+      "key": "f3/p3/s1",
+      "sha": "04bc05caf2f14c5b498bf1a131931757"
+    },
+    {
+      "key": "f3/p3/s424242",
+      "sha": "ad1a2765438fc312eb5065e44d41a168"
+    },
+    {
+      "key": "f3/p3/s987654321",
+      "sha": "6b87d821f10e7fd572c1ca15c2fcb565"
+    },
+    {
+      "key": "f5/p1/s1",
+      "sha": "8b0d6ec5cde7300813cf83fc2fa2765f"
+    },
+    {
+      "key": "f5/p1/s424242",
+      "sha": "d3e5f44a2545cbf9d43213cb7d62bb8b"
+    },
+    {
+      "key": "f5/p1/s987654321",
+      "sha": "d07e8bd0a30953c849b9d99fcea508b4"
+    },
+    {
+      "key": "f5/p2/s1",
+      "sha": "9a752d7e6eae8bfb6e81bb593aa32972"
+    },
+    {
+      "key": "f5/p2/s424242",
+      "sha": "c378e749597114ffe34f4ccba22494b7"
+    },
+    {
+      "key": "f5/p2/s987654321",
+      "sha": "88f7eea0b85320e4051bd7d5beaf2232"
+    },
+    {
+      "key": "f5/p3/s1",
+      "sha": "149204b96449f80e3e99e5dcb03db350"
+    },
+    {
+      "key": "f5/p3/s424242",
+      "sha": "23f14e7e2aea622b7d2cb6201e145add"
+    },
+    {
+      "key": "f5/p3/s987654321",
+      "sha": "4b7feacbeb230e9e3678e0f44b5dd832"
+    },
+    {
+      "key": "f7/p1/s1",
+      "sha": "112d77f115d302b10a98628a063fdcc0"
+    },
+    {
+      "key": "f7/p1/s424242",
+      "sha": "fc1a5078bdfc961298897e76fc59736f"
+    },
+    {
+      "key": "f7/p1/s987654321",
+      "sha": "a3496e57b9c49a590be710ce40bfe2b9"
+    },
+    {
+      "key": "f7/p2/s1",
+      "sha": "8daecfc922003acab5c9d4ac9e988ee3"
+    },
+    {
+      "key": "f7/p2/s424242",
+      "sha": "624ecb4534fd12a97ad1d571764f70ff"
+    },
+    {
+      "key": "f7/p2/s987654321",
+      "sha": "1fc3416616ded1038a373a22bca20635"
+    },
+    {
+      "key": "f7/p3/s1",
+      "sha": "b0bc1230a2e43c42a0f6e5081b7dcecd"
+    },
+    {
+      "key": "f7/p3/s424242",
+      "sha": "23d0e58768e9b66064944d17ff5321d7"
+    },
+    {
+      "key": "f7/p3/s987654321",
+      "sha": "7bf4113104179d3e06a65bd75c34375a"
+    },
+    {
+      "key": "f10/p1/s1",
+      "sha": "9e8b9f27a685123eb972ca6d31d2aaa7"
+    },
+    {
+      "key": "f10/p1/s424242",
+      "sha": "9590786ceaab8d5aa40acce8c70ca941"
+    },
+    {
+      "key": "f10/p1/s987654321",
+      "sha": "ef711cc04dfa099d215875854411a403"
+    },
+    {
+      "key": "f10/p2/s1",
+      "sha": "810386b30fdaf75fd5a6742156dbaa1c"
+    },
+    {
+      "key": "f10/p2/s424242",
+      "sha": "de0cc88ae6aeb19cec3c95954852df5a"
+    },
+    {
+      "key": "f10/p2/s987654321",
+      "sha": "8766adc43bc401abbe67683ad0949669"
+    },
+    {
+      "key": "f10/p3/s1",
+      "sha": "9ae15d9e95fb6cabb4310e68aecef75f"
+    },
+    {
+      "key": "f10/p3/s424242",
+      "sha": "f28636729c2efbe2984dd90dd20bb226"
+    },
+    {
+      "key": "f10/p3/s987654321",
+      "sha": "bfe740e2d0828609f5b1f9d2ed5c0bcd"
+    }
+  ]
+}
