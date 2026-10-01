@@ -112,8 +112,11 @@ describe('ออกจากระบบ', () => {
     expect(assign).not.toHaveBeenCalled();
   });
 
-  it('ปุ่ม "กลับหน้าหลัก CSMJU" ตั้งได้ด้วย NEXT_PUBLIC_CORE_DASHBOARD_URL', async () => {
+  it('ปุ่ม "กลับหน้าหลัก CSMJU" ไม่ตั้ง = Core Hub จริง · ตั้งได้ด้วย NEXT_PUBLIC_CORE_DASHBOARD_URL', async () => {
     let sso = await loadSso();
+    expect(sso.coreDashboardUrl()).toBe('https://csmju2030.jowave.com/');
+    vi.stubEnv('NEXT_PUBLIC_CORE_DASHBOARD_URL', 'http://localhost:3100/');
+    sso = await loadSso();
     expect(sso.coreDashboardUrl()).toBe('http://localhost:3100/');
     vi.stubEnv('NEXT_PUBLIC_CORE_DASHBOARD_URL', 'https://core.example/');
     sso = await loadSso();

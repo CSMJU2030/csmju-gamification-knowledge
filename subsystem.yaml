@@ -1,17 +1,21 @@
 # manifest ของระบบย่อย — CI และ conformance อ่านไฟล์นี้ไฟล์เดียว
 # schema: standards/schemas/subsystem.schema.json
+# ห้ามใส่บัญชีหรือรหัสผ่านในไฟล์นี้ (ถ้ามี test_accounts conformance จะตก) — บัญชีทดสอบอยู่ในไฟล์นอก repo
+# ที่ CONFORMANCE_ACCOUNTS_FILE ชี้ ดู standards/docs/conformance.md ข้อ 2.1
 
-name: csmju-gamification-knowledge          # ต้องตรงกับทะเบียนใน Core Hub และกับ data.service ของ /api/health
-standards_version: "1.0.0"
+name: csmju-gamification-knowledge    # a-z 0-9 คั่นด้วย - · ตรงกับทะเบียนใน Core Hub, SUBSYSTEM_ID และ data.service ของ /api/health
+# เวอร์ชัน standards อยู่ใน .standards-version ไฟล์เดียว (ตั้งแต่ 1.5.1) — ไม่ต้องใส่ที่นี่
 conformance_level: L3                 # L1 · L2 · L3 (ระบบที่มี UI ต้องถึง L3)
 
-# origin ของระบบ = หน้าเว็บ (Next :3003) ซึ่งส่งต่อ /api/* และ /auth/* ไป backend (:3002)
-# เบราว์เซอร์จึงคุยกับ origin เดียว: callback_url ในทะเบียน = http://localhost:3003/auth/callback
-base_url: http://localhost:3003       # URL ของระบบย่อยตอนรันเพื่อทดสอบ
-core_hub_url: http://localhost:3000
-core_hub_web_url: http://localhost:3100   # เว็บของ Core Hub ที่ /auth/login ส่งเบราว์เซอร์ไป (สัญญา auth 1.1)
-callback_path: /auth/callback         # ต้องตรงกับ callback_url ที่ลงทะเบียนไว้
+# frontend เป็นประตูเดียวของระบบ (Next :3003) — proxy /api/* และ /auth/login /auth/callback /auth/logout ไป backend (:3002)
+# Callback URL ในทะเบียน = base_url + callback_path = http://localhost:3003/auth/callback
+# มาตรฐานให้ frontend ใช้พอร์ต 32xx ตามที่ผู้ดูแล dev server กำหนด — ได้พอร์ตของทีมเมื่อไรเปลี่ยนที่นี่และในทะเบียนพร้อมกัน
+base_url: http://localhost:3003       # localhost ไม่ใช่ 127.0.0.1
+core_hub_url: https://csmju2030.jowave.com       # Core Hub จริง (API อยู่ใต้ /api/v1) · ตัวจำลองในเครื่อง: http://localhost:3000
+core_hub_web_url: https://csmju2030.jowave.com   # เว็บที่ /auth/login ส่งเบราว์เซอร์ไป (L3 ต้องมี) · ตัวจำลองในเครื่อง: http://localhost:3100
+callback_path: /auth/callback         # base_url + callback_path ต้องตรงกับ Callback URL ที่ลงทะเบียนไว้
 
+# endpoint ที่เรียกได้โดยไม่มี token (SSO 1.1) — conformance ยิงทุกตัวนี้แบบไม่มี token
 public_endpoints:
   - GET /api/health
   - GET /auth/login
@@ -20,14 +24,14 @@ public_endpoints:
 
 # conformance ใช้ probes ตรวจสัญญา API — ประกาศไม่ครบ = ขึ้น SKIP = ยังไม่ผ่าน
 probes:
-  # โจทย์ BloxCode (D4) — คอลเลกชันเดียวที่ staff อ่าน/สร้างได้และ student สร้างไม่ได้
+  # โจทย์ BloxCode (D4) — คอลเลกชันเดียวที่ staff/lecturer อ่าน/สร้างได้ และ role อื่นสร้างไม่ได้
   collection: /api/v1/challenges
   not_found: /api/v1/challenges/99999999-9999-4999-8999-999999999999
   invalid_id: /api/v1/challenges/not-a-uuid
   create:
     path: /api/v1/challenges
     allowed_role: staff
-    denied_role: student
+    denied_role: guest                # ต้องได้ 403 และมีบัญชีรหัสผ่าน — student มีแต่ MJU SSO · guest ระบบนี้ไม่รับเลย
     invalid_body:
       title: ""
     valid_body:

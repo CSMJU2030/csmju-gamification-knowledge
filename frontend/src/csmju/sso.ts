@@ -17,8 +17,12 @@ export const LOOP_GUARD_MS = 30_000;
 export const RENEW_BEFORE_MS = 120_000;
 const STARTED_KEY = 'csmju:sso-started-at';
 
-/** หน้าแรกของ Core Hub (ปุ่ม "กลับหน้าหลัก CSMJU") — ค่ามาจาก NEXT_PUBLIC_* ตอน build */
-export const coreDashboardUrl = () => process.env.NEXT_PUBLIC_CORE_DASHBOARD_URL ?? 'http://localhost:3100/';
+/**
+ * หน้าแรกของ Core Hub (ปุ่ม "กลับหน้าหลัก CSMJU") — ค่ามาจาก NEXT_PUBLIC_* ตอน build
+ * ไม่ตั้ง = Core Hub จริง (standards 1.7.0 · docs/connect-core-hub.md) · ตัวจำลองในเครื่องตั้งเป็น http://localhost:3100/
+ */
+export const CORE_HUB_HOME = 'https://csmju2030.jowave.com/';
+export const coreDashboardUrl = () => process.env.NEXT_PUBLIC_CORE_DASHBOARD_URL || CORE_HUB_HOME;
 
 export const loginUrl = (next?: string) => (next ? `${LOGIN_PATH}?next=${encodeURIComponent(next)}` : LOGIN_PATH);
 
