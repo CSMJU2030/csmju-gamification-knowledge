@@ -107,10 +107,14 @@ export class AllExceptionsFilter implements ExceptionFilter {
   catch(exception: unknown, host: ArgumentsHost): void {
     const response = host.switchToHttp().getResponse<Response>();
     const { status, body } = toErrorBody(exception);
-    if (status >= 500) {
+    // 503 ที่ตั้งใจโยนเอง (ระบบที่พึ่งล่ม) ถูก log ที่ต้นทางแล้ว — stack trace ไว้สำหรับข้อผิดพลาดที่ไม่คาดคิดเท่านั้น
+    if (status >= 500 && !(exception instanceof ApiError && exception.errorCode === 'SERVICE_UNAVAILABLE')) {
       this.logger.error(exception instanceof Error ? exception.stack ?? exception.message : String(exception));
     }
     if (response.headersSent) return;
+    if (exception instanceof ApiError && exception.retryAfterSec !== undefined) {
+      response.setHeader('Retry-After', String(exception.retryAfterSec));
+    }
     response.status(status).json(body);
   }
 }

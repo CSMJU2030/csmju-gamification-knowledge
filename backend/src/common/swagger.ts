@@ -63,6 +63,7 @@ const ERROR_DESCRIPTIONS: Record<number, string> = {
   403: 'FORBIDDEN — สิทธิ์ไม่พอ',
   404: 'NOT_FOUND',
   409: 'CONFLICT — สถานะปัจจุบันไม่อนุญาต',
+  503: 'SERVICE_UNAVAILABLE — ระบบที่พึ่ง (Core Hub) ไม่พร้อมชั่วคราว · มี header Retry-After',
 };
 
 /** response ผิดพลาดที่ endpoint นี้ตอบได้ — ทุกตัวเป็น error envelope เดียวกัน */

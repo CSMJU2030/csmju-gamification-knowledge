@@ -19,6 +19,9 @@ export const ERROR_HTTP_STATUS = {
 export type ErrorCode = keyof typeof ERROR_HTTP_STATUS;
 
 export class ApiError extends HttpException {
+  /** วินาทีที่ให้ client รอก่อนลองใหม่ — filter ใส่เป็น header `Retry-After` (api-conventions ข้อ 4 · reference-data ข้อ 7.4) */
+  retryAfterSec?: number;
+
   constructor(
     readonly errorCode: ErrorCode,
     message: string,
@@ -38,4 +41,10 @@ export const unauthorized = (message = 'ต้องเข้าสู่ระ�
 export const forbidden = (message = 'สิทธิ์ไม่พอสำหรับการกระทำนี้') =>
   new ApiError('FORBIDDEN', message);
 export const notFound = (message: string) => new ApiError('NOT_FOUND', message);
+/** ระบบที่เราพึ่ง (เช่น Core Hub) ล่มหรือจำกัดอัตรา — 503 พร้อม Retry-After */
+export function serviceUnavailable(message: string, retryAfterSec: number): ApiError {
+  const error = new ApiError('SERVICE_UNAVAILABLE', message);
+  error.retryAfterSec = retryAfterSec;
+  return error;
+}
 export const conflict = (message: string) => new ApiError('CONFLICT', message);

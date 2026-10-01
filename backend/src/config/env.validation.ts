@@ -49,6 +49,10 @@ class EnvironmentVariables {
   @IsOptional() @IsInt() @Min(100)
   JWKS_REQUEST_TIMEOUT_MS?: number;
 
+  /** เวลารอ API ข้อมูลกลางของ Core Hub (GET /people/me) */
+  @IsOptional() @IsInt() @Min(100)
+  CORE_HUB_REQUEST_TIMEOUT_MS?: number;
+
   /** สัญญาข้อ 4 ขั้นที่ 7: clock skew ไม่เกิน 60 วินาที */
   @IsOptional() @IsInt() @Min(0) @Max(60)
   JWT_CLOCK_TOLERANCE_SEC?: number;

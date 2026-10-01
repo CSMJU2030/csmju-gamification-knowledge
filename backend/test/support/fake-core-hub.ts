@@ -32,6 +32,18 @@ export class FakeCoreHub {
   publishedKid = this.kid;
   /** JWK เพิ่มเติมที่อยากให้อยู่ใน JWKS (เช่น กุญแจที่มี private material) */
   extraJwks: Record<string, unknown>[] = [];
+  /** GET /api/v1/people/me: sub → personCode · sub ที่ไม่อยู่ใน map = บัญชีไม่ได้ผูกกับบุคคล (data: null) */
+  people = new Map<string, string>();
+  /** ตั้งไว้ = /people/me ตอบ status นี้แทน (จำลอง Core Hub ล่ม · จำกัดอัตรา · session จบ) */
+  peopleStatus: number | null = null;
+  peopleRetryAfter: string | null = null;
+  /** หน่วงคำตอบของ /people/me (จำลอง Core Hub ช้าจน timeout) */
+  peopleDelayMs = 0;
+  /** ตั้งไว้ = /people/me ตอบ body นี้ตรง ๆ (จำลองคำตอบผิดรูป) */
+  peopleRawBody: string | null = null;
+  /** header Authorization ล่าสุดที่ /people/me ได้รับ — ตรวจว่าระบบย่อยส่ง token ของผู้ใช้คนนั้นจริง */
+  lastPeopleAuthorization: string | null = null;
+  peopleHits = 0;
   url = '';
 
   get jwksUrl(): string {
@@ -48,6 +60,43 @@ export class FakeCoreHub {
 
   async start(): Promise<void> {
     this.server = createServer((req, res) => {
+      if (req.url === '/api/v1/people/me') {
+        this.peopleHits += 1;
+        if (this.peopleDelayMs > 0) {
+          const delay = this.peopleDelayMs;
+          this.peopleDelayMs = 0;
+          setTimeout(() => res.writeHead(200, { 'content-type': 'application/json' }).end('{"success":true,"data":null}'), delay);
+          return;
+        }
+        if (this.peopleRawBody !== null) {
+          res.writeHead(200, { 'content-type': 'application/json' }).end(this.peopleRawBody);
+          return;
+        }
+        const auth = req.headers.authorization ?? null;
+        this.lastPeopleAuthorization = auth;
+        if (this.peopleStatus !== null) {
+          const headers: Record<string, string> = { 'content-type': 'application/json' };
+          if (this.peopleRetryAfter) headers['retry-after'] = this.peopleRetryAfter;
+          res.writeHead(this.peopleStatus, headers).end(JSON.stringify({ success: false, error: { code: 'X', message: 'x' } }));
+          return;
+        }
+        // ตัวจำลองอ่าน sub จาก token ตรง ๆ (ไม่ตรวจลายเซ็น — ระบบย่อยตรวจไปแล้วก่อนเรียก)
+        let sub: string | null = null;
+        try {
+          sub = JSON.parse(Buffer.from((auth ?? '').replace(/^Bearer /, '').split('.')[1] ?? '', 'base64url').toString()).sub ?? null;
+        } catch {
+          sub = null;
+        }
+        if (!sub) {
+          res.writeHead(401, { 'content-type': 'application/json' }).end(JSON.stringify({ success: false }));
+          return;
+        }
+        const personCode = this.people.get(sub);
+        const data = personCode ? { personCode, personType: /^\d+$/.test(personCode) ? 'STUDENT' : 'STAFF' } : null;
+        res.writeHead(200, { 'content-type': 'application/json', 'cache-control': 'no-store' });
+        res.end(JSON.stringify({ success: true, data }));
+        return;
+      }
       if (req.url === '/api/v1/.well-known/jwks.json') {
         this.jwksHits += 1;
         if (this.down) {

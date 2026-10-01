@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PLAYABLE_CLASSES, gamedata, type ClassId, type CombatEvent } from '@tower/engine';
-import { conflict } from '../common/api-error';
+import { conflict, validationError } from '../common/api-error';
+import { CoreHubClient } from '../core-hub/core-hub.client';
 import { Prisma } from '../generated/prisma/client';
 import { type CharacterView } from '../game/character.view';
 import { equippedItems, loadCharacterView, lockCharacter, requireCharacter } from '../game/character.repository';
@@ -11,7 +12,10 @@ import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class CharactersService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly coreHub: CoreHubClient,
+  ) {}
 
   async current(coreUserId: string): Promise<CharacterView> {
     const row = await requireCharacter(this.prisma, coreUserId);
@@ -24,14 +28,31 @@ export class CharactersService {
    * แทน `POST /auth/register` เดิม: ระบบนี้ไม่มีบัญชีของตัวเองแล้ว ตัวตนมาจาก Core Hub
    * สิ่งที่เหลือให้สร้างคือ "ตัวละครในเกม" ของตัวตนนั้น
    * ได้โปรแกรมพื้นฐานตั้งแต่วินาทีแรก เพื่อให้การรบครั้งแรกขับด้วยโค้ดของผู้เล่นเสมอ
+   *
+   * ชื่อในเกม = personCode (รหัสนักศึกษา/บุคลากร) จาก Core Hub GET /people/me ตอนสร้าง (reference-data.md 1.3 ข้อ 8)
+   * บัญชีที่ไม่ได้ผูกกับบุคคลต้องส่งชื่อสำรองมาเอง (มีอักษรไทย จึงไม่ซ้ำรหัสของใคร — ตรวจใน DTO)
    */
-  async create(coreUserId: string, displayName: string): Promise<CharacterView> {
+  async create(coreUserId: string, accessToken: string, fallbackName?: string): Promise<CharacterView> {
+    // มีตัวละครอยู่แล้ว → ตอบ 409 โดยไม่ต้องเรียก Core Hub
+    const existing = await this.prisma.character.findUnique({ where: { coreUserId }, select: { id: true } });
+    if (existing) throw conflict('บัญชีนี้มีตัวละครอยู่แล้ว');
+
+    const { personCode } = await this.coreHub.peopleMe(accessToken);
+    const displayName = personCode ?? fallbackName;
+    if (!displayName) {
+      throw validationError(
+        ['displayName: บัญชีนี้ไม่มีรหัสนักศึกษา/บุคลากรใน Core Hub — ตั้งชื่อในเกมเอง (3-20 ตัว มีอักษรไทยอย่างน้อย 1 ตัว)'],
+        'บัญชีนี้ไม่มีรหัสใน Core Hub — ต้องตั้งชื่อในเกมเอง',
+      );
+    }
+
     const base = gamedata.classes[STARTING_CLASS].baseStats;
     try {
       const row = await this.prisma.character.create({
         data: {
           coreUserId,
           displayName,
+          personCode,
           classId: STARTING_CLASS,
           statStr: base.str,
           statInt: base.int,
@@ -45,10 +66,13 @@ export class CharactersService {
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
         const target = JSON.stringify(error.meta ?? {});
+        const nameTaken = target.includes('display_name') || target.includes('displayName');
         throw conflict(
-          target.includes('display_name') || target.includes('displayName')
-            ? 'ชื่อนี้มีผู้เล่นใช้แล้ว'
-            : 'บัญชีนี้มีตัวละครอยู่แล้ว',
+          !nameTaken
+            ? 'บัญชีนี้มีตัวละครอยู่แล้ว'
+            : personCode
+              ? 'รหัสนี้มีตัวละครอยู่แล้ว (อาจสร้างจากบัญชีอื่นของคุณ) — ติดต่อผู้ดูแลระบบ'
+              : 'ชื่อนี้มีผู้เล่นใช้แล้ว',
         );
       }
       throw error;

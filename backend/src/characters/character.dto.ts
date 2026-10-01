@@ -1,17 +1,27 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { PLAYABLE_CLASSES } from '@tower/engine';
-import { IsIn, IsString, Matches } from 'class-validator';
+import { IsIn, IsOptional, IsString, Matches } from 'class-validator';
 
-/** ชื่อที่ผู้เล่นตั้งเอง (D5) — ไทย/อังกฤษ/ตัวเลข/ขีดล่าง 3-20 ตัว · ชื่อนี้จะโชว์ให้คู่ดวลเห็น */
-export const DISPLAY_NAME_PATTERN = /^[A-Za-z0-9_฀-๿]{3,20}$/;
+/**
+ * ชื่อสำรองที่ตั้งเอง — ใช้เฉพาะบัญชีที่ Core Hub ไม่มีรหัสให้ (/people/me ได้ null) · ไทย/อังกฤษ/ตัวเลข/ขีดล่าง 3-20 ตัว
+ * ต้องมีอักษรไทยอย่างน้อย 1 ตัว: รหัสนักศึกษา/บุคลากรเป็นอักษรอังกฤษกับตัวเลขล้วน ชื่อสำรองจึงไม่มีวันซ้ำหรือปลอมเป็นรหัสของใคร
+ */
+export const DISPLAY_NAME_PATTERN = /^(?=.*[฀-๿])[A-Za-z0-9_฀-๿]{3,20}$/;
 
 export class CreateCharacterDto {
-  @ApiProperty({ example: 'นักสู้หมายเลข1', pattern: DISPLAY_NAME_PATTERN.source })
+  @ApiProperty({
+    required: false,
+    example: 'นักสู้หมายเลข1',
+    pattern: DISPLAY_NAME_PATTERN.source,
+    description:
+      'ไม่ต้องส่งตามปกติ — ชื่อในเกมคือรหัสนักศึกษา/บุคลากรจาก Core Hub · ส่งเฉพาะเมื่อได้ 400 ที่บอกว่าบัญชีนี้ไม่มีรหัส (ถ้ามีรหัส ค่านี้ถูกละไว้)',
+  })
+  @IsOptional()
   @IsString({ message: 'displayName ต้องเป็นข้อความ' })
   @Matches(DISPLAY_NAME_PATTERN, {
-    message: 'displayName ต้องยาว 3-20 ตัว ใช้ได้เฉพาะอักษรไทย a-z A-Z 0-9 และ _',
+    message: 'displayName ต้องยาว 3-20 ตัว มีอักษรไทยอย่างน้อย 1 ตัว ใช้ได้เฉพาะอักษรไทย a-z A-Z 0-9 และ _',
   })
-  displayName!: string;
+  displayName?: string;
 }
 
 export class UpdateCharacterDto {
@@ -98,7 +108,8 @@ export class EquipmentDto {
 
 export class CharacterDto {
   @ApiProperty({ format: 'uuid' }) id!: string;
-  @ApiProperty() displayName!: string;
+  @ApiProperty({ description: 'ชื่อที่ผู้เล่นคนอื่นเห็น — รหัสนักศึกษา/บุคลากรจาก Core Hub หรือชื่อสำรองของบัญชีที่ไม่มีรหัส' })
+  displayName!: string;
   @ApiProperty({ enum: ['novice', ...PLAYABLE_CLASSES] }) classId!: string;
   @ApiProperty() level!: number;
   @ApiProperty() exp!: number;

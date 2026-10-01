@@ -13,6 +13,8 @@ export interface AppConfig {
     url: string;
     /** เว็บของ Core Hub ที่ /auth/login ส่งเบราว์เซอร์ไป และที่ /auth/logout พาไปหน้า /logout (สัญญา 1.1) */
     webUrl: string;
+    /** เวลารอคำตอบจาก API ข้อมูลกลางของ Core Hub (เช่น /people/me) ก่อนถือว่าล่ม */
+    requestTimeoutMs: number;
     jwksUrl: string;
     issuer: string;
     audience: string;
@@ -36,11 +38,12 @@ export function configuration(): AppConfig {
     databaseUrl: env.DATABASE_URL ?? '',
     subsystemId: env.SUBSYSTEM_ID ?? '',
     coreHub: {
-      url: env.CORE_HUB_URL ?? '',
+      url: (env.CORE_HUB_URL ?? '').replace(/\/+$/, ''),
       webUrl: (env.CORE_HUB_WEB_URL ?? '').replace(/\/+$/, ''),
       jwksUrl: env.CORE_HUB_JWKS_URL ?? '',
       issuer: env.CORE_HUB_ISSUER ?? '',
       audience: env.CORE_HUB_AUDIENCE ?? '',
+      requestTimeoutMs: num(env.CORE_HUB_REQUEST_TIMEOUT_MS, 5_000),
     },
     jwks: {
       cacheTtlMs: num(env.JWKS_CACHE_TTL_MS, 600_000),

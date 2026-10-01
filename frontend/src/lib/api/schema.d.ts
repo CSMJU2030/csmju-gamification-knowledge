@@ -98,7 +98,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** สร้างตัวละครของผู้ใช้ปัจจุบัน (หนึ่งคนมีได้ตัวเดียว) */
+        /**
+         * สร้างตัวละครของผู้ใช้ปัจจุบัน (หนึ่งคนมีได้ตัวเดียว)
+         * @description ชื่อในเกมคือ personCode (รหัสนักศึกษา/บุคลากร) ที่อ่านจาก Core Hub GET /people/me ด้วย token ของผู้ใช้ตอนสร้าง · บัญชีที่ไม่มีรหัสได้ 400 VALIDATION_ERROR (details ขึ้นต้นด้วย displayName) ให้ส่ง displayName มาใหม่ · Core Hub ล่มหรือจำกัดอัตรา → 503 พร้อม Retry-After
+         */
         post: operations["Characters_create"];
         delete?: never;
         options?: never;
@@ -482,6 +485,7 @@ export interface components {
         CharacterDto: {
             /** Format: uuid */
             id: string;
+            /** @description ชื่อที่ผู้เล่นคนอื่นเห็น — รหัสนักศึกษา/บุคลากรจาก Core Hub หรือชื่อสำรองของบัญชีที่ไม่มีรหัส */
             displayName: string;
             /** @enum {string} */
             classId: "novice" | "warrior" | "mage" | "guardian";
@@ -499,8 +503,11 @@ export interface components {
             highestFloorCleared: number;
         };
         CreateCharacterDto: {
-            /** @example นักสู้หมายเลข1 */
-            displayName: string;
+            /**
+             * @description ไม่ต้องส่งตามปกติ — ชื่อในเกมคือรหัสนักศึกษา/บุคลากรจาก Core Hub · ส่งเฉพาะเมื่อได้ 400 ที่บอกว่าบัญชีนี้ไม่มีรหัส (ถ้ามีรหัส ค่านี้ถูกละไว้)
+             * @example นักสู้หมายเลข1
+             */
+            displayName?: string;
         };
         UpdateCharacterDto: {
             /**
@@ -1074,6 +1081,15 @@ export interface operations {
             };
             /** @description CONFLICT — สถานะปัจจุบันไม่อนุญาต */
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelopeDto"];
+                };
+            };
+            /** @description SERVICE_UNAVAILABLE — ระบบที่พึ่ง (Core Hub) ไม่พร้อมชั่วคราว · มี header Retry-After */
+            503: {
                 headers: {
                     [name: string]: unknown;
                 };
