@@ -12,10 +12,11 @@
 |---|---|---|
 | 1 | repo ของระบบ | ✅ `CSMJU2030/csmju-gamification-knowledge` |
 | 2 | Team `pl-gamification-knowledge` / `aie-gamification-knowledge` และ ruleset | ตามที่ scaffold ใส่ไว้ใน `CODEOWNERS` · `subsystem.yaml` |
-| 3 | สิทธิ์อ่าน `csmju-core-hub` | ✅ อ่านได้แล้ว — ทดสอบกับของจริงแล้ว (`docs/local-integration.md`) |
+| 3 | สิทธิ์อ่าน `csmju-core-hub` | ไม่ต้องใช้แล้ว — standards 1.7.0 ห้ามโคลนหรือรัน Core Hub เอง (มีข้อมูลนักศึกษาจริง) · ไม่มีสำเนาเหลือในเครื่องพัฒนา |
 | 3b | สิทธิ์อ่าน `demo-student-subsystem` | ยังไม่ได้ (`could not read Username`) — ชั้น auth ยังไม่ใช่ของ reference |
-| 4 | `CORE_HUB_URL` ของ Dev Server | ยังไม่ได้ |
-| 5 | ลงทะเบียน + approve + activate ใน Core Hub (payload ข้อ 3) | ทำบน Core Hub ในเครื่องแล้ว · Dev Server รอข้อ 4 |
+| 4 | `CORE_HUB_URL` ของ server จริง | ✅ `https://csmju2030.jowave.com` (API ใต้ `/api/v1` · เว็บที่ `/`) — standards 1.7.0 |
+| 5 | ลงทะเบียนในหลังบ้านของ Core Hub จริง (ข้อ 3) | ยังไม่ได้ — PL ใช้บัญชีเจ้าของระบบของทีมกรอกฟอร์ม `/backoffice/subsystems/new` แล้วรอ admin อนุมัติ + เปิดใช้งาน |
+| 6 | บัญชีทดสอบร่วม (staff · lecturer · alumni · guest) และพอร์ต 32xx/42xx ของทีม | ยังไม่ได้ — รับจากผู้ดูแล dev server ทางข้อความส่วนตัว |
 
 ## 2. ย้ายประวัติเข้า repo นี้ (ทำแล้ว)
 
@@ -48,9 +49,13 @@ git push -u origin feature/gamification-knowledge/migrate-code-tower
 - PR 2: backend · เทสต์ · openapi
 - PR 3: frontend และ playtest รอบ A/B · เปลี่ยนชื่อระบบย่อย · SSO
 
-## 3. payload ลงทะเบียน Core Hub
+## 3. ลงทะเบียน Core Hub
 
-`csmju2030/register-code-tower.cjs` ทำทั้งข้อนี้ (รับทุก 2xx · รันซ้ำได้) — หรือยิงเอง:
+**Core Hub จริง (standards 1.7.0):** PL login `https://csmju2030.jowave.com` ด้วยบัญชีเจ้าของระบบของทีม → หลังบ้าน → ระบบย่อย → ลงทะเบียน
+กรอกตาม `docs/local-integration.md` ข้อ 0 (ชื่อ · Callback URL ของหน้าเว็บ · Base URL เว้นว่าง · ติ๊ก 5 role ไม่ติ๊ก guest) —
+หลังอนุมัติแล้วชื่อ · callback · role mapping แก้ได้เฉพาะ admin ระบบกลาง จึงต้องกรอกให้ถูกตั้งแต่แรก
+
+**ตัวจำลองในเครื่อง:** `csmju2030/register-code-tower.cjs` ทำทั้งข้อนี้ (รับทุก 2xx · รันซ้ำได้) — หรือยิงเอง:
 
 ```bash
 curl -X POST $CORE_HUB_URL/api/v1/subsystems \
@@ -60,14 +65,14 @@ curl -X POST $CORE_HUB_URL/api/v1/subsystems \
     "displayName": "Gamification Knowledge — Code Tower",
     "owner": "<username ของเจ้าของระบบใน Core Hub>",
     "repo": "CSMJU2030/csmju-gamification-knowledge",
-    "standardsVersion": "1.5.2",
+    "standardsVersion": "1.7.0",
     "callbackUrl": "http://localhost:3003/auth/callback",
-    "defaultRoleMapping": { "student": "PLAYER", "alumni": "PLAYER", "staff": "INSTRUCTOR", "admin": "ADMIN" },
+    "defaultRoleMapping": { "student": "PLAYER", "alumni": "PLAYER", "staff": "INSTRUCTOR", "lecturer": "INSTRUCTOR", "admin": "ADMIN" },
     "requestedExceptions": []
   }'
 ```
 
-- `defaultRoleMapping` ต้องตรงกับ `backend/src/auth/role-mapping.ts` เป๊ะ — ค่านี้คือข้อเสนอ D3 ถ้า PL เปลี่ยน ต้องแก้ทั้งสองที่
+- `defaultRoleMapping` ต้องตรงกับ `backend/src/auth/role-mapping.ts` เป๊ะ — key คือ role ที่เข้าได้ (guest ไม่ใส่) · ถ้าเปลี่ยน ต้องแก้ทั้งสองที่
 - `callbackUrl` คือ origin ของ**หน้าเว็บ** + `/auth/callback` (หน้าเว็บส่งต่อ `/auth/*` ไป backend) — ตอน dev `http://localhost:3003/auth/callback` ·
   บน Dev Server ต้องเป็น `https://<หน้าเว็บของระบบ>/auth/callback` · ต้องตรงกับ `base_url` + `callback_path` ใน `subsystem.yaml` (conformance L3-04 · L3-07)
 - แล้ว `POST /api/v1/subsystems/:id/approve` และ `/activate` — Core Hub ตอบ **201** · เรียกซ้ำได้ **409**

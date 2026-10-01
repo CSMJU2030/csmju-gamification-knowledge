@@ -5,8 +5,30 @@
 > frontend ครบทุกหน้าตาม G0 แต่ใช้ **ชุดจำลองของ template** (`frontend/src/csmju/`) · **ทดสอบกับ Core Hub จริงแล้ว** (csmju-core-hub develop `6674ef6` รันในเครื่อง · สัญญา 1.0)
 > **มาตรฐาน 1.5.2** (29 ก.ย. 2569 · เลื่อนใน PR แยก `bump-standards-1-5-0` ตาม standards-versioning.md): สัญญา auth 1.1 ครบ — `/auth/login` · callback ตามกฎ state · `POST /auth/logout` ออกทั้งระบบ ·
 > silent re-SSO · error code 9 ค่า · pnpm 12.3.4 — ทดสอบกับตัวจำลอง Core Hub ที่ปรับเป็น 1.1 (ยังเข้า repo Core Hub จริงไม่ได้)
+> **มาตรฐาน 1.7.0 · สัญญา auth 1.2** (1 ต.ค. 2569 · branch `feature/gamification-knowledge/auth-1-2` · เลื่อนเวอร์ชันใน PR #6 ของทีมกลาง):
+> ตรวจ token 10 ขั้น (อายุ token · `azp`) · core role 6 ค่า (lecturer → INSTRUCTOR · guest ไม่รับ) · หน้า "เข้าสู่ระบบอีกครั้ง" ตอน state ไม่ตรง ·
+> log `jwt.verification.failure` ทุกเหตุผล · manifest และ `.env.example` ชี้ Core Hub จริง `https://csmju2030.jowave.com`
 
 ## ผลรัน
+
+**standards 1.7.0 (1 ต.ค. 2569 · branch `auth-1-2`)** — runner `conformance/run.js` ของ v1.7.0 (สัญญา 1.2) กับตัวจำลอง Core Hub ที่เพิ่มบัญชี
+lecturer/guest และใส่ `azp` ใน token ของ SSO (`SIM_AZP=1`) · บัญชีอ่านจาก `CONFORMANCE_ACCOUNTS_FILE` นอก repo · `denied_role: guest`
+
+```
+  PASS  L1-28.lecturer core role "lecturer" is mapped (200) or explicitly refused (403)
+  PASS  L1-28.guest core role "guest" is mapped (200) or explicitly refused (403)
+  PASS  L1-29.guest refusal for "guest" uses FORBIDDEN
+  PASS  L2-12      role "guest" cannot write → 403
+RESULT: 72 passed · 0 failed · 0 skipped · 0 warnings · retries: 0
+✅ CONFORMANT — csmju-gamification-knowledge meets standard v1.2 L3
+```
+
+- ขั้น 9–10 runner ทดสอบไม่ได้ (สัญญาให้ unit test ครอบเอง) — `auth.verifier.spec.ts`: ไม่มี iat · อายุ 7 วัน · 961 วินาที → 401 · 960 วินาทีพอดีผ่าน ·
+  `azp` ของระบบอื่น/ไม่ใช่ข้อความ/ว่าง → 401 · `azp` ของเรา และไม่มี `azp` → ผ่าน · `sub` แบบ `user-6304101234` + claim เพิ่ม → ผ่าน
+- เบราว์เซอร์จริง (`csmju2030/web-test.mjs`) W1–W12 ผ่าน: W10 lecturer เข้าได้เป็น INSTRUCTOR · W11 guest ไม่เห็นเมนูและถูกปฏิเสธที่ `/sso/error` ของ Core Hub ·
+  W12 คุกกี้ state หมดอายุระหว่าง login → หน้า "เข้าสู่ระบบอีกครั้ง" (401) → กดแล้วกลับเข้าเกมเองเพราะ Core Hub ยัง login อยู่
+- ค้น log ของ backend หลังรันทั้งหมดด้วย `grep -iE "eyJ|access_token=|authorization:|cookie:"` (connect-core-hub.md ข้อ 6 การทดสอบที่ 6) → ไม่พบ
+- **ยังไม่ได้รันกับ Core Hub จริง** (`https://csmju2030.jowave.com`) — ต้องลงทะเบียนด้วยบัญชีเจ้าของระบบของทีม และได้บัญชีทดสอบจากผู้ดูแล dev server ก่อน
 
 ชุดตรวจ 1.5.2 (จำลอง CI แบบใหม่: ตัวกลาง `@v1.5.2` เลือกชุดตรวจจาก `.standards-version` · 29 ก.ย. 2569):
 
@@ -79,8 +101,8 @@ Best Practices ยัง 96 ที่หน้าของผู้สอนส�
 | ชุด | ผล |
 |---|---|
 | engine (vitest) | 223 ผ่าน · รวม differential กับ CPython และ golden fixture ของหอคอย · MP ใน event และข้อความสกิล (รอบ A) · EXP ช่วงต้นและกลไกป่า (รอบ B) |
-| backend unit (jest, ไม่ใช้ฐานข้อมูล) | 122 ผ่าน · กฎ `next` 5 ข้อ · state และคุกกี้ของ SSO 1.1 · error code 9 ค่า · รวมเคส 403 ของ PermissionsGuard · โปรแกรมตัวอย่างอาชีพ |
-| backend e2e (jest + PostgreSQL 16 จริง) | 34 ผ่าน (SSO 1.1 ครบทุกกรณีของข้อ 5.1 · `/auth/logout` 303 · `/me` คืน `session.expiresAt` · ค้นหาในตารางทั้งสาม ·เพิ่ม game-data สำหรับผู้สอนที่ไม่มีตัวละคร · ครั้งที่รบที่จุดเดียวกัน + `mpAfter` · ตัวอย่างอาชีพ) |
+| backend unit (jest, ไม่ใช้ฐานข้อมูล) | 145 ผ่าน · ตรวจ token 10 ขั้น (อายุ token · `azp`) และ reason ของ log ทุกเหตุผล · role 6 ค่า · กฎ `next` 5 ข้อ · state และคุกกี้ของ SSO 1.1 · error code 9 ค่า · รวมเคส 403 ของ PermissionsGuard · โปรแกรมตัวอย่างอาชีพ |
+| backend e2e (jest + PostgreSQL 16 จริง) | 37 ผ่าน (สัญญา 1.2: token อายุยาว/`azp` ผิดที่ callback → 401 · หน้า HTML ของ callback ที่ไม่ผ่าน · lecturer สร้างโจทย์ได้ · guest 403 · SSO 1.1 ครบทุกกรณีของข้อ 5.1 · `/auth/logout` 303 · `/me` คืน `session.expiresAt` · ค้นหาในตารางทั้งสาม ·เพิ่ม game-data สำหรับผู้สอนที่ไม่มีตัวละคร · ครั้งที่รบที่จุดเดียวกัน + `mpAfter` · ตัวอย่างอาชีพ) |
 | frontend (vitest + jsdom) | 78 ผ่าน · silent re-SSO (กันวน 30 วินาที · ไม่เด้งทับงานค้าง · ต่ออายุล่วงหน้าตอนเปลี่ยนหน้า) · ช่องค้นหา (หน่วง 300ms · Enter · Esc · ล้างจากข้างนอก) · ตัวเล่นฉากรบ (รวมหลอด MP) บันทึกการรบ ตัวแยกข้อผิดพลาดของโปรแกรม round-trip บล็อก↔โค้ด กฎแผนที่ สรุปการเติบโต |
 | frontend `next build` | ผ่าน · JS แรกเข้าทุกหน้า 119–129 kB (งบ ≤ 250 kB gzip) · ลิงก์ prefetch เมื่อชี้/โฟกัส/แตะเท่านั้น · ฉากรบ สไปรต์ เอดิเตอร์+ล่าม แยก chunk โหลดเฉพาะหน้าที่ใช้ |
 | เดินเว็บจริงด้วย Playwright (Core Hub จำลอง + backend + frontend production) | ครบวง: เข้าเว็บไม่มีคุกกี้ → หน้า login ของ Core Hub จำลอง → callback → สร้างตัวละคร → หอคอยชั้น 1 → เวทีรบ → ผลรบ → เลือกอาชีพ → โปรแกรม → แผนที่ → คำประกาศ → รบในภูมิภาค + ดวล → กระเป๋า → ประวัติ → โจทย์ (ผู้เล่นเห็นอย่างเดียว · ผู้สอนสร้าง/แก้ได้ · โปรแกรมตั้งต้นผิด → ข้อความใต้ช่อง) · 360px ไม่มี scroll แนวนอนทุกหน้า · console ไม่มี error นอกจาก 401/404/400 ที่ตั้งใจ |
@@ -113,7 +135,7 @@ Best Practices ยัง 96 ที่หน้าของผู้สอนส�
 
 - คัดลอกจาก demo-student-subsystem: **ยังไม่ได้** — ยังไม่มีสิทธิ์อ่าน repo นั้น
 - ที่มีตอนนี้เขียนตาม `auth-contract.md` ทีละข้อ (jose · JWKS แคช/รีเฟรชครั้งเดียว/จำกัดอัตรา/ใช้กุญแจเดิมตอน Core Hub ล่ม ·
-  ตรวจ 8 ขั้น · Bearer ก่อนคุกกี้ · callback ตั้งคุกกี้ HttpOnly SameSite=Lax อายุไม่เกิน exp · ไม่มี Set-Cookie เมื่อไม่ผ่าน)
+  ตรวจ 10 ขั้นตามสัญญา 1.2 · Bearer ก่อนคุกกี้ · callback ตั้งคุกกี้ HttpOnly SameSite=Lax อายุไม่เกิน exp · ไม่มี Set-Cookie เมื่อไม่ผ่าน)
   ทุกไฟล์มีหมายเหตุ "ต้องแทนที่ด้วยไฟล์ของ reference" — จะแทนทั้งไฟล์ในขั้น 3
 - แก้ไข: ไม่มี (ยังไม่มีต้นฉบับให้แก้)
 
@@ -124,9 +146,11 @@ Best Practices ยัง 96 ที่หน้าของผู้สอนส�
 | student | PLAYER |
 | alumni | PLAYER |
 | staff | INSTRUCTOR |
+| lecturer | INSTRUCTOR (role ใหม่ใน standards 1.7.0 · ทีมตกลง 1 ต.ค. 2569) |
 | admin | ADMIN |
+| guest | — ไม่รับ (ไม่ติ๊กในทะเบียน · ถ้ามาถึงได้ 403) · ใช้เป็น `denied_role` ของ conformance |
 
-ข้อเสนอ D3 — รอ PL ยืนยันก่อนลงทะเบียน · สิทธิ์ของแต่ละ role อยู่ใน `backend/src/auth/permissions.ts` ที่เดียว
+ตอนลงทะเบียนบน Core Hub จริงให้ติ๊ก 5 role นี้และใส่ชื่อ role ตามตารางให้ตรงกัน · สิทธิ์ของแต่ละ role อยู่ใน `backend/src/auth/permissions.ts` ที่เดียว
 
 ## ข้อสมมติที่ตั้งเอง (เพราะมาตรฐานไม่ได้ระบุ)
 
@@ -162,10 +186,13 @@ Best Practices ยัง 96 ที่หน้าของผู้สอนส�
 
 - **ARC-02 — ยกเว้นแล้ว** — `@tower/engine` · PM อนุมัติ 28 ก.ย. (csmju2030-standards#29) (เฉพาะ `frontend/package.json` และ `backend/package.json` ·
   ห้ามใส่ไลบรารีภายนอกนอก whitelist ใน `packages/engine/package.json`) · ตัวตรวจ 1.4.0 ขึ้นไปอ่าน `.compliance-exceptions.yml` · ชุด 1.0.0 ยังไม่อ่าน จึงต้อง merge PR เลื่อนเวอร์ชันก่อน
-- **ยังไม่ได้รันกับ Core Hub บน Dev Server** — ทดสอบกับ `csmju-core-hub` develop ที่รันในเครื่องแล้ว · ยังไม่มี `CORE_HUB_URL` จริง
+- **ยังไม่ได้รันกับ Core Hub จริง** — standards 1.7.0 ให้ใช้ `https://csmju2030.jowave.com` (ห้ามโคลนหรือรัน `csmju-core-hub` เอง เพราะมีข้อมูลนักศึกษาจริง —
+  สำเนาที่เคยใช้ทดสอบเมื่อ 26 ก.ย. ไม่อยู่ในเครื่องพัฒนาแล้ว) · ที่ยังขาด: PL ลงทะเบียนด้วยบัญชีเจ้าของระบบของทีม · บัญชีทดสอบร่วม (รับทางข้อความส่วนตัว) ·
+  พอร์ต frontend 32xx / backend 42xx ที่ผู้ดูแล dev server กำหนด (ตอนนี้ยังใช้ 3003/3002)
 - **`demo-student-subsystem` ยังอ่านไม่ได้** (clone แล้วได้ `could not read Username`) — ชั้น auth จึงยังไม่ใช่ของ reference
-- **ยังไม่ได้ทดสอบกับ Core Hub จริงที่รองรับสัญญา auth 1.1** — ตรวจกับตัวจำลองที่ปรับตามสัญญาแล้ว (conformance 69/69 · เบราว์เซอร์ W1–W9)
-  แต่ยังเข้า repo `csmju-core-hub` ไม่ได้ ถ้า Core Hub ที่ใช้อยู่ยังเป็น 1.0 (ไม่มีหน้า `/sso/authorize`) การเข้าเกมจะไม่ผ่านจนกว่า Core Hub จะอัปเดต
+- **ยังไม่ได้ทดสอบกับ Core Hub จริงที่รองรับสัญญา auth 1.2** — ตรวจกับตัวจำลองที่ปรับตามสัญญาแล้ว (conformance 72/72 · เบราว์เซอร์ W1–W12)
+- **แสดงรหัสนักศึกษาแทนชื่อตัวละคร ยังไม่ได้ทำ** — standards 1.7.0 (`reference-data.md` 1.3) อนุญาตให้เก็บ `person_code` จาก `GET /people/me` แล้ว
+  (ทุก role ยกเว้น guest · เรียกจาก backend ด้วย token ของผู้ใช้ · ไม่เก็บชื่อหรืออีเมล) — เป็นงานถัดไป
 - **ทะเบียนต้องเปลี่ยน `callback_url`** เป็น `<หน้าเว็บ>/auth/callback` (ตอนพัฒนา `http://localhost:3003/auth/callback`) — origin ของระบบคือหน้าเว็บ
   ซึ่งส่งต่อ `/api/*` และ `/auth/*` ไป backend · `register-code-tower.cjs` แก้ให้แล้ว · บน Dev Server ต้องให้ผู้ดูแลทะเบียนแก้
 - **`prisma migrate deploy` ยังไม่ได้รันจริง** — เครื่องทดสอบออกเน็ตไป binaries.prisma.sh ไม่ได้ (ดูข้อถัดไป) · บนเครื่องที่ออกเน็ตได้ต้องรันตามคู่มือข้อ 6.3

@@ -1,25 +1,60 @@
-# ทดสอบเชื่อม 3 ระบบบนเครื่องตัวเอง — ฉบับ Code Tower (csmju-gamification-knowledge)
+# เชื่อม Core Hub — ฉบับ Code Tower (csmju-gamification-knowledge)
 
-> ทำตาม `csmju2030-standards/docs/LOCAL_INTEGRATION_GUIDE.md` (บน `main` ของ standards) ทุกข้อ
-> เอกสารนี้บอกเฉพาะ **จุดที่ระบบนี้ต่างจากตัวอย่าง `equipment`** ในคู่มือ และผลรันกับ **Core Hub จริง** (ไม่ได้แก้อะไรใน repo อื่น)
+> **ตั้งแต่ standards 1.7.0 (1 ต.ค. 2569) ใช้ Core Hub จริงที่ `https://csmju2030.jowave.com` เท่านั้น** — ขั้นตอนหลักอยู่ที่
+> `standards/docs/connect-core-hub.md` · ห้ามโคลนหรือรัน `csmju-core-hub` เอง (repo นั้นมีข้อมูลนักศึกษาจริง ถ้าเคยโคลนไว้ให้ลบทิ้ง)
+> และ `LOCAL_INTEGRATION_GUIDE.md` เป็นของทีม Core Hub เท่านั้นแล้ว
 >
-> **29 ก.ย. 2569 · สัญญา auth 1.1 (standards สาย 1.1 ขึ้นไป · เลื่อนเป็น 1.5.2 ใน PR แยก)** — ข้อ 3 และข้อ 4.1 เป็นของปัจจุบัน · ข้อ 4 เป็นผลเดิมตามสัญญา 1.0
-> ยังไม่ได้รันกับ Core Hub จริงที่รองรับ 1.1 (เข้า repo นั้นไม่ได้แล้ว) — ตรวจกับตัวจำลองที่ปรับตามสัญญาแทน
+> ข้อ 0 คือค่าของระบบนี้สำหรับคู่มือ connect-core-hub · ข้อ 3–4 เป็นผลเดิมกับตัวจำลองและกับ Core Hub ที่เคยรันในเครื่อง (สัญญา 1.0 / 1.1) เก็บไว้เป็นประวัติ
 
 ---
 
-## 1. อะไรรันที่ไหน
+## 0. ค่าของระบบนี้ (standards 1.7.0 · สัญญา auth 1.2)
 
-| คู่มือใช้ | พอร์ต | ตอนนี้ใช้ |
+| ขั้นในคู่มือ | ค่าของ Code Tower |
+|---|---|
+| พอร์ต | ยังใช้ frontend **3003** · backend **3002** — มาตรฐานให้ใช้ 32xx / 42xx ตามที่ผู้ดูแล dev server กำหนด · ได้เลขของทีมแล้วต้องแก้ `subsystem.yaml` (`base_url`) · `.env` และ Callback URL พร้อมกัน |
+| ลงทะเบียน (PL ด้วยบัญชีเจ้าของระบบของทีม) | ชื่อระบบ `csmju-gamification-knowledge` · Repository `github.com/CSMJU2030/csmju-gamification-knowledge` · Standards version `1.0` (ตัวเลือกเดียวในฟอร์ม) · Callback URL `http://localhost:3003/auth/callback` · Base URL **เว้นว่าง** |
+| บทบาทที่ติ๊ก | student → `PLAYER` · alumni → `PLAYER` · staff → `INSTRUCTOR` · lecturer → `INSTRUCTOR` · admin → `ADMIN` · **guest ไม่ติ๊ก** — ต้องตรงกับ `backend/src/auth/role-mapping.ts` |
+| `backend/.env` | คัดลอก `backend/.env.example` (ชี้ server จริงแล้ว) · `SUBSYSTEM_ID=csmju-gamification-knowledge` |
+| `frontend/.env.local` | คัดลอก `frontend/.env.example` · `BACKEND_URL=http://localhost:3002` |
+| เปิดระบบ | `http://localhost:3003` — ต้องเป็น `localhost` ไม่ใช่ `127.0.0.1` |
+| conformance | ไฟล์บัญชีนอก repo (`~/.csmju/conformance-accounts.json` · `chmod 600`) คีย์ `owner` `staff` `lecturer` `alumni` `guest` · รหัสรับจากผู้ดูแล dev server ทางข้อความส่วนตัวเท่านั้น · `denied_role: guest` แล้วใน `subsystem.yaml` |
+
+```bash
+# จากรากของ repo · ต้องได้ 0 failed · 0 skipped
+CONFORMANCE_ACCOUNTS_FILE=~/.csmju/conformance-accounts.json node standards/conformance/run.js
+```
+
+> login ครั้งเดียวต่อบัญชีต่อการรัน — บัญชีทดสอบร่วมใช้ทุกทีม ผิด 10 ครั้งใน 15 นาทีล็อกทั้งโครงการ · เห็น `login failed` ให้แก้ไฟล์ก่อนรันใหม่
+
+ทดสอบด้วยมือตาม connect-core-hub ข้อ 6 ทั้ง 7 ข้อ — ข้อ 3 ใช้บัญชี guest ต้องเห็น "บัญชีของคุณไม่มีสิทธิ์เข้าระบบนี้" ที่ Core Hub
+
+### 0.1 ผลกับตัวจำลอง (1 ต.ค. 2569 · branch `auth-1-2`)
+
+ยังไม่ได้รันกับ server จริง (รอลงทะเบียนและบัญชี) — ตรวจกับตัวจำลอง `csmju2030/csmju-core-hub-sim` ที่เพิ่มบัญชี `lecturer@core.local` · `guest@core.local`
+และใส่ `azp` ใน token ของ SSO เมื่อ `SIM_AZP=1` (Core Hub จริงจะเริ่มใส่ในเวอร์ชันถัดไป)
+
+| ตรวจ | วิธี | ผล |
 |---|---|---|
-| `csmju-core-hub/backend` | 3000 | **ของจริง** — รันตาม README ของ repo นั้น (ทดสอบกับ branch `develop` `6674ef6`) |
-| `csmju-core-hub/frontend` | 3100 | **ของจริง** |
+| conformance 1.2 | runner ของ v1.7.0 · `--core-hub http://localhost:3000 --core-hub-web http://localhost:3100` · ไฟล์บัญชีนอก repo 6 role | ✅ **72 passed · 0 failed · 0 skipped** · `CONFORMANT … v1.2 L3` |
+| W1–W9 | `csmju2030/web-test.mjs` (เหมือนข้อ 3.1) | ✅ ผลเดิมทุกข้อ |
+| W10 | lecturer login ที่ :3100 → เมนู → Code Tower | ✅ `/me` 200 `INSTRUCTOR` |
+| W11 | guest login → เมนู · เปิด `:3003/auth/login` ตรง ๆ | ✅ เมนูว่าง · ไปจบที่ `/sso/error` ของ Core Hub · ไม่มีคุกกี้ของเกม |
+| W12 | คุกกี้ state หมดอายุระหว่างอยู่หน้า login ของ Core Hub | ✅ callback 401 เป็นหน้า "เข้าสู่ระบบไม่สำเร็จ" ปุ่ม `/auth/login` → กดแล้วกลับเข้าเกม `/me` 200 |
+| log | `grep -iE "eyJ\|access_token=\|authorization:\|cookie:"` ทั้ง log หลังรันทุกอย่าง | ✅ ไม่พบ |
+
+## 1. อะไรรันที่ไหน (ประวัติ — ก่อน standards 1.7.0)
+
+| คู่มือใช้ | พอร์ต | ตอนนั้นใช้ |
+|---|---|---|
+| `csmju-core-hub/backend` | 3000 | ของจริงที่รันในเครื่อง (branch `develop` `6674ef6` · 26 ก.ย. 2569) — **1.7.0 ห้ามทำแบบนี้แล้ว** · ไม่มีสำเนาเหลือในเครื่องพัฒนา |
+| `csmju-core-hub/frontend` | 3100 | ของจริงที่รันในเครื่อง (เช่นเดียวกัน) |
 | `demo-student-subsystem/backend` | 3001 | demo จำลอง `csmju2030/demo-student-subsystem-sim` — repo จริงยังอ่านไม่ได้ (`could not read Username`) |
 | ระบบของทีม backend | 3002 | `backend/` ของ repo นี้ |
 | — | 3003 | `frontend/` ของ repo นี้ (คู่มือไม่มี frontend ของทีม) |
 
-Core Hub จำลอง (`csmju2030/csmju-core-hub-sim`) ยังใช้กับตัวเปิดเว็บคลิกเดียว `csmju2030/run-web/start.cjs` ได้
-ปรับ URL และรหัสสถานะให้ตรงของจริงแล้ว — แต่ผลที่นับคือผลกับของจริงในข้อ 4
+Core Hub จำลอง (`csmju2030/csmju-core-hub-sim`) ยังใช้กับตัวเปิดเว็บคลิกเดียว `csmju2030/run-web/start.cjs` ได้ — สำหรับลองเล่นและทดสอบเร็ว ๆ เท่านั้น
+ผลที่นับคือผลกับ Core Hub จริง
 
 ## 2. ต่างจากตัวอย่าง `equipment` ตรงไหน
 
@@ -107,7 +142,7 @@ W1–W8 คือ `csmju2030/web-test.mjs` รุ่นสัญญา 1.0 (Play
 
 ## 5. ลำดับคำสั่ง
 
-Core Hub: รัน `csmju-core-hub` ตาม README ของ repo นั้น (backend :3000 · หน้าเว็บ :3100)
+Core Hub: ไม่ต้องรันเอง — ใช้ `https://csmju2030.jowave.com` (ลงทะเบียนและตั้งค่าตามข้อ 0)
 
 ระบบนี้:
 
@@ -120,15 +155,13 @@ pnpm --filter backend exec prisma migrate deploy && pnpm --filter backend start:
 cd csmju-gamification-knowledge && pnpm --filter frontend build && pnpm --filter frontend start   # :3003
 ```
 
-```bash
-node csmju2030/register-code-tower.cjs     # ลงทะเบียน + approve + activate · รันซ้ำได้
-```
+เปิด http://localhost:3003 → ปุ่มเข้าสู่ระบบพาไป login ที่ Core Hub จริง แล้วกลับมาหน้าเดิม
 
-เปิด http://localhost:3100 → login `admin@core.local` / `password1` → เมนู **Gamification Knowledge — Code Tower**
+ตัวจำลองในเครื่อง (ไม่ต้องลงทะเบียน · ไม่ต้องมีบัญชี): `node csmju2030/run-web/start.cjs` — ตั้ง env ชี้ :3000/:3100 ให้เองและลงทะเบียนด้วย
+`csmju2030/register-code-tower.cjs` · ขั้นตอนบน Windows อยู่ใน `csmju2030/README.md`
 
 เครื่องทดสอบของเราออกเน็ตไป `binaries.prisma.sh` ไม่ได้ จึงใช้ `psql -f` กับ migration แทน `prisma migrate deploy`
 — บนเครื่องที่ออกเน็ตได้ใช้คำสั่งข้างบนได้เลย
 
-ตัวจำลอง (ทางลัดสำหรับลองเล่น): `node csmju2030/run-web/start.cjs` — ขั้นตอนบน Windows อยู่ใน `csmju2030/README.md`
 
 - pnpm: standards 1.4.0 กำหนดเลขเดียวทั้งโครงการ `12.3.4` — repo นี้ตั้ง `packageManager: pnpm@12.3.4` แล้ว (pnpm 10 ในเครื่องจะสลับเป็น 12.3.4 ให้เอง)
