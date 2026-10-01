@@ -29,8 +29,12 @@ model Character {
   id            String   @id @default(uuid()) @db.Uuid
   seq           Int      @unique @default(autoincrement())
   coreUserId    String   @unique @map("core_user_id")
-  /// ชื่อที่ผู้เล่นตั้งเอง (D5) — ไม่ใช้อีเมลจาก token เพราะจะโชว์ให้คนอื่นเห็นตอนดวล
+  /// ชื่อที่ผู้เล่นคนอื่นเห็นตอนดวล — เท่ากับ person_code (รหัสนักศึกษา/บุคลากร) เมื่อ Core Hub ให้รหัสมา
+  /// บัญชีที่ไม่ได้ผูกกับบุคคล (/people/me ได้ null) ตั้งชื่อเองและต้องมีอักษรไทย จึงไม่มีวันซ้ำกับรหัสของใคร
   displayName   String   @unique @map("display_name")
+  /// รหัสจาก Core Hub GET /people/me ตอนสร้างตัวละคร (reference-data.md 1.3 ข้อ 8) · null = บัญชีไม่ได้ผูกกับบุคคล
+  /// เก็บได้แค่รหัส — ห้ามเก็บชื่อ อีเมล หรือ field บุคคลอื่น
+  personCode    String?  @map("person_code")
   classId       String   @map("class_id")
   level         Int      @default(1)
   exp           Int      @default(0)

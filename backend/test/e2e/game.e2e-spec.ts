@@ -8,7 +8,7 @@ import type { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import request from 'supertest';
 import { FakeCoreHub, testEnv, type CoreRoleClaim } from '../support/fake-core-hub';
-import { insertItems, resetDatabase } from '../support/test-db';
+import { insertItems, queryRows, resetDatabase } from '../support/test-db';
 
 const DB = process.env.TEST_DATABASE_URL;
 if (!DB) throw new Error('ตั้ง TEST_DATABASE_URL ก่อนรัน e2e (ฐานข้อมูลนี้จะถูกล้าง)');
@@ -61,15 +61,71 @@ describe('ตัวตนและสิทธิ์', () => {
 });
 
 describe('ตัวละคร', () => {
-  it('ยังไม่มี → 404 · สร้าง → 201 · ซ้ำ → 409 · ชื่อซ้ำกับคนอื่น → 409 · ชื่อผิดรูป → 400', async () => {
-    await http.get('/api/v1/characters/current').set(as('p-alice')).expect(404);
-    const created = await http.post('/api/v1/characters').set(as('p-alice')).send({ displayName: 'alice' }).expect(201);
-    expect(created.body.data).toMatchObject({ displayName: 'alice', classId: 'novice', level: 1, gold: 100 });
-    await http.post('/api/v1/characters').set(as('p-alice')).send({ displayName: 'alice2' }).expect(409);
-    await http.post('/api/v1/characters').set(as('p-bob')).send({ displayName: 'alice' }).expect(409);
-    const bad = await http.post('/api/v1/characters').set(as('p-bob')).send({ displayName: 'a' }).expect(400);
+  it('มีรหัสใน Core Hub → ชื่อในเกมคือรหัส (ไม่สนชื่อที่ส่งมา) · เรียก /people/me ด้วย token ของผู้ใช้คนนั้น · เก็บ person_code', async () => {
+    hub.people.set('p-std', '6504101234');
+    await http.get('/api/v1/characters/current').set(as('p-std')).expect(404);
+    const token = hub.sign('p-std', 'student');
+    const created = await http.post('/api/v1/characters').set('Authorization', `Bearer ${token}`).send({ displayName: 'ชื่อที่ไม่ใช้' }).expect(201);
+    expect(created.body.data).toMatchObject({ displayName: '6504101234', classId: 'novice', level: 1, gold: 100 });
+    expect(hub.lastPeopleAuthorization).toBe(`Bearer ${token}`);
+    const rows = await queryRows(DB!, 'SELECT person_code, display_name FROM characters WHERE core_user_id = $1', ['p-std']);
+    expect(rows[0]).toEqual({ person_code: '6504101234', display_name: '6504101234' });
+
+    // อีกบัญชีของคนเดียวกัน (รหัสเดียวกัน) → 409 · บัญชีเดิมสร้างซ้ำ → 409 โดยไม่เรียก Core Hub
+    hub.people.set('p-std-sso', '6504101234');
+    const dup = await http.post('/api/v1/characters').set(as('p-std-sso')).send({}).expect(409);
+    expect(dup.body.error.message).toContain('รหัสนี้มีตัวละครอยู่แล้ว');
+    const hits = hub.peopleHits;
+    await http.post('/api/v1/characters').set(as('p-std')).send({}).expect(409);
+    expect(hub.peopleHits).toBe(hits);
+
+    // บุคลากร: รหัสคือส่วนหน้าอีเมลมหาวิทยาลัย
+    hub.people.set('p-lec', 'somchai.j');
+    const lec = await http.post('/api/v1/characters').set(as('p-lec', 'lecturer')).send({}).expect(201);
+    expect(lec.body.data.displayName).toBe('somchai.j');
+  });
+
+  it('ไม่มีรหัสใน Core Hub → 400 ให้ตั้งชื่อเอง · ชื่อต้องมีอักษรไทย (ไม่ปลอมเป็นรหัส) · ซ้ำ → 409 · ผิดรูป → 400', async () => {
+    const none = await http.post('/api/v1/characters').set(as('p-alice')).send({}).expect(400);
+    expect(none.body.error.code).toBe('VALIDATION_ERROR');
+    expect(none.body.error.details[0]).toMatch(/^displayName: /);
+    for (const fake of ['alice', '6504101234', 'somchai_j']) {
+      const res = await http.post('/api/v1/characters').set(as('p-alice')).send({ displayName: fake }).expect(400);
+      expect(res.body.error.code).toBe('VALIDATION_ERROR');
+    }
+    const created = await http.post('/api/v1/characters').set(as('p-alice')).send({ displayName: 'อลิซ' }).expect(201);
+    expect(created.body.data).toMatchObject({ displayName: 'อลิซ', classId: 'novice', level: 1, gold: 100 });
+    const rows = await queryRows(DB!, 'SELECT person_code FROM characters WHERE core_user_id = $1', ['p-alice']);
+    expect(rows[0].person_code).toBeNull();
+    await http.post('/api/v1/characters').set(as('p-alice')).send({ displayName: 'อลิซ2' }).expect(409);
+    await http.post('/api/v1/characters').set(as('p-bob')).send({ displayName: 'อลิซ' }).expect(409);
+    const bad = await http.post('/api/v1/characters').set(as('p-bob')).send({ displayName: 'อ' }).expect(400);
     expect(bad.body.error.code).toBe('VALIDATION_ERROR');
     await http.post('/api/v1/characters').set(as('p-bob')).send({ displayName: 'บ๊อบ_01' }).expect(201);
+  });
+
+  it('Core Hub ล่ม/จำกัดอัตรา → 503 + Retry-After · session จบที่ Core Hub → 401 · ทุกกรณีไม่สร้างตัวละคร', async () => {
+    hub.people.set('p-down', '6504109999');
+    try {
+      hub.peopleStatus = 502;
+      const down = await http.post('/api/v1/characters').set(as('p-down')).send({}).expect(503);
+      expect(down.body).toMatchObject({ success: false, error: { code: 'SERVICE_UNAVAILABLE' } });
+      expect(down.headers['retry-after']).toBe('30');
+
+      hub.peopleStatus = 429;
+      hub.peopleRetryAfter = '7';
+      const busy = await http.post('/api/v1/characters').set(as('p-down')).send({}).expect(503);
+      expect(busy.headers['retry-after']).toBe('7');
+
+      hub.peopleStatus = 401;
+      hub.peopleRetryAfter = null;
+      const ended = await http.post('/api/v1/characters').set(as('p-down')).send({}).expect(401);
+      expect(ended.body.error.code).toBe('UNAUTHORIZED');
+    } finally {
+      hub.peopleStatus = null;
+      hub.peopleRetryAfter = null;
+    }
+    await http.get('/api/v1/characters/current').set(as('p-down')).expect(404);
   });
 
   it('เลือกอาชีพก่อนผ่านชั้น 1 → 409 · อาชีพที่ไม่มี → 400', async () => {
@@ -78,7 +134,7 @@ describe('ตัวละคร', () => {
   });
 
   it('playtest รอบ B: ดูตัวอย่างอาชีพได้ก่อนเลือก (ไม่บันทึก) · อาชีพผิด → 400 · เลือกแล้ว → 409', async () => {
-    await http.post('/api/v1/characters').set(as('p-trial')).send({ displayName: 'trial' }).expect(201);
+    await http.post('/api/v1/characters').set(as('p-trial')).send({ displayName: 'ทดลองอาชีพ' }).expect(201);
     const before = (await http.get('/api/v1/characters/current').set(as('p-trial'))).body.data;
     const res = await http.post('/api/v1/characters/current/class-trials').set(as('p-trial')).send({ classId: 'mage' }).expect(200);
     const t = res.body.data;
@@ -116,7 +172,7 @@ describe('การรบและกระเป๋า', () => {
   });
 
   it('playtest รอบ A: นับครั้งที่รบที่จุดเดียวกัน + ผลครั้งก่อน · ทุก event ของผู้ลงมือมี mpAfter', async () => {
-    await http.post('/api/v1/characters').set(as('p-attempt')).send({ displayName: 'attempt' }).expect(201);
+    await http.post('/api/v1/characters').set(as('p-attempt')).send({ displayName: 'นับครั้ง' }).expect(201);
     const first = (await http.post('/api/v1/battles').set(as('p-attempt')).send({ towerFloor: 1 }).expect(201)).body.data;
     expect(first.attempt).toEqual({ attemptNo: 1, firstAttempt: true, previous: null });
     for (const e of first.result.events) {
@@ -134,7 +190,7 @@ describe('การรบและกระเป๋า', () => {
   });
 
   it('สองการรบพร้อมกัน — exp รวมตรงกับผลรวมจริง (ไม่มีการเขียนทับกัน)', async () => {
-    await http.post('/api/v1/characters').set(as('p-carol')).send({ displayName: 'carol' }).expect(201);
+    await http.post('/api/v1/characters').set(as('p-carol')).send({ displayName: 'แครอล' }).expect(201);
     const before = (await http.get('/api/v1/characters/current').set(as('p-carol'))).body.data;
     const [a, b] = await Promise.all([
       http.post('/api/v1/battles').set(as('p-carol')).send({ towerFloor: 1 }),
@@ -224,15 +280,17 @@ describe('ภูมิภาค', () => {
   });
 
   it('สองคนในโซนเดียวกันช่วงเลเวลเดียวกัน → จับคู่สองทาง และทั้งคู่ได้บันทึกดวลชุดเดียวกัน', async () => {
-    for (const [sub, name] of [['p-erin', 'erin'], ['p-frank', 'frank']]) {
-      await http.post('/api/v1/characters').set(as(sub)).send({ displayName: name }).expect(201);
+    // ผู้เล่นสองคนที่มีรหัสใน Core Hub — คู่ดวลเห็นรหัสของอีกฝ่ายเป็นชื่อ
+    for (const [sub, code] of [['p-erin', '6504100001'], ['p-frank', '6504100002']]) {
+      hub.people.set(sub, code);
+      await http.post('/api/v1/characters').set(as(sub)).send({}).expect(201);
     }
     const e = await http.post('/api/v1/region-runs').set(as('p-erin')).send({ regionId: 'greenwood', depth: 1 }).expect(201);
     const f = await http.post('/api/v1/region-runs').set(as('p-frank')).send({ regionId: 'greenwood', depth: 1 }).expect(201);
-    expect(f.body.data.duel).toMatchObject({ displayName: 'erin', live: true });
+    expect(f.body.data.duel).toMatchObject({ displayName: '6504100001', live: true });
     const fe = await http.post('/api/v1/battles').set(as('p-erin')).send({ regionRunId: e.body.data.id }).expect(201);
     const ff = await http.post('/api/v1/battles').set(as('p-frank')).send({ regionRunId: f.body.data.id }).expect(201);
-    expect(fe.body.data.duel.opponent.displayName).toBe('frank');
+    expect(fe.body.data.duel.opponent.displayName).toBe('6504100002');
     expect(JSON.stringify(fe.body.data.duel.events)).toBe(JSON.stringify(ff.body.data.duel.events));
     expect(fe.body.data.duel.won).toBe(!ff.body.data.duel.won);
   });
@@ -457,7 +515,7 @@ describe('SSO 1.1 — /auth/login · /auth/callback · /auth/logout (auth-contra
  */
 describe('regression: คำขอพร้อมกันและอินพุตผิดปกติ', () => {
   const player = async (sub: string) => {
-    await http.post('/api/v1/characters').set(as(sub)).send({ displayName: sub.replace(/-/g, '_') });
+    await http.post('/api/v1/characters').set(as(sub)).send({ displayName: `ทดสอบ_${sub.replace(/-/g, '_')}` });
     return sub;
   };
 
@@ -551,7 +609,7 @@ describe('regression: คำขอพร้อมกันและอินพ�
 
 describe('ค้นหาในตาราง (?q= · ui-design-system ข้อ 8.2)', () => {
   it('กระเป๋า: q ค้นในชื่อไอเทม · ไม่พบ → data [] total 0 · ช่องว่างล้วน = ไม่กรอง · แบ่งหน้าตามผลที่กรองแล้ว', async () => {
-    await http.post('/api/v1/characters').set(as('p-find')).send({ displayName: 'finder' }).expect(201);
+    await http.post('/api/v1/characters').set(as('p-find')).send({ displayName: 'นักค้นหา' }).expect(201);
     const me = (await http.get('/api/v1/characters/current').set(as('p-find'))).body.data;
     await insertItems(DB!, me.id, [
       { baseId: 'sword', slot: 'weapon' },

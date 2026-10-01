@@ -222,6 +222,7 @@
     },
     "/api/v1/characters": {
       "post": {
+        "description": "ชื่อในเกมคือ personCode (รหัสนักศึกษา/บุคลากร) ที่อ่านจาก Core Hub GET /people/me ด้วย token ของผู้ใช้ตอนสร้าง · บัญชีที่ไม่มีรหัสได้ 400 VALIDATION_ERROR (details ขึ้นต้นด้วย displayName) ให้ส่ง displayName มาใหม่ · Core Hub ล่มหรือจำกัดอัตรา → 503 พร้อม Retry-After",
         "operationId": "Characters_create",
         "parameters": [],
         "requestBody": {
@@ -292,6 +293,16 @@
           },
           "409": {
             "description": "CONFLICT — สถานะปัจจุบันไม่อนุญาต",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "SERVICE_UNAVAILABLE — ระบบที่พึ่ง (Core Hub) ไม่พร้อมชั่วคราว · มี header Retry-After",
             "content": {
               "application/json": {
                 "schema": {
@@ -2707,7 +2718,8 @@
             "format": "uuid"
           },
           "displayName": {
-            "type": "string"
+            "type": "string",
+            "description": "ชื่อที่ผู้เล่นคนอื่นเห็น — รหัสนักศึกษา/บุคลากรจาก Core Hub หรือชื่อสำรองของบัญชีที่ไม่มีรหัส"
           },
           "classId": {
             "type": "string",
@@ -2783,12 +2795,10 @@
           "displayName": {
             "type": "string",
             "example": "นักสู้หมายเลข1",
-            "pattern": "^[A-Za-z0-9_฀-๿]{3,20}$"
+            "pattern": "^(?=.*[฀-๿])[A-Za-z0-9_฀-๿]{3,20}$",
+            "description": "ไม่ต้องส่งตามปกติ — ชื่อในเกมคือรหัสนักศึกษา/บุคลากรจาก Core Hub · ส่งเฉพาะเมื่อได้ 400 ที่บอกว่าบัญชีนี้ไม่มีรหัส (ถ้ามีรหัส ค่านี้ถูกละไว้)"
           }
-        },
-        "required": [
-          "displayName"
-        ]
+        }
       },
       "UpdateCharacterDto": {
         "type": "object",

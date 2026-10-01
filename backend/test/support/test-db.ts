@@ -42,3 +42,14 @@ export async function insertItems(
     await client.end();
   }
 }
+
+/** อ่านแถวตรง ๆ จากฐานข้อมูล — ใช้ตรวจค่าที่ API ไม่ได้ส่งออก (เช่น person_code) */
+export async function queryRows<T extends Record<string, unknown>>(url: string, sql: string, params: unknown[] = []): Promise<T[]> {
+  const client = new Client({ connectionString: url });
+  await client.connect();
+  try {
+    return (await client.query<T>(sql, params)).rows;
+  } finally {
+    await client.end();
+  }
+}

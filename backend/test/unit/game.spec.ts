@@ -18,7 +18,7 @@ import { runSeed, textSeed } from '../../src/world/run-seed';
 function character(overrides: Partial<Character> = {}): Character {
   const base = gamedata.classes.novice.baseStats;
   return {
-    id: '00000000-0000-4000-8000-000000000001', seq: 1, coreUserId: 'user-002', displayName: 'tester',
+    id: '00000000-0000-4000-8000-000000000001', seq: 1, coreUserId: 'user-002', displayName: 'tester', personCode: null,
     classId: 'novice', level: 1, exp: 0,
     statStr: base.str, statInt: base.int, statVit: base.vit, statAgi: base.agi, statLuk: base.luk,
     gold: 100, materials: 0, highestFloor: 0, programSource: TRIVIAL_PROGRAM,
