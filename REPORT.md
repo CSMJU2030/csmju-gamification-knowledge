@@ -5,6 +5,8 @@
 > frontend ครบทุกหน้าตาม G0 แต่ใช้ **ชุดจำลองของ template** (`frontend/src/csmju/`) · **ทดสอบกับ Core Hub จริงแล้ว** (csmju-core-hub develop `6674ef6` รันในเครื่อง · สัญญา 1.0)
 > **มาตรฐาน 1.5.2** (29 ก.ย. 2569 · เลื่อนใน PR แยก `bump-standards-1-5-0` ตาม standards-versioning.md): สัญญา auth 1.1 ครบ — `/auth/login` · callback ตามกฎ state · `POST /auth/logout` ออกทั้งระบบ ·
 > silent re-SSO · error code 9 ค่า · pnpm 12.3.4 — ทดสอบกับตัวจำลอง Core Hub ที่ปรับเป็น 1.1 (ยังเข้า repo Core Hub จริงไม่ได้)
+> **พอร์ตของทีม** (2 ต.ค. 2569 · branch `feature/gamification-knowledge/team-ports`): frontend 3213 · backend 4213 ตามที่ผู้ดูแล dev server กำหนด ·
+> Callback URL `http://localhost:3213/auth/callback`
 > **ชื่อในเกม = รหัสนักศึกษา/บุคลากร** (1 ต.ค. 2569 · branch `feature/gamification-knowledge/person-code-name`): สร้างตัวละครอ่าน `personCode` จาก Core Hub
 > `GET /people/me` ด้วย token ของผู้เล่น แล้วใช้เป็นชื่อที่ทุกคนเห็น · เก็บแค่ `person_code` · บัญชีที่ไม่มีรหัสตั้งชื่อเอง (ต้องมีอักษรไทย)
 > **มาตรฐาน 1.7.0 · สัญญา auth 1.2** (1 ต.ค. 2569 · PR #7 merge แล้ว · เลื่อนเวอร์ชันใน PR #6 ของทีมกลาง):
@@ -201,13 +203,13 @@ Best Practices ยัง 96 ที่หน้าของผู้สอนส�
 - **ARC-02 — ยกเว้นแล้ว** — `@tower/engine` · PM อนุมัติ 28 ก.ย. (csmju2030-standards#29) (เฉพาะ `frontend/package.json` และ `backend/package.json` ·
   ห้ามใส่ไลบรารีภายนอกนอก whitelist ใน `packages/engine/package.json`) · ตัวตรวจ 1.4.0 ขึ้นไปอ่าน `.compliance-exceptions.yml` · ชุด 1.0.0 ยังไม่อ่าน จึงต้อง merge PR เลื่อนเวอร์ชันก่อน
 - **ยังไม่ได้รันกับ Core Hub จริง** — standards 1.7.0 ให้ใช้ `https://csmju2030.jowave.com` (ห้ามโคลนหรือรัน `csmju-core-hub` เอง เพราะมีข้อมูลนักศึกษาจริง —
-  สำเนาที่เคยใช้ทดสอบเมื่อ 26 ก.ย. ไม่อยู่ในเครื่องพัฒนาแล้ว) · ที่ยังขาด: PL ลงทะเบียนด้วยบัญชีเจ้าของระบบของทีม · บัญชีทดสอบร่วม (รับทางข้อความส่วนตัว) ·
-  พอร์ต frontend 32xx / backend 42xx ที่ผู้ดูแล dev server กำหนด (ตอนนี้ยังใช้ 3003/3002)
+  สำเนาที่เคยใช้ทดสอบเมื่อ 26 ก.ย. ไม่อยู่ในเครื่องพัฒนาแล้ว) · ที่ยังขาด: PL ลงทะเบียนด้วยบัญชีเจ้าของระบบของทีม (Callback `http://localhost:3213/auth/callback`)
+  · พอร์ตของทีมได้แล้ว: frontend 3213 · backend 4213 (2 ต.ค. 2569 · ใช้ในโค้ดแล้ว)
 - **`demo-student-subsystem` ยังอ่านไม่ได้** (clone แล้วได้ `could not read Username`) — ชั้น auth จึงยังไม่ใช่ของ reference
 - **ยังไม่ได้ทดสอบกับ Core Hub จริงที่รองรับสัญญา auth 1.2** — ตรวจกับตัวจำลองที่ปรับตามสัญญาแล้ว (conformance 72/72 · เบราว์เซอร์ W1–W14)
 - **`GET /people/me` ยังไม่ได้ยิงกับ Core Hub จริง** — รูปคำตอบ (`data.personCode` · `data: null` · guest 403) ทำตาม `reference-data.md` 1.3 ข้อ 5.2
   ตรวจกับตัวจำลองเท่านั้น · บัญชีทดสอบร่วมของ server จริงอาจไม่ผูกกับบุคคล จึงจะได้ช่องตั้งชื่อแทนรหัส
-- **ทะเบียนต้องเปลี่ยน `callback_url`** เป็น `<หน้าเว็บ>/auth/callback` (ตอนพัฒนา `http://localhost:3003/auth/callback`) — origin ของระบบคือหน้าเว็บ
+- **Callback URL ในทะเบียนต้องเป็นของหน้าเว็บ** `<หน้าเว็บ>/auth/callback` (ตอนพัฒนา `http://localhost:3213/auth/callback`) — origin ของระบบคือหน้าเว็บ
   ซึ่งส่งต่อ `/api/*` และ `/auth/*` ไป backend · `register-code-tower.cjs` แก้ให้แล้ว · บน Dev Server ต้องให้ผู้ดูแลทะเบียนแก้
 - **`prisma migrate deploy` ยังไม่ได้รันจริง** — เครื่องทดสอบออกเน็ตไป binaries.prisma.sh ไม่ได้ (ดูข้อถัดไป) · บนเครื่องที่ออกเน็ตได้ต้องรันตามคู่มือข้อ 6.3
 - **ชั้น auth ยังไม่ใช่ของ reference** — รอสิทธิ์ `demo-student-subsystem`

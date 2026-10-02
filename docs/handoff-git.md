@@ -66,14 +66,14 @@ curl -X POST $CORE_HUB_URL/api/v1/subsystems \
     "owner": "<username ของเจ้าของระบบใน Core Hub>",
     "repo": "CSMJU2030/csmju-gamification-knowledge",
     "standardsVersion": "1.7.0",
-    "callbackUrl": "http://localhost:3003/auth/callback",
+    "callbackUrl": "http://localhost:3213/auth/callback",
     "defaultRoleMapping": { "student": "PLAYER", "alumni": "PLAYER", "staff": "INSTRUCTOR", "lecturer": "INSTRUCTOR", "admin": "ADMIN" },
     "requestedExceptions": []
   }'
 ```
 
 - `defaultRoleMapping` ต้องตรงกับ `backend/src/auth/role-mapping.ts` เป๊ะ — key คือ role ที่เข้าได้ (guest ไม่ใส่) · ถ้าเปลี่ยน ต้องแก้ทั้งสองที่
-- `callbackUrl` คือ origin ของ**หน้าเว็บ** + `/auth/callback` (หน้าเว็บส่งต่อ `/auth/*` ไป backend) — ตอน dev `http://localhost:3003/auth/callback` ·
+- `callbackUrl` คือ origin ของ**หน้าเว็บ** + `/auth/callback` (หน้าเว็บส่งต่อ `/auth/*` ไป backend) — ตอน dev `http://localhost:3213/auth/callback` (พอร์ตของทีม) ·
   บน Dev Server ต้องเป็น `https://<หน้าเว็บของระบบ>/auth/callback` · ต้องตรงกับ `base_url` + `callback_path` ใน `subsystem.yaml` (conformance L3-04 · L3-07)
 - แล้ว `POST /api/v1/subsystems/:id/approve` และ `/activate` — Core Hub ตอบ **201** · เรียกซ้ำได้ **409**
 
