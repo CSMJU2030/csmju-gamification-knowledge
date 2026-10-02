@@ -4,9 +4,9 @@
   "private": true,
   "description": "Code Tower frontend — Next.js 15 App Router + Tailwind v4 ตามมาตรฐาน CSMJU2030",
   "scripts": {
-    "dev": "next dev -p 3003",
+    "dev": "next dev -p 3213",
     "build": "next build",
-    "start": "next start -p 3003",
+    "start": "next start -p 3213",
     "lint": "eslint src",
     "typecheck": "next typegen && tsc --noEmit",
     "test": "vitest run",

@@ -5,7 +5,7 @@ import type { NextConfig } from 'next';
  * คุกกี้ session `csmju_gamification_knowledge_access_token` ที่ backend ตั้งตอน SSO callback จึงไปกับทุกคำขอ /api
  * โดยไม่ต้องเปิด CORS · origin นี้คือ origin ของระบบ (base_url ใน subsystem.yaml และ callback_url ในทะเบียน)
  */
-const backend = process.env.BACKEND_URL ?? 'http://localhost:3002';
+const backend = process.env.BACKEND_URL ?? 'http://127.0.0.1:4213';
 
 const config: NextConfig = {
   reactStrictMode: true,

@@ -34,7 +34,7 @@ export function configuration(): AppConfig {
   const env = process.env;
   return {
     nodeEnv: env.NODE_ENV ?? 'development',
-    port: num(env.PORT, 3002),
+    port: num(env.PORT, 4213),
     databaseUrl: env.DATABASE_URL ?? '',
     subsystemId: env.SUBSYSTEM_ID ?? '',
     coreHub: {

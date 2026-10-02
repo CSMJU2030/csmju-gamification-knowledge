@@ -37,15 +37,16 @@ pnpm --filter backend exec prisma migrate deploy
 
 ```bash
 pnpm -r build                  # engine ก่อน แล้ว backend (pnpm เรียงให้เอง)
-pnpm --filter backend start    # http://localhost:3002/api/health
-pnpm --filter frontend start   # http://localhost:3003  (dev: pnpm --filter frontend dev)
+pnpm --filter backend start    # http://localhost:4213/api/health
+pnpm --filter frontend start   # http://localhost:3213  (dev: pnpm --filter frontend dev)
 ```
 
-ต้องมี Core Hub รันอยู่ที่ `CORE_HUB_URL` — ระบบนี้ไม่มี login ของตัวเอง ผู้ใช้เข้าผ่าน SSO ของ Core Hub เท่านั้น
-ทดสอบเชื่อมกับ Core Hub + demo บนเครื่องตัวเอง (ผลรันกับ Core Hub จริง และสิ่งที่เจอใน Core Hub): [`docs/local-integration.md`](docs/local-integration.md)
+พอร์ตของทีมตามที่ผู้ดูแล dev server กำหนด: frontend **3213** · backend **4213**
+ผู้ใช้เข้าผ่าน SSO ของ Core Hub (`CORE_HUB_URL` = `https://csmju2030.jowave.com`) เท่านั้น — ระบบนี้ไม่มี login ของตัวเอง
+ค่าที่ใช้ลงทะเบียนและเชื่อม Core Hub จริง: [`docs/local-integration.md`](docs/local-integration.md) ข้อ 0
 เข้าสู่ระบบเริ่มที่ `/auth/login` ของระบบนี้ แล้วไปเว็บ Core Hub (`CORE_HUB_WEB_URL` ใน `backend/.env`) · ออกจากระบบ = `POST /auth/logout` ออกทั้งระบบ
 frontend เรียก API ผ่าน origin ของตัวเอง (`/api/*` และ `/auth/*` ถูกส่งต่อไป `BACKEND_URL`) จึงไม่ต้องเปิด CORS ·
-origin นี้คือ `base_url` ใน `subsystem.yaml` และ `callback_url` ในทะเบียน (`http://localhost:3003/auth/callback`)
+origin นี้คือ `base_url` ใน `subsystem.yaml` และ Callback URL ในทะเบียน (`http://localhost:3213/auth/callback`)
 
 ## ทดสอบ
 

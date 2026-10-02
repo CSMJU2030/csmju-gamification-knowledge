@@ -12,12 +12,12 @@
 
 | ขั้นในคู่มือ | ค่าของ Code Tower |
 |---|---|
-| พอร์ต | ยังใช้ frontend **3003** · backend **3002** — มาตรฐานให้ใช้ 32xx / 42xx ตามที่ผู้ดูแล dev server กำหนด · ได้เลขของทีมแล้วต้องแก้ `subsystem.yaml` (`base_url`) · `.env` และ Callback URL พร้อมกัน |
-| ลงทะเบียน (PL ด้วยบัญชีเจ้าของระบบของทีม) | ชื่อระบบ `csmju-gamification-knowledge` · Repository `github.com/CSMJU2030/csmju-gamification-knowledge` · Standards version `1.0` (ตัวเลือกเดียวในฟอร์ม) · Callback URL `http://localhost:3003/auth/callback` · Base URL **เว้นว่าง** |
+| พอร์ต | frontend **3213** · backend **4213** — ผู้ดูแล dev server กำหนดให้ทีมนี้ (2 ต.ค. 2569) |
+| ลงทะเบียน (PL ด้วยบัญชีเจ้าของระบบของทีม) | ชื่อระบบ `csmju-gamification-knowledge` · Repository `github.com/CSMJU2030/csmju-gamification-knowledge` · Standards version `1.0` (ตัวเลือกเดียวในฟอร์ม) · Callback URL `http://localhost:3213/auth/callback` · Base URL **เว้นว่าง** |
 | บทบาทที่ติ๊ก | student → `PLAYER` · alumni → `PLAYER` · staff → `INSTRUCTOR` · lecturer → `INSTRUCTOR` · admin → `ADMIN` · **guest ไม่ติ๊ก** — ต้องตรงกับ `backend/src/auth/role-mapping.ts` |
 | `backend/.env` | คัดลอก `backend/.env.example` (ชี้ server จริงแล้ว) · `SUBSYSTEM_ID=csmju-gamification-knowledge` |
-| `frontend/.env.local` | คัดลอก `frontend/.env.example` · `BACKEND_URL=http://localhost:3002` |
-| เปิดระบบ | `http://localhost:3003` — ต้องเป็น `localhost` ไม่ใช่ `127.0.0.1` |
+| `frontend/.env.local` | คัดลอก `frontend/.env.example` · `BACKEND_URL=http://127.0.0.1:4213` |
+| เปิดระบบ | `http://localhost:3213` — ต้องเป็น `localhost` ไม่ใช่ `127.0.0.1` · หรือดับเบิลคลิก `csmju2030/start-web-real-hub.cmd` |
 | conformance | ไฟล์บัญชีนอก repo (`~/.csmju/conformance-accounts.json` · `chmod 600`) คีย์ `owner` `staff` `lecturer` `alumni` `guest` · รหัสรับจากผู้ดูแล dev server ทางข้อความส่วนตัวเท่านั้น · `denied_role: guest` แล้วใน `subsystem.yaml` |
 
 ```bash
@@ -148,14 +148,14 @@ Core Hub: ไม่ต้องรันเอง — ใช้ `https://csmju20
 
 ```bash
 cd csmju-gamification-knowledge && pnpm install && cp backend/.env.example backend/.env && cp frontend/.env.example frontend/.env.local
-pnpm --filter backend exec prisma migrate deploy && pnpm --filter backend start:dev     # :3002
+pnpm --filter backend exec prisma migrate deploy && pnpm --filter backend start:dev     # :4213
 ```
 
 ```bash
-cd csmju-gamification-knowledge && pnpm --filter frontend build && pnpm --filter frontend start   # :3003
+cd csmju-gamification-knowledge && pnpm --filter frontend build && pnpm --filter frontend start   # :3213
 ```
 
-เปิด http://localhost:3003 → ปุ่มเข้าสู่ระบบพาไป login ที่ Core Hub จริง แล้วกลับมาหน้าเดิม
+เปิด http://localhost:3213 → ปุ่มเข้าสู่ระบบพาไป login ที่ Core Hub จริง แล้วกลับมาหน้าเดิม
 
 ตัวจำลองในเครื่อง (ไม่ต้องลงทะเบียน · ไม่ต้องมีบัญชี): `node csmju2030/run-web/start.cjs` — ตั้ง env ชี้ :3000/:3100 ให้เองและลงทะเบียนด้วย
 `csmju2030/register-code-tower.cjs` · ขั้นตอนบน Windows อยู่ใน `csmju2030/README.md`
