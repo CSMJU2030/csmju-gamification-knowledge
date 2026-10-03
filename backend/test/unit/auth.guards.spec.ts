@@ -66,6 +66,20 @@ describe('role mapping (authorization.md 1.1 · core role 6 ค่า)', () => {
     expect(String(warn.mock.calls[0][0])).not.toContain('guest@example.com');
     warn.mockRestore();
   });
+  it('แมป role ได้ → log jwt.verification.success มีแค่ sub · coreRole · subsystemRole ไม่มีอีเมล', () => {
+    const log = jest.spyOn(Logger.prototype, 'log').mockImplementation(() => undefined);
+    toAuthUser({ sub: 'user-lec', email: 'lec@core.local', role: 'lecturer', exp: 0 });
+    expect(log).toHaveBeenCalledTimes(1);
+    const raw = String(log.mock.calls[0][0]);
+    expect(JSON.parse(raw)).toEqual({
+      event: 'jwt.verification.success',
+      sub: 'user-lec',
+      coreRole: 'lecturer',
+      subsystemRole: 'INSTRUCTOR',
+    });
+    expect(raw).not.toContain('lec@core.local');
+    log.mockRestore();
+  });
   it('ผู้เล่นมีแต่สิทธิ์ :own ของเกม — ไม่มีสิทธิ์สร้างโจทย์', () => {
     const player = ROLE_PERMISSIONS.PLAYER;
     expect(player.has(Permission.BATTLE_CREATE_OWN)).toBe(true);
@@ -75,14 +89,14 @@ describe('role mapping (authorization.md 1.1 · core role 6 ค่า)', () => {
 });
 
 describe('PermissionsGuard', () => {
-  const ctx = (user: AuthUser | undefined, required: Permission[] | undefined): ExecutionContext => {
+  const ctx = (user: AuthUser | undefined, required: Permission[] | undefined, path = '/api/v1/x'): ExecutionContext => {
     const handler = () => undefined;
     const reflector = new Reflector();
     if (required) Reflect.defineMetadata(PERMISSIONS_KEY, required, handler);
     return {
       getHandler: () => handler,
       getClass: () => class {},
-      switchToHttp: () => ({ getRequest: () => ({ user }) }),
+      switchToHttp: () => ({ getRequest: () => ({ user, path }) }),
       __reflector: reflector,
     } as unknown as ExecutionContext;
   };
@@ -90,10 +104,23 @@ describe('PermissionsGuard', () => {
   const student = toAuthUser({ sub: 'user-002', email: 's@core.local', role: 'student', exp: 0 });
   const staff = toAuthUser({ sub: 'user-003', email: 't@core.local', role: 'staff', exp: 0 });
 
-  it('student สร้างโจทย์ → 403 FORBIDDEN', () => {
-    expect(() => guard.canActivate(ctx(student, [Permission.CHALLENGE_CREATE]))).toThrow(
+  it('student สร้างโจทย์ → 403 FORBIDDEN + log authorization.denied (path ไม่มี query · ไม่มีอีเมล)', () => {
+    const warn = jest.spyOn(Logger.prototype, 'warn').mockImplementation(() => undefined);
+    expect(() => guard.canActivate(ctx(student, [Permission.CHALLENGE_CREATE], '/api/v1/challenges'))).toThrow(
       expect.objectContaining({ errorCode: 'FORBIDDEN' }),
     );
+    expect(warn).toHaveBeenCalledTimes(1);
+    const raw = String(warn.mock.calls[0][0]);
+    expect(JSON.parse(raw)).toEqual({
+      event: 'authorization.denied',
+      sub: 'user-002',
+      subsystemRole: 'PLAYER',
+      required: [Permission.CHALLENGE_CREATE],
+      reason: 'missing_permission',
+      path: '/api/v1/challenges',
+    });
+    expect(raw).not.toContain('s@core.local');
+    warn.mockRestore();
   });
   it('staff สร้างโจทย์ได้', () => {
     expect(guard.canActivate(ctx(staff, [Permission.CHALLENGE_CREATE]))).toBe(true);
