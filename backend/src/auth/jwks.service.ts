@@ -10,6 +10,7 @@
  *   ✔ รีเฟรชได้ไม่ถี่กว่า JWKS_MIN_REFRESH_INTERVAL_MS (≥ 30 วินาที) กัน refresh loop
  *   ✔ Core Hub ล่มชั่วคราว → ใช้กุญแจที่แคชไว้ต่อ
  *   ✔ ปฏิเสธ JWK ที่มี private material (`d`) หรือไม่ใช่ kty RSA
+ *   ✔ log jwks.refresh · jwks.refresh.failure · jwks.unknown_kid ตาม contracts/log-events.json 1.1
  *
  * เวลาของแคชใช้นาฬิกาแบบ monotonic (performance.now) ไม่ใช่นาฬิกาผนัง
  * เพราะนาฬิกาผนังถอยหลังได้ แล้วแคชจะไม่หมดอายุหรือหมดอายุก่อนเวลา
@@ -18,13 +19,17 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { importJWK, type JWK, type KeyLike } from 'jose';
 import { performance } from 'node:perf_hooks';
+import { authLog } from '../common/auth-log';
 import type { AppConfig } from '../config/configuration';
+
+/** เหตุที่รีเฟรช — ใส่ใน event jwks.refresh / jwks.refresh.failure */
+type RefreshReason = 'initial' | 'cache_expired' | 'unknown_kid';
 
 type VerifyKey = KeyLike | Uint8Array;
 
 @Injectable()
 export class JwksService {
-  private readonly logger = new Logger(JwksService.name);
+  private readonly logger = new Logger('Auth');
   private keys = new Map<string, VerifyKey>();
   /** เวลาที่ดึงสำเร็จครั้งล่าสุด (-Infinity = ยังไม่เคย) */
   private fetchedAt = Number.NEGATIVE_INFINITY;
@@ -33,6 +38,11 @@ export class JwksService {
   private inflight: Promise<void> | null = null;
 
   constructor(private readonly config: ConfigService<AppConfig, true>) {}
+
+  /** เคยดึง JWKS สำเร็จอย่างน้อยหนึ่งครั้ง — false = Core Hub ล่มตั้งแต่บูต ยังไม่มีชุดกุญแจให้เทียบ */
+  get hasKeySet(): boolean {
+    return this.fetchedAt !== Number.NEGATIVE_INFINITY;
+  }
 
   private get settings() {
     return this.config.get('jwks', { infer: true });
@@ -44,17 +54,21 @@ export class JwksService {
     const { cacheTtlMs, minRefreshIntervalMs } = this.settings;
 
     if (now - this.fetchedAt > cacheTtlMs && this.canRefresh(now, minRefreshIntervalMs)) {
-      await this.refresh();
+      await this.refresh(this.fetchedAt === Number.NEGATIVE_INFINITY ? 'initial' : 'cache_expired');
     }
     const cached = this.keys.get(kid);
     if (cached) return cached;
 
     // kid ไม่รู้จัก → รีเฟรชหนึ่งครั้ง (ถ้าไม่ได้เพิ่งรีเฟรชไป) แล้วตัดสินจากผลนั้น
     if (this.canRefresh(performance.now(), minRefreshIntervalMs)) {
-      await this.refresh();
-      return this.keys.get(kid) ?? null;
+      await this.refresh('unknown_kid');
     }
-    return null;
+    const found = this.keys.get(kid) ?? null;
+    // ไม่เคยได้ JWKS เลย → ไม่ใช่ kid แปลก (jwks.refresh.failure บอกเหตุไปแล้ว · ตัวตรวจ log jwks_unavailable)
+    if (!found && this.hasKeySet) {
+      authLog(this.logger, 'warn', 'jwks.unknown_kid', { kid, knownKids: [...this.keys.keys()] });
+    }
+    return found;
   }
 
   /** ครั้งแรกดึงได้เสมอ (attemptedAt = -Infinity) · หลังจากนั้นเว้นช่วงอย่างน้อย minIntervalMs */
@@ -63,16 +77,16 @@ export class JwksService {
   }
 
   /** ดึงพร้อมกันได้ทีละครั้ง — request ที่มาพร้อมกันรอผลก้อนเดียวกัน */
-  private refresh(): Promise<void> {
+  private refresh(reason: RefreshReason): Promise<void> {
     if (!this.inflight) {
-      this.inflight = this.fetchKeys().finally(() => {
+      this.inflight = this.fetchKeys(reason).finally(() => {
         this.inflight = null;
       });
     }
     return this.inflight;
   }
 
-  private async fetchKeys(): Promise<void> {
+  private async fetchKeys(reason: RefreshReason): Promise<void> {
     this.attemptedAt = performance.now();
     const { jwksUrl } = this.config.get('coreHub', { infer: true });
     try {
@@ -92,9 +106,13 @@ export class JwksService {
       }
       this.keys = next;
       this.fetchedAt = performance.now();
+      authLog(this.logger, 'log', 'jwks.refresh', { reason, keyCount: next.size, kids: [...next.keys()] });
     } catch (error) {
       // Core Hub ล่มชั่วคราว → เก็บกุญแจเดิมไว้ใช้ต่อ (สัญญาข้อ 4.1 "ควร")
-      this.logger.warn(`ดึง JWKS ไม่สำเร็จ ใช้กุญแจที่แคชไว้ ${this.keys.size} ดอก: ${(error as Error).message}`);
+      authLog(this.logger, 'warn', 'jwks.refresh.failure', {
+        reason: `${reason}: ${(error as Error).message}`.slice(0, 200),
+        cachedKeyCount: this.keys.size,
+      });
     }
   }
 

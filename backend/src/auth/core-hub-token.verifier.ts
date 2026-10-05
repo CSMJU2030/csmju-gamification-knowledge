@@ -7,7 +7,7 @@
  *   1. มี token (ผู้เรียกส่งมา — ดู core-hub-jwt.guard.ts)
  *   2. ถอด header เพื่ออ่าน alg / kid (ยังไม่เชื่อ payload)
  *   3. alg ต้องเป็น RS256 เท่านั้น
- *   4. หา public key จาก JWKS ตาม kid
+ *   4. หา public key จาก JWKS ตาม kid (ไม่มี JWKS ให้เทียบเลย → jwks_unavailable)
  *   5. ตรวจลายเซ็น — ระบุ algorithm allow-list ซ้ำอีกชั้นตอน verify
  *   6. ตรวจ iss / aud
  *   7. ตรวจ exp (ยอมรับ clock skew ตาม JWT_CLOCK_TOLERANCE_SEC ซึ่ง ≤ 60 วินาที)
@@ -23,6 +23,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { decodeProtectedHeader, errors, jwtVerify, type ProtectedHeaderParameters } from 'jose';
 import { type ApiError, unauthorized } from '../common/api-error';
+import { authLog, type FailureReason } from '../common/auth-log';
 import type { AppConfig } from '../config/configuration';
 import type { VerifiedClaims } from './auth.types';
 import { JwksService } from './jwks.service';
@@ -33,20 +34,8 @@ const ALLOWED_ALGORITHMS = ['RS256'];
 export const MAX_TOKEN_LIFETIME_SEC = 900;
 export const LIFETIME_TOLERANCE_SEC = 60;
 
-/** reason ของ jwt.verification.failure ที่ตัวตรวจนี้ใช้ — ชุดย่อยของ failureReasons ใน log-events.json */
-export type TokenFailureReason =
-  | 'missing_token'
-  | 'malformed_token'
-  | 'unsupported_algorithm'
-  | 'missing_kid'
-  | 'unknown_kid'
-  | 'invalid_signature'
-  | 'expired'
-  | 'invalid_issuer'
-  | 'invalid_audience'
-  | 'invalid_claims'
-  | 'token_lifetime_exceeded'
-  | 'invalid_azp';
+/** reason ของ jwt.verification.failure ที่ตัวตรวจนี้ใช้ — failureReasons ของ log-events.json ยกเว้นของ callback */
+export type TokenFailureReason = Exclude<FailureReason, 'sso_restart_without_state' | 'sso_state_missing' | 'sso_state_mismatch'>;
 
 /** แปลง error ของ jose เป็น reason ปิดของสัญญา log */
 function reasonOf(error: unknown): TokenFailureReason {
@@ -79,7 +68,7 @@ export class CoreHubTokenVerifier {
     let kid: string | null = null;
     const reject = (reason: TokenFailureReason): ApiError => {
       // event ปิดของ contracts/log-events.json — ไม่มี token ไม่มี URL เต็ม ไม่มีข้อมูลบุคคล
-      this.logger.warn(JSON.stringify({ event: 'jwt.verification.failure', reason, kid, path }));
+      authLog(this.logger, 'warn', 'jwt.verification.failure', { reason, kid, path });
       return unauthorized('token ใช้ไม่ได้หรือหมดอายุ — เข้าสู่ระบบผ่าน Core Hub ใหม่');
     };
 
@@ -101,7 +90,8 @@ export class CoreHubTokenVerifier {
     if (typeof header.kid !== 'string' || header.kid === '') throw reject('missing_kid');
     kid = header.kid;
     const key = await this.jwks.getKey(header.kid);
-    if (!key) throw reject('unknown_kid');
+    // ยังไม่เคยดึง JWKS สำเร็จเลย (Core Hub ล่มตั้งแต่บูต) ≠ kid ไม่อยู่ในชุดกุญแจที่มี
+    if (!key) throw reject(this.jwks.hasKeySet ? 'unknown_kid' : 'jwks_unavailable');
 
     // 5 · 6 · 7
     const { issuer, audience } = this.config.get('coreHub', { infer: true });

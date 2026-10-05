@@ -1,5 +1,6 @@
 /** envelope · error code ปิด 7 ค่า · ไม่รั่วรายละเอียดภายใน (api-conventions.md ข้อ 3-5) */
 import { BadRequestException, ForbiddenException, HttpException, NotFoundException, ServiceUnavailableException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { plainToInstance } from 'class-transformer';
 import { validate } from 'class-validator';
 import { ApiError, ERROR_HTTP_STATUS, conflict, validationError } from '../../src/common/api-error';
@@ -10,6 +11,8 @@ import { createValidationPipe } from '../../src/common/validation';
 import { CreateBattleDto } from '../../src/battles/battle.dto';
 import { CreateChallengeDto, UpdateChallengeDto } from '../../src/challenges/challenge.dto';
 import { UpdateProgramDto } from '../../src/programs/program.dto';
+import { configuration, type AppConfig } from '../../src/config/configuration';
+import { startedFields } from '../../src/common/auth-log';
 
 /** standards/contracts/error-codes.json (1.1 ขึ้นไป · 9 ค่า) — CI checkout ไม่ดึง submodule จึงคัดมาไว้ที่นี่ */
 const CLOSED = [
@@ -132,5 +135,36 @@ describe('validation', () => {
   });
   it('page ใหญ่ผิดปกติ (1e308) → 400 แทน 500', async () => {
     await expect(run(PageQueryDto, { page: '1e308' }, 'query')).rejects.toMatchObject({ errorCode: 'VALIDATION_ERROR' });
+  });
+});
+
+describe('log subsystem.started (log-events.json 1.1)', () => {
+  /** required[subsystem.started].fields — CI checkout ไม่ดึง submodule จึงคัดมาไว้ที่นี่ */
+  const FIELDS = ['subsystem', 'port', 'coreHubUrl', 'jwksUrl', 'issuer', 'audience'];
+
+  it('มี field ครบตามสัญญาและไม่มีอย่างอื่น (เช่น DATABASE_URL) · ค่ามาจาก config ที่ระบบใช้จริง', () => {
+    const env = {
+      PORT: '4213',
+      CORE_HUB_URL: 'https://hub.example/',
+      CORE_HUB_JWKS_URL: 'https://hub.example/api/v1/.well-known/jwks.json',
+      CORE_HUB_ISSUER: 'csmju-core-hub',
+      CORE_HUB_AUDIENCE: 'csmju-platform',
+    };
+    const saved = { ...process.env };
+    Object.assign(process.env, env);
+    try {
+      const fields = startedFields(new ConfigService<AppConfig, true>(configuration()));
+      expect(Object.keys(fields).sort()).toEqual([...FIELDS].sort());
+      expect(fields).toEqual({
+        subsystem: 'csmju-gamification-knowledge',
+        port: 4213,
+        coreHubUrl: 'https://hub.example',
+        jwksUrl: env.CORE_HUB_JWKS_URL,
+        issuer: 'csmju-core-hub',
+        audience: 'csmju-platform',
+      });
+    } finally {
+      process.env = saved;
+    }
   });
 });

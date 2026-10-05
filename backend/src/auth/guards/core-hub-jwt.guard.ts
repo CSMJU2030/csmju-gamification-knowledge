@@ -12,6 +12,7 @@ import { CanActivate, ExecutionContext, Injectable, Logger } from '@nestjs/commo
 import { Reflector } from '@nestjs/core';
 import type { Request } from 'express';
 import { forbidden, unauthorized } from '../../common/api-error';
+import { authLog } from '../../common/auth-log';
 import { type AuthUser, type VerifiedClaims, isCoreRole } from '../auth.types';
 import { CoreHubTokenVerifier } from '../core-hub-token.verifier';
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
@@ -53,7 +54,7 @@ const authLogger = new Logger('Auth');
 /** role ที่แมปไม่ได้ — event ปิดของ contracts/log-events.json · ระบุผู้ใช้ด้วย sub อย่างเดียว */
 function roleMappingFailed(claims: VerifiedClaims) {
   const coreRole = typeof claims.role === 'string' ? claims.role.slice(0, 32) : null;
-  authLogger.warn(JSON.stringify({ event: 'authorization.role_mapping_failed', sub: claims.sub, coreRole }));
+  authLog(authLogger, 'warn', 'authorization.role_mapping_failed', { sub: claims.sub, coreRole });
   return forbidden('core role นี้เข้าใช้ Code Tower ไม่ได้');
 }
 
@@ -62,6 +63,8 @@ export function toAuthUser(claims: VerifiedClaims): AuthUser {
   if (!isCoreRole(claims.role)) throw roleMappingFailed(claims);
   const subsystemRole = mapCoreRole(claims.role);
   if (!subsystemRole) throw roleMappingFailed(claims);
+  // ตรวจ token ครบ 10 ขั้นและแมป role ได้ — ทั้ง request ที่ต้องล็อกอินและ /auth/callback ผ่านจุดนี้
+  authLog(authLogger, 'log', 'jwt.verification.success', { sub: claims.sub, coreRole: claims.role, subsystemRole });
   return {
     coreUserId: claims.sub,
     email: claims.email,

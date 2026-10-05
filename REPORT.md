@@ -12,8 +12,22 @@
 > **มาตรฐาน 1.7.0 · สัญญา auth 1.2** (1 ต.ค. 2569 · PR #7 merge แล้ว · เลื่อนเวอร์ชันใน PR #6 ของทีมกลาง):
 > ตรวจ token 10 ขั้น (อายุ token · `azp`) · core role 6 ค่า (lecturer → INSTRUCTOR · guest ไม่รับ) · หน้า "เข้าสู่ระบบอีกครั้ง" ตอน state ไม่ตรง ·
 > log `jwt.verification.failure` ทุกเหตุผล · manifest และ `.env.example` ชี้ Core Hub จริง `https://csmju2030.jowave.com`
+> **log ครบ 8 event ของ log-events.json 1.1** (3 ต.ค. 2569 · branch `feature/gamification-knowledge/auth-logs`): เพิ่ม `subsystem.started` ·
+> `jwt.verification.success` · `jwks.refresh` · `jwks.refresh.failure` · `jwks.unknown_kid` · `authorization.denied` · reason `jwks_unavailable`
 
 ## ผลรัน
+
+**log ด้านยืนยันตัวตน/สิทธิ์ครบตาม log-events.json 1.1 (3 ต.ค. 2569 · branch `auth-logs`)** — standards/docs/logging.md
+
+- `src/common/auth-log.ts` จุดเดียวที่เขียน event เหล่านี้ · type ของแต่ละ event บังคับ field ให้ครบและไม่เกินตามสัญญา
+- `subsystem.started` หลัง `listen` · `jwt.verification.success` ทุกครั้งที่ตรวจ token ผ่านและแมป role ได้ (ทั้ง request และ `/auth/callback`) ·
+  `jwks.refresh` (reason `initial` · `cache_expired` · `unknown_kid`) · `jwks.refresh.failure` · `jwks.unknown_kid` · `authorization.denied` (`missing_permission`)
+- Core Hub ล่มตั้งแต่บูต (ยังไม่เคยได้ JWKS) → reason `jwks_unavailable` แทน `unknown_kid` · ยัง 401 เหมือนเดิม
+- ผลรัน: backend unit 168 (+6 เคส log) · e2e 39 · eslint · run-all-checks 19/19 · conformance v1.2 72/72 กับตัวจำลอง (backend `dist` + หน้าเว็บ :3213)
+- log ของ backend หลังรัน conformance: `subsystem.started` 1 · `jwt.verification.success` 29 · `jwt.verification.failure` 32 · `jwks.refresh` 1 ·
+  `jwks.unknown_kid` 2 · `authorization.role_mapping_failed` 2 · ยิง student สร้างโจทย์เพิ่ม → `authorization.denied` path `/api/v1/challenges` (ไม่มี query) ·
+  เปิดอีกตัวที่ JWKS ต่อไม่ได้ → `jwks.refresh.failure` + `jwt.verification.failure` reason `jwks_unavailable`
+- ค้น log: ไม่พบ `eyJ` · `access_token=` · `authorization:` · `cookie:` · อีเมล · รหัสนักศึกษา · path ที่มี query
 
 **ชื่อในเกม = รหัสจาก Core Hub (1 ต.ค. 2569 · branch `person-code-name`)** — ทีมตกลงให้แสดงรหัสแทนชื่อทุกที่ (รวมตอนดวล)
 

@@ -17,6 +17,7 @@ import { ConfigService } from '@nestjs/config';
 import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import type { Request, Response } from 'express';
 import { ApiError, badRequest, unauthorized } from '../common/api-error';
+import { authLog, type FailureReason } from '../common/auth-log';
 import { ApiErrors } from '../common/swagger';
 import type { AppConfig } from '../config/configuration';
 import { CoreHubTokenVerifier } from './core-hub-token.verifier';
@@ -39,7 +40,7 @@ import {
   stateCookieValue,
 } from './sso';
 
-type SsoFailure = 'sso_restart_without_state' | 'sso_state_missing' | 'sso_state_mismatch';
+type SsoFailure = Extract<FailureReason, 'sso_restart_without_state' | 'sso_state_missing' | 'sso_state_mismatch'>;
 
 @ApiTags('auth')
 @Controller('auth')
@@ -61,7 +62,7 @@ export class SsoController {
 
   /** event ปิดของ contracts/log-events.json — มีแค่เหตุผลกับ path ไม่มี token ไม่มี URL เต็ม */
   private logSso(reason: SsoFailure): void {
-    this.logger.warn(JSON.stringify({ event: 'jwt.verification.failure', reason, kid: null, path: CALLBACK_PATH }));
+    authLog(this.logger, 'warn', 'jwt.verification.failure', { reason, kid: null, path: CALLBACK_PATH });
   }
 
   @Public()

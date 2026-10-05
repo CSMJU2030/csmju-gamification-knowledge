@@ -144,6 +144,61 @@ describe('log jwt.verification.failure (log-events.json 1.1)', () => {
   });
 });
 
+describe('log jwks.* และ jwks_unavailable (log-events.json 1.1)', () => {
+  /** บรรทัด log ทั้งสองระดับระหว่าง fn ทำงาน แปลงเป็น object แล้ว */
+  const capture = async (fn: () => Promise<unknown>) => {
+    const log = jest.spyOn(Logger.prototype, 'log').mockImplementation(() => undefined);
+    const warn = jest.spyOn(Logger.prototype, 'warn').mockImplementation(() => undefined);
+    await fn().catch(() => undefined);
+    const parse = (calls: unknown[][]) => calls.map((c) => JSON.parse(String(c[0])) as Record<string, unknown>);
+    const out = { log: parse(log.mock.calls), warn: parse(warn.mock.calls) };
+    log.mockRestore();
+    warn.mockRestore();
+    return out;
+  };
+
+  it('ดึงครั้งแรก → jwks.refresh reason initial · แคชหมดอายุ → reason cache_expired', async () => {
+    const first = await capture(() => verifier.verify(hub.sign('user-002', 'student')));
+    expect(first.log).toContainEqual({ event: 'jwks.refresh', reason: 'initial', keyCount: 1, kids: [hub.kid] });
+    jest.spyOn(performance, 'now').mockReturnValue(performance.now() + 700_000);
+    const later = await capture(() => verifier.verify(hub.sign('user-002', 'student')));
+    expect(later.log).toContainEqual({ event: 'jwks.refresh', reason: 'cache_expired', keyCount: 1, kids: [hub.kid] });
+  });
+
+  it('kid ไม่รู้จัก → jwks.refresh reason unknown_kid · jwks.unknown_kid พร้อม knownKids · แล้ว failure unknown_kid', async () => {
+    await capture(() => verifier.verify(hub.sign('user-002', 'student')));
+    jest.spyOn(performance, 'now').mockReturnValue(performance.now() + 31_000);
+    const out = await capture(() => verifier.verify(hub.sign('user-002', 'student', { header: { kid: 'unknown-key-9999' } }), '/api/v1/me'));
+    expect(out.log).toContainEqual(expect.objectContaining({ event: 'jwks.refresh', reason: 'unknown_kid' }));
+    expect(out.warn).toEqual([
+      { event: 'jwks.unknown_kid', kid: 'unknown-key-9999', knownKids: [hub.kid] },
+      { event: 'jwt.verification.failure', reason: 'unknown_kid', kid: 'unknown-key-9999', path: '/api/v1/me' },
+    ]);
+  });
+
+  it('Core Hub ล่มหลังแคชหมดอายุ → jwks.refresh.failure บอกเหตุและจำนวนกุญแจที่ยังใช้ต่อ', async () => {
+    await capture(() => verifier.verify(hub.sign('user-002', 'student')));
+    hub.down = true;
+    jest.spyOn(performance, 'now').mockReturnValue(performance.now() + 700_000);
+    const out = await capture(() => verifier.verify(hub.sign('user-002', 'student')));
+    expect(out.warn).toHaveLength(1);
+    expect(out.warn[0]).toMatchObject({ event: 'jwks.refresh.failure', cachedKeyCount: 1 });
+    expect(Object.keys(out.warn[0]).sort()).toEqual(['cachedKeyCount', 'event', 'reason']);
+    expect(String(out.warn[0].reason)).toMatch(/^cache_expired: /);
+  });
+
+  it('Core Hub ล่มตั้งแต่บูต (ยังไม่เคยได้ JWKS) → 401 reason jwks_unavailable ไม่ใช่ unknown_kid', async () => {
+    hub.down = true;
+    const out = await capture(() => verifier.verify(hub.sign('user-002', 'student'), '/api/v1/me'));
+    expect(out.warn).toEqual([
+      { event: 'jwks.refresh.failure', reason: expect.stringMatching(/^initial: /), cachedKeyCount: 0 },
+      { event: 'jwt.verification.failure', reason: 'jwks_unavailable', kid: hub.kid, path: '/api/v1/me' },
+    ]);
+    hub.down = false;
+    await rejects(hub.sign('user-002', 'student'));
+  });
+});
+
 describe('JWKS client', () => {
   it('แคชกุญแจ — ตรวจหลายครั้งดึง JWKS ครั้งเดียว', async () => {
     for (let i = 0; i < 5; i++) await verifier.verify(hub.sign(`user-00${i}`, 'student'));
