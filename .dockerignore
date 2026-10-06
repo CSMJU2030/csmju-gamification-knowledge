@@ -1,0 +1,13 @@
+# build context ของทั้งสอง image คือรากของ repo (deployment.md ข้อ 3 · DEP-03)
+# ไฟล์ที่กันไว้ตรงนี้ไม่ถูกส่งเข้า docker build เลย — .env มี secret · node_modules ของ Windows/macOS ใช้บน Linux ไม่ได้
+**/node_modules
+**/.next*
+**/dist
+**/generated
+**/coverage
+**/.env*
+**/*.log
+**/*.tsbuildinfo
+.git
+standards
+docs

@@ -1,0 +1,2 @@
+# สคริปต์ที่รันใน container (Linux) ต้องเป็น LF เสมอ แม้ checkout บน Windows — CRLF ทำให้ sh อ่าน $'\r' แล้วสตาร์ตไม่ขึ้น
+*.sh text eol=lf

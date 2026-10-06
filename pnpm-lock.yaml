@@ -150,6 +150,9 @@ importers:
       pg:
         specifier: ^8.23.0
         version: 8.23.0
+      prisma:
+        specifier: 7.9.1
+        version: 7.9.1(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(typescript@5.9.3)
       reflect-metadata:
         specifier: ^0.2.2
         version: 0.2.2
@@ -190,9 +193,6 @@ importers:
       jest:
         specifier: ^30.5.2
         version: 30.5.2(@types/node@22.20.4)(ts-node@10.9.2(@types/node@22.20.4)(typescript@5.9.3))
-      prisma:
-        specifier: 7.9.1
-        version: 7.9.1(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(typescript@5.9.3)
       supertest:
         specifier: ^7.3.0
         version: 7.3.0
