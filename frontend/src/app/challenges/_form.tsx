@@ -15,6 +15,7 @@ import { fieldErrors } from '@/lib/api/field-errors';
 import type { Challenge, CreateChallenge } from '@/lib/api/types';
 import { useRegionNames } from '@/lib/game/use-region-names';
 import { MonsterEditor, draftOf, inputOf, monsterErrors, remapMonsterErrors, splitMonsterDetails, type MonsterDraft } from './_monsters';
+import { ChallengeTrialPanel } from './_trial';
 
 const FIELDS = ['title', 'description', 'starterSource', 'regionId'] as const;
 type Field = (typeof FIELDS)[number];
@@ -155,6 +156,16 @@ export function ChallengeForm({ initial }: { initial?: Challenge }) {
           />
         </FormField>
         <MonsterEditor drafts={drafts} onChange={changeDrafts} errors={monsterErrs} />
+        {drafts.length > 0 && (
+          <ChallengeTrialPanel
+            drafts={drafts}
+            starterSource={starterSource}
+            onMonsterErrors={(errs) => {
+              setMonsterErrs(errs);
+              focusFirstInvalid();
+            }}
+          />
+        )}
         <p ref={liveRef} aria-live="polite" className="sr-only">
           {formError ?? ''}
         </p>

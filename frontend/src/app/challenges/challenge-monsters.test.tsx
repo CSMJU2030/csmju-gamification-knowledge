@@ -36,6 +36,15 @@ vi.mock('@/lib/game/session', () => ({
 vi.mock('@/game-stage/sprites/SpritePortrait', () => ({ default: ({ spriteId }: { spriteId: string }) => <span data-sprite={spriteId} /> }));
 const setPendingBattle = vi.fn();
 vi.mock('@/lib/game/battle-store', () => ({ setPendingBattle: (b: unknown) => setPendingBattle(b) }));
+// ตัวเล่นฉาก (canvas) แยก chunk ด้วย next/dynamic — ในเทสต์แทนด้วยกล่องที่บอก props ที่ได้รับ
+const stageProps = vi.fn();
+vi.mock('next/dynamic', () => ({
+  default: () =>
+    function Stage(props: { title: string; enemyLevels?: Record<string, number>; character: { displayName: string } }) {
+      stageProps(props);
+      return <div data-testid="stage">{props.title}</div>;
+    },
+}));
 
 import { ApiError } from '@/lib/api/client';
 import type { Challenge, Character } from '@/lib/api/types';
@@ -44,9 +53,10 @@ import type { CombatantView, PlayState } from '@/game-stage/battle/director';
 import { ChallengeForm } from './_form';
 import { ChallengeFight, MonsterCards, fmtMult, monsterErrors, newDraft, remapMonsterErrors, splitMonsterDetails } from './_monsters';
 
+// เจ้าของโจทย์ปกติเป็นผู้สอนอีกคน — ผู้ใช้ในเทสต์ (t-one) เป็นผู้เล่น
 const challenge = (over: Partial<Challenge> = {}): Challenge => ({
   id: '11111111-1111-4111-8111-111111111111',
-  coreUserId: 't-one',
+  coreUserId: 't-owner',
   title: 'สู้สไลม์',
   description: '',
   starterSource: 'def turn():\n    attack(weakest(enemies))\n',
@@ -64,6 +74,7 @@ beforeEach(() => {
   patch.mockReset();
   push.mockReset();
   setPendingBattle.mockReset();
+  stageProps.mockReset();
 });
 afterEach(cleanup);
 
@@ -107,7 +118,7 @@ describe('ฟอร์มโจทย์ของผู้สอน', () => {
     expect(screen.getByText('ครบ 4 ตัวแล้ว')).toBeTruthy();
     for (const i of [4, 3, 2]) fireEvent.click(screen.getByRole('button', { name: `ลบมอนตัวที่ ${i}` }));
 
-    fireEvent.change(screen.getByRole('spinbutton', { name: /^เลเวล/ }), { target: { value: '7' } });
+    fireEvent.change(screen.getByRole('spinbutton', { name: /^เลเวล$/ }), { target: { value: '7' } });
     fireEvent.click(screen.getByRole('button', { name: 'สร้างโจทย์' }));
     await waitFor(() => expect(post).toHaveBeenCalled());
     const [path, body] = post.mock.calls[0];
@@ -122,10 +133,10 @@ describe('ฟอร์มโจทย์ของผู้สอน', () => {
     render(<ChallengeForm />);
     fireEvent.change(screen.getByRole('textbox', { name: /^ชื่อโจทย์/ }), { target: { value: 'สู้สไลม์' } });
     fireEvent.click(screen.getByRole('button', { name: 'เพิ่มมอน' }));
-    fireEvent.change(screen.getByRole('spinbutton', { name: /^เลเวล/ }), { target: { value: '99' } });
+    fireEvent.change(screen.getByRole('spinbutton', { name: /^เลเวล$/ }), { target: { value: '99' } });
     fireEvent.click(screen.getByRole('button', { name: 'สร้างโจทย์' }));
     expect(await screen.findByText(/เลเวลต้องเป็นจำนวนเต็ม 1–50/)).toBeTruthy();
-    expect(screen.getByRole('spinbutton', { name: /^เลเวล/ }).getAttribute('aria-invalid')).toBe('true');
+    expect(screen.getByRole('spinbutton', { name: /^เลเวล$/ }).getAttribute('aria-invalid')).toBe('true');
     expect(post).not.toHaveBeenCalled();
   });
 
@@ -134,10 +145,10 @@ describe('ฟอร์มโจทย์ของผู้สอน', () => {
     fireEvent.change(screen.getByRole('textbox', { name: /^ชื่อโจทย์/ }), { target: { value: 'สามตัว' } });
     const add = screen.getByRole('button', { name: 'เพิ่มมอน' });
     for (let i = 0; i < 3; i++) fireEvent.click(add);
-    fireEvent.change(screen.getAllByRole('spinbutton', { name: /^เลเวล/ })[1], { target: { value: '99' } });
+    fireEvent.change(screen.getAllByRole('spinbutton', { name: /^เลเวล$/ })[1], { target: { value: '99' } });
     fireEvent.click(screen.getByRole('button', { name: 'สร้างโจทย์' }));
     await screen.findByText(/เลเวลต้องเป็นจำนวนเต็ม 1–50/);
-    const invalid = () => screen.getAllByRole('spinbutton', { name: /^เลเวล/ }).map((el) => [(el as HTMLInputElement).value, el.getAttribute('aria-invalid')]);
+    const invalid = () => screen.getAllByRole('spinbutton', { name: /^เลเวล$/ }).map((el) => [(el as HTMLInputElement).value, el.getAttribute('aria-invalid')]);
     expect(invalid()).toEqual([['1', null], ['99', 'true'], ['1', null]]);
     fireEvent.click(screen.getByRole('button', { name: 'ลบมอนตัวที่ 1' }));
     expect(invalid()).toEqual([['99', 'true'], ['1', null]]);
@@ -230,5 +241,77 @@ describe('แถบสถานะของฉากรบ', () => {
   it('ไม่มีเลเวลรายตัว (หอคอย · ภูมิภาค) → ใช้เลเวลของชั้นเหมือนเดิม', () => {
     render(<BattleHud play={play} character={hero} enemyLevel={8} enemyHeading="ศัตรู" />);
     expect(screen.getAllByText('Lv 8')).toHaveLength(2);
+  });
+});
+
+describe('เจ้าของโจทย์ (ข้อ M4 เพิ่มเติม)', () => {
+  it('สู้ได้แต่ไม่บอกรางวัล · ชี้ไปทดลองสู้ในหน้าแก้โจทย์', () => {
+    const c = challenge({ coreUserId: 't-one', myResult: { attempts: 0, cleared: false, firstClearedAt: null } });
+    render(<ChallengeFight challenge={c} />);
+    expect(screen.queryByText(/ชนะครั้งแรกได้/)).toBeNull();
+    expect(screen.getByText(/สู้ได้แต่ไม่ได้รางวัล/)).toBeTruthy();
+    expect(screen.getByRole('link', { name: 'ทดลองสู้ในหน้าแก้โจทย์' }).getAttribute('href')).toBe(`/challenges/${c.id}/edit`);
+    expect(screen.getByRole('button', { name: 'สู้กับมอนของโจทย์' })).toBeTruthy();
+  });
+});
+
+describe('ทดลองสู้ในฟอร์ม (ข้อ M7)', () => {
+  const trialResult = {
+    classId: 'mage', level: 7, maxHp: 230, maxMp: 90, heroName: 'ตัวละครตัวอย่าง',
+    programSource: 'def turn():\n    defend()\n',
+    result: { victory: true, wavesCleared: 1, events: [] },
+  };
+  const setup = () => {
+    render(<ChallengeForm />);
+    fireEvent.change(screen.getByRole('textbox', { name: /^โปรแกรมตั้งต้น/ }), { target: { value: 'def turn():\n    defend()\n' } });
+    fireEvent.click(screen.getByRole('button', { name: 'เพิ่มมอน' }));
+    fireEvent.change(screen.getByRole('spinbutton', { name: /^เลเวล$/ }), { target: { value: '7' } });
+  };
+
+  it('ยังไม่มีมอน = ไม่มีส่วนทดลอง · ส่งมอนในฟอร์ม (ยังไม่บันทึก) + อาชีพ + เลเวล + โปรแกรมตั้งต้น · แสดงผลพร้อมเลเวลรายตัว', async () => {
+    render(<ChallengeForm />);
+    expect(screen.queryByRole('heading', { name: 'ทดลองสู้' })).toBeNull();
+    cleanup();
+    setup();
+    post.mockResolvedValueOnce(trialResult);
+    fireEvent.change(screen.getByRole('combobox', { name: /^อาชีพตัวละครตัวอย่าง/ }), { target: { value: 'mage' } });
+    // ยังไม่ตั้งเลเวลของตัวละครตัวอย่างเอง = ตามเลเวลสูงสุดของมอนในฟอร์ม
+    expect((screen.getByRole('spinbutton', { name: /^เลเวลตัวละครตัวอย่าง/ }) as HTMLInputElement).value).toBe('7');
+    fireEvent.click(screen.getByRole('button', { name: 'ทดลองสู้' }));
+    await waitFor(() => expect(post).toHaveBeenCalled());
+    expect(post).toHaveBeenCalledWith('/challenges/trials', {
+      monsters: [{ name: 'สไลม์', archetypeId: 'slime', level: 7, hpMult: 1, dmgMult: 1, skills: ['mon_bite'], programSource: null }],
+      classId: 'mage',
+      level: 7,
+      programSource: 'def turn():\n    defend()\n',
+    });
+    expect(await screen.findByText('ตัวละครตัวอย่างชนะ')).toBeTruthy();
+    expect(stageProps).toHaveBeenLastCalledWith(expect.objectContaining({
+      enemyLevels: { ch_m1_slime: 7 },
+      character: expect.objectContaining({ displayName: 'ตัวละครตัวอย่าง', classId: 'mage', level: 7 }),
+    }));
+    // ทดลองไม่ใช่การบันทึกโจทย์
+    expect(push).not.toHaveBeenCalled();
+
+    // มอนเปลี่ยนหลังทดลอง → บอกว่าผลเก่าแล้ว
+    fireEvent.change(screen.getByRole('spinbutton', { name: /^เลเวล$/ }), { target: { value: '9' } });
+    expect(screen.getByText(/มอนในฟอร์มเปลี่ยนไปหลังทดลองครั้งนี้/)).toBeTruthy();
+  });
+
+  it('มอนผิด → ไม่ยิง API · ข้อความไปใต้ช่องของมอน · 400 ของโปรแกรมขึ้นใต้ช่องโปรแกรมของการทดลอง', async () => {
+    setup();
+    fireEvent.change(screen.getByRole('spinbutton', { name: /^เลเวล$/ }), { target: { value: '99' } });
+    fireEvent.click(screen.getByRole('button', { name: 'ทดลองสู้' }));
+    expect(await screen.findByText(/เลเวลต้องเป็นจำนวนเต็ม 1–50/)).toBeTruthy();
+    expect(screen.getByText('แก้มอนตามข้อความใต้ช่องก่อน แล้วค่อยทดลองสู้')).toBeTruthy();
+    expect(post).not.toHaveBeenCalled();
+
+    fireEvent.change(screen.getByRole('spinbutton', { name: /^เลเวล$/ }), { target: { value: '7' } });
+    post.mockRejectedValueOnce(new ApiError(400, 'VALIDATION_ERROR', 'ข้อมูลที่ส่งมาไม่ผ่านการตรวจสอบ', [
+      "programSource: 2:10:ValueError:ยังใช้สกิล 'firebolt' ไม่ได้ — เป็นสกิลของจอมเวท ปลดที่เลเวล 3",
+    ]));
+    fireEvent.click(screen.getByRole('button', { name: 'ทดลองสู้' }));
+    expect(await screen.findByText("บรรทัด 2 คอลัมน์ 10: ยังใช้สกิล 'firebolt' ไม่ได้ — เป็นสกิลของจอมเวท ปลดที่เลเวล 3")).toBeTruthy();
+    expect(stageProps).not.toHaveBeenCalled();
   });
 });

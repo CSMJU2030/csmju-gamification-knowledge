@@ -39,4 +39,5 @@ export type ChallengeMonster = S['ChallengeMonsterDto'];
 export type ChallengeMonsterInput = S['ChallengeMonsterInputDto'];
 export type ChallengeMyResult = S['ChallengeMyResultDto'];
 export type ChallengeAttemptSummary = S['ChallengeAttemptSummaryDto'];
+export type ChallengeTrial = S['ChallengeTrialDto'];
 export type Deleted = S['DeletedDto'];

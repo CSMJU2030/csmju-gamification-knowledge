@@ -173,7 +173,7 @@ export function remapMonsterErrors(
 }
 
 /** "บรรทัด:คอลัมน์:ชื่อ:ข้อความ" ของตัวตรวจโปรแกรม → อ่านง่าย */
-function readableProgramError(text: string): string {
+export function readableProgramError(text: string): string {
   return text
     .split(' · ')
     .map((t) => {
@@ -442,7 +442,9 @@ export function MonsterCards({ monsters }: { monsters: ChallengeMonster[] }) {
 
 export function ChallengeFight({ challenge }: { challenge: Challenge }) {
   const router = useRouter();
-  const { character } = useGame();
+  const { character, coreUserId } = useGame();
+  // เจ้าของโจทย์สู้ได้แต่ไม่ได้รางวัล (ข้อ M4 เพิ่มเติม) — ทางหลักของผู้สอนคือ "ทดลองสู้" ในหน้าแก้โจทย์
+  const owner = coreUserId !== null && coreUserId === challenge.coreUserId;
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const mine = challenge.myResult ?? null;
@@ -482,13 +484,24 @@ export function ChallengeFight({ challenge }: { challenge: Challenge }) {
           </span>
         </p>
       )}
-      {ready && reward && !mine?.cleared && (
-        <p className="text-label-md font-normal text-on-surface-variant tabular-nums">
-          ชนะครั้งแรกได้ +{reward.exp} EXP และ +{reward.gold} ทอง (คิดจากเลเวล {ready.level} ของคุณ)
+      {owner ? (
+        <p className="text-label-md font-normal text-on-surface-variant">
+          โจทย์ของคุณเอง — {ready ? 'สู้ได้แต่ไม่ได้รางวัล และไม่ขึ้นในตารางผลของผู้เล่น · ' : ''}ลองความยากได้โดยไม่ต้องมีตัวละครที่{' '}
+          <Link href={`/challenges/${challenge.id}/edit`} className="text-primary-container underline">
+            ทดลองสู้ในหน้าแก้โจทย์
+          </Link>
         </p>
+      ) : (
+        ready &&
+        reward &&
+        !mine?.cleared && (
+          <p className="text-label-md font-normal text-on-surface-variant tabular-nums">
+            ชนะครั้งแรกได้ +{reward.exp} EXP และ +{reward.gold} ทอง (คิดจากเลเวล {ready.level} ของคุณ)
+          </p>
+        )
       )}
       {error && <Alert>{error}</Alert>}
-      {character.status === 'none' ? (
+      {character.status === 'none' && owner ? null : character.status === 'none' ? (
         <p className="text-body-md text-on-surface-variant">
           ต้องมีตัวละครก่อนถึงจะสู้ได้ —{' '}
           <Link href="/" className="text-primary-container underline">

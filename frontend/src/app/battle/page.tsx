@@ -236,7 +236,9 @@ function BattleView({ pending }: { pending: PendingBattle }) {
 
   const reward = outcome.challenge?.reward;
   const challengeNotes = challenge ? (
-    outcome.challenge?.firstClear && reward ? (
+    outcome.challenge?.ownChallenge ? (
+      <Alert tone="info">โจทย์ของคุณเอง — สู้ได้แต่ไม่ได้รางวัล และไม่ขึ้นในตารางผลของผู้เล่น</Alert>
+    ) : outcome.challenge?.firstClear && reward ? (
       <Alert tone="success">
         <span className="font-semibold">ชนะมอนของโจทย์ครั้งแรก!</span> ได้ +{reward.exp} EXP และ +{reward.gold} ทอง — รางวัลนี้ได้ครั้งเดียว
       </Alert>
