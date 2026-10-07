@@ -14,8 +14,26 @@
 > log `jwt.verification.failure` ทุกเหตุผล · manifest และ `.env.example` ชี้ Core Hub จริง `https://csmju2030.jowave.com`
 > **log ครบ 8 event ของ log-events.json 1.1** (3 ต.ค. 2569 · branch `feature/gamification-knowledge/auth-logs`): เพิ่ม `subsystem.started` ·
 > `jwt.verification.success` · `jwks.refresh` · `jwks.refresh.failure` · `jwks.unknown_kid` · `authorization.denied` · reason `jwks_unavailable`
+> **มาตรฐาน 1.8.4 · พร้อมขึ้น server กลาง** (6 ต.ค. 2569 · branch `feature/gamification-knowledge/bump-standards-v1-8-4`): Dockerfile ของ api และ web ·
+> `.dockerignore` · Next.js standalone · `DATABASE_POOL_MAX` · `docker-compose.yml` ทดสอบในเครื่อง — ผ่าน `DEP-01..04` (deployment.md 1.4)
 
 ## ผลรัน
+
+**standards 1.8.4 + image สำหรับ server กลาง (6 ต.ค. 2569 · branch `bump-standards-v1-8-4`)** — standards/docs/deployment.md 1.4
+
+- ไฟล์ใหม่: `backend/Dockerfile` · `backend/docker/entrypoint.sh` · `frontend/Dockerfile` · `.dockerignore` · `.gitattributes` (`*.sh` เป็น LF) · `docker-compose.yml`
+- `frontend/next.config.ts` ตั้ง `output: 'standalone'` + `outputFileTracingRoot` · `prisma` ย้ายเป็น dependency ตอนรัน (api ใช้ `prisma migrate deploy` ตอนสตาร์ต) ·
+  `DATABASE_POOL_MAX` (ค่าเริ่มต้น 5 · รับ 1–20) ส่งเข้า `PrismaPg({ max })` และประกาศใน `backend/.env.example`
+- ตัวตรวจ `check-deploy-ready.sh` ของ 1.8.4 ผ่าน · `run-all-checks.sh` 20/20 · lint · typecheck · backend unit 170 · e2e 39 · frontend 81 · engine 223
+- **เครื่องที่ทำงานนี้ build image ไม่ได้** (proxy ปิด Docker Hub และ binaries.prisma.sh) — จึงจำลองทีละคำสั่งของ Dockerfile แทน:
+  build context จริงจาก `.dockerignore` (4.5 MB · ไม่มี `.env` `node_modules` `dist` `standards` `docs`) → ติดตั้งและ build ตาม stage →
+  ประกอบ layout ของ runtime stage แล้วรันด้วย user ที่ไม่ใช่ root บนไฟล์อ่านอย่างเดียว · HOME เขียนไม่ได้ · env แบบ compose (`NODE_ENV=production`)
+  - web: `node frontend/server.js` ตอบ 200 · rewrites ฝัง `http://api:4000` · `/api/health` ผ่าน web ถึง api
+  - api: `node dist/main.js` · `subsystem.started` port 4000 · Prisma อ่าน `prisma.config.ts` และ schema ได้บนไฟล์อ่านอย่างเดียว
+  - conformance v1.2 ผ่านหน้าเว็บ standalone :3213 → api :4000 กับตัวจำลอง Core Hub: **72 passed · 0 failed · 0 skipped**
+  - RAM: api ~129 MB · web ~86 MB (รวม ~215 MB ต่ำกว่าเพดาน ~400 MB) · ไม่มี EACCES/EROFS · ไม่พบ token หรืออีเมลใน log
+  - ยังไม่ได้ทดสอบ: `prisma migrate deploy` ใน container (ตอนทดสอบลง migration ด้วย `psql` แทน) และ `docker build` จริง —
+    ทดสอบได้ที่ Actions → Images → Run workflow บน branch นี้ หรือ `docker compose up -d --build` บนเครื่องที่มี Docker
 
 **log ด้านยืนยันตัวตน/สิทธิ์ครบตาม log-events.json 1.1 (3 ต.ค. 2569 · branch `auth-logs`)** — standards/docs/logging.md
 

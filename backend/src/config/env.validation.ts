@@ -19,6 +19,10 @@ class EnvironmentVariables {
   @IsString() @IsNotEmpty()
   DATABASE_URL!: string;
 
+  /** connection สูงสุดต่อระบบ (deployment.md ข้อ 4.1) — PostgreSQL ตัวกลางใช้ร่วมกัน 37 ระบบ server ตั้ง 5 */
+  @IsOptional() @IsInt() @Min(1) @Max(20)
+  DATABASE_POOL_MAX?: number;
+
   @IsIn([SUBSYSTEM_NAME])
   SUBSYSTEM_ID!: string;
 

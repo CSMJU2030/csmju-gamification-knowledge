@@ -12,6 +12,7 @@ import { CreateBattleDto } from '../../src/battles/battle.dto';
 import { CreateChallengeDto, UpdateChallengeDto } from '../../src/challenges/challenge.dto';
 import { UpdateProgramDto } from '../../src/programs/program.dto';
 import { configuration, type AppConfig } from '../../src/config/configuration';
+import { validateEnv } from '../../src/config/env.validation';
 import { startedFields } from '../../src/common/auth-log';
 
 /** standards/contracts/error-codes.json (1.1 ขึ้นไป · 9 ค่า) — CI checkout ไม่ดึง submodule จึงคัดมาไว้ที่นี่ */
@@ -165,6 +166,38 @@ describe('log subsystem.started (log-events.json 1.1)', () => {
       });
     } finally {
       process.env = saved;
+    }
+  });
+});
+
+describe('DATABASE_POOL_MAX (deployment.md ข้อ 4.1)', () => {
+  const base = {
+    DATABASE_URL: 'postgresql://localhost/x',
+    SUBSYSTEM_ID: 'csmju-gamification-knowledge',
+    CORE_HUB_URL: 'https://csmju2030.jowave.com',
+    CORE_HUB_WEB_URL: 'https://csmju2030.jowave.com',
+    CORE_HUB_JWKS_URL: 'https://csmju2030.jowave.com/api/v1/.well-known/jwks.json',
+    CORE_HUB_ISSUER: 'core-hub',
+    CORE_HUB_AUDIENCE: 'csmju2030',
+  };
+
+  it('ไม่ตั้ง → 5 ตามค่าของ server · ตั้งแล้วใช้ค่านั้น', () => {
+    const saved = process.env.DATABASE_POOL_MAX;
+    try {
+      delete process.env.DATABASE_POOL_MAX;
+      expect(configuration().databasePoolMax).toBe(5);
+      process.env.DATABASE_POOL_MAX = '3';
+      expect(configuration().databasePoolMax).toBe(3);
+    } finally {
+      if (saved === undefined) delete process.env.DATABASE_POOL_MAX;
+      else process.env.DATABASE_POOL_MAX = saved;
+    }
+  });
+
+  it('รับ 1–20 · ค่าอื่นล้มตั้งแต่บูต', () => {
+    expect(() => validateEnv({ ...base, DATABASE_POOL_MAX: '5' })).not.toThrow();
+    for (const bad of ['0', '50', 'abc']) {
+      expect(() => validateEnv({ ...base, DATABASE_POOL_MAX: bad })).toThrow(/DATABASE_POOL_MAX/);
     }
   });
 });

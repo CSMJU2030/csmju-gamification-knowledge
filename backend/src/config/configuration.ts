@@ -8,6 +8,8 @@ export interface AppConfig {
   nodeEnv: string;
   port: number;
   databaseUrl: string;
+  /** connection สูงสุดของ pool ต่อฐานข้อมูล (deployment.md ข้อ 4.1) */
+  databasePoolMax: number;
   subsystemId: string;
   coreHub: {
     url: string;
@@ -36,6 +38,7 @@ export function configuration(): AppConfig {
     nodeEnv: env.NODE_ENV ?? 'development',
     port: num(env.PORT, 4213),
     databaseUrl: env.DATABASE_URL ?? '',
+    databasePoolMax: num(env.DATABASE_POOL_MAX, 5),
     subsystemId: env.SUBSYSTEM_ID ?? '',
     coreHub: {
       url: (env.CORE_HUB_URL ?? '').replace(/\/+$/, ''),

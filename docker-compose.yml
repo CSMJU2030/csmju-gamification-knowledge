@@ -1,0 +1,66 @@
+# ทดสอบ image ของ Code Tower ในเครื่องแบบเดียวกับ server (standards/docs/deployment.md ข้อ 6)
+#
+#   docker compose up -d --build     build ทั้งสอง image แล้วรัน db + api + web
+#   docker compose ps                ทั้งสามต้อง healthy
+#   docker compose logs api          ต้องเห็น migration ผ่าน และ subsystem.started
+#   เปิด http://localhost:3213       (Chrome — คุกกี้ Secure ใช้ได้บน localhost) แล้ว login ผ่าน Core Hub
+#   docker compose down              หยุด (ข้อมูลยังอยู่ใน volume) · down -v = ลบฐานข้อมูลทิ้งด้วย
+#
+# api และ web ล็อกแบบ server: อ่านอย่างเดียว · ตัด capability · no-new-privileges · RAM เท่า server · หมุน log
+# ชื่อ service api / web และพอร์ต 4000 / 3000 ห้ามเปลี่ยน (BACKEND_URL ของ web ถูกฝังเป็น http://api:4000 ตอน build)
+# ใช้กับตัวจำลอง Core Hub ในเครื่อง: ตั้ง CORE_HUB_URL=http://host.docker.internal:3000 · CORE_HUB_WEB_URL=http://localhost:3100 ก่อน up
+name: csmju-gamification-knowledge
+
+x-hardening: &hardening
+  read_only: true
+  cap_drop: [ALL]
+  security_opt: ['no-new-privileges:true']
+  logging: { driver: json-file, options: { max-size: '10m', max-file: '3' } }
+
+services:
+  db:
+    image: postgres:16-alpine
+    # ฐานข้อมูลในเครื่องเท่านั้น — บน server DevOps สร้าง database + role ให้ใน PostgreSQL ตัวกลาง (deployment.md ข้อ 4.1)
+    environment: { POSTGRES_USER: code_tower, POSTGRES_PASSWORD: code_tower_local, POSTGRES_DB: code_tower }
+    volumes: ['db-data:/var/lib/postgresql/data']
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U code_tower -d code_tower']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    logging: { driver: json-file, options: { max-size: '10m', max-file: '3' } }
+
+  api:
+    <<: *hardening
+    build: { context: ., dockerfile: backend/Dockerfile }
+    image: csmju-gamification-knowledge-api:local
+    environment:
+      NODE_ENV: production
+      PORT: 4000
+      DATABASE_URL: postgresql://code_tower:code_tower_local@db:5432/code_tower
+      DATABASE_POOL_MAX: 5
+      SUBSYSTEM_ID: csmju-gamification-knowledge
+      CORE_HUB_URL: ${CORE_HUB_URL:-https://csmju2030.jowave.com}
+      CORE_HUB_WEB_URL: ${CORE_HUB_WEB_URL:-https://csmju2030.jowave.com}
+      CORE_HUB_JWKS_URL: ${CORE_HUB_URL:-https://csmju2030.jowave.com}/api/v1/.well-known/jwks.json
+      CORE_HUB_ISSUER: core-hub
+      CORE_HUB_AUDIENCE: csmju2030
+      TZ: Asia/Bangkok
+    extra_hosts: ['host.docker.internal:host-gateway']
+    tmpfs: ['/tmp:size=32m']
+    mem_limit: 512m
+    depends_on: { db: { condition: service_healthy } }
+
+  web:
+    <<: *hardening
+    build: { context: ., dockerfile: frontend/Dockerfile }
+    image: csmju-gamification-knowledge-web:local
+    environment: { SUBSYSTEM_ID: csmju-gamification-knowledge, TZ: Asia/Bangkok }
+    tmpfs: ['/tmp:size=32m', '/app/frontend/.next/cache:size=64m']
+    # พอร์ต frontend ของทีม — callback ที่ลงทะเบียนไว้ http://localhost:3213/auth/callback จึงใช้ได้
+    ports: ['127.0.0.1:3213:3000']
+    mem_limit: 384m
+    depends_on: { api: { condition: service_healthy } }
+
+volumes:
+  db-data:

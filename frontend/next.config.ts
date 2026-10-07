@@ -1,14 +1,22 @@
+import path from 'node:path';
 import type { NextConfig } from 'next';
 
 /**
  * เบราว์เซอร์คุยกับ origin เดียว (frontend) แล้ว Next ส่งต่อไป backend
  * คุกกี้ session `csmju_gamification_knowledge_access_token` ที่ backend ตั้งตอน SSO callback จึงไปกับทุกคำขอ /api
  * โดยไม่ต้องเปิด CORS · origin นี้คือ origin ของระบบ (base_url ใน subsystem.yaml และ callback_url ในทะเบียน)
+ *
+ * next build ฝัง rewrites ลงไฟล์ build — BACKEND_URL จึงอ่านตอน build เท่านั้น:
+ * ตอน dev มาจาก env ของเครื่อง (ค่าเริ่มต้น :4213) · ใน image มาจาก frontend/Dockerfile (http://api:4000 · deployment.md ข้อ 3.2)
  */
 const backend = process.env.BACKEND_URL ?? 'http://127.0.0.1:4213';
 
 const config: NextConfig = {
   reactStrictMode: true,
+  // deployment.md ข้อ 3 (DEP-04): image มีแค่ server ที่ trace แล้ว — frontend/Dockerfile copy .next/standalone
+  output: 'standalone',
+  // pnpm เก็บ dependency ไว้ที่รากของ workspace (รากของ repo) — trace ต้องเริ่มจากตรงนั้น ไม่งั้น standalone ขาดไฟล์
+  outputFileTracingRoot: path.join(__dirname, '..'),
   // รัน dev หลายตัวพร้อมกันได้ (เช่นตอนตรวจหลายหน้าคู่ขนาน) โดยไม่แย่งโฟลเดอร์ build กัน
   distDir: process.env.NEXT_DIST_DIR || '.next',
   // lint เป็นขั้นแยกของ CI (`pnpm lint`) ไม่ต้องรันซ้ำตอน build
