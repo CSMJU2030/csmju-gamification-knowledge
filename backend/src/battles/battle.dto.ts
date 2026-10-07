@@ -132,6 +132,7 @@ export class ChallengeBattleDto {
   @ApiProperty({ format: 'uuid' }) challengeId!: string;
   @ApiProperty({ description: 'ชนะครั้งแรกของตัวละครนี้กับโจทย์นี้ — ได้รางวัลเฉพาะครั้งนี้' }) firstClear!: boolean;
   @ApiProperty({ type: ChallengeRewardDto }) reward!: ChallengeRewardDto;
+  @ApiProperty({ description: 'ผู้สู้เป็นเจ้าของโจทย์ — สู้ได้แต่ไม่ได้รางวัล และไม่ขึ้นในผลของผู้เล่น' }) ownChallenge!: boolean;
 }
 
 export class BattleOutcomeDto {

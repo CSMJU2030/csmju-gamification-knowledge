@@ -831,18 +831,18 @@ describe('มอนของโจทย์ (docs/design-challenge-monsters.md)'
     expect(first.result.victory).toBe(true);
     expect(first.result.drops).toEqual({ gold: 0, materials: 0, items: [] });
     expect(first.result.events.some((e: { actorId: string; action: string }) => e.actorId === 'ch_m1_slime' && e.action === 'defend')).toBe(true);
-    expect(first.challenge).toEqual({ challengeId: easy, firstClear: true, reward: { exp: 2, gold: 24 } });
+    expect(first.challenge).toEqual({ challengeId: easy, firstClear: true, reward: { exp: 2, gold: 24 }, ownChallenge: false });
     expect(first.attempt).toEqual({ attemptNo: 1, firstAttempt: true, previous: null });
     expect(first.character.gold).toBe(before.gold + 24);
 
     const again = (await fight('p-mon-a', easy).expect(201)).body.data;
-    expect(again.challenge).toEqual({ challengeId: easy, firstClear: false, reward: { exp: 0, gold: 0 } });
+    expect(again.challenge).toEqual({ challengeId: easy, firstClear: false, reward: { exp: 0, gold: 0 }, ownChallenge: false });
     expect(again.attempt).toMatchObject({ attemptNo: 2, firstAttempt: false, previous: { victory: true, wavesCleared: 1 } });
     expect(again.character.gold).toBe(before.gold + 24);
 
     const lost = (await fight('p-mon-a', hard).expect(201)).body.data;
     expect(lost.result.victory).toBe(false);
-    expect(lost.challenge).toEqual({ challengeId: hard, firstClear: false, reward: { exp: 0, gold: 0 } });
+    expect(lost.challenge).toEqual({ challengeId: hard, firstClear: false, reward: { exp: 0, gold: 0 }, ownChallenge: false });
 
     const mine = (await http.get(`/api/v1/challenges/${easy}`).set(as('p-mon-a')).expect(200)).body.data.myResult;
     expect(mine).toMatchObject({ attempts: 2, cleared: true });
@@ -924,6 +924,69 @@ describe('มอนของโจทย์ (docs/design-challenge-monsters.md)'
     // ค่าที่ไม่ใช่ object ได้ข้อความไทยที่ชี้ตำแหน่ง
     const nul = await http.patch(`/api/v1/challenges/${id}`).set(lec()).send({ monsters: [null] }).expect(400);
     expect(nul.body.error.details).toEqual(['monsters.0: monsters แต่ละตัวต้องเป็น object']);
+  });
+
+  it('เจ้าของโจทย์สู้มอนของตัวเองได้ แต่ไม่ได้รางวัล และไม่ขึ้นในผลของผู้เล่น · ผู้สอนคนอื่นสู้ได้รางวัลตามปกติ', async () => {
+    const owner = () => as('lec-own', 'lecturer');
+    await http.post('/api/v1/characters').set(owner()).send({ displayName: 'อาจารย์_เจ้าของ' }).expect(201);
+    const id = (await http.post('/api/v1/challenges').set(owner()).send({ title: 'ของตัวเอง', monsters: [weak] }).expect(201)).body.data.id;
+    const before = (await http.get('/api/v1/characters/current').set(owner()).expect(200)).body.data;
+    const mine = (await http.post('/api/v1/battles').set(owner()).send({ challengeId: id }).expect(201)).body.data;
+    expect(mine.result.victory).toBe(true);
+    expect(mine.challenge).toEqual({ challengeId: id, firstClear: false, reward: { exp: 0, gold: 0 }, ownChallenge: true });
+    expect(mine.character.gold).toBe(before.gold);
+    expect(mine.character.exp).toBe(before.exp);
+    // ผลของตัวเองยังเห็น (ชนะแล้ว) แต่ไม่อยู่ในตารางของผู้เล่น
+    expect((await http.get(`/api/v1/challenges/${id}`).set(owner()).expect(200)).body.data.myResult).toMatchObject({ attempts: 1, cleared: true });
+
+    await student('p-mon-own');
+    const player = (await fight('p-mon-own', id).expect(201)).body.data;
+    expect(player.challenge).toEqual({ challengeId: id, firstClear: true, reward: { exp: 2, gold: 24 }, ownChallenge: false });
+    await http.post('/api/v1/characters').set(as('t-guest', 'staff')).send({ displayName: 'อาจารย์_อื่น' }).expect(201);
+    const colleague = (await http.post('/api/v1/battles').set(as('t-guest', 'staff')).send({ challengeId: id }).expect(201)).body.data;
+    expect(colleague.challenge).toMatchObject({ firstClear: true, ownChallenge: false });
+
+    const table = (await http.get(`/api/v1/challenges/${id}/attempts`).set(owner()).expect(200)).body;
+    expect(table.meta.total).toBe(2);
+    expect(table.data.map((r: { displayName: string }) => r.displayName).sort()).toEqual(['มอน_p_mon_own', 'อาจารย์_อื่น']);
+  });
+
+  it('ทดลองสู้ด้วยตัวละครตัวอย่าง: ผู้สอนไม่ต้องมีตัวละคร · มอนยังไม่บันทึกก็ได้ · ไม่บันทึกอะไร ไม่มีรางวัล', async () => {
+    const count = async () => (await queryRows(DB!, `SELECT
+      (SELECT COUNT(*)::int FROM characters) AS characters,
+      (SELECT COUNT(*)::int FROM challenge_attempts) AS attempts,
+      (SELECT COUNT(*)::int FROM challenges) AS challenges`))[0];
+    const before = await count();
+    const trial = (body: object, who = as('lec-trial', 'lecturer')) => http.post('/api/v1/challenges/trials').set(who).send(body);
+
+    const won = (await trial({ monsters: [weak], classId: 'warrior', level: 5 }).expect(200)).body.data;
+    expect(won).toMatchObject({ classId: 'warrior', level: 5, heroName: 'ตัวละครตัวอย่าง', result: { victory: true, wavesCleared: 1 } });
+    expect(won.maxHp).toBeGreaterThan(0);
+    // ไม่ส่งโปรแกรม = โปรแกรมตัวอย่างของอาชีพ
+    expect(won.programSource).toMatch(/^def turn\(\):/);
+    expect(won.result.events.some((e: { actorName: string }) => e.actorName === 'ตัวละครตัวอย่าง')).toBe(true);
+    expect(won).not.toHaveProperty('reward');
+
+    // โปรแกรมของผู้สอน (เช่น โปรแกรมตั้งต้นของโจทย์) ถูกใช้จริง
+    const guard = (await trial({ monsters: [weak], classId: 'novice', level: 3, programSource: 'def turn():\r\n    defend()\r\n' }).expect(200)).body.data;
+    expect(guard.programSource).toBe('def turn():\n    defend()\n');
+    const heroTurns = guard.result.events.filter((e: { actorName: string }) => e.actorName === 'ตัวละครตัวอย่าง');
+    expect(heroTurns.length).toBeGreaterThan(0);
+    expect(heroTurns.every((e: { action: string }) => e.action === 'defend')).toBe(true);
+
+    expect((await trial({ monsters: [wall], classId: 'novice', level: 1 }).expect(200)).body.data.result.victory).toBe(false);
+    expect(await count()).toEqual(before);
+
+    const details = async (body: object) => (await trial(body).expect(400)).body.error.details as string[];
+    // นักรบเลเวล 5 ร่ายลูกไฟไม่ได้ → ข้อความของผู้เล่นที่บอกว่าเป็นสกิลของจอมเวท
+    expect(await details({ monsters: [weak], classId: 'warrior', level: 5, programSource: 'def turn():\n    cast("firebolt", weakest(enemies))\n' }))
+      .toEqual([expect.stringMatching(/^programSource: 2:\d+:ValueError:ยังใช้สกิล 'firebolt' ไม่ได้/)]);
+    expect((await details({ monsters: [{ ...weak, level: 99 }], classId: 'warrior', level: 5 }))[0]).toMatch(/^monsters\.0\.level: /);
+    expect(await details({ monsters: [], classId: 'warrior', level: 5 })).toEqual(['monsters: ใส่มอนอย่างน้อย 1 ตัวก่อนทดลองสู้']);
+    expect((await details({ monsters: [weak], classId: 'dragon', level: 5 }))[0]).toMatch(/^classId ต้องเป็นหนึ่งใน/);
+    expect((await details({ monsters: [weak], classId: 'mage', level: 0 }))[0]).toMatch(/^level ต้องไม่น้อยกว่า 1/);
+    // นักศึกษาทดลองไม่ได้ (ไม่มีสิทธิ์สร้างโจทย์)
+    await trial({ monsters: [weak], classId: 'warrior', level: 5 }, as('p-mon-x')).expect(403);
   });
 
   it('โจทย์ถูกลบระหว่างจำลองการรบ → 404 ไม่ใช่ 500 · ไม่ได้รางวัล ไม่มีผลค้าง', async () => {

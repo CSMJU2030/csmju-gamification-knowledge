@@ -2330,6 +2330,84 @@
           "challenges"
         ]
       }
+    },
+    "/api/v1/challenges/trials": {
+      "post": {
+        "description": "ตัวละครตัวอย่าง = อาชีพและเลเวลที่เลือก · สเตตัสแจกตามน้ำหนักมาตรฐานของอาชีพ · ไม่มีอุปกรณ์ · programSource ว่าง = โปรแกรมตัวอย่างของอาชีพ · มอนหรือโปรแกรมผิด → 400 (details ชี้ monsters.<i>.<field> หรือ programSource)",
+        "operationId": "Challenges_trial",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateChallengeTrialDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "สำเร็จ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ]
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/ChallengeTrialDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "BAD_REQUEST หรือ VALIDATION_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "UNAUTHORIZED — ไม่มี token หรือ token ใช้ไม่ได้",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "FORBIDDEN — สิทธิ์ไม่พอ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "ทดลองสู้มอนของโจทย์ด้วยตัวละครตัวอย่าง (ผู้สอน) — มอนที่ยังไม่บันทึกก็ได้ · ไม่บันทึกผล ไม่มีรางวัล",
+        "tags": [
+          "challenges"
+        ]
+      }
     }
   },
   "info": {
@@ -3878,12 +3956,17 @@
           },
           "reward": {
             "$ref": "#/components/schemas/ChallengeRewardDto"
+          },
+          "ownChallenge": {
+            "type": "boolean",
+            "description": "ผู้สู้เป็นเจ้าของโจทย์ — สู้ได้แต่ไม่ได้รางวัล และไม่ขึ้นในผลของผู้เล่น"
           }
         },
         "required": [
           "challengeId",
           "firstClear",
-          "reward"
+          "reward",
+          "ownChallenge"
         ]
       },
       "BattleOutcomeDto": {
@@ -4499,6 +4582,113 @@
         },
         "required": [
           "title"
+        ]
+      },
+      "ChallengeTrialResultDto": {
+        "type": "object",
+        "properties": {
+          "victory": {
+            "type": "boolean"
+          },
+          "wavesCleared": {
+            "type": "number"
+          },
+          "events": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CombatEventDto"
+            }
+          }
+        },
+        "required": [
+          "victory",
+          "wavesCleared",
+          "events"
+        ]
+      },
+      "ChallengeTrialDto": {
+        "type": "object",
+        "properties": {
+          "classId": {
+            "type": "string",
+            "enum": [
+              "novice",
+              "warrior",
+              "mage",
+              "guardian"
+            ]
+          },
+          "level": {
+            "type": "number"
+          },
+          "maxHp": {
+            "type": "number"
+          },
+          "maxMp": {
+            "type": "number"
+          },
+          "programSource": {
+            "type": "string",
+            "description": "โปรแกรมที่ตัวละครตัวอย่างใช้จริง"
+          },
+          "heroName": {
+            "type": "string",
+            "description": "ชื่อของตัวละครตัวอย่างใน events (actorName) — หน้าเว็บใช้จับเทิร์นของตัวละครกับบรรทัดโค้ด"
+          },
+          "result": {
+            "$ref": "#/components/schemas/ChallengeTrialResultDto"
+          }
+        },
+        "required": [
+          "classId",
+          "level",
+          "maxHp",
+          "maxMp",
+          "programSource",
+          "heroName",
+          "result"
+        ]
+      },
+      "CreateChallengeTrialDto": {
+        "type": "object",
+        "properties": {
+          "monsters": {
+            "minItems": 1,
+            "maxItems": 4,
+            "description": "มอนที่จะทดลอง (ยังไม่ต้องบันทึก)",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ChallengeMonsterInputDto"
+            }
+          },
+          "classId": {
+            "type": "string",
+            "enum": [
+              "novice",
+              "warrior",
+              "mage",
+              "guardian"
+            ],
+            "example": "warrior",
+            "description": "อาชีพของตัวละครตัวอย่าง"
+          },
+          "level": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 50,
+            "example": 5,
+            "description": "เลเวลของตัวละครตัวอย่าง"
+          },
+          "programSource": {
+            "type": "string",
+            "maxLength": 20000,
+            "description": "โปรแกรมของตัวละครตัวอย่าง (เช่น โปรแกรมตั้งต้นของโจทย์) · ไม่ส่งหรือว่าง = โปรแกรมตัวอย่างของอาชีพที่เลเวลนั้น"
+          }
+        },
+        "required": [
+          "monsters",
+          "classId",
+          "level"
         ]
       },
       "UpdateChallengeDto": {

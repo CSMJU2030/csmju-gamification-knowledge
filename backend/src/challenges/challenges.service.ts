@@ -5,20 +5,26 @@
  * มอนของโจทย์ใช้สิทธิ์ชุดเดียวกับโจทย์ — แก้มอน = แก้โจทย์ · ดูผลของผู้เล่น = เจ้าของโจทย์ หรือผู้มีสิทธิ์แก้ทุกโจทย์
  */
 import { Injectable } from '@nestjs/common';
-import { challengeMonsterIssues, challengeMonsterSkills, parse, type ChallengeMonsterSpec } from '@tower/engine';
+import {
+  challengeMonsterIssues, challengeMonsterSkills, checkProgramWithSkills, parse, runChallengeBattle, trialHeroStats,
+  type ChallengeMonsterSpec, type ClassId,
+} from '@tower/engine';
 import type { AuthUser } from '../auth/auth.types';
 import { Permission } from '../auth/permissions';
 import { forbidden, notFound, validationError } from '../common/api-error';
 import { Page } from '../common/envelope';
 import type { PageQueryDto, SearchPageQueryDto } from '../common/pagination.dto';
-import type { Challenge, ChallengeMonster } from '../generated/prisma/client';
+import type { Challenge, ChallengeMonster, Character } from '../generated/prisma/client';
+import { demoProgram } from '../game/class-trial';
+import { unlockedSkills } from '../game/game-rules';
+import { buildHero } from '../game/progression';
 import { TRIVIAL_PROGRAM } from '../game/game-rules';
 import { regionById } from '../game/world';
 import { formatLangError } from '../programs/programs.service';
 import { PrismaService } from '../prisma/prisma.service';
 import type {
   ChallengeAttemptSummaryDto, ChallengeDto, ChallengeMonsterDto, ChallengeMonsterInputDto, ChallengeMyResultDto,
-  CreateChallengeDto, UpdateChallengeDto,
+  ChallengeTrialDto, CreateChallengeDto, CreateChallengeTrialDto, UpdateChallengeDto,
 } from './challenge.dto';
 
 type ChallengeWithMonsters = Challenge & { monsters: ChallengeMonster[] };
@@ -100,6 +106,22 @@ const monsterRows = (challengeId: string, specs: ChallengeMonsterSpec[]) =>
 
 const withMonsters = { monsters: { orderBy: { position: 'asc' as const } } };
 
+/** ชื่อของตัวละครตัวอย่างในฉากรบและบันทึกการรบ */
+export const TRIAL_HERO_NAME = 'ตัวละครตัวอย่าง';
+
+/**
+ * ตัวละครตัวอย่าง (ข้อ M7) ในรูปที่ engine ใช้รบ — ผ่าน `buildHero` ตัวเดียวกับผู้เล่นจริงทุกทางเข้า
+ * สร้างจากแถวสมมติที่มีแค่ช่องที่ buildHero อ่าน · ไม่มีอุปกรณ์
+ */
+function trialHero(classId: ClassId, level: number, programSource: string) {
+  const s = trialHeroStats(classId, level);
+  const row = {
+    displayName: TRIAL_HERO_NAME, classId, level, programSource,
+    statStr: s.str, statInt: s.int, statVit: s.vit, statAgi: s.agi, statLuk: s.luk,
+  } as Character;
+  return buildHero(row, []);
+}
+
 @Injectable()
 export class ChallengesService {
   constructor(private readonly prisma: PrismaService) {}
@@ -170,6 +192,36 @@ export class ChallengesService {
     return toDto(row);
   }
 
+  /**
+   * ทดลองสู้ (ข้อ M7) — ผู้สอนลองมอนในฟอร์มกับตัวละครตัวอย่างโดยไม่ต้องมีตัวละครของตัวเอง
+   * ไม่แตะฐานข้อมูลเลย (ไม่บันทึกผล ไม่มีรางวัล) · มอนตรวจด้วยกติกาเดียวกับตอนบันทึก
+   * โปรแกรมของตัวละครตรวจด้วยไวยากรณ์ทุกชุดและสกิลที่อาชีพนั้นปลดแล้วที่เลเวลนั้น
+   */
+  trial(body: CreateChallengeTrialDto): ChallengeTrialDto {
+    const specs = body.monsters.map(specOfInput);
+    const problems = challengeMonsterIssues(specs).map((i) => `${i.field}: ${i.messageTh}`);
+    const classId = body.classId as ClassId;
+    const custom = typeof body.programSource === 'string' && body.programSource.trim() !== '' ? normalizeSource(body.programSource) : null;
+    if (custom) {
+      const skills = unlockedSkills(classId, body.level).map((s) => s.id);
+      problems.push(...checkProgramWithSkills(custom, skills).map((e) => `programSource: ${formatLangError(e)}`));
+    }
+    if (problems.length > 0) throw validationError(problems);
+
+    const programSource = custom ?? demoProgram(classId, body.level).source;
+    const { combatant, derived } = trialHero(classId, body.level, programSource);
+    const result = runChallengeBattle(combatant, specs, Math.floor(Math.random() * 0x100000000));
+    return {
+      classId,
+      level: body.level,
+      maxHp: derived.maxHp,
+      maxMp: derived.maxMp,
+      programSource,
+      heroName: TRIAL_HERO_NAME,
+      result: { victory: result.victory, wavesCleared: result.wavesCleared, events: result.events },
+    };
+  }
+
   /** แก้/ลบได้ถ้ามีสิทธิ์ :any หรือเป็นเจ้าของ (:own) — ไม่ใช่ทั้งสอง → 403 */
   private assertCanModify(user: AuthUser, row: Challenge, any: Permission, own: Permission): void {
     if (user.permissions.has(any)) return;
@@ -226,16 +278,19 @@ export class ChallengesService {
       (user.permissions.has(Permission.CHALLENGE_UPDATE_OWN) && row.coreUserId === user.coreUserId);
     if (!canRead) throw forbidden('ดูผลของผู้เล่นได้เฉพาะเจ้าของโจทย์');
 
+    // เจ้าของโจทย์ที่ลองสู้มอนของตัวเองไม่ใช่ "ผู้เล่น" ของโจทย์นี้ (ข้อ M4 เพิ่มเติม) — ไม่ขึ้นในตาราง
+    const owner = await this.prisma.character.findUnique({ where: { coreUserId: row.coreUserId }, select: { id: true } });
+    const players = { challengeId: id, ...(owner ? { characterId: { not: owner.id } } : {}) };
     const [all, wins] = await Promise.all([
       this.prisma.challengeAttempt.groupBy({
         by: ['characterId'],
-        where: { challengeId: id },
+        where: players,
         _count: { _all: true },
         _max: { createdAt: true },
       }),
       this.prisma.challengeAttempt.groupBy({
         by: ['characterId'],
-        where: { challengeId: id, isVictory: true },
+        where: { ...players, isVictory: true },
         _min: { createdAt: true },
       }),
     ]);

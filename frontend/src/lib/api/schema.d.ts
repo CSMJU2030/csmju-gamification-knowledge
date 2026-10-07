@@ -374,6 +374,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/challenges/trials": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * ทดลองสู้มอนของโจทย์ด้วยตัวละครตัวอย่าง (ผู้สอน) — มอนที่ยังไม่บันทึกก็ได้ · ไม่บันทึกผล ไม่มีรางวัล
+         * @description ตัวละครตัวอย่าง = อาชีพและเลเวลที่เลือก · สเตตัสแจกตามน้ำหนักมาตรฐานของอาชีพ · ไม่มีอุปกรณ์ · programSource ว่าง = โปรแกรมตัวอย่างของอาชีพ · มอนหรือโปรแกรมผิด → 400 (details ชี้ monsters.<i>.<field> หรือ programSource)
+         */
+        post: operations["Challenges_trial"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -804,6 +824,8 @@ export interface components {
             /** @description ชนะครั้งแรกของตัวละครนี้กับโจทย์นี้ — ได้รางวัลเฉพาะครั้งนี้ */
             firstClear: boolean;
             reward: components["schemas"]["ChallengeRewardDto"];
+            /** @description ผู้สู้เป็นเจ้าของโจทย์ — สู้ได้แต่ไม่ได้รางวัล และไม่ขึ้นในผลของผู้เล่น */
+            ownChallenge: boolean;
         };
         BattleOutcomeDto: {
             /**
@@ -1000,6 +1022,40 @@ export interface components {
             regionId?: string | null;
             /** @description มอนของโจทย์ 0–4 ตัว (เวฟเดียว) · ส่งแล้วแทนทั้งชุด */
             monsters?: components["schemas"]["ChallengeMonsterInputDto"][];
+        };
+        ChallengeTrialResultDto: {
+            victory: boolean;
+            wavesCleared: number;
+            events: components["schemas"]["CombatEventDto"][];
+        };
+        ChallengeTrialDto: {
+            /** @enum {string} */
+            classId: "novice" | "warrior" | "mage" | "guardian";
+            level: number;
+            maxHp: number;
+            maxMp: number;
+            /** @description โปรแกรมที่ตัวละครตัวอย่างใช้จริง */
+            programSource: string;
+            /** @description ชื่อของตัวละครตัวอย่างใน events (actorName) — หน้าเว็บใช้จับเทิร์นของตัวละครกับบรรทัดโค้ด */
+            heroName: string;
+            result: components["schemas"]["ChallengeTrialResultDto"];
+        };
+        CreateChallengeTrialDto: {
+            /** @description มอนที่จะทดลอง (ยังไม่ต้องบันทึก) */
+            monsters: components["schemas"]["ChallengeMonsterInputDto"][];
+            /**
+             * @description อาชีพของตัวละครตัวอย่าง
+             * @example warrior
+             * @enum {string}
+             */
+            classId: "novice" | "warrior" | "mage" | "guardian";
+            /**
+             * @description เลเวลของตัวละครตัวอย่าง
+             * @example 5
+             */
+            level: number;
+            /** @description โปรแกรมของตัวละครตัวอย่าง (เช่น โปรแกรมตั้งต้นของโจทย์) · ไม่ส่งหรือว่าง = โปรแกรมตัวอย่างของอาชีพที่เลเวลนั้น */
+            programSource?: string;
         };
         UpdateChallengeDto: {
             title?: string;
@@ -2634,6 +2690,61 @@ export interface operations {
             };
             /** @description NOT_FOUND */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelopeDto"];
+                };
+            };
+        };
+    };
+    Challenges_trial: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateChallengeTrialDto"];
+            };
+        };
+        responses: {
+            /** @description สำเร็จ */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @enum {boolean} */
+                        success: true;
+                        data: components["schemas"]["ChallengeTrialDto"];
+                    };
+                };
+            };
+            /** @description BAD_REQUEST หรือ VALIDATION_ERROR */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelopeDto"];
+                };
+            };
+            /** @description UNAUTHORIZED — ไม่มี token หรือ token ใช้ไม่ได้ */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelopeDto"];
+                };
+            };
+            /** @description FORBIDDEN — สิทธิ์ไม่พอ */
+            403: {
                 headers: {
                     [name: string]: unknown;
                 };

@@ -8,8 +8,9 @@
  */
 import { describe, expect, it } from 'vitest';
 import {
-  CHALLENGE_MONSTER_LIMITS, FORMULAS, buildChallengeWave, buildDerivedStats, challengeArchetypes, challengeMonsterIssues,
-  challengeReward, challengeSkillInfo, checkMonsterProgram, gamedata, runChallengeBattle, type ChallengeMonsterSpec,
+  CHALLENGE_MONSTER_LIMITS, CHALLENGE_TRIAL_CLASSES, FORMULAS, buildChallengeWave, buildDerivedStats, challengeArchetypes,
+  challengeMonsterIssues, challengeReward, challengeSkillInfo, checkMonsterProgram, checkProgramWithSkills, gamedata,
+  runChallengeBattle, trialHeroStats, type ChallengeMonsterSpec,
 } from '../src/index';
 import type { Combatant } from '../src/types';
 import { makeMonster } from '../src/waves';
@@ -150,5 +151,31 @@ describe('ข้อมูลให้ฟอร์มของผู้สอน'
     expect(challengeSkillInfo().map((s) => [s.id, s.castName])).toEqual([
       ['mon_bite', 'bite'], ['mon_dark_bolt', 'dark_bolt'], ['mon_roar', 'roar'],
     ]);
+  });
+});
+
+describe('ตัวละครตัวอย่างตอนทดลองสู้ (ข้อ M7)', () => {
+  const sum = (s: { str: number; int: number; vit: number; agi: number; luk: number }) => s.str + s.int + s.vit + s.agi + s.luk;
+
+  it('เลเวล 1 = ค่าตั้งต้นของอาชีพ · ทุกเลเวลที่เพิ่มได้แต้มครบเท่าการเลเวลอัพจริง', () => {
+    for (const c of CHALLENGE_TRIAL_CLASSES) {
+      const base = gamedata.classes[c].baseStats;
+      expect(trialHeroStats(c, 1)).toEqual(base);
+      expect(sum(trialHeroStats(c, 20))).toBe(sum(base) + FORMULAS.statPointsPerLevel * 19);
+    }
+  });
+
+  it('แต้มไปตามน้ำหนักมาตรฐานของอาชีพ: นักรบ STR นำ · จอมเวท INT นำ', () => {
+    const w = trialHeroStats('warrior', 20);
+    const m = trialHeroStats('mage', 20);
+    expect(w.str).toBeGreaterThan(w.int);
+    expect(m.int).toBeGreaterThan(m.str);
+  });
+
+  it('ตรวจโปรแกรมของตัวละครตัวอย่างได้ข้อความของผู้เล่น (ไม่ใช่ข้อความของมอน)', () => {
+    const errs = checkProgramWithSkills('def turn():\n    cast("firebolt", weakest(enemies))\n', []);
+    expect(errs).toHaveLength(1);
+    expect(errs[0].messageTh).toMatch(/^ยังใช้สกิล 'firebolt' ไม่ได้/);
+    expect(checkProgramWithSkills('def turn():\n    attack(weakest(enemies))\n', [])).toEqual([]);
   });
 });

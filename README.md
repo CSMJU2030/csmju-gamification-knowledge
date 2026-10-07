@@ -104,7 +104,8 @@ docker compose logs api          # ต้องเห็น migration ผ่า�
 | `POST` `GET /api/v1/battles` · `GET /api/v1/tower-progress` | รบ (หอคอย · รอบในโซน · มอนของโจทย์) · ประวัติ · ความคืบหน้าหอคอย |
 | `GET /api/v1/game-data` | ชื่อไทยของสกิล/ไอเทม/อาชีพ |
 | `GET` `POST /api/v1/challenges` · `GET` `PATCH` `DELETE /api/v1/challenges/:id` | โจทย์ของผู้สอน พร้อมมอนของโจทย์ 0–4 ตัว ([`docs/design-challenge-monsters.md`](docs/design-challenge-monsters.md)) |
-| `GET /api/v1/challenges/:id/attempts` | ผลของผู้เล่นรายคนกับมอนของโจทย์ (เจ้าของโจทย์ · ผู้ดูแล) |
+| `GET /api/v1/challenges/:id/attempts` | ผลของผู้เล่นรายคนกับมอนของโจทย์ (เจ้าของโจทย์ · ผู้ดูแล) — ไม่นับเจ้าของโจทย์ |
+| `POST /api/v1/challenges/trials` | ทดลองสู้มอน (ยังไม่บันทึกก็ได้) ด้วยตัวละครตัวอย่าง — ผู้สอน · ไม่บันทึก ไม่มีรางวัล |
 
 ## Branch และ commit
 

@@ -6,6 +6,7 @@
  *   PATCH  /api/v1/challenges/:id    เจ้าของ หรือ ADMIN
  *   DELETE /api/v1/challenges/:id    เจ้าของ หรือ ADMIN
  *   GET    /api/v1/challenges/:id/attempts   ผลของผู้เล่นกับมอนของโจทย์ — เจ้าของ หรือ ADMIN (docs/design-challenge-monsters.md)
+ *   POST   /api/v1/challenges/trials         ทดลองสู้มอน (ยังไม่บันทึกก็ได้) ด้วยตัวละครตัวอย่าง — INSTRUCTOR · ADMIN · ไม่บันทึก
  */
 import { Body, Controller, Delete, Get, HttpCode, Param, Patch, Post, Query } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
@@ -17,7 +18,9 @@ import { Page } from '../common/envelope';
 import { PageQueryDto, SearchPageQueryDto } from '../common/pagination.dto';
 import { ApiErrors, ApiSuccess, DeletedDto } from '../common/swagger';
 import { uuidParam } from '../common/validation';
-import { ChallengeAttemptSummaryDto, ChallengeDto, CreateChallengeDto, UpdateChallengeDto } from './challenge.dto';
+import {
+  ChallengeAttemptSummaryDto, ChallengeDto, ChallengeTrialDto, CreateChallengeDto, CreateChallengeTrialDto, UpdateChallengeDto,
+} from './challenge.dto';
 import { ChallengesService } from './challenges.service';
 
 @ApiTags('challenges')
@@ -64,6 +67,21 @@ export class ChallengesController {
   @ApiErrors(400, 401, 403)
   create(@CurrentUser() user: AuthUser, @Body() body: CreateChallengeDto): Promise<ChallengeDto> {
     return this.challenges.create(user, body);
+  }
+
+  @Post('trials')
+  @HttpCode(200)
+  @RequirePermissions(Permission.CHALLENGE_CREATE)
+  @ApiOperation({
+    summary: 'ทดลองสู้มอนของโจทย์ด้วยตัวละครตัวอย่าง (ผู้สอน) — มอนที่ยังไม่บันทึกก็ได้ · ไม่บันทึกผล ไม่มีรางวัล',
+    description:
+      'ตัวละครตัวอย่าง = อาชีพและเลเวลที่เลือก · สเตตัสแจกตามน้ำหนักมาตรฐานของอาชีพ · ไม่มีอุปกรณ์ · ' +
+      'programSource ว่าง = โปรแกรมตัวอย่างของอาชีพ · มอนหรือโปรแกรมผิด → 400 (details ชี้ monsters.<i>.<field> หรือ programSource)',
+  })
+  @ApiSuccess(ChallengeTrialDto)
+  @ApiErrors(400, 401, 403)
+  trial(@Body() body: CreateChallengeTrialDto): ChallengeTrialDto {
+    return this.challenges.trial(body);
   }
 
   @Patch(':id')

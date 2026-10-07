@@ -11,7 +11,7 @@ import { parse } from './lang/parser';
 import { preferredSkillName } from './lang/skills';
 import { MAX_PROGRAM_LINES, unlockedFeatures, type LangError } from './lang/spec';
 import { validate } from './lang/validate';
-import { FORMULAS } from './types';
+import { FORMULAS, PLAYABLE_CLASSES } from './types';
 
 export const CHALLENGE_MONSTER_LIMITS = {
   maxMonsters: 4,
@@ -104,10 +104,10 @@ export function challengeMonsterSkills(spec: Pick<ChallengeMonsterSpec, 'archety
 const inRange = (n: number, min: number, max: number) => Number.isFinite(n) && n >= min && n <= max;
 
 /**
- * ตรวจโปรแกรมของมอน — ไวยากรณ์ทุกชุดที่ผู้เล่นปลดล็อกได้ · สกิลเท่าที่มอนตัวนี้มี
- * (ตัวแปลและตัวตรวจตัวเดียวกับโปรแกรมของผู้เล่น · ตอนรบถูกจำกัดงบต่อเทิร์นเหมือนกัน)
+ * ตรวจโปรแกรมด้วยไวยากรณ์ทุกชุดที่ผู้เล่นปลดล็อกได้ · สกิลเท่าที่ให้มา
+ * ใช้กับโปรแกรมที่ผู้สอนเขียน: โปรแกรมของมอน และโปรแกรมของตัวละครตัวอย่างตอนทดลองสู้ (ข้อ M7)
  */
-export function checkMonsterProgram(source: string, skills: string[]): LangError[] {
+export function checkProgramWithSkills(source: string, skills: string[]): LangError[] {
   const lines = source.split('\n');
   let count = lines.length;
   while (count > 0 && lines[count - 1].trim() === '') count--;
@@ -122,8 +122,15 @@ export function checkMonsterProgram(source: string, skills: string[]): LangError
   const parsed = parse(source);
   if (!parsed.program) return parsed.errors;
   // ชั้นสูงพอให้ปลดทุกไวยากรณ์ที่ผู้เล่นปลดได้ (userfunc ปิดสำหรับทุกคน)
-  const { errors } = validate(parsed.program, { features: unlockedFeatures(Number.MAX_SAFE_INTEGER - 1), availableSkills: skills });
-  return errors.map((e) => forMonster(e, skills));
+  return validate(parsed.program, { features: unlockedFeatures(Number.MAX_SAFE_INTEGER - 1), availableSkills: skills }).errors;
+}
+
+/**
+ * ตรวจโปรแกรมของมอน — สกิลเท่าที่มอนตัวนี้มี
+ * (ตัวแปลและตัวตรวจตัวเดียวกับโปรแกรมของผู้เล่น · ตอนรบถูกจำกัดงบต่อเทิร์นเหมือนกัน)
+ */
+export function checkMonsterProgram(source: string, skills: string[]): LangError[] {
+  return checkProgramWithSkills(source, skills).map((e) => forMonster(e, skills));
 }
 
 /**
@@ -178,8 +185,15 @@ export function challengeMonsterIssues(specs: ChallengeMonsterSpec[]): Challenge
 }
 
 /**
+ * อาชีพของตัวละครตัวอย่างตอนทดลองสู้ (ข้อ M7) — นักศึกษาที่ยังไม่ผ่านชั้น 1 ยังเป็นมือใหม่ จึงเลือกได้ด้วย
+ */
+export const CHALLENGE_TRIAL_CLASSES = ['novice', ...PLAYABLE_CLASSES] as const;
+export type ChallengeTrialClassId = (typeof CHALLENGE_TRIAL_CLASSES)[number];
+
+/**
  * รางวัลชนะครั้งแรก (ตกลง 7 ต.ค. 2569 — ข้อ M4) คิดจากเลเวลของผู้เล่น ไม่ใช่จากมอนที่อาจารย์ตั้ง
  * ตั้งมอนให้อ่อนจึงไม่ได้รางวัลมากขึ้น · EXP = 10% ของเลเวลถัดไป · ทอง ≈ สามเท่าของมอนหนึ่งตัวเลเวลเดียวกัน
+ * เจ้าของโจทย์สู้มอนของตัวเองไม่ได้รางวัล (ข้อ M4 เพิ่มเติม 7 ต.ค. 2569) — ตัดสินที่ backend ตอนบันทึกผล
  */
 export function challengeReward(playerLevel: number): { exp: number; gold: number } {
   const level = Math.max(1, Math.floor(playerLevel));

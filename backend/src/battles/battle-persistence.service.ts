@@ -39,6 +39,8 @@ export interface PersistedChallengeBattle {
   attempt: BattleAttempt;
   firstClear: boolean;
   reward: { exp: number; gold: number };
+  /** เจ้าของโจทย์สู้มอนของตัวเอง — ไม่มีรางวัล (ข้อ M4 เพิ่มเติม) */
+  ownChallenge: boolean;
   gains: PersistedBattle['gains'];
 }
 
@@ -197,17 +199,21 @@ export class BattlePersistenceService {
    * ไม่มีของดรอป · ไม่เพิ่มงานสะสมของสเตตัส · ไม่แตะความคืบหน้าหอคอย/ภูมิภาค · ไม่ลงตาราง battles (ข้อ M6)
    * รางวัลชนะครั้งแรกคิดจากเลเวลผู้เล่น (ข้อ M4) — ตรวจ "เคยชนะไหม" ในทรานแซกชันที่ล็อกแถวตัวละครแล้ว
    * สองคำขอที่ชนะพร้อมกันจึงได้รางวัลครั้งเดียว
+   * เจ้าของโจทย์สู้มอนของตัวเองได้ แต่ไม่ได้รางวัล (ข้อ M4 เพิ่มเติม 7 ต.ค. 2569) — กันตั้งโจทย์มอนอ่อนแล้วเก็บรางวัลเอง
+   * ตัดสินจากเจ้าของโจทย์ ณ ตอนบันทึก (อ่านในทรานแซกชันเดียวกับที่ล็อกโจทย์)
    */
   async persistChallenge(characterId: string, challengeId: string, result: BattleResult): Promise<PersistedChallengeBattle> {
     const rounds = result.events.length > 0 ? result.events[result.events.length - 1].turn : 0;
     const out = await this.prisma.$transaction(async (tx) => {
       const row = await lockCharacter(tx, characterId);
       // โจทย์ถูกลบระหว่างจำลองการรบ → 404 ไม่ใช่ 500 จาก foreign key · FOR KEY SHARE กันไม่ให้ถูกลบจนบันทึกผลเสร็จ
-      const live = await tx.$queryRaw<{ id: string }[]>`SELECT id FROM challenges WHERE id = ${challengeId}::uuid FOR KEY SHARE`;
+      const live = await tx.$queryRaw<{ core_user_id: string }[]>`
+        SELECT core_user_id FROM challenges WHERE id = ${challengeId}::uuid FOR KEY SHARE`;
       if (live.length === 0) throw notFound('ไม่พบโจทย์นี้ — อาจถูกลบระหว่างสู้');
+      const ownChallenge = live[0].core_user_id === row.coreUserId;
       const where = { characterId, challengeId };
       const wonBefore = (await tx.challengeAttempt.count({ where: { ...where, isVictory: true } })) > 0;
-      const firstClear = result.victory && !wonBefore;
+      const firstClear = result.victory && !wonBefore && !ownChallenge;
       const reward = firstClear ? challengeReward(row.level) : { exp: 0, gold: 0 };
 
       const priorCount = await tx.challengeAttempt.count({ where });
@@ -244,7 +250,7 @@ export class BattlePersistenceService {
       const saved = await tx.challengeAttempt.create({
         data: { ...where, isVictory: result.victory, rounds, expGained: reward.exp, goldGained: reward.gold },
       });
-      return { attemptId: saved.id, attempt, firstClear, reward, before: statsOf(row), prog };
+      return { attemptId: saved.id, attempt, firstClear, reward, ownChallenge, before: statsOf(row), prog };
     });
 
     const statsGained: BaseStats = {
@@ -260,6 +266,7 @@ export class BattlePersistenceService {
       attempt: out.attempt,
       firstClear: out.firstClear,
       reward: out.reward,
+      ownChallenge: out.ownChallenge,
       gains: {
         leveledUp,
         ...(leveledUp ? { newLevel: out.prog.level, statsGained } : {}),

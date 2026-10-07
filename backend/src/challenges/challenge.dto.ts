@@ -1,9 +1,11 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { CHALLENGE_MONSTER_LIMITS as L, CHALLENGE_MONSTER_SKILLS, gamedata } from '@tower/engine';
+import { CHALLENGE_MONSTER_LIMITS as L, CHALLENGE_MONSTER_SKILLS, CHALLENGE_TRIAL_CLASSES, gamedata } from '@tower/engine';
 import { Transform, Type } from 'class-transformer';
 import {
-  ArrayMaxSize, IsArray, IsIn, IsInt, IsNotEmpty, IsNumber, IsOptional, IsString, Max, MaxLength, Min, ValidateNested,
+  ArrayMaxSize, ArrayMinSize, IsArray, IsIn, IsInt, IsNotEmpty, IsNumber, IsOptional, IsString, Max, MaxLength, Min,
+  ValidateNested,
 } from 'class-validator';
+import { CombatEventDto } from '../battles/battle.dto';
 import { MAX_PROGRAM_CHARS } from '../game/game-rules';
 import { NoNulCharacter, OptionalButNotNull } from '../common/validation';
 
@@ -201,4 +203,56 @@ export class ChallengeAttemptSummaryDto {
   @ApiProperty() cleared!: boolean;
   @ApiProperty({ type: String, format: 'date-time', nullable: true }) firstClearedAt!: string | null;
   @ApiProperty({ format: 'date-time' }) lastAttemptAt!: string;
+}
+
+const TRIAL_CLASSES: string[] = [...CHALLENGE_TRIAL_CLASSES];
+
+/**
+ * ทดลองสู้มอนของโจทย์ด้วยตัวละครตัวอย่าง (ข้อ M7) — ใช้กับมอนในฟอร์มที่ยังไม่บันทึกได้ จึงรับมอนทั้งชุดมาเอง
+ */
+export class CreateChallengeTrialDto {
+  @ApiProperty({ type: [ChallengeMonsterInputDto], minItems: 1, maxItems: L.maxMonsters, description: 'มอนที่จะทดลอง (ยังไม่ต้องบันทึก)' })
+  @IsArray({ message: 'monsters ต้องเป็น array' })
+  @ArrayMinSize(1, { message: 'ใส่มอนอย่างน้อย 1 ตัวก่อนทดลองสู้' })
+  @ArrayMaxSize(L.maxMonsters, { message: `monsters มีได้ไม่เกิน ${L.maxMonsters} ตัว` })
+  @ValidateNested({ each: true, message: 'monsters แต่ละตัวต้องเป็น object' })
+  @Type(() => ChallengeMonsterInputDto)
+  monsters!: ChallengeMonsterInputDto[];
+
+  @ApiProperty({ enum: TRIAL_CLASSES, example: 'warrior', description: 'อาชีพของตัวละครตัวอย่าง' })
+  @IsIn(TRIAL_CLASSES, { message: `classId ต้องเป็นหนึ่งใน ${TRIAL_CLASSES.join(', ')}` })
+  classId!: string;
+
+  @ApiProperty({ minimum: L.levelMin, maximum: L.levelMax, example: 5, description: 'เลเวลของตัวละครตัวอย่าง' })
+  @IsInt({ message: 'level ต้องเป็นจำนวนเต็ม' })
+  @Min(L.levelMin, { message: `level ต้องไม่น้อยกว่า ${L.levelMin}` })
+  @Max(L.levelMax, { message: `level ต้องไม่เกิน ${L.levelMax}` })
+  level!: number;
+
+  @ApiPropertyOptional({
+    maxLength: MAX_PROGRAM_CHARS,
+    description: 'โปรแกรมของตัวละครตัวอย่าง (เช่น โปรแกรมตั้งต้นของโจทย์) · ไม่ส่งหรือว่าง = โปรแกรมตัวอย่างของอาชีพที่เลเวลนั้น',
+  })
+  @OptionalButNotNull()
+  @IsString({ message: 'programSource ต้องเป็นข้อความ' })
+  @MaxLength(MAX_PROGRAM_CHARS, { message: `programSource ยาวได้ไม่เกิน ${MAX_PROGRAM_CHARS} ตัวอักษร` })
+  @NoNulCharacter('programSource')
+  programSource?: string;
+}
+
+export class ChallengeTrialResultDto {
+  @ApiProperty() victory!: boolean;
+  @ApiProperty() wavesCleared!: number;
+  @ApiProperty({ type: [CombatEventDto] }) events!: CombatEventDto[];
+}
+
+/** ผลทดลองสู้ — ไม่บันทึกอะไร ไม่มีรางวัล */
+export class ChallengeTrialDto {
+  @ApiProperty({ enum: TRIAL_CLASSES }) classId!: string;
+  @ApiProperty() level!: number;
+  @ApiProperty() maxHp!: number;
+  @ApiProperty() maxMp!: number;
+  @ApiProperty({ description: 'โปรแกรมที่ตัวละครตัวอย่างใช้จริง' }) programSource!: string;
+  @ApiProperty({ description: 'ชื่อของตัวละครตัวอย่างใน events (actorName) — หน้าเว็บใช้จับเทิร์นของตัวละครกับบรรทัดโค้ด' }) heroName!: string;
+  @ApiProperty({ type: ChallengeTrialResultDto }) result!: ChallengeTrialResultDto;
 }

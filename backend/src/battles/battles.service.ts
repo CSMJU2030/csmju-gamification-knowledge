@@ -178,7 +178,7 @@ export class BattlesService {
       character: await loadCharacterView(this.prisma, row.id),
       ...saved.gains,
       attempt: attemptView(saved.attempt),
-      challenge: { challengeId: challenge.id, firstClear: saved.firstClear, reward: saved.reward },
+      challenge: { challengeId: challenge.id, firstClear: saved.firstClear, reward: saved.reward, ownChallenge: saved.ownChallenge },
     };
   }
 
