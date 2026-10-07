@@ -1,0 +1,47 @@
+/**
+ * มอนของโจทย์ — สร้างเวฟและสู้ (docs/design-challenge-monsters.md) · กติกาอยู่ที่ challenge.ts
+ *
+ * ไม่มีตรรกะการรบใหม่:
+ * - สเตตัสคิดด้วย `makeMonster` ตัวเดียวกับหอคอย (ต้นแบบ + เลเวล + ตัวคูณ)
+ * - โปรแกรมของมอนรันผ่าน `programSource` แบบเดียวกับการดวล (battle.ts → programOf)
+ * - จำลองด้วย `simulateWaves` แบบปิดรางวัลของ engine (`rewardMult: 0`) — รางวัลชนะครั้งแรกคิดแยกที่ `challengeReward`
+ */
+import { simulateWaves } from './battle';
+import { challengeArchetype, challengeMonsterSkills, type ChallengeMonsterSpec } from './challenge';
+import { hashSeed, mulberry32 } from './rng';
+import type { BattleResult, Combatant, WaveSpec } from './types';
+import { makeMonster } from './waves';
+
+/** id ของมอนตัวที่ i (เริ่ม 1) — มี archetype ต่อท้ายแบบเดียวกับหอคอย หน้าเว็บอ่านภาพจาก monsterId อยู่แล้ว */
+export const challengeMonsterId = (i: number, archetypeId: string) => `ch_m${i}_${archetypeId}`;
+
+/** มอนของโจทย์ในรูปที่ engine ใช้รบ (เวฟเดียว) — สมมติว่าผ่าน `challengeMonsterIssues` แล้ว */
+export function buildChallengeWave(specs: ChallengeMonsterSpec[]): WaveSpec {
+  const monsters = specs.map((m, idx) => {
+    const arch = challengeArchetype(m.archetypeId);
+    if (!arch) throw new Error(`unknown archetype ${m.archetypeId}`);
+    const c = makeMonster(arch, m.level, challengeMonsterId(idx + 1, arch.id), {
+      coopMult: 1,
+      hpMult: m.hpMult,
+      dmgMult: m.dmgMult,
+      name: m.name.trim(),
+    });
+    c.skills = challengeMonsterSkills(m);
+    const program = typeof m.programSource === 'string' && m.programSource.trim() !== '' ? m.programSource.replace(/\r\n?/g, '\n') : null;
+    // ไม่มีโปรแกรม = battle.ts ใช้โปรแกรมตามบทบาทของต้นแบบเอง (monsterProgramFor)
+    return program ? ({ ...c, programSource: program } as Combatant) : c;
+  });
+  return { monsters };
+}
+
+/**
+ * สู้กับมอนของโจทย์ — ผู้เล่นคนเดียว เวฟเดียว ไม่มีรางวัลจาก engine
+ * ชั้น (floor) ใช้แค่กับการสุ่มของซึ่งปิดอยู่ — คิดจากเลเวลมอนสูงสุดให้ค่าคงที่และอธิบายได้
+ */
+export function runChallengeBattle(hero: Combatant, specs: ChallengeMonsterSpec[], seed: number): BattleResult {
+  const wave = buildChallengeWave(specs);
+  const topLevel = Math.max(1, ...specs.map((m) => m.level));
+  const floor = Math.max(1, Math.ceil(topLevel / 2));
+  const rng = mulberry32(hashSeed(seed, 0xc4a11e, specs.length, topLevel));
+  return simulateWaves([{ ...hero, side: 'party' }], [wave], { floor, seed, rng, rewardMult: 0 });
+}

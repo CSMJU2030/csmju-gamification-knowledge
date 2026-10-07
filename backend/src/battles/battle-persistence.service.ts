@@ -6,7 +6,7 @@
  * highest_floor (ตัวปลดล็อก) และ region_progress ของโซนนั้น (ตัวเคลียร์) ขยับพร้อมกันเสมอ
  */
 import { Injectable } from '@nestjs/common';
-import { proficiencyFromBattle, type BaseStats, type BattleResult, type Proficiency } from '@tower/engine';
+import { challengeReward, proficiencyFromBattle, type BaseStats, type BattleResult, type Proficiency } from '@tower/engine';
 import { randomUUID } from 'node:crypto';
 import { lockCharacter } from '../game/character.repository';
 import { enrichInstance, proficiencyOf, statsOf, type EnrichedItem } from '../game/character.view';
@@ -30,6 +30,15 @@ export interface BattleAttempt {
   attemptNo: number;
   firstAttempt: boolean;
   previous: { victory: boolean; wavesCleared: number; createdAt: Date } | null;
+}
+
+/** ผลบันทึกของการสู้กับมอนของโจทย์ (docs/design-challenge-monsters.md ข้อ M4 · M6) */
+export interface PersistedChallengeBattle {
+  attemptId: string;
+  attempt: BattleAttempt;
+  firstClear: boolean;
+  reward: { exp: number; gold: number };
+  gains: PersistedBattle['gains'];
 }
 
 export interface PersistedBattle {
@@ -178,6 +187,78 @@ export class BattlePersistenceService {
         leveledUp: prog.leveledUp,
         ...(prog.leveledUp ? { newLevel: prog.level } : {}),
         ...(gainedAny ? { statsGained } : {}),
+      },
+    };
+  }
+
+  /**
+   * บันทึกการสู้กับมอนของโจทย์ — ไม่ใช่การรบปกติ จึงไม่ใช้ persist() ด้านบน:
+   * ไม่มีของดรอป · ไม่เพิ่มงานสะสมของสเตตัส · ไม่แตะความคืบหน้าหอคอย/ภูมิภาค · ไม่ลงตาราง battles (ข้อ M6)
+   * รางวัลชนะครั้งแรกคิดจากเลเวลผู้เล่น (ข้อ M4) — ตรวจ "เคยชนะไหม" ในทรานแซกชันที่ล็อกแถวตัวละครแล้ว
+   * สองคำขอที่ชนะพร้อมกันจึงได้รางวัลครั้งเดียว
+   */
+  async persistChallenge(characterId: string, challengeId: string, result: BattleResult): Promise<PersistedChallengeBattle> {
+    const rounds = result.events.length > 0 ? result.events[result.events.length - 1].turn : 0;
+    const out = await this.prisma.$transaction(async (tx) => {
+      const row = await lockCharacter(tx, characterId);
+      const where = { characterId, challengeId };
+      const wonBefore = (await tx.challengeAttempt.count({ where: { ...where, isVictory: true } })) > 0;
+      const firstClear = result.victory && !wonBefore;
+      const reward = firstClear ? challengeReward(row.level) : { exp: 0, gold: 0 };
+
+      const priorCount = await tx.challengeAttempt.count({ where });
+      const last = await tx.challengeAttempt.findFirst({ where, orderBy: [{ createdAt: 'desc' }, { id: 'desc' }] });
+      const attempt: BattleAttempt = {
+        attemptNo: priorCount + 1,
+        firstAttempt: priorCount === 0,
+        // บันทึกของโจทย์เป็นเวฟเดียว: ชนะ = เคลียร์ 1 เวฟ
+        previous: last ? { victory: last.isVictory, wavesCleared: last.isVictory ? 1 : 0, createdAt: last.createdAt } : null,
+      };
+
+      // งานสะสมไม่เพิ่ม (ส่งของเดิม) — EXP ที่ได้อาจทำให้เลเวลอัพ ซึ่งแจกแต้มจากงานที่สะสมไว้ตามปกติ
+      const prog = progress(row, proficiencyOf(row), reward.exp);
+      if (firstClear) {
+        await tx.character.update({
+          where: { id: characterId },
+          data: {
+            exp: prog.exp,
+            level: prog.level,
+            gold: row.gold + reward.gold,
+            statStr: prog.stats.str,
+            statInt: prog.stats.int,
+            statVit: prog.stats.vit,
+            statAgi: prog.stats.agi,
+            statLuk: prog.stats.luk,
+            profStr: prog.carry.str,
+            profInt: prog.carry.int,
+            profVit: prog.carry.vit,
+            profAgi: prog.carry.agi,
+            profLuk: prog.carry.luk,
+          },
+        });
+      }
+      const saved = await tx.challengeAttempt.create({
+        data: { ...where, isVictory: result.victory, rounds, expGained: reward.exp, goldGained: reward.gold },
+      });
+      return { attemptId: saved.id, attempt, firstClear, reward, before: statsOf(row), prog };
+    });
+
+    const statsGained: BaseStats = {
+      str: out.prog.stats.str - out.before.str,
+      int: out.prog.stats.int - out.before.int,
+      vit: out.prog.stats.vit - out.before.vit,
+      agi: out.prog.stats.agi - out.before.agi,
+      luk: out.prog.stats.luk - out.before.luk,
+    };
+    const leveledUp = out.firstClear && out.prog.leveledUp;
+    return {
+      attemptId: out.attemptId,
+      attempt: out.attempt,
+      firstClear: out.firstClear,
+      reward: out.reward,
+      gains: {
+        leveledUp,
+        ...(leveledUp ? { newLevel: out.prog.level, statsGained } : {}),
       },
     };
   }

@@ -101,9 +101,10 @@ docker compose logs api          # ต้องเห็น migration ผ่า�
 | `GET` `PATCH /api/v1/programs/current` | โปรแกรม BloxCode |
 | `GET /api/v1/items` · `PATCH` `DELETE /api/v1/items/:id` · `POST /api/v1/item-upgrades` | กระเป๋า · สวม/ถอด · ย่อย · ตีบวก |
 | `GET /api/v1/regions` · `POST /api/v1/region-runs` · `DELETE /api/v1/region-runs/:id` | แผนที่ · เข้าโซน · ออกจากโซน |
-| `POST` `GET /api/v1/battles` · `GET /api/v1/tower-progress` | รบ (หอคอยหรือรอบในโซน) · ประวัติ · ความคืบหน้าหอคอย |
+| `POST` `GET /api/v1/battles` · `GET /api/v1/tower-progress` | รบ (หอคอย · รอบในโซน · มอนของโจทย์) · ประวัติ · ความคืบหน้าหอคอย |
 | `GET /api/v1/game-data` | ชื่อไทยของสกิล/ไอเทม/อาชีพ |
-| `GET` `POST /api/v1/challenges` · `GET` `PATCH` `DELETE /api/v1/challenges/:id` | โจทย์ของผู้สอน |
+| `GET` `POST /api/v1/challenges` · `GET` `PATCH` `DELETE /api/v1/challenges/:id` | โจทย์ของผู้สอน พร้อมมอนของโจทย์ 0–4 ตัว ([`docs/design-challenge-monsters.md`](docs/design-challenge-monsters.md)) |
+| `GET /api/v1/challenges/:id/attempts` | ผลของผู้เล่นรายคนกับมอนของโจทย์ (เจ้าของโจทย์ · ผู้ดูแล) |
 
 ## Branch และ commit
 

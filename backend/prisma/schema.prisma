@@ -65,6 +65,8 @@ model Character {
   regionProgress RegionProgress[]
   regionRun      RegionRun?       @relation("CharacterRegionRun")
   battles        Battle[]
+  /// ผลการสู้กับมอนของโจทย์ (docs/design-challenge-monsters.md)
+  challengeAttempts ChallengeAttempt[]
 
   @@map("characters")
 }
@@ -179,7 +181,7 @@ model Battle {
   @@map("battles")
 }
 
-/// โจทย์ BloxCode ที่ผู้สอนสร้าง (D4 — ร่าง รอ PL ยืนยันขอบเขต)
+/// โจทย์ BloxCode ที่ผู้สอนสร้าง (D4) · มีมอนของโจทย์ได้ 0–4 ตัว (docs/design-challenge-monsters.md)
 model Challenge {
   id            String   @id @default(uuid()) @db.Uuid
   /// ผู้สร้าง (claim `sub`) — ใช้ตัดสินสิทธิ์ :own
@@ -191,6 +193,52 @@ model Challenge {
   createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt     DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
 
+  monsters ChallengeMonster[]
+  attempts ChallengeAttempt[]
+
   @@index([createdAt])
   @@map("challenges")
+}
+
+/// มอนของโจทย์ที่ผู้สอนออกแบบ — ขอบเขตค่าอยู่ที่ CHALLENGE_MONSTER_LIMITS ของ engine · ลบโจทย์ = ลบมอน
+model ChallengeMonster {
+  id            String    @id @default(uuid()) @db.Uuid
+  challengeId   String    @map("challenge_id") @db.Uuid
+  challenge     Challenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+  /// ลำดับในเวฟ เริ่มที่ 1
+  position      Int
+  name          String
+  /// ต้นแบบใน gamedata.monsterArchetypes (ภาพ · สเตตัสพื้นฐาน · บทบาท)
+  archetypeId   String    @map("archetype_id")
+  level         Int
+  hpMult        Float     @map("hp_mult")
+  dmgMult       Float     @map("dmg_mult")
+  /// ว่าง = สกิลของต้นแบบ
+  skills        String[]
+  /// null = พฤติกรรมตามบทบาทของต้นแบบ (gamedata.monsterPrograms)
+  programSource String?   @map("program_source")
+  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt     DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  @@unique([challengeId, position])
+  @@map("challenge_monsters")
+}
+
+/// ผลการสู้กับมอนของโจทย์หนึ่งครั้ง — ผู้สอนเจ้าของโจทย์ดูได้ · ลบโจทย์หรือตัวละคร = ลบผล
+model ChallengeAttempt {
+  id          String    @id @default(uuid()) @db.Uuid
+  challengeId String    @map("challenge_id") @db.Uuid
+  challenge   Challenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+  characterId String    @map("character_id") @db.Uuid
+  character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  isVictory   Boolean   @map("is_victory")
+  rounds      Int
+  /// รางวัลชนะครั้งแรก — ครั้งอื่นเป็น 0
+  expGained   Int       @map("exp_gained")
+  goldGained  Int       @map("gold_gained")
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt   DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  @@index([challengeId, characterId])
+  @@map("challenge_attempts")
 }

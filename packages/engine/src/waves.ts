@@ -48,7 +48,7 @@ function cloneRules(rules: Rule[]): Rule[] {
   return JSON.parse(JSON.stringify(rules)) as Rule[];
 }
 
-interface MonsterOpts {
+export interface MonsterOpts {
   coopMult: number;
   hpMult?: number;
   dmgMult?: number;
@@ -77,7 +77,8 @@ export function isElite(c: Combatant): boolean {
   return (c as EliteFlagged).isElite === true;
 }
 
-function makeMonster(
+/** สร้างมอนหนึ่งตัวจากต้นแบบ — export ให้มอนของโจทย์ (challenge.ts) ใช้สูตรเดียวกับหอคอยเป๊ะ */
+export function makeMonster(
   arch: MonsterArchetype,
   level: number,
   id: string,

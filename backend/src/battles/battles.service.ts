@@ -2,11 +2,13 @@
  * การรบ — ทางเข้าสองทาง ผลลงตัวละครทางเดียว (BattlePersistenceService)
  *   towerFloor   ท้าทายหอคอยชั้นนั้น (แทน POST /tower/challenge เดิม)
  *   regionRunId  รบรอบที่เข้าไว้ในภูมิภาค (แทน POST /world/:id/fight เดิม)
+ *   challengeId  สู้กับมอนของโจทย์ (docs/design-challenge-monsters.md) — ผลแยกไว้ที่ challenge_attempts
  */
 import { Injectable } from '@nestjs/common';
 import {
-  enterRegion, hashSeed, mulberry32, regionProof, runBattle, simulateWaves,
+  enterRegion, hashSeed, mulberry32, regionProof, runBattle, runChallengeBattle, simulateWaves,
 } from '@tower/engine';
+import { monsterSpecOf } from '../challenges/challenges.service';
 import { conflict, forbidden, notFound, validationError } from '../common/api-error';
 import { Page } from '../common/envelope';
 import type { SearchPageQueryDto } from '../common/pagination.dto';
@@ -154,16 +156,42 @@ export class BattlesService {
     };
   }
 
+  // ---------------------------------------------------------------- มอนของโจทย์
+
+  private async challengeBattle(row: Character, challengeId: string) {
+    const challenge = await this.prisma.challenge.findUnique({
+      where: { id: challengeId },
+      include: { monsters: { orderBy: { position: 'asc' } } },
+    });
+    if (!challenge) throw notFound('ไม่พบโจทย์นี้');
+    if (challenge.monsters.length === 0) throw conflict('โจทย์นี้ยังไม่มีมอนให้สู้');
+
+    // ตัวละครและโปรแกรมที่บันทึกไว้ของผู้เล่นเอง — สร้างเหมือนทางเข้าอื่นเป๊ะ (ไม่ล็อกเลเวล)
+    const hero = buildHero(row, await equippedItems(this.prisma, row.id));
+    const seed = Math.floor(Math.random() * 0x100000000);
+    const result = runChallengeBattle(hero.combatant, challenge.monsters.map(monsterSpecOf), seed);
+
+    const saved = await this.persistence.persistChallenge(row.id, challenge.id, result);
+    return {
+      id: saved.attemptId,
+      result: { ...result, drops: { ...result.drops, items: [] } },
+      character: await loadCharacterView(this.prisma, row.id),
+      ...saved.gains,
+      attempt: attemptView(saved.attempt),
+      challenge: { challengeId: challenge.id, firstClear: saved.firstClear, reward: saved.reward },
+    };
+  }
+
   // ---------------------------------------------------------------- สาธารณะ
 
-  async create(coreUserId: string, body: { towerFloor?: number; regionRunId?: string }) {
-    const hasTower = body.towerFloor !== undefined;
-    const hasRun = body.regionRunId !== undefined;
-    if (hasTower === hasRun) {
-      throw validationError(['ต้องส่ง towerFloor หรือ regionRunId อย่างใดอย่างหนึ่งเท่านั้น']);
+  async create(coreUserId: string, body: { towerFloor?: number; regionRunId?: string; challengeId?: string }) {
+    const given = [body.towerFloor, body.regionRunId, body.challengeId].filter((v) => v !== undefined).length;
+    if (given !== 1) {
+      throw validationError(['ต้องส่ง towerFloor · regionRunId หรือ challengeId อย่างใดอย่างหนึ่งเท่านั้น']);
     }
     const row = await requireCharacter(this.prisma, coreUserId);
-    return hasTower ? this.towerBattle(row, body.towerFloor!) : this.regionBattle(row, body.regionRunId!);
+    if (body.challengeId !== undefined) return this.challengeBattle(row, body.challengeId);
+    return body.towerFloor !== undefined ? this.towerBattle(row, body.towerFloor) : this.regionBattle(row, body.regionRunId!);
   }
 
   /** q ค้นในชื่อสถานที่ (หอคอย · ชื่อภูมิภาค จาก gamedata — แปลงเป็นรายการ regionId ก่อนถาม DB) */

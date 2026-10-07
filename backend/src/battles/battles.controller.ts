@@ -1,6 +1,6 @@
 /**
  * การรบ
- *   POST /api/v1/battles          { towerFloor } หรือ { regionRunId } → ผลรบเต็ม + ตัวละครหลังบันทึก
+ *   POST /api/v1/battles          { towerFloor } · { regionRunId } · { challengeId } → ผลรบเต็ม + ตัวละครหลังบันทึก
  *   GET  /api/v1/battles          ประวัติการรบแบบย่อของผู้ใช้
  *   GET  /api/v1/tower-progress   ความคืบหน้าของหอคอย (แทน GET /tower เดิม)
  */
@@ -24,7 +24,7 @@ export class BattlesController {
   @Post()
   @HttpCode(201)
   @RequirePermissions(Permission.BATTLE_CREATE_OWN)
-  @ApiOperation({ summary: 'รบ — ท้าทายหอคอย (towerFloor) หรือรบรอบในภูมิภาค (regionRunId)' })
+  @ApiOperation({ summary: 'รบ — ท้าทายหอคอย (towerFloor) · รบรอบในภูมิภาค (regionRunId) · สู้กับมอนของโจทย์ (challengeId)' })
   @ApiSuccess(BattleOutcomeDto, { status: 201 })
   @ApiErrors(400, 401, 403, 404, 409)
   create(@CurrentUser() user: AuthUser, @Body() body: CreateBattleDto) {

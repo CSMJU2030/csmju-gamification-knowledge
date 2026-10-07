@@ -1525,7 +1525,7 @@
             }
           }
         },
-        "summary": "รบ — ท้าทายหอคอย (towerFloor) หรือรบรอบในภูมิภาค (regionRunId)",
+        "summary": "รบ — ท้าทายหอคอย (towerFloor) · รบรอบในภูมิภาค (regionRunId) · สู้กับมอนของโจทย์ (challengeId)",
         "tags": [
           "battles"
         ]
@@ -1946,7 +1946,7 @@
             }
           }
         },
-        "summary": "สร้างโจทย์ (ผู้สอน)",
+        "summary": "สร้างโจทย์ (ผู้สอน) · มอนของโจทย์ 0–4 ตัว",
         "tags": [
           "challenges"
         ]
@@ -2032,7 +2032,7 @@
             }
           }
         },
-        "summary": "โจทย์หนึ่งข้อ",
+        "summary": "โจทย์หนึ่งข้อ พร้อมมอนของโจทย์และผลของผู้เรียก (myResult)",
         "tags": [
           "challenges"
         ]
@@ -2126,7 +2126,7 @@
             }
           }
         },
-        "summary": "แก้โจทย์ (เจ้าของหรือผู้ดูแล)",
+        "summary": "แก้โจทย์ (เจ้าของหรือผู้ดูแล) · ส่ง monsters = แทนมอนทั้งชุด",
         "tags": [
           "challenges"
         ]
@@ -2211,6 +2211,121 @@
           }
         },
         "summary": "ลบโจทย์ (เจ้าของหรือผู้ดูแล)",
+        "tags": [
+          "challenges"
+        ]
+      }
+    },
+    "/api/v1/challenges/{id}/attempts": {
+      "get": {
+        "operationId": "Challenges_attempts",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100000,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "สำเร็จ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "data",
+                    "meta"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "enum": [
+                        true
+                      ]
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/ChallengeAttemptSummaryDto"
+                      }
+                    },
+                    "meta": {
+                      "$ref": "#/components/schemas/PageMetaDto"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "BAD_REQUEST หรือ VALIDATION_ERROR",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "UNAUTHORIZED — ไม่มี token หรือ token ใช้ไม่ได้",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "FORBIDDEN — สิทธิ์ไม่พอ",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "NOT_FOUND",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelopeDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "ผลของผู้เล่นรายคนกับมอนของโจทย์ (เจ้าของโจทย์หรือผู้ดูแล) — ชนะแล้วอยู่บน",
         "tags": [
           "challenges"
         ]
@@ -3735,13 +3850,49 @@
           "previous"
         ]
       },
+      "ChallengeRewardDto": {
+        "type": "object",
+        "properties": {
+          "exp": {
+            "type": "number"
+          },
+          "gold": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "exp",
+          "gold"
+        ]
+      },
+      "ChallengeBattleDto": {
+        "type": "object",
+        "properties": {
+          "challengeId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "firstClear": {
+            "type": "boolean",
+            "description": "ชนะครั้งแรกของตัวละครนี้กับโจทย์นี้ — ได้รางวัลเฉพาะครั้งนี้"
+          },
+          "reward": {
+            "$ref": "#/components/schemas/ChallengeRewardDto"
+          }
+        },
+        "required": [
+          "challengeId",
+          "firstClear",
+          "reward"
+        ]
+      },
       "BattleOutcomeDto": {
         "type": "object",
         "properties": {
           "id": {
             "type": "string",
             "format": "uuid",
-            "description": "id ของบันทึกการรบแบบย่อ (GET /api/v1/battles)"
+            "description": "id ของบันทึกการรบแบบย่อ (GET /api/v1/battles) · การสู้กับมอนของโจทย์ = id ของผลใน challenge_attempts"
           },
           "result": {
             "$ref": "#/components/schemas/BattleResultDto"
@@ -3798,6 +3949,14 @@
           },
           "attempt": {
             "$ref": "#/components/schemas/BattleAttemptDto"
+          },
+          "challenge": {
+            "description": "มีเฉพาะการสู้กับมอนของโจทย์",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ChallengeBattleDto"
+              }
+            ]
           }
         },
         "required": [
@@ -3821,6 +3980,11 @@
             "type": "string",
             "format": "uuid",
             "description": "id ของรอบจาก POST /api/v1/region-runs"
+          },
+          "challengeId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "id ของโจทย์ที่มีมอนของโจทย์"
           }
         }
       },
@@ -4050,6 +4214,87 @@
           "regions"
         ]
       },
+      "ChallengeMonsterDto": {
+        "type": "object",
+        "properties": {
+          "position": {
+            "type": "number",
+            "minimum": 1,
+            "description": "ลำดับในเวฟ"
+          },
+          "name": {
+            "type": "string"
+          },
+          "archetypeId": {
+            "type": "string",
+            "enum": [
+              "slime",
+              "goblin",
+              "wolf",
+              "skeleton",
+              "dark_mage",
+              "orc",
+              "harpy",
+              "golem",
+              "lich",
+              "brute"
+            ]
+          },
+          "level": {
+            "type": "number"
+          },
+          "hpMult": {
+            "type": "number"
+          },
+          "dmgMult": {
+            "type": "number"
+          },
+          "skills": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "programSource": {
+            "type": "string",
+            "nullable": true,
+            "description": "null = พฤติกรรมตามบทบาทของต้นแบบ"
+          }
+        },
+        "required": [
+          "position",
+          "name",
+          "archetypeId",
+          "level",
+          "hpMult",
+          "dmgMult",
+          "skills",
+          "programSource"
+        ]
+      },
+      "ChallengeMyResultDto": {
+        "type": "object",
+        "properties": {
+          "attempts": {
+            "type": "number",
+            "description": "สู้ไปแล้วกี่ครั้ง"
+          },
+          "cleared": {
+            "type": "boolean",
+            "description": "ชนะแล้วหรือยัง"
+          },
+          "firstClearedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "required": [
+          "attempts",
+          "cleared",
+          "firstClearedAt"
+        ]
+      },
       "ChallengeDto": {
         "type": "object",
         "properties": {
@@ -4082,6 +4327,23 @@
           "updatedAt": {
             "type": "string",
             "format": "date-time"
+          },
+          "monsters": {
+            "description": "มอนของโจทย์ (ว่าง = โจทย์ไม่มีมอน)",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ChallengeMonsterDto"
+            }
+          },
+          "myResult": {
+            "nullable": true,
+            "description": "มีเฉพาะ GET /challenges/:id — ผลของผู้เรียก · null = ยังไม่มีตัวละคร",
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ChallengeMyResultDto"
+              }
+            ]
           }
         },
         "required": [
@@ -4092,7 +4354,115 @@
           "starterSource",
           "regionId",
           "createdAt",
-          "updatedAt"
+          "updatedAt",
+          "monsters"
+        ]
+      },
+      "ChallengeAttemptSummaryDto": {
+        "type": "object",
+        "properties": {
+          "characterId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "displayName": {
+            "type": "string",
+            "description": "ชื่อในเกม (รหัสนักศึกษา/บุคลากร)"
+          },
+          "attempts": {
+            "type": "number"
+          },
+          "cleared": {
+            "type": "boolean"
+          },
+          "firstClearedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "lastAttemptAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "characterId",
+          "displayName",
+          "attempts",
+          "cleared",
+          "firstClearedAt",
+          "lastAttemptAt"
+        ]
+      },
+      "ChallengeMonsterInputDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "สไลม์ขี้ระแวง",
+            "maxLength": 40
+          },
+          "archetypeId": {
+            "type": "string",
+            "enum": [
+              "slime",
+              "goblin",
+              "wolf",
+              "skeleton",
+              "dark_mage",
+              "orc",
+              "harpy",
+              "golem",
+              "lich",
+              "brute"
+            ],
+            "example": "slime",
+            "description": "ต้นแบบ (ภาพ · สเตตัสพื้นฐาน · บทบาท)"
+          },
+          "level": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 50,
+            "example": 5
+          },
+          "hpMult": {
+            "type": "number",
+            "minimum": 0.5,
+            "maximum": 5,
+            "default": 1,
+            "description": "ตัวคูณ HP"
+          },
+          "dmgMult": {
+            "type": "number",
+            "minimum": 0.5,
+            "maximum": 3,
+            "default": 1,
+            "description": "ตัวคูณดาเมจ"
+          },
+          "skills": {
+            "type": "array",
+            "maxItems": 3,
+            "description": "ไม่ส่งหรือว่าง = สกิลของต้นแบบ",
+            "items": {
+              "type": "string",
+              "enum": [
+                "mon_bite",
+                "mon_dark_bolt",
+                "mon_roar"
+              ]
+            }
+          },
+          "programSource": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 20000,
+            "description": "โปรแกรม BloxCode ของมอน (ไม่บังคับ) · null/ไม่ส่ง = พฤติกรรมตามบทบาทของต้นแบบ"
+          }
+        },
+        "required": [
+          "name",
+          "archetypeId",
+          "level"
         ]
       },
       "CreateChallengeDto": {
@@ -4117,6 +4487,14 @@
             "example": "frostland",
             "nullable": true,
             "description": "ภูมิภาคที่โจทย์นี้ผูกด้วย (ถ้ามี)"
+          },
+          "monsters": {
+            "maxItems": 4,
+            "description": "มอนของโจทย์ 0–4 ตัว (เวฟเดียว) · ส่งแล้วแทนทั้งชุด",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ChallengeMonsterInputDto"
+            }
           }
         },
         "required": [
@@ -4142,6 +4520,14 @@
             "type": "string",
             "nullable": true,
             "description": "null = เลิกผูกกับภูมิภาค"
+          },
+          "monsters": {
+            "maxItems": 4,
+            "description": "มอนของโจทย์ 0–4 ตัว (เวฟเดียว) · ส่งแล้วแทนทั้งชุด",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ChallengeMonsterInputDto"
+            }
           }
         }
       }

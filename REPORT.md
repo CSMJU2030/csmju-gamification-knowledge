@@ -14,6 +14,8 @@
 > log `jwt.verification.failure` ทุกเหตุผล · manifest และ `.env.example` ชี้ Core Hub จริง `https://csmju2030.jowave.com`
 > **log ครบ 8 event ของ log-events.json 1.1** (3 ต.ค. 2569 · branch `feature/gamification-knowledge/auth-logs`): เพิ่ม `subsystem.started` ·
 > `jwt.verification.success` · `jwks.refresh` · `jwks.refresh.failure` · `jwks.unknown_kid` · `authorization.denied` · reason `jwks_unavailable`
+> **มอนของโจทย์ — ส่วน engine + backend** (7 ต.ค. 2569 · branch `feature/gamification-knowledge/challenge-monsters`): อาจารย์ออกแบบมอน 1–4 ตัวให้โจทย์ ·
+> นักศึกษาสู้ด้วยตัวละครและโปรแกรมของตัวเอง · ชนะครั้งแรกได้ EXP/ทองตามเลเวล · อาจารย์ดูผลรายคน — [`docs/design-challenge-monsters.md`](docs/design-challenge-monsters.md) · หน้าเว็บอยู่ PR ถัดไป
 > **มาตรฐาน 1.8.4 · พร้อมขึ้น server กลาง** (6 ต.ค. 2569 · branch `feature/gamification-knowledge/bump-standards-v1-8-4`): Dockerfile ของ api และ web ·
 > `.dockerignore` · Next.js standalone · `DATABASE_POOL_MAX` · `docker-compose.yml` ทดสอบในเครื่อง — ผ่าน `DEP-01..04` (deployment.md 1.4)
 > **ขึ้น server แล้ว · หน้าตาแบบเปิดใช้จริง** (8 ต.ค. 2569 · branch `feature/gamification-knowledge/launch-polish`): ระบบเปิดที่
@@ -77,6 +79,16 @@
 - โลโก้ย่อจากไฟล์ของ template (8192px · 435 KB → 480px · 52 KB) ใช้ `<img>` ธรรมดา เพราะ container อ่านอย่างเดียว ตัวย่อภาพของ Next เขียน cache ไม่ได้
 - ผลรัน: frontend 81 · lint · typecheck · build · เบราว์เซอร์กับตัวจำลอง (W23) ทั้ง 1280 และ 360px: ไม่มีคำว่า "ชุดจำลอง"/"ยังไม่เปิด" ·
   ไม่มีช่องค้นหาและกระดิ่ง · โลโก้โหลดและกว้าง 184px (ขั้นต่ำ 120) · ส่วนท้ายมีลิงก์ 5 ลิงก์ ไม่มี `#` · ไม่เลื่อนข้าง
+
+**มอนของโจทย์ — engine + backend (7 ต.ค. 2569 · branch `challenge-monsters`)** — docs/design-challenge-monsters.md
+
+- engine: `packages/engine/src/challenge.ts` — ขอบเขตค่า (`CHALLENGE_MONSTER_LIMITS`) · ตรวจมอนและโปรแกรมของมอน · สร้างเวฟด้วย `makeMonster` ตัวเดียวกับหอคอย ·
+  `runChallengeBattle` (ปิดรางวัลของ engine) · `challengeReward` (คิดจากเลเวลผู้เล่น) — golden fixture ของหอคอยไม่เปลี่ยน
+- backend: ตาราง `challenge_monsters` · `challenge_attempts` (migration เพิ่มอย่างเดียว) · `monsters` ใน POST/PATCH โจทย์ · `myResult` ใน GET โจทย์ ·
+  `POST /battles { challengeId }` · `GET /challenges/:id/attempts` · openapi.json + type ของหน้าเว็บ
+- ผลรัน: engine 233 (+10) · backend unit 170 · e2e 44 (+5: ตั้งมอนและชี้ช่องที่ผิด · รางวัลครั้งเดียวรวมกรณีชนะพร้อมกัน 5 คำขอ ·
+  ผลรายคนและสิทธิ์ · 409/404/400 · ลบโจทย์ลบผล) · frontend 81 · lint · typecheck
+- migration เขียนเองตามรูปแบบที่ Prisma สร้าง (เครื่องนี้โหลด schema engine ไม่ได้) — e2e ลง migration ชุดนี้กับ PostgreSQL จริงแล้ว Prisma Client ใช้งานได้ทุกเคส
 
 **standards 1.8.4 + image สำหรับ server กลาง (6 ต.ค. 2569 · branch `bump-standards-v1-8-4`)** — standards/docs/deployment.md 1.4
 

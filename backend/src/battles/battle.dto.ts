@@ -5,7 +5,10 @@ import { TOWER_MAX_FLOOR } from '../game/game-rules';
 import { OptionalButNotNull } from '../common/validation';
 import { DuelAnnounceDto, RegionRunDto, RegionSkillDto } from '../world/world.dto';
 
-/** ส่งอย่างใดอย่างหนึ่ง: `towerFloor` (ท้าทายหอคอย) หรือ `regionRunId` (รบรอบที่เข้าไว้ในภูมิภาค) */
+/**
+ * ส่งอย่างใดอย่างหนึ่ง: `towerFloor` (ท้าทายหอคอย) · `regionRunId` (รบรอบที่เข้าไว้ในภูมิภาค) ·
+ * `challengeId` (สู้กับมอนของโจทย์ — docs/design-challenge-monsters.md)
+ */
 export class CreateBattleDto {
   @ApiPropertyOptional({ minimum: 1, maximum: TOWER_MAX_FLOOR, description: 'ชั้นของหอคอยที่จะท้าทาย' })
   @OptionalButNotNull()
@@ -18,6 +21,11 @@ export class CreateBattleDto {
   @OptionalButNotNull()
   @IsUUID('4', { message: 'regionRunId ต้องเป็น UUID v4' })
   regionRunId?: string;
+
+  @ApiPropertyOptional({ format: 'uuid', description: 'id ของโจทย์ที่มีมอนของโจทย์' })
+  @OptionalButNotNull()
+  @IsUUID('4', { message: 'challengeId ต้องเป็น UUID v4' })
+  challengeId?: string;
 }
 
 /** เป้าหนึ่งตัวในเหตุการณ์ — ตรงกับ CombatEvent['targets'][number] ของ engine */
@@ -113,8 +121,25 @@ export class RegionProofDto {
   skill!: RegionSkillDto | null;
 }
 
+/** รางวัลชนะครั้งแรก (ข้อ M4) — คิดจากเลเวลของผู้เล่น · ครั้งอื่นเป็น 0 */
+export class ChallengeRewardDto {
+  @ApiProperty() exp!: number;
+  @ApiProperty() gold!: number;
+}
+
+/** ผลเฉพาะของการสู้กับมอนของโจทย์ */
+export class ChallengeBattleDto {
+  @ApiProperty({ format: 'uuid' }) challengeId!: string;
+  @ApiProperty({ description: 'ชนะครั้งแรกของตัวละครนี้กับโจทย์นี้ — ได้รางวัลเฉพาะครั้งนี้' }) firstClear!: boolean;
+  @ApiProperty({ type: ChallengeRewardDto }) reward!: ChallengeRewardDto;
+}
+
 export class BattleOutcomeDto {
-  @ApiProperty({ format: 'uuid', description: 'id ของบันทึกการรบแบบย่อ (GET /api/v1/battles)' }) id!: string;
+  @ApiProperty({
+    format: 'uuid',
+    description: 'id ของบันทึกการรบแบบย่อ (GET /api/v1/battles) · การสู้กับมอนของโจทย์ = id ของผลใน challenge_attempts',
+  })
+  id!: string;
   @ApiProperty({ type: BattleResultDto }) result!: BattleResultDto;
   @ApiPropertyOptional({ type: RegionRunDto, description: 'มีเฉพาะการรบในภูมิภาค' }) announce?: RegionRunDto;
   @ApiPropertyOptional({ type: DuelBlockDto, nullable: true, description: 'มีเฉพาะการรบในภูมิภาค' })
@@ -130,6 +155,8 @@ export class BattleOutcomeDto {
   @ApiPropertyOptional() newLevel?: number;
   @ApiPropertyOptional({ type: StatsDto, description: 'สเตตัสที่ได้จากการเลเวลอัพรอบนี้' }) statsGained?: StatsDto;
   @ApiProperty({ type: BattleAttemptDto }) attempt!: BattleAttemptDto;
+  @ApiPropertyOptional({ type: ChallengeBattleDto, description: 'มีเฉพาะการสู้กับมอนของโจทย์' })
+  challenge?: ChallengeBattleDto;
 }
 
 export class BattleSummaryDto {

@@ -31,6 +31,15 @@ export {
 } from './proofs';
 export type { RegionProof, ProofCheck } from './proofs';
 
+// ---- มอนของโจทย์ (docs/design-challenge-monsters.md) ----
+export {
+  CHALLENGE_MONSTER_LIMITS, CHALLENGE_MONSTER_SKILLS,
+  challengeArchetype, challengeMonsterSkills, checkMonsterProgram, challengeMonsterIssues, challengeReward,
+  challengeArchetypes, challengeSkillInfo,
+} from './challenge';
+export { challengeMonsterId, buildChallengeWave, runChallengeBattle } from './challenge-battle';
+export type { ChallengeMonsterSpec, ChallengeMonsterIssue, ChallengeArchetypeInfo, ChallengeSkillInfo } from './challenge';
+
 // ---- BloxCode (เฟส 2B-1) ----
 export {
   parse, validate, runTurn, toPython, fromRules, tokenize,

@@ -278,7 +278,7 @@ export interface paths {
         /** ประวัติการรบแบบย่อ ล่าสุดก่อน · q ค้นในชื่อสถานที่ (หอคอย หรือชื่อภูมิภาค) */
         get: operations["Battles_list"];
         put?: never;
-        /** รบ — ท้าทายหอคอย (towerFloor) หรือรบรอบในภูมิภาค (regionRunId) */
+        /** รบ — ท้าทายหอคอย (towerFloor) · รบรอบในภูมิภาค (regionRunId) · สู้กับมอนของโจทย์ (challengeId) */
         post: operations["Battles_create"];
         delete?: never;
         options?: never;
@@ -330,7 +330,7 @@ export interface paths {
         /** โจทย์ทั้งหมด ล่าสุดก่อน · q ค้นในชื่อและคำอธิบาย */
         get: operations["Challenges_list"];
         put?: never;
-        /** สร้างโจทย์ (ผู้สอน) */
+        /** สร้างโจทย์ (ผู้สอน) · มอนของโจทย์ 0–4 ตัว */
         post: operations["Challenges_create"];
         delete?: never;
         options?: never;
@@ -345,7 +345,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** โจทย์หนึ่งข้อ */
+        /** โจทย์หนึ่งข้อ พร้อมมอนของโจทย์และผลของผู้เรียก (myResult) */
         get: operations["Challenges_get"];
         put?: never;
         post?: never;
@@ -353,8 +353,25 @@ export interface paths {
         delete: operations["Challenges_remove"];
         options?: never;
         head?: never;
-        /** แก้โจทย์ (เจ้าของหรือผู้ดูแล) */
+        /** แก้โจทย์ (เจ้าของหรือผู้ดูแล) · ส่ง monsters = แทนมอนทั้งชุด */
         patch: operations["Challenges_update"];
+        trace?: never;
+    };
+    "/api/v1/challenges/{id}/attempts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** ผลของผู้เล่นรายคนกับมอนของโจทย์ (เจ้าของโจทย์หรือผู้ดูแล) — ชนะแล้วอยู่บน */
+        get: operations["Challenges_attempts"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
 }
@@ -777,10 +794,21 @@ export interface components {
             /** @description ผลครั้งก่อนที่จุดนี้ (null = ไม่เคยรบ) */
             previous: components["schemas"]["PreviousAttemptDto"] | null;
         };
+        ChallengeRewardDto: {
+            exp: number;
+            gold: number;
+        };
+        ChallengeBattleDto: {
+            /** Format: uuid */
+            challengeId: string;
+            /** @description ชนะครั้งแรกของตัวละครนี้กับโจทย์นี้ — ได้รางวัลเฉพาะครั้งนี้ */
+            firstClear: boolean;
+            reward: components["schemas"]["ChallengeRewardDto"];
+        };
         BattleOutcomeDto: {
             /**
              * Format: uuid
-             * @description id ของบันทึกการรบแบบย่อ (GET /api/v1/battles)
+             * @description id ของบันทึกการรบแบบย่อ (GET /api/v1/battles) · การสู้กับมอนของโจทย์ = id ของผลใน challenge_attempts
              */
             id: string;
             result: components["schemas"]["BattleResultDto"];
@@ -797,6 +825,8 @@ export interface components {
             /** @description สเตตัสที่ได้จากการเลเวลอัพรอบนี้ */
             statsGained?: components["schemas"]["StatsDto"];
             attempt: components["schemas"]["BattleAttemptDto"];
+            /** @description มีเฉพาะการสู้กับมอนของโจทย์ */
+            challenge?: components["schemas"]["ChallengeBattleDto"];
         };
         CreateBattleDto: {
             /** @description ชั้นของหอคอยที่จะท้าทาย */
@@ -806,6 +836,11 @@ export interface components {
              * @description id ของรอบจาก POST /api/v1/region-runs
              */
             regionRunId?: string;
+            /**
+             * Format: uuid
+             * @description id ของโจทย์ที่มีมอนของโจทย์
+             */
+            challengeId?: string;
         };
         BattleSummaryDto: {
             /** Format: uuid */
@@ -874,6 +909,27 @@ export interface components {
             /** @description ภูมิภาคทั้งหมดบนแผนที่ (id + ชื่อไทย) — ใช้กับฟอร์มโจทย์และประวัติการรบ */
             regions: components["schemas"]["RegionNameDto"][];
         };
+        ChallengeMonsterDto: {
+            /** @description ลำดับในเวฟ */
+            position: number;
+            name: string;
+            /** @enum {string} */
+            archetypeId: "slime" | "goblin" | "wolf" | "skeleton" | "dark_mage" | "orc" | "harpy" | "golem" | "lich" | "brute";
+            level: number;
+            hpMult: number;
+            dmgMult: number;
+            skills: string[];
+            /** @description null = พฤติกรรมตามบทบาทของต้นแบบ */
+            programSource: string | null;
+        };
+        ChallengeMyResultDto: {
+            /** @description สู้ไปแล้วกี่ครั้ง */
+            attempts: number;
+            /** @description ชนะแล้วหรือยัง */
+            cleared: boolean;
+            /** Format: date-time */
+            firstClearedAt: string | null;
+        };
         ChallengeDto: {
             /** Format: uuid */
             id: string;
@@ -888,6 +944,48 @@ export interface components {
             createdAt: string;
             /** Format: date-time */
             updatedAt: string;
+            /** @description มอนของโจทย์ (ว่าง = โจทย์ไม่มีมอน) */
+            monsters: components["schemas"]["ChallengeMonsterDto"][];
+            /** @description มีเฉพาะ GET /challenges/:id — ผลของผู้เรียก · null = ยังไม่มีตัวละคร */
+            myResult?: components["schemas"]["ChallengeMyResultDto"] | null;
+        };
+        ChallengeAttemptSummaryDto: {
+            /** Format: uuid */
+            characterId: string;
+            /** @description ชื่อในเกม (รหัสนักศึกษา/บุคลากร) */
+            displayName: string;
+            attempts: number;
+            cleared: boolean;
+            /** Format: date-time */
+            firstClearedAt: string | null;
+            /** Format: date-time */
+            lastAttemptAt: string;
+        };
+        ChallengeMonsterInputDto: {
+            /** @example สไลม์ขี้ระแวง */
+            name: string;
+            /**
+             * @description ต้นแบบ (ภาพ · สเตตัสพื้นฐาน · บทบาท)
+             * @example slime
+             * @enum {string}
+             */
+            archetypeId: "slime" | "goblin" | "wolf" | "skeleton" | "dark_mage" | "orc" | "harpy" | "golem" | "lich" | "brute";
+            /** @example 5 */
+            level: number;
+            /**
+             * @description ตัวคูณ HP
+             * @default 1
+             */
+            hpMult: number;
+            /**
+             * @description ตัวคูณดาเมจ
+             * @default 1
+             */
+            dmgMult: number;
+            /** @description ไม่ส่งหรือว่าง = สกิลของต้นแบบ */
+            skills?: ("mon_bite" | "mon_dark_bolt" | "mon_roar")[];
+            /** @description โปรแกรม BloxCode ของมอน (ไม่บังคับ) · null/ไม่ส่ง = พฤติกรรมตามบทบาทของต้นแบบ */
+            programSource?: string | null;
         };
         CreateChallengeDto: {
             /** @example ตั้งการ์ดเมื่อถูกหมายหัว */
@@ -900,6 +998,8 @@ export interface components {
              * @example frostland
              */
             regionId?: string | null;
+            /** @description มอนของโจทย์ 0–4 ตัว (เวฟเดียว) · ส่งแล้วแทนทั้งชุด */
+            monsters?: components["schemas"]["ChallengeMonsterInputDto"][];
         };
         UpdateChallengeDto: {
             title?: string;
@@ -907,6 +1007,8 @@ export interface components {
             starterSource?: string;
             /** @description null = เลิกผูกกับภูมิภาค */
             regionId?: string | null;
+            /** @description มอนของโจทย์ 0–4 ตัว (เวฟเดียว) · ส่งแล้วแทนทั้งชุด */
+            monsters?: components["schemas"]["ChallengeMonsterInputDto"][];
         };
     };
     responses: never;
@@ -2434,6 +2536,72 @@ export interface operations {
                         /** @enum {boolean} */
                         success: true;
                         data: components["schemas"]["ChallengeDto"];
+                    };
+                };
+            };
+            /** @description BAD_REQUEST หรือ VALIDATION_ERROR */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelopeDto"];
+                };
+            };
+            /** @description UNAUTHORIZED — ไม่มี token หรือ token ใช้ไม่ได้ */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelopeDto"];
+                };
+            };
+            /** @description FORBIDDEN — สิทธิ์ไม่พอ */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelopeDto"];
+                };
+            };
+            /** @description NOT_FOUND */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelopeDto"];
+                };
+            };
+        };
+    };
+    Challenges_attempts: {
+        parameters: {
+            query?: {
+                page?: number;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description สำเร็จ */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @enum {boolean} */
+                        success: true;
+                        data: components["schemas"]["ChallengeAttemptSummaryDto"][];
+                        meta: components["schemas"]["PageMetaDto"];
                     };
                 };
             };

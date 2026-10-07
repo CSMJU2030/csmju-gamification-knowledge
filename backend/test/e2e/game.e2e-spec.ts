@@ -784,3 +784,131 @@ describe('ค้นหาในตาราง (?q= · ui-design-system ข้�
     for (const id of [a, b]) await http.delete(`/api/v1/challenges/${id}`).set(as('t-find', 'staff')).expect(200);
   });
 });
+
+describe('มอนของโจทย์ (docs/design-challenge-monsters.md)', () => {
+  const lec = () => as('lec-mon', 'lecturer');
+  // ตั้งรับอย่างเดียวไม่เคยตี — เลือดหนาพอให้ได้ลงมือก่อนตาย แต่ผู้เล่นเลเวล 1 ชนะเสมอ
+  const weak = { name: 'สไลม์ขี้ระแวง', archetypeId: 'slime', level: 1, hpMult: 3, dmgMult: 0.5, programSource: 'def turn():\n    defend()\n' };
+  const wall = { name: 'กำแพงหิน', archetypeId: 'golem', level: 50, hpMult: 5, dmgMult: 3, skills: ['mon_bite', 'mon_roar'] };
+  const student = async (sub: string) => {
+    await http.post('/api/v1/characters').set(as(sub)).send({ displayName: `มอน_${sub.replace(/-/g, '_')}` }).expect(201);
+  };
+  const fight = (sub: string, challengeId: string) => http.post('/api/v1/battles').set(as(sub)).send({ challengeId });
+
+  it('ผู้สอนตั้งมอนพร้อมโจทย์ · skills ว่าง = ของต้นแบบ · ค่าผิดชี้ช่องด้วย path · โปรแกรมของมอนถูกตรวจ', async () => {
+    const created = await http.post('/api/v1/challenges').set(lec()).send({ title: 'สู้สไลม์', monsters: [weak, wall] }).expect(201);
+    expect(created.body.data.monsters).toEqual([
+      { position: 1, name: 'สไลม์ขี้ระแวง', archetypeId: 'slime', level: 1, hpMult: 3, dmgMult: 0.5, skills: ['mon_bite'], programSource: 'def turn():\n    defend()\n' },
+      { position: 2, name: 'กำแพงหิน', archetypeId: 'golem', level: 50, hpMult: 5, dmgMult: 3, skills: ['mon_bite', 'mon_roar'], programSource: null },
+    ]);
+    await http.delete(`/api/v1/challenges/${created.body.data.id}`).set(lec()).expect(200);
+
+    const bad = async (monsters: unknown, field: string) => {
+      const res = await http.post('/api/v1/challenges').set(lec()).send({ title: 'ผิด', monsters }).expect(400);
+      expect(res.body.error.code).toBe('VALIDATION_ERROR');
+      expect(res.body.error.details.some((d: string) => d.startsWith(field))).toBe(true);
+    };
+    await bad([{ ...weak, level: 99 }], 'monsters.0.level');
+    await bad([weak, { ...weak, archetypeId: 'dragon' }], 'monsters.1.archetypeId');
+    await bad([{ ...weak, skills: ['m_firebolt'] }], 'monsters.0.skills');
+    await bad([{ ...weak, programSource: 'def turn():\n    cast("dark_bolt", weakest(enemies))\n' }], 'monsters.0.programSource');
+    await bad([{ ...weak, programSource: 'defend()' }], 'monsters.0.programSource');
+    await bad([weak, weak, weak, weak, weak], 'monsters');
+    await bad([{ ...weak, hpMult: null }], 'monsters.0.hpMult');
+    // นักศึกษาตั้งมอนไม่ได้ (สร้างโจทย์ไม่ได้อยู่แล้ว)
+    await http.post('/api/v1/challenges').set(as('p-mon-x')).send({ title: 'x', monsters: [weak] }).expect(403);
+  });
+
+  it('ชนะครั้งแรกได้ EXP/ทองตามเลเวลผู้เล่น ครั้งเดียว · ไม่ลงประวัติการรบ · แพ้ไม่ได้อะไร · myResult ของตัวเอง', async () => {
+    const easy = (await http.post('/api/v1/challenges').set(lec()).send({ title: 'อุ่นเครื่อง', monsters: [weak] }).expect(201)).body.data.id;
+    const hard = (await http.post('/api/v1/challenges').set(lec()).send({ title: 'กำแพง', monsters: [wall] }).expect(201)).body.data.id;
+    await student('p-mon-a');
+    const before = (await http.get('/api/v1/characters/current').set(as('p-mon-a')).expect(200)).body.data;
+    expect((await http.get(`/api/v1/challenges/${easy}`).set(as('p-mon-a')).expect(200)).body.data.myResult)
+      .toEqual({ attempts: 0, cleared: false, firstClearedAt: null });
+
+    const first = (await fight('p-mon-a', easy).expect(201)).body.data;
+    expect(first.result.victory).toBe(true);
+    expect(first.result.drops).toEqual({ gold: 0, materials: 0, items: [] });
+    expect(first.result.events.some((e: { actorId: string; action: string }) => e.actorId === 'ch_m1_slime' && e.action === 'defend')).toBe(true);
+    expect(first.challenge).toEqual({ challengeId: easy, firstClear: true, reward: { exp: 2, gold: 24 } });
+    expect(first.attempt).toEqual({ attemptNo: 1, firstAttempt: true, previous: null });
+    expect(first.character.gold).toBe(before.gold + 24);
+
+    const again = (await fight('p-mon-a', easy).expect(201)).body.data;
+    expect(again.challenge).toEqual({ challengeId: easy, firstClear: false, reward: { exp: 0, gold: 0 } });
+    expect(again.attempt).toMatchObject({ attemptNo: 2, firstAttempt: false, previous: { victory: true, wavesCleared: 1 } });
+    expect(again.character.gold).toBe(before.gold + 24);
+
+    const lost = (await fight('p-mon-a', hard).expect(201)).body.data;
+    expect(lost.result.victory).toBe(false);
+    expect(lost.challenge).toEqual({ challengeId: hard, firstClear: false, reward: { exp: 0, gold: 0 } });
+
+    const mine = (await http.get(`/api/v1/challenges/${easy}`).set(as('p-mon-a')).expect(200)).body.data.myResult;
+    expect(mine).toMatchObject({ attempts: 2, cleared: true });
+    expect(Date.parse(mine.firstClearedAt)).not.toBeNaN();
+    // ไม่ลงประวัติการรบ และไม่แตะความคืบหน้าหอคอย
+    expect((await http.get('/api/v1/battles').set(as('p-mon-a')).expect(200)).body.meta.total).toBe(0);
+    expect((await http.get('/api/v1/tower-progress').set(as('p-mon-a')).expect(200)).body.data.highestFloorCleared).toBe(0);
+    // ผู้สอนที่ไม่มีตัวละคร: myResult = null
+    expect((await http.get(`/api/v1/challenges/${easy}`).set(lec()).expect(200)).body.data.myResult).toBeNull();
+  });
+
+  it('ชนะพร้อมกันหลายคำขอ → ได้รางวัลครั้งเดียว', async () => {
+    const id = (await http.post('/api/v1/challenges').set(lec()).send({ title: 'พร้อมกัน', monsters: [weak] }).expect(201)).body.data.id;
+    await student('p-mon-race');
+    const results = await Promise.all(Array.from({ length: 5 }, () => fight('p-mon-race', id)));
+    for (const r of results) expect(r.status).toBe(201);
+    const firsts = results.filter((r) => r.body.data.challenge.firstClear);
+    expect(firsts).toHaveLength(1);
+    const rows = await queryRows(DB!, `SELECT SUM(gold_gained)::int AS gold, COUNT(*)::int AS n FROM challenge_attempts a
+      JOIN characters c ON c.id = a.character_id WHERE c.core_user_id = 'p-mon-race'`);
+    expect(rows[0]).toEqual({ gold: 24, n: 5 });
+  });
+
+  it('ผลรายคน: เจ้าของโจทย์และผู้ดูแลดูได้ · คนอื่น 403 · ชนะแล้วอยู่บน', async () => {
+    const id = (await http.post('/api/v1/challenges').set(lec()).send({ title: 'ดูผล', monsters: [weak] }).expect(201)).body.data.id;
+    await student('p-mon-b');
+    await student('p-mon-c');
+    await fight('p-mon-b', id).expect(201);
+    await fight('p-mon-b', id).expect(201);
+    // แก้มอนให้ชนะไม่ได้แล้ว p-mon-c สู้หนึ่งครั้ง (แพ้)
+    await http.patch(`/api/v1/challenges/${id}`).set(lec()).send({ monsters: [wall] }).expect(200);
+    await fight('p-mon-c', id).expect(201);
+
+    const res = await http.get(`/api/v1/challenges/${id}/attempts?limit=10`).set(lec()).expect(200);
+    expect(res.body.meta).toMatchObject({ total: 2, page: 1, limit: 10 });
+    expect(res.body.data.map((r: { displayName: string; attempts: number; cleared: boolean }) => [r.displayName, r.attempts, r.cleared]))
+      .toEqual([['มอน_p_mon_b', 2, true], ['มอน_p_mon_c', 1, false]]);
+    await http.get(`/api/v1/challenges/${id}/attempts`).set(as('a-one', 'admin')).expect(200);
+    await http.get(`/api/v1/challenges/${id}/attempts`).set(as('t-other', 'staff')).expect(403);
+    await http.get(`/api/v1/challenges/${id}/attempts`).set(as('p-mon-b')).expect(403);
+    await http.get('/api/v1/challenges/00000000-0000-4000-8000-000000000000/attempts').set(lec()).expect(404);
+  });
+
+  it('โจทย์ไม่มีมอน → 409 · ไม่พบ → 404 · ส่งสองทางพร้อมกัน → 400 · ลบมอนทั้งชุดด้วย [] · ลบโจทย์ลบผลด้วย', async () => {
+    await student('p-mon-d');
+    const plain = (await http.post('/api/v1/challenges').set(lec()).send({ title: 'ไม่มีมอน' }).expect(201)).body.data;
+    expect(plain.monsters).toEqual([]);
+    await fight('p-mon-d', plain.id).expect(409);
+    await fight('p-mon-d', '00000000-0000-4000-8000-000000000000').expect(404);
+    await http.post('/api/v1/battles').set(as('p-mon-d')).send({ towerFloor: 1, challengeId: plain.id }).expect(400);
+    await http.post('/api/v1/battles').set(as('p-mon-d')).send({ challengeId: 'not-a-uuid' }).expect(400);
+
+    const id = (await http.post('/api/v1/challenges').set(lec()).send({ title: 'ลบมอน', monsters: [weak] }).expect(201)).body.data.id;
+    await fight('p-mon-d', id).expect(201);
+    const cleared = await http.patch(`/api/v1/challenges/${id}`).set(lec()).send({ monsters: [] }).expect(200);
+    expect(cleared.body.data.monsters).toEqual([]);
+    await fight('p-mon-d', id).expect(409);
+    // PATCH ที่ไม่ส่ง monsters ไม่แตะมอน
+    await http.patch(`/api/v1/challenges/${id}`).set(lec()).send({ monsters: [weak] }).expect(200);
+    const kept = await http.patch(`/api/v1/challenges/${id}`).set(lec()).send({ title: 'เปลี่ยนชื่ออย่างเดียว' }).expect(200);
+    expect(kept.body.data.monsters).toHaveLength(1);
+
+    await http.delete(`/api/v1/challenges/${id}`).set(lec()).expect(200);
+    const left = await queryRows(DB!, `SELECT
+      (SELECT COUNT(*)::int FROM challenge_attempts WHERE challenge_id = '${id}') AS attempts,
+      (SELECT COUNT(*)::int FROM challenge_monsters WHERE challenge_id = '${id}') AS monsters`);
+    expect(left[0]).toEqual({ attempts: 0, monsters: 0 });
+  });
+});
