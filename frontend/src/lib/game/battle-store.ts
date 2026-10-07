@@ -1,5 +1,5 @@
 /**
- * ส่งผลการรบจากหน้าที่กด "เริ่มรบ" (/tower · /world/run) ไปหน้าเวทีรบ (/battle)
+ * ส่งผลการรบจากหน้าที่กด "เริ่มรบ" (/tower · /world/run · /challenges/:id) ไปหน้าเวทีรบ (/battle)
  *
  * ผลการรบคำนวณครั้งเดียวที่ backend ตอน POST /battles แล้วบันทึกทันที — หน้า /battle แค่ "เล่นซ้ำ" บันทึกนั้น
  * จึงเก็บไว้ในหน่วยความจำของแท็บอย่างเดียว (โหลดหน้าใหม่ = ผลหายจากจอ แต่ของที่ได้อยู่ในกระเป๋าแล้ว
@@ -21,6 +21,16 @@ export type PendingBattle =
       /** คำประกาศตอนกดเข้า (ไว้เทียบว่า EX/คู่ดวลตรงกับที่ประกาศ) */
       run: RegionRun;
       regionName: string;
+      outcome: BattleOutcome;
+      before: Character;
+    }
+  | {
+      /** สู้กับมอนของโจทย์ (docs/design-challenge-monsters.md) — เวฟเดียว */
+      kind: 'challenge';
+      challengeId: string;
+      title: string;
+      /** เลเวลสูงสุดของมอนในโจทย์ — HUD ของฉากใช้แสดงเลเวลฝั่งศัตรู */
+      enemyLevel: number;
       outcome: BattleOutcome;
       before: Character;
     };

@@ -102,6 +102,7 @@ export default function ChallengesPage() {
                   <div className="flex-1 space-y-2 px-6 py-5">
                     <div className="flex flex-wrap items-center gap-2">
                       {region && <StatusBadge tone="info">{region}</StatusBadge>}
+                      {c.monsters.length > 0 && <StatusBadge tone="warning">มีมอน {c.monsters.length} ตัว</StatusBadge>}
                       {perm.isMine(c) && <StatusBadge tone="neutral">โจทย์ของคุณ</StatusBadge>}
                     </div>
                     <h2 className="font-display text-headline-md text-on-surface">{c.title}</h2>

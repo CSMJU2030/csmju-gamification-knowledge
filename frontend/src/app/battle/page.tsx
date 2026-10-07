@@ -3,8 +3,8 @@
 /**
  * /battle — เวทีรบ: ดูโค้ดของเราทำงานทีละเทิร์น แล้วรู้ว่าแพ้/ชนะเพราะอะไร (G0 ข้อ 3)
  *
- * หน้านี้ไม่ยิง POST /battles เอง (ยกเว้นปุ่มท้าทายซ้ำของหอคอย) — ผลคำนวณครั้งเดียวที่ backend
- * ตอนหน้าที่มา (/tower · /world/run) กดเริ่มรบ แล้วส่งมาทาง battle-store ในหน่วยความจำของแท็บ
+ * หน้านี้ไม่ยิง POST /battles เอง (ยกเว้นปุ่มสู้ซ้ำของหอคอยและมอนของโจทย์) — ผลคำนวณครั้งเดียวที่ backend
+ * ตอนหน้าที่มา (/tower · /world/run · /challenges/:id) กดเริ่มรบ แล้วส่งมาทาง battle-store ในหน่วยความจำของแท็บ
  * รีเฟรชหน้า = ผลหายจากจอ แต่ของที่ได้อยู่ในกระเป๋าแล้ว และดูย้อนได้ที่ /battles
  *
  * ลำดับของภูมิภาค (รอบ 2W §5.3): การรบ 10 เวฟ → ผลการรบ → (ถ้ามีคู่) การดวลเป็นแมตช์แยก
@@ -14,6 +14,7 @@ import dynamic from 'next/dynamic';
 import Link from '@/components/AppLink';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
+  ArrowLeftIcon,
   MapIcon,
   PageHeader,
   RefreshIcon,
@@ -100,14 +101,23 @@ function BattleView({ pending }: { pending: PendingBattle }) {
   const { gameData, setCharacter } = useGame();
   const { outcome, before } = pending;
   const region = pending.kind === 'region' ? pending : null;
+  const challenge = pending.kind === 'challenge' ? pending : null;
   const announce = outcome.announce;
-  const floor = pending.kind === 'tower' ? pending.floor : (announce?.floor ?? pending.run.floor);
+  const floor =
+    pending.kind === 'tower' ? pending.floor : pending.kind === 'region' ? (announce?.floor ?? pending.run.floor) : 0;
   const title =
     pending.kind === 'tower'
       ? `หอคอย ชั้น ${floor}`
-      : `${pending.regionName} รอบที่ ${pending.run.depth} · ความยาก ${floor}`;
+      : pending.kind === 'region'
+        ? `${pending.regionName} รอบที่ ${pending.run.depth} · ความยาก ${floor}`
+        : `โจทย์: ${pending.title}`;
   const contextLine =
-    pending.kind === 'tower' ? `หอคอย ชั้น ${floor}` : `${pending.regionName} รอบที่ ${pending.run.depth}`;
+    pending.kind === 'tower'
+      ? `หอคอย ชั้น ${floor}`
+      : pending.kind === 'region'
+        ? `${pending.regionName} รอบที่ ${pending.run.depth}`
+        : `มอนของโจทย์ "${pending.title}"`;
+  const enemyLevel = challenge ? challenge.enemyLevel : monsterLevel(floor);
   const mismatch = region !== null && eliteMismatch(region.run, announce);
   const duel = region ? (outcome.duel ?? null) : null;
 
@@ -162,13 +172,16 @@ function BattleView({ pending }: { pending: PendingBattle }) {
   const [retrying, setRetrying] = useState(false);
   const [retryError, setRetryError] = useState<string | null>(null);
   const retry = async () => {
-    if (pending.kind !== 'tower') return;
+    if (pending.kind === 'region') return;
     setRetrying(true);
     setRetryError(null);
     try {
-      const next = await api.post<BattleOutcome>('/battles', { towerFloor: pending.floor });
+      const next = await api.post<BattleOutcome>(
+        '/battles',
+        pending.kind === 'tower' ? { towerFloor: pending.floor } : { challengeId: pending.challengeId },
+      );
       // ตัวละครหลังรบรอบนี้ = ตัวละคร "ก่อนรบ" ของรอบถัดไป
-      setPendingBattle({ kind: 'tower', floor: pending.floor, outcome: next, before: outcome.character });
+      setPendingBattle({ ...pending, outcome: next, before: outcome.character });
       window.scrollTo({ top: 0 });
       document.getElementById('main-content')?.focus({ preventScroll: true });
     } catch (e) {
@@ -181,7 +194,18 @@ function BattleView({ pending }: { pending: PendingBattle }) {
   const mapHref = region ? `/world?region=${encodeURIComponent(region.run.regionId)}` : '/world';
 
   const battleActions =
-    pending.kind === 'tower' ? (
+    pending.kind === 'challenge' ? (
+      <>
+        <Link href={`/challenges/${encodeURIComponent(pending.challengeId)}`} className={secondaryButtonClass}>
+          <ArrowLeftIcon className="h-4 w-4" />
+          กลับไปหน้าโจทย์
+        </Link>
+        <Button variant="primary" loading={retrying} onClick={retry}>
+          <RefreshIcon className="h-4 w-4" />
+          สู้กับมอนของโจทย์อีกครั้ง
+        </Button>
+      </>
+    ) : pending.kind === 'tower' ? (
       <>
         <Link href="/tower" className={secondaryButtonClass}>
           <TowerIcon className="h-4 w-4" />
@@ -209,6 +233,17 @@ function BattleView({ pending }: { pending: PendingBattle }) {
         กลับแผนที่
       </Link>
     );
+
+  const reward = outcome.challenge?.reward;
+  const challengeNotes = challenge ? (
+    outcome.challenge?.firstClear && reward ? (
+      <Alert tone="success">
+        <span className="font-semibold">ชนะมอนของโจทย์ครั้งแรก!</span> ได้ +{reward.exp} EXP และ +{reward.gold} ทอง — รางวัลนี้ได้ครั้งเดียว
+      </Alert>
+    ) : outcome.result.victory ? (
+      <Alert tone="info">ชนะอีกครั้ง — รางวัลของโจทย์ได้เฉพาะตอนชนะครั้งแรก ลองปรับโปรแกรมให้ชนะเร็วขึ้นดูได้</Alert>
+    ) : undefined
+  ) : undefined;
 
   const regionNotes =
     region && (announce?.elite || duel) ? (
@@ -244,12 +279,25 @@ function BattleView({ pending }: { pending: PendingBattle }) {
               outcome={outcome}
               gameData={gameData}
               contextLine={contextLine}
-              notes={regionNotes}
+              notes={challenge ? challengeNotes : regionNotes}
               actions={battleActions}
               actionError={retryError}
               headingRef={resultHeadingRef}
               growth={growth}
               {...(region ? { regionName: region.regionName } : {})}
+              {...(challenge
+                ? {
+                    waveTotal: 1,
+                    summary: outcome.result.victory
+                      ? 'โปรแกรมของคุณชนะมอนของโจทย์'
+                      : 'มอนของโจทย์ยังชนะอยู่ ดูบันทึกการรบและโค้ดด้านล่างว่าเทิร์นไหนพลาด',
+                    rewards: [
+                      ['EXP', reward?.exp ?? 0],
+                      ['ทอง', reward?.gold ?? 0],
+                    ] as Array<[string, number]>,
+                    dropsNote: 'มอนของโจทย์ไม่มีของดรอป — รางวัลได้เฉพาะตอนชนะครั้งแรก',
+                  }
+                : {})}
             />
           )}
           <BattlePlayer
@@ -257,7 +305,8 @@ function BattleView({ pending }: { pending: PendingBattle }) {
             character={before}
             gameData={gameData}
             title="ฉากการรบ"
-            enemyLevel={monsterLevel(floor)}
+            enemyLevel={enemyLevel}
+            {...(challenge ? { waveTotal: 1 } : {})}
             startFinished={battleDone}
             onFinished={onBattleFinished}
             canSkip={!firstAttempt}

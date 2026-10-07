@@ -69,6 +69,14 @@ interface Props {
   growth?: GrowthSummary;
   /** ชื่อภูมิภาคสำหรับผลตรวจบทเรียน (มีเฉพาะการรบในภูมิภาคที่ outcome.proof ไม่เป็น null) */
   regionName?: string;
+  /** จำนวนเวฟทั้งหมด — มอนของโจทย์มีเวฟเดียว (ค่าเริ่มต้น = หอคอย/ภูมิภาค) */
+  waveTotal?: number;
+  /** ข้อความหลังบรรทัดสถานที่ — ไม่ส่ง = ข้อความของการรบหลายเวฟ */
+  summary?: string;
+  /** แทนแถวรางวัล — มอนของโจทย์ให้รางวัลครั้งแรกเท่านั้น ไม่ได้มาจาก engine */
+  rewards?: Array<[string, number]>;
+  /** ข้อความแทนรายการไอเทมที่ดรอป (เช่น มอนของโจทย์ไม่มีของดรอป) */
+  dropsNote?: string;
 }
 
 export default function BattleResult({
@@ -81,11 +89,15 @@ export default function BattleResult({
   headingRef,
   growth,
   regionName,
+  waveTotal = MAX_WAVE,
+  summary,
+  rewards: rewardsOverride,
+  dropsNote,
 }: Props) {
   const headingId = useId();
   const { result, leveledUp, newLevel, statsGained } = outcome;
   const gained = statsGained ? STAT_ORDER.filter((k) => (statsGained[k] ?? 0) > 0) : [];
-  const rewards: Array<[string, number]> = [
+  const rewards: Array<[string, number]> = rewardsOverride ?? [
     ['EXP', result.expGained],
     ['ทอง', result.drops.gold],
     ['วัสดุ', result.drops.materials],
@@ -104,14 +116,15 @@ export default function BattleResult({
           {result.victory ? 'ชนะ' : 'แพ้'}
         </h2>
         <StatusBadge tone={result.victory ? 'success' : 'error'}>
-          เคลียร์ {result.wavesCleared}/{MAX_WAVE} เวฟ
+          เคลียร์ {result.wavesCleared}/{waveTotal} เวฟ
         </StatusBadge>
       </div>
       <p className="mt-1 text-body-md text-on-surface-variant">
         {contextLine} —{' '}
-        {result.victory
-          ? 'โปรแกรมของคุณพาตัวละครผ่านครบทุกเวฟ'
-          : `ผ่านไป ${result.wavesCleared} เวฟ ดูบันทึกการรบและโค้ดด้านล่างว่าเทิร์นไหนพลาด`}
+        {summary ??
+          (result.victory
+            ? 'โปรแกรมของคุณพาตัวละครผ่านครบทุกเวฟ'
+            : `ผ่านไป ${result.wavesCleared} เวฟ ดูบันทึกการรบและโค้ดด้านล่างว่าเทิร์นไหนพลาด`)}
       </p>
 
       {notes && <div className="mt-4 space-y-3">{notes}</div>}
@@ -138,7 +151,7 @@ export default function BattleResult({
       )}
 
       <h3 className="sr-only">รางวัล</h3>
-      <dl className="mt-6 grid grid-cols-3 gap-3">
+      <dl className={`mt-6 grid gap-3 ${rewards.length === 2 ? 'grid-cols-2' : 'grid-cols-3'}`}>
         {rewards.map(([label, value]) => (
           <div key={label} className="min-w-0 rounded-lg bg-surface-container-low p-3 md:p-4">
             <dt className="text-label-md text-on-surface-variant">{label}</dt>
@@ -147,20 +160,26 @@ export default function BattleResult({
         ))}
       </dl>
 
-      <h3 className="mt-6 font-display text-label-md text-on-surface">
-        ไอเทมที่ดรอป
-        {result.drops.items.length > 0 && (
-          <span className="font-body font-normal text-on-surface-variant tabular-nums"> · {result.drops.items.length} ชิ้น</span>
-        )}
-      </h3>
-      {result.drops.items.length === 0 ? (
-        <p className="mt-2 text-body-md text-on-surface-variant">รอบนี้ไม่มีไอเทมดรอป</p>
+      {dropsNote !== undefined ? (
+        <p className="mt-6 text-body-md text-on-surface-variant">{dropsNote}</p>
       ) : (
-        <ul className="mt-3 grid gap-3 md:grid-cols-2">
-          {result.drops.items.map((it) => (
-            <DropItem key={it.id} item={it} gameData={gameData} />
-          ))}
-        </ul>
+        <>
+          <h3 className="mt-6 font-display text-label-md text-on-surface">
+            ไอเทมที่ดรอป
+            {result.drops.items.length > 0 && (
+              <span className="font-body font-normal text-on-surface-variant tabular-nums"> · {result.drops.items.length} ชิ้น</span>
+            )}
+          </h3>
+          {result.drops.items.length === 0 ? (
+            <p className="mt-2 text-body-md text-on-surface-variant">รอบนี้ไม่มีไอเทมดรอป</p>
+          ) : (
+            <ul className="mt-3 grid gap-3 md:grid-cols-2">
+              {result.drops.items.map((it) => (
+                <DropItem key={it.id} item={it} gameData={gameData} />
+              ))}
+            </ul>
+          )}
+        </>
       )}
 
       {actionError && (

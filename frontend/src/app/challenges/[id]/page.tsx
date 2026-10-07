@@ -1,6 +1,9 @@
 'use client';
 
-/** อ่านโจทย์หนึ่งข้อ · 404 → EmptyState + ย้อนกลับ (G0 ข้อ 3) */
+/**
+ * อ่านโจทย์หนึ่งข้อ · 404 → EmptyState + ย้อนกลับ (G0 ข้อ 3)
+ * มอนของโจทย์ (docs/design-challenge-monsters.md): ทุกคนเห็นมอนและสู้ได้ · เจ้าของโจทย์/ผู้ดูแลเห็นผลของผู้เล่นรายคน
+ */
 import Link from '@/components/AppLink';
 import { useParams, useRouter } from 'next/navigation';
 import {
@@ -21,6 +24,7 @@ import { useApi } from '@/lib/api/use-api';
 import { formatDateTime } from '@/lib/game/labels';
 import { regionName, useRegionNames } from '@/lib/game/use-region-names';
 import { DeleteChallenge, useChallengePermissions } from '../_parts';
+import { AddMonstersHint, ChallengeAttempts, ChallengeFight, MonsterCards } from '../_monsters';
 
 export default function ChallengeDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -98,6 +102,29 @@ export default function ChallengeDetailPage() {
           </div>
         </section>
       </div>
+
+      {(c.monsters.length > 0 || perm.canEdit(c)) && (
+        <section className={cardClass} aria-labelledby="monsters-title">
+          <div className="flex items-end justify-between gap-3 border-b border-outline-variant/40 px-6 py-5">
+            <h2 id="monsters-title" className="font-display text-headline-md text-on-surface">
+              มอนของโจทย์
+            </h2>
+            {c.monsters.length > 0 && (
+              <span className="text-label-md font-normal text-on-surface-variant tabular-nums">{c.monsters.length} ตัว · เวฟเดียว</span>
+            )}
+          </div>
+          {c.monsters.length > 0 ? (
+            <>
+              <MonsterCards monsters={c.monsters} />
+              <ChallengeFight challenge={c} />
+            </>
+          ) : (
+            <AddMonstersHint challengeId={c.id} />
+          )}
+        </section>
+      )}
+
+      {perm.canEdit(c) && <ChallengeAttempts challengeId={c.id} />}
 
       <div className="flex flex-wrap justify-between gap-3">
         {back}

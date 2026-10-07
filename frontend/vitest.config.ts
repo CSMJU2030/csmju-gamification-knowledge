@@ -11,6 +11,7 @@ export default defineConfig({
       '@tower/engine/lang': resolve(__dirname, '../packages/engine/src/lang/index.ts'),
       '@tower/engine/types': resolve(__dirname, '../packages/engine/src/types.ts'),
       '@tower/engine/skill-text': resolve(__dirname, '../packages/engine/src/lang/skillText.ts'),
+      '@tower/engine/challenge': resolve(__dirname, '../packages/engine/src/challenge.ts'),
       '@tower/engine': resolve(__dirname, '../packages/engine/src/index.ts'),
     },
   },

@@ -38,6 +38,9 @@
       ],
       "@tower/engine/skill-text": [
         "../packages/engine/src/lang/skillText.ts"
+      ],
+      "@tower/engine/challenge": [
+        "../packages/engine/src/challenge.ts"
       ]
     }
   },

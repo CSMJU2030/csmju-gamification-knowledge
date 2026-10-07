@@ -3,7 +3,8 @@
 /** ผู้สอนสร้างโจทย์ — ผู้เล่นไม่เห็นปุ่มมาหน้านี้ ถ้าพิมพ์ URL เองจะเห็นหน้าไม่มีสิทธิ์ */
 import { PageHeader, useCsmjuUser } from '@/csmju';
 import { ForbiddenState, LoadingRegion, Skeleton } from '@/components/feedback';
-import { ChallengeForm, useChallengePermissions } from '../_parts';
+import { ChallengeForm } from '../_form';
+import { useChallengePermissions } from '../_parts';
 
 export default function NewChallengePage() {
   const user = useCsmjuUser();

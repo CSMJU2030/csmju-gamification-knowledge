@@ -9,7 +9,8 @@ import { api } from '@/lib/api/client';
 import type { Challenge } from '@/lib/api/types';
 import { useApi } from '@/lib/api/use-api';
 import { useCsmjuUser } from '@/csmju';
-import { ChallengeForm, useChallengePermissions } from '../../_parts';
+import { ChallengeForm } from '../../_form';
+import { useChallengePermissions } from '../../_parts';
 
 export default function EditChallengePage() {
   const { id } = useParams<{ id: string }>();

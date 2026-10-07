@@ -15,7 +15,7 @@
 > **log ครบ 8 event ของ log-events.json 1.1** (3 ต.ค. 2569 · branch `feature/gamification-knowledge/auth-logs`): เพิ่ม `subsystem.started` ·
 > `jwt.verification.success` · `jwks.refresh` · `jwks.refresh.failure` · `jwks.unknown_kid` · `authorization.denied` · reason `jwks_unavailable`
 > **มอนของโจทย์ — ส่วน engine + backend** (7 ต.ค. 2569 · branch `feature/gamification-knowledge/challenge-monsters`): อาจารย์ออกแบบมอน 1–4 ตัวให้โจทย์ ·
-> นักศึกษาสู้ด้วยตัวละครและโปรแกรมของตัวเอง · ชนะครั้งแรกได้ EXP/ทองตามเลเวล · อาจารย์ดูผลรายคน — [`docs/design-challenge-monsters.md`](docs/design-challenge-monsters.md) · หน้าเว็บอยู่ PR ถัดไป
+> นักศึกษาสู้ด้วยตัวละครและโปรแกรมของตัวเอง · ชนะครั้งแรกได้ EXP/ทองตามเลเวล · อาจารย์ดูผลรายคน — [`docs/design-challenge-monsters.md`](docs/design-challenge-monsters.md) · หน้าเว็บ branch `challenge-monsters-ui`
 > **มาตรฐาน 1.8.4 · พร้อมขึ้น server กลาง** (6 ต.ค. 2569 · branch `feature/gamification-knowledge/bump-standards-v1-8-4`): Dockerfile ของ api และ web ·
 > `.dockerignore` · Next.js standalone · `DATABASE_POOL_MAX` · `docker-compose.yml` ทดสอบในเครื่อง — ผ่าน `DEP-01..04` (deployment.md 1.4)
 > **ขึ้น server แล้ว · หน้าตาแบบเปิดใช้จริง** (8 ต.ค. 2569 · branch `feature/gamification-knowledge/launch-polish`): ระบบเปิดที่
@@ -79,6 +79,18 @@
 - โลโก้ย่อจากไฟล์ของ template (8192px · 435 KB → 480px · 52 KB) ใช้ `<img>` ธรรมดา เพราะ container อ่านอย่างเดียว ตัวย่อภาพของ Next เขียน cache ไม่ได้
 - ผลรัน: frontend 81 · lint · typecheck · build · เบราว์เซอร์กับตัวจำลอง (W23) ทั้ง 1280 และ 360px: ไม่มีคำว่า "ชุดจำลอง"/"ยังไม่เปิด" ·
   ไม่มีช่องค้นหาและกระดิ่ง · โลโก้โหลดและกว้าง 184px (ขั้นต่ำ 120) · ส่วนท้ายมีลิงก์ 5 ลิงก์ ไม่มี `#` · ไม่เลื่อนข้าง
+
+**มอนของโจทย์ — หน้าเว็บ (7 ต.ค. 2569 · branch `challenge-monsters-ui` ต่อจาก `challenge-monsters`)**
+
+- ฟอร์มโจทย์มีส่วน "มอนของโจทย์" (`_monsters.tsx`): เพิ่ม/ลบได้ถึง 4 ตัว · เลือกต้นแบบพร้อมภาพ · ชื่อ · เลเวล · ตัวคูณ · สกิล · โปรแกรมของมอน
+  (ปุ่มเริ่มจากโปรแกรมตามบทบาท) · ตรวจก่อนส่งด้วยกติกาเดียวกับ backend (`@tower/engine/challenge`) · 400 ของ backend ขึ้นใต้ช่องของมอนตัวนั้น
+- หน้าโจทย์: การ์ดมอน · ปุ่ม "สู้กับมอนของโจทย์" พร้อมรางวัลชนะครั้งแรกตามเลเวล · ผลของตัวเอง · ผู้สอนเจ้าของ/ผู้ดูแลเห็นตาราง "ผลของผู้เล่น" ·
+  รายการโจทย์มีป้าย "มีมอน N ตัว" · เวทีรบรองรับการรบแบบโจทย์ (เวฟเดียว · ปุ่มสู้อีกครั้ง · กลับไปหน้าโจทย์ · รางวัลแทนของดรอป)
+- ฟอร์มแยกเป็น `_form.tsx` ให้หน้ารายการโจทย์ไม่โหลดตัวตรวจของ engine (First Load: รายการ 124 kB · หน้าโจทย์ 158 kB · ฟอร์ม 159 kB — งบ ≤ 250 kB)
+- ผลรัน: frontend 89 (+8) · lint · typecheck · build · เบราว์เซอร์กับตัวจำลอง Core Hub (หน้าเว็บ standalone :3213 → api :4000 · NODE_ENV=production):
+  W17 lecturer สร้างโจทย์พร้อมมอนผ่านฟอร์ม → หน้าโจทย์เห็นการ์ดมอนและตารางผลว่าง · W18 player ใหม่สร้างตัวละคร → สู้ → ชนะ "เคลียร์ 1/1 เวฟ"
+  ได้ +2 EXP +24 ทอง (เลเวล 1) · มอนตั้งท่าป้องกันตามโปรแกรมของอาจารย์ · กลับหน้าโจทย์เห็น "สู้ไปแล้ว 1 ครั้ง" และไม่เห็นตารางผลของคนอื่น ·
+  W19 lecturer เห็นแถวรหัสนักศึกษาของผู้เล่นคนนั้น "ชนะแล้ว 1 ครั้ง"
 
 **มอนของโจทย์ — engine + backend (7 ต.ค. 2569 · branch `challenge-monsters`)** — docs/design-challenge-monsters.md
 
