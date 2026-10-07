@@ -45,6 +45,8 @@ export interface BattlePlayerProps {
   subtitle?: string;
   /** เลเวลที่แสดงบนกล่องศัตรู */
   enemyLevel: number;
+  /** เลเวลรายตัวตาม id ของ combatant — มอนของโจทย์ตั้งเลเวลต่างกันได้ */
+  enemyLevels?: Readonly<Record<string, number>>;
   /** หัวข้อฝั่งตรงข้ามในแถบสถานะ */
   enemyHeading?: string;
   /** ใส่ = ฉากดวล (ดู DuelSides) */
@@ -104,6 +106,7 @@ export default function BattlePlayer({
   title,
   subtitle,
   enemyLevel,
+  enemyLevels,
   enemyHeading = 'ศัตรู',
   duel,
   startFinished: startFinishedProp = false,
@@ -401,7 +404,7 @@ export default function BattlePlayer({
           </div>
         )}
 
-        <BattleHud play={play} character={character} enemyLevel={enemyLevel} enemyHeading={enemyHeading} />
+        <BattleHud play={play} character={character} enemyLevel={enemyLevel} enemyLevels={enemyLevels} enemyHeading={enemyHeading} />
       </section>
 
       {/* บันทึกกับโค้ดวางคู่กันบนจอกว้าง ให้เห็น "เกิดอะไรขึ้น" คู่กับ "บรรทัดไหนสั่ง" พร้อมกัน */}

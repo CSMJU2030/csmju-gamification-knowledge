@@ -306,7 +306,7 @@ function BattleView({ pending }: { pending: PendingBattle }) {
             gameData={gameData}
             title="ฉากการรบ"
             enemyLevel={enemyLevel}
-            {...(challenge ? { waveTotal: 1 } : {})}
+            {...(challenge ? { waveTotal: 1, enemyLevels: challenge.enemyLevels } : {})}
             startFinished={battleDone}
             onFinished={onBattleFinished}
             canSkip={!firstAttempt}

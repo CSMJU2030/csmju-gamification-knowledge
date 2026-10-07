@@ -38,9 +38,11 @@ const setPendingBattle = vi.fn();
 vi.mock('@/lib/game/battle-store', () => ({ setPendingBattle: (b: unknown) => setPendingBattle(b) }));
 
 import { ApiError } from '@/lib/api/client';
-import type { Challenge } from '@/lib/api/types';
+import type { Challenge, Character } from '@/lib/api/types';
+import BattleHud from '@/game-stage/battle/BattleHud';
+import type { CombatantView, PlayState } from '@/game-stage/battle/director';
 import { ChallengeForm } from './_form';
-import { ChallengeFight, monsterErrors, newDraft, splitMonsterDetails } from './_monsters';
+import { ChallengeFight, MonsterCards, fmtMult, monsterErrors, newDraft, remapMonsterErrors, splitMonsterDetails } from './_monsters';
 
 const challenge = (over: Partial<Challenge> = {}): Challenge => ({
   id: '11111111-1111-4111-8111-111111111111',
@@ -70,6 +72,20 @@ describe('กติกาฝั่งฟอร์ม', () => {
     expect(monsterErrors([newDraft()])).toEqual({});
     const errs = monsterErrors([{ ...newDraft(), level: '', hpMult: '9', name: ' ' }]);
     expect(Object.keys(errs).sort()).toEqual(['monsters.0.hpMult', 'monsters.0.level', 'monsters.0.name']);
+  });
+
+  it('ตัวคูณแสดงตามที่ตั้ง ไม่ปัดเหลือทศนิยมตำแหน่งเดียว (เดิม 1.25 → ×1.3 · 0.75 → ×0.8)', () => {
+    expect([1, 3, 0.5, 1.25, 0.75, 2.55, 1.333].map(fmtMult)).toEqual(['×1', '×3', '×0.5', '×1.25', '×0.75', '×2.55', '×1.33']);
+    render(<MonsterCards monsters={[{ ...challenge().monsters[0], hpMult: 1.25, dmgMult: 0.75 }]} />);
+    expect(screen.getByText('HP ×1.25')).toBeTruthy();
+    expect(screen.getByText('ดาเมจ ×0.75')).toBeTruthy();
+  });
+
+  it('ลบมอนตัวบน → ข้อความผิดย้ายตามมอนตัวเดิม · มอนที่ถูกลบ ข้อความหายด้วย', () => {
+    const [a, b, c] = [newDraft(), newDraft(), newDraft()];
+    const errs = { monsters: 'รวม', 'monsters.0.name': 'ของ a', 'monsters.1.level': 'ของ b', 'monsters.2.hpMult': 'ของ c' };
+    expect(remapMonsterErrors(errs, [a, b, c], [b, c])).toEqual({ monsters: 'รวม', 'monsters.0.level': 'ของ b', 'monsters.1.hpMult': 'ของ c' });
+    expect(remapMonsterErrors(errs, [a, b, c], [a, b, c])).toEqual(errs);
   });
 
   it('แยก details ของมอนออกจากของช่องอื่น', () => {
@@ -111,6 +127,23 @@ describe('ฟอร์มโจทย์ของผู้สอน', () => {
     expect(await screen.findByText(/เลเวลต้องเป็นจำนวนเต็ม 1–50/)).toBeTruthy();
     expect(screen.getByRole('spinbutton', { name: /^เลเวล/ }).getAttribute('aria-invalid')).toBe('true');
     expect(post).not.toHaveBeenCalled();
+  });
+
+  it('ข้อความผิดอยู่ที่มอนตัวที่ 2 แล้วลบตัวที่ 1 → ข้อความย้ายไปกับมอนตัวนั้น ไม่ค้างที่มอนอีกตัว', async () => {
+    render(<ChallengeForm />);
+    fireEvent.change(screen.getByRole('textbox', { name: /^ชื่อโจทย์/ }), { target: { value: 'สามตัว' } });
+    const add = screen.getByRole('button', { name: 'เพิ่มมอน' });
+    for (let i = 0; i < 3; i++) fireEvent.click(add);
+    fireEvent.change(screen.getAllByRole('spinbutton', { name: /^เลเวล/ })[1], { target: { value: '99' } });
+    fireEvent.click(screen.getByRole('button', { name: 'สร้างโจทย์' }));
+    await screen.findByText(/เลเวลต้องเป็นจำนวนเต็ม 1–50/);
+    const invalid = () => screen.getAllByRole('spinbutton', { name: /^เลเวล/ }).map((el) => [(el as HTMLInputElement).value, el.getAttribute('aria-invalid')]);
+    expect(invalid()).toEqual([['1', null], ['99', 'true'], ['1', null]]);
+    fireEvent.click(screen.getByRole('button', { name: 'ลบมอนตัวที่ 1' }));
+    expect(invalid()).toEqual([['99', 'true'], ['1', null]]);
+    fireEvent.click(screen.getByRole('button', { name: 'ลบมอนตัวที่ 1' }));
+    expect(invalid()).toEqual([['1', null]]);
+    expect(screen.queryByText(/เลเวลต้องเป็นจำนวนเต็ม 1–50/)).toBeNull();
   });
 
   it('เปลี่ยนต้นแบบ → สกิลและชื่อ (ที่ยังไม่ตั้งเอง) ตามต้นแบบใหม่ · ปุ่มเริ่มจากโปรแกรมตามบทบาท', () => {
@@ -160,7 +193,7 @@ describe('ปุ่มสู้ของผู้เล่น', () => {
     await waitFor(() => expect(push).toHaveBeenCalledWith('/battle'));
     expect(post).toHaveBeenCalledWith('/battles', { challengeId: c.id });
     expect(setPendingBattle).toHaveBeenCalledWith(
-      expect.objectContaining({ kind: 'challenge', challengeId: c.id, title: 'สู้สไลม์', enemyLevel: 3, outcome }),
+      expect.objectContaining({ kind: 'challenge', challengeId: c.id, title: 'สู้สไลม์', enemyLevel: 3, outcome, enemyLevels: { ch_m1_slime: 3 } }),
     );
   });
 
@@ -174,5 +207,28 @@ describe('ปุ่มสู้ของผู้เล่น', () => {
     fireEvent.click(screen.getByRole('button', { name: 'สู้กับมอนของโจทย์' }));
     expect(await screen.findByText('โจทย์นี้ยังไม่มีมอนให้สู้')).toBeTruthy();
     expect(push).not.toHaveBeenCalled();
+  });
+});
+
+describe('แถบสถานะของฉากรบ', () => {
+  const enemy = (id: string, name: string): CombatantView =>
+    ({ id, name, side: 'enemy', hp: 10, maxHp: 10, mp: 0, maxMp: 0, isBoss: false, alive: true });
+  const play = {
+    wave: 1, log: [], floats: [], activeActor: null, code: null, nextId: 1,
+    partyOrder: [], enemyOrder: ['ch_m1_slime', 'ch_m2_golem'],
+    combatants: { ch_m1_slime: enemy('ch_m1_slime', 'สไลม์ตัวเล็ก'), ch_m2_golem: enemy('ch_m2_golem', 'โกเลมยักษ์') },
+  } as PlayState;
+  const hero = { displayName: '6704101001', classId: 'novice', level: 1 } as Character;
+
+  it('มอนของโจทย์เลเวลต่างกัน → แต่ละกล่องแสดงเลเวลของตัวเอง (เดิมทุกตัวขึ้นเลเวลสูงสุด)', () => {
+    render(<BattleHud play={play} character={hero} enemyLevel={50} enemyLevels={{ ch_m1_slime: 1, ch_m2_golem: 50 }} enemyHeading="ศัตรู" />);
+    const box = (name: string) => screen.getByText(name).parentElement!.textContent;
+    expect(box('สไลม์ตัวเล็ก')).toContain('Lv 1');
+    expect(box('โกเลมยักษ์')).toContain('Lv 50');
+  });
+
+  it('ไม่มีเลเวลรายตัว (หอคอย · ภูมิภาค) → ใช้เลเวลของชั้นเหมือนเดิม', () => {
+    render(<BattleHud play={play} character={hero} enemyLevel={8} enemyHeading="ศัตรู" />);
+    expect(screen.getAllByText('Lv 8')).toHaveLength(2);
   });
 });

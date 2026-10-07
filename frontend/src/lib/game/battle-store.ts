@@ -29,8 +29,10 @@ export type PendingBattle =
       kind: 'challenge';
       challengeId: string;
       title: string;
-      /** เลเวลสูงสุดของมอนในโจทย์ — HUD ของฉากใช้แสดงเลเวลฝั่งศัตรู */
+      /** เลเวลสูงสุดของมอนในโจทย์ — ใช้เมื่อหาเลเวลรายตัวไม่เจอ */
       enemyLevel: number;
+      /** เลเวลของมอนแต่ละตัว (id ใน result = `challengeMonsterId`) — มอนของโจทย์ตั้งเลเวลต่างกันได้ */
+      enemyLevels: Record<string, number>;
       outcome: BattleOutcome;
       before: Character;
     };

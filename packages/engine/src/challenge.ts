@@ -53,6 +53,12 @@ export interface ChallengeMonsterIssue {
 
 const L = CHALLENGE_MONSTER_LIMITS;
 
+/**
+ * id ของมอนตัวที่ i (เริ่ม 1 = `position` ในตาราง) — มี archetype ต่อท้ายแบบเดียวกับหอคอย หน้าเว็บอ่านภาพจาก monsterId อยู่แล้ว
+ * อยู่ในไฟล์กติกาเพื่อให้หน้าเว็บจับคู่ combatant ในฉากรบกับมอนที่ผู้สอนตั้ง (เช่น เลเวลของแต่ละตัว) ได้โดยไม่ลากตัวจำลองการรบมา
+ */
+export const challengeMonsterId = (i: number, archetypeId: string) => `ch_m${i}_${archetypeId}`;
+
 export function challengeArchetype(id: string) {
   return gamedata.monsterArchetypes.find((a) => a.id === id);
 }

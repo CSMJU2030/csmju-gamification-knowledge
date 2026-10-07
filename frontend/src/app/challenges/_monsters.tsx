@@ -16,6 +16,7 @@ import { useState } from 'react';
 import {
   CHALLENGE_MONSTER_LIMITS as L,
   challengeArchetypes,
+  challengeMonsterId,
   challengeMonsterIssues,
   challengeReward,
   challengeSkillInfo,
@@ -71,7 +72,8 @@ const KIND_TH: Record<string, string> = { physical: 'กายภาพ', magic:
 const skillLine = (s: (typeof MONSTER_SKILLS)[number]) =>
   `${KIND_TH[s.kind] ?? s.kind} · ${s.aoe ? 'ทุกเป้า' : 'เป้าเดียว'} · MP ${s.mpCost} · cast("${s.castName}", …)`;
 
-const fmtMult = (n: number) => `×${Number.isInteger(n) ? n.toFixed(0) : n.toFixed(1).replace(/\.0$/, '')}`;
+/** ตัวคูณตามที่ผู้สอนตั้ง (ทศนิยมถึง 2 ตำแหน่ง) — เดิมปัดเหลือตำแหน่งเดียว ผู้สอนตั้ง 1.25 การ์ดขึ้น ×1.3 */
+export const fmtMult = (n: number) => `×${Number(n.toFixed(2))}`;
 
 // ---------------------------------------------------------------- ฟอร์ม
 
@@ -142,6 +144,30 @@ export function monsterErrors(drafts: MonsterDraft[]): Record<string, string> {
   const out: Record<string, string> = {};
   for (const issue of challengeMonsterIssues(specs)) {
     out[issue.field] = out[issue.field] ? `${out[issue.field]} · ${issue.messageTh}` : issue.messageTh;
+  }
+  return out;
+}
+
+/**
+ * ข้อความผิดผูกกับลำดับ (`monsters.1.level`) — เมื่อลบมอนตัวบน ข้อความต้องย้ายตามมอนตัวเดิม
+ * (เดิมค้างที่ลำดับเดิม ซึ่งกลายเป็นมอนอีกตัวที่ไม่ได้ผิด) · มอนที่ถูกลบ ข้อความก็หายไปด้วย
+ */
+export function remapMonsterErrors(
+  errors: Record<string, string>,
+  before: readonly MonsterDraft[],
+  after: readonly MonsterDraft[],
+): Record<string, string> {
+  const indexOf = new Map(after.map((d, i) => [d.key, i]));
+  const out: Record<string, string> = {};
+  for (const [field, message] of Object.entries(errors)) {
+    const m = /^monsters\.(\d+)\.(.+)$/.exec(field);
+    if (!m) {
+      out[field] = message;
+      continue;
+    }
+    const key = before[Number(m[1])]?.key;
+    const to = key === undefined ? undefined : indexOf.get(key);
+    if (to !== undefined) out[`monsters.${to}.${m[2]}`] = message;
   }
   return out;
 }
@@ -434,6 +460,7 @@ export function ChallengeFight({ challenge }: { challenge: Challenge }) {
         challengeId: challenge.id,
         title: challenge.title,
         enemyLevel: Math.max(1, ...challenge.monsters.map((m) => m.level)),
+        enemyLevels: Object.fromEntries(challenge.monsters.map((m) => [challengeMonsterId(m.position, m.archetypeId), m.level])),
         outcome,
         before: ready,
       });

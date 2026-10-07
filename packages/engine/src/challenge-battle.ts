@@ -9,13 +9,10 @@
 import { simulateWaves } from './battle';
 import { gamedata } from './data';
 import { allocatePoints } from './proficiency';
-import { challengeArchetype, challengeMonsterSkills, type ChallengeMonsterSpec } from './challenge';
+import { challengeArchetype, challengeMonsterId, challengeMonsterSkills, type ChallengeMonsterSpec } from './challenge';
 import { hashSeed, mulberry32 } from './rng';
 import { FORMULAS, ZERO_PROFICIENCY, type BaseStats, type BattleResult, type ClassId, type Combatant, type WaveSpec } from './types';
 import { makeMonster } from './waves';
-
-/** id ของมอนตัวที่ i (เริ่ม 1) — มี archetype ต่อท้ายแบบเดียวกับหอคอย หน้าเว็บอ่านภาพจาก monsterId อยู่แล้ว */
-export const challengeMonsterId = (i: number, archetypeId: string) => `ch_m${i}_${archetypeId}`;
 
 /** มอนของโจทย์ในรูปที่ engine ใช้รบ (เวฟเดียว) — สมมติว่าผ่าน `challengeMonsterIssues` แล้ว */
 export function buildChallengeWave(specs: ChallengeMonsterSpec[]): WaveSpec {

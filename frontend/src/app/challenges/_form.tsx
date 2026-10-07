@@ -14,7 +14,7 @@ import { api, ApiError, userMessage } from '@/lib/api/client';
 import { fieldErrors } from '@/lib/api/field-errors';
 import type { Challenge, CreateChallenge } from '@/lib/api/types';
 import { useRegionNames } from '@/lib/game/use-region-names';
-import { MonsterEditor, draftOf, inputOf, monsterErrors, splitMonsterDetails, type MonsterDraft } from './_monsters';
+import { MonsterEditor, draftOf, inputOf, monsterErrors, remapMonsterErrors, splitMonsterDetails, type MonsterDraft } from './_monsters';
 
 const FIELDS = ['title', 'description', 'starterSource', 'regionId'] as const;
 type Field = (typeof FIELDS)[number];
@@ -50,6 +50,12 @@ export function ChallengeForm({ initial }: { initial?: Challenge }) {
       regionId !== (initial?.regionId ?? '') ||
       JSON.stringify(drafts.map(inputOf)) !== initialMonsters,
   );
+
+  /** แก้/ลบมอน — ข้อความผิดที่ขึ้นอยู่ย้ายตามมอนตัวเดิม */
+  const changeDrafts = (next: MonsterDraft[]) => {
+    setMonsterErrs((errs) => remapMonsterErrors(errs, drafts, next));
+    setDrafts(next);
+  };
 
   /** พาโฟกัสไปช่องแรกที่ผิด (หลัง render ข้อความใต้ช่องแล้ว) */
   const focusFirstInvalid = () =>
@@ -148,7 +154,7 @@ export function ChallengeForm({ initial }: { initial?: Challenge }) {
             placeholder={'def turn():\n    attack(weakest(enemies))'}
           />
         </FormField>
-        <MonsterEditor drafts={drafts} onChange={setDrafts} errors={monsterErrs} />
+        <MonsterEditor drafts={drafts} onChange={changeDrafts} errors={monsterErrs} />
         <p ref={liveRef} aria-live="polite" className="sr-only">
           {formError ?? ''}
         </p>

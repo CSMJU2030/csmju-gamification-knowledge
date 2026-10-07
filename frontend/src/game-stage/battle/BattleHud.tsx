@@ -18,6 +18,8 @@ interface Props {
   character: Character;
   /** เลเวลที่แสดงบนกล่องศัตรู — มอนผูกกับชั้น · คู่ดวลใช้เลเวลจริงของเขา */
   enemyLevel: number;
+  /** เลเวลรายตัวตาม id ของ combatant (มอนของโจทย์ตั้งเลเวลต่างกันได้) — ไม่มี = ใช้ enemyLevel */
+  enemyLevels?: Readonly<Record<string, number>>;
   /** หัวข้อของฝั่งตรงข้าม เช่น "ศัตรู" หรือ "คู่ดวล" */
   enemyHeading: string;
 }
@@ -87,7 +89,7 @@ function EnemyItem({ c, active, level }: { c: CombatantView; active: boolean; le
   );
 }
 
-export default function BattleHud({ play, character, enemyLevel, enemyHeading }: Props) {
+export default function BattleHud({ play, character, enemyLevel, enemyLevels, enemyHeading }: Props) {
   const enemies = play.enemyOrder.map((id) => play.combatants[id]).filter(Boolean);
   const player = play.partyOrder.map((id) => play.combatants[id]).filter(Boolean)[0] ?? null;
   const alive = enemies.filter((e) => e.alive).length;
@@ -137,7 +139,7 @@ export default function BattleHud({ play, character, enemyLevel, enemyHeading }:
           ) : (
             <ul className="grid grid-cols-2 gap-2">
               {enemies.map((c) => (
-                <EnemyItem key={c.id} c={c} active={play.activeActor === c.id} level={enemyLevel} />
+                <EnemyItem key={c.id} c={c} active={play.activeActor === c.id} level={enemyLevels?.[c.id] ?? enemyLevel} />
               ))}
             </ul>
           )}

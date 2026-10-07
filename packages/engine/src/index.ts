@@ -35,9 +35,9 @@ export type { RegionProof, ProofCheck } from './proofs';
 export {
   CHALLENGE_MONSTER_LIMITS, CHALLENGE_MONSTER_SKILLS,
   challengeArchetype, challengeMonsterSkills, checkMonsterProgram, challengeMonsterIssues, challengeReward,
-  challengeArchetypes, challengeSkillInfo, checkProgramWithSkills, CHALLENGE_TRIAL_CLASSES,
+  challengeArchetypes, challengeSkillInfo, challengeMonsterId, checkProgramWithSkills, CHALLENGE_TRIAL_CLASSES,
 } from './challenge';
-export { challengeMonsterId, buildChallengeWave, runChallengeBattle, trialHeroStats } from './challenge-battle';
+export { buildChallengeWave, runChallengeBattle, trialHeroStats } from './challenge-battle';
 export type {
   ChallengeMonsterSpec, ChallengeMonsterIssue, ChallengeArchetypeInfo, ChallengeSkillInfo, ChallengeTrialClassId,
 } from './challenge';
