@@ -8,6 +8,7 @@
 import { Injectable } from '@nestjs/common';
 import { challengeReward, proficiencyFromBattle, type BaseStats, type BattleResult, type Proficiency } from '@tower/engine';
 import { randomUUID } from 'node:crypto';
+import { notFound } from '../common/api-error';
 import { lockCharacter } from '../game/character.repository';
 import { enrichInstance, proficiencyOf, statsOf, type EnrichedItem } from '../game/character.view';
 import { HERO_ID, progress } from '../game/progression';
@@ -201,6 +202,9 @@ export class BattlePersistenceService {
     const rounds = result.events.length > 0 ? result.events[result.events.length - 1].turn : 0;
     const out = await this.prisma.$transaction(async (tx) => {
       const row = await lockCharacter(tx, characterId);
+      // โจทย์ถูกลบระหว่างจำลองการรบ → 404 ไม่ใช่ 500 จาก foreign key · FOR KEY SHARE กันไม่ให้ถูกลบจนบันทึกผลเสร็จ
+      const live = await tx.$queryRaw<{ id: string }[]>`SELECT id FROM challenges WHERE id = ${challengeId}::uuid FOR KEY SHARE`;
+      if (live.length === 0) throw notFound('ไม่พบโจทย์นี้ — อาจถูกลบระหว่างสู้');
       const where = { characterId, challengeId };
       const wonBefore = (await tx.challengeAttempt.count({ where: { ...where, isVictory: true } })) > 0;
       const firstClear = result.victory && !wonBefore;

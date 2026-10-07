@@ -67,6 +67,12 @@ describe('ตรวจค่าที่อาจารย์ตั้ง', () =
     // สไลม์มีแค่ "กัด" — ร่ายศรมืดไม่ได้
     const noSkill = challengeMonsterIssues([slime({ programSource: 'def turn():\n    cast("dark_bolt", weakest(enemies))\n' })]);
     expect(noSkill.map((i) => i.field)).toEqual(['monsters.0.programSource']);
+    // ข้อความพูดกับผู้สอนเรื่องมอน — ไม่ใช่ข้อความของผู้เล่น ("ปลดที่เลเวล" · "สกิลของmonster" · "ที่คุณใช้ได้")
+    expect(noSkill[0].messageTh).toBe(
+      "2:10:ValueError:มอนตัวนี้ไม่มีสกิล 'dark_bolt' — เลือกสกิลนี้ในช่องสกิลของมอน หรือใช้สกิลที่มอนมี: bite",
+    );
+    const picked = challengeMonsterIssues([slime({ skills: ['mon_roar'], programSource: 'def turn():\n    cast("bite", weakest(enemies))\n' })]);
+    expect(picked[0].messageTh).toMatch(/มอนตัวนี้ไม่มีสกิล 'bite' — .*สกิลที่มอนมี: roar$/);
   });
 });
 

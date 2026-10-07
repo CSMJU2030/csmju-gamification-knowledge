@@ -80,7 +80,7 @@ const MonstersField = () =>
     OptionalButNotNull()(target, key);
     IsArray({ message: 'monsters ต้องเป็น array' })(target, key);
     ArrayMaxSize(L.maxMonsters, { message: `monsters มีได้ไม่เกิน ${L.maxMonsters} ตัว` })(target, key);
-    ValidateNested({ each: true })(target, key);
+    ValidateNested({ each: true, message: 'monsters แต่ละตัวต้องเป็น object' })(target, key);
     Type(() => ChallengeMonsterInputDto)(target, key);
   };
 

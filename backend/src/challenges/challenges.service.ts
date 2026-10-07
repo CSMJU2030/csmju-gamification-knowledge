@@ -182,6 +182,10 @@ export class ChallengesService {
     this.assertCanModify(user, row, Permission.CHALLENGE_UPDATE_ANY, Permission.CHALLENGE_UPDATE_OWN);
     const specs = checkContent(body);
     const updated = await this.prisma.$transaction(async (tx) => {
+      // ล็อกแถวโจทย์ก่อน — คำขอแก้พร้อมกัน (สองแท็บ · กดบันทึกซ้ำ) ต่อคิวกัน แทนการชนกันตอนลบแล้วใส่มอนชุดใหม่
+      // (เดิมคำขอที่ชนได้ 409 "ข้อมูลซ้ำกับที่มีอยู่แล้ว" ที่ผู้สอนอ่านไม่เข้าใจ) · ถูกลบไปก่อน → 404
+      const locked = await tx.$queryRaw<{ id: string }[]>`SELECT id FROM challenges WHERE id = ${id}::uuid FOR UPDATE`;
+      if (locked.length === 0) throw notFound('ไม่พบโจทย์นี้');
       await tx.challenge.update({
         where: { id },
         data: {

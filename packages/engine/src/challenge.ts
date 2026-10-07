@@ -122,7 +122,21 @@ export function checkMonsterProgram(source: string, skills: string[]): LangError
   const parsed = parse(source);
   if (!parsed.program) return parsed.errors;
   // ชั้นสูงพอให้ปลดทุกไวยากรณ์ที่ผู้เล่นปลดได้ (userfunc ปิดสำหรับทุกคน)
-  return validate(parsed.program, { features: unlockedFeatures(Number.MAX_SAFE_INTEGER - 1), availableSkills: skills }).errors;
+  const { errors } = validate(parsed.program, { features: unlockedFeatures(Number.MAX_SAFE_INTEGER - 1), availableSkills: skills });
+  return errors.map((e) => forMonster(e, skills));
+}
+
+/**
+ * ตัวตรวจเขียนข้อความ "ยังใช้สกิล 'x' ไม่ได้ — เป็นสกิลของ<อาชีพ> ปลดที่เลเวล n · สกิลที่คุณใช้ได้ตอนนี้" ให้ผู้เล่น
+ * แต่มอนไม่มีอาชีพหรือเลเวลปลดสกิล — สิ่งที่ผู้สอนแก้ได้คือเลือกสกิลนั้นให้มอน หรือใช้สกิลที่มอนมีอยู่
+ */
+const UNOWNED_SKILL = /^ยังใช้สกิล '([^']+)' ไม่ได้/;
+
+function forMonster(e: LangError, skills: string[]): LangError {
+  const m = UNOWNED_SKILL.exec(e.messageTh);
+  if (!m) return e;
+  const owned = skills.map(preferredSkillName).join(', ') || '—';
+  return { ...e, messageTh: `มอนตัวนี้ไม่มีสกิล '${m[1]}' — เลือกสกิลนี้ในช่องสกิลของมอน หรือใช้สกิลที่มอนมี: ${owned}` };
 }
 
 /** ตรวจมอนทั้งชุดของโจทย์ — คืนรายการปัญหา (ว่าง = ใช้ได้) */

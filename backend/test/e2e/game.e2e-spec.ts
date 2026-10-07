@@ -911,4 +911,35 @@ describe('มอนของโจทย์ (docs/design-challenge-monsters.md)'
       (SELECT COUNT(*)::int FROM challenge_monsters WHERE challenge_id = '${id}') AS monsters`);
     expect(left[0]).toEqual({ attempts: 0, monsters: 0 });
   });
+
+  it('แก้มอนพร้อมกันหลายคำขอ (สองแท็บ · กดซ้ำ) → ต่อคิวกัน ได้ 200 ทุกคำขอ · ชุดสุดท้ายเป็นชุดเดียว เรียงตำแหน่ง', async () => {
+    // เดิมคำขอที่ชนกันตอนลบแล้วใส่ชุดใหม่ได้ 409 "ข้อมูลซ้ำกับที่มีอยู่แล้ว"
+    const id = (await http.post('/api/v1/challenges').set(lec()).send({ title: 'แก้พร้อมกัน', monsters: [weak] }).expect(201)).body.data.id;
+    const sets = [1, 2, 3, 4, 2].map((n, k) => Array.from({ length: n }, () => ({ ...weak, name: `ชุด ${k}` })));
+    const results = await Promise.all(sets.map((monsters) => http.patch(`/api/v1/challenges/${id}`).set(lec()).send({ monsters })));
+    expect(results.map((r) => r.status)).toEqual([200, 200, 200, 200, 200]);
+    const final: Array<{ name: string; position: number }> = (await http.get(`/api/v1/challenges/${id}`).set(lec()).expect(200)).body.data.monsters;
+    expect(new Set(final.map((m) => m.name)).size).toBe(1);
+    expect(final.map((m) => m.position)).toEqual(final.map((_, i) => i + 1));
+    // ค่าที่ไม่ใช่ object ได้ข้อความไทยที่ชี้ตำแหน่ง
+    const nul = await http.patch(`/api/v1/challenges/${id}`).set(lec()).send({ monsters: [null] }).expect(400);
+    expect(nul.body.error.details).toEqual(['monsters.0: monsters แต่ละตัวต้องเป็น object']);
+  });
+
+  it('โจทย์ถูกลบระหว่างจำลองการรบ → 404 ไม่ใช่ 500 · ไม่ได้รางวัล ไม่มีผลค้าง', async () => {
+    const { BattlePersistenceService } = await import('../../src/battles/battle-persistence.service');
+    await student('p-mon-gone');
+    const id = (await http.post('/api/v1/challenges').set(lec()).send({ title: 'จะถูกลบ', monsters: [weak] }).expect(201)).body.data.id;
+    const other = (await http.post('/api/v1/challenges').set(lec()).send({ title: 'ได้ผลรบมาใช้', monsters: [weak] }).expect(201)).body.data.id;
+    const won = (await fight('p-mon-gone', other).expect(201)).body.data;
+    // ช่วงเวลาระหว่างจำลองการรบกับบันทึกผล: ผู้สอนลบโจทย์ไปแล้ว
+    await http.delete(`/api/v1/challenges/${id}`).set(lec()).expect(200);
+    const [{ id: characterId }] = await queryRows(DB!, `SELECT id FROM characters WHERE core_user_id = 'p-mon-gone'`);
+    await expect(app.get(BattlePersistenceService).persistChallenge(characterId as string, id, won.result))
+      .rejects.toMatchObject({ errorCode: 'NOT_FOUND' });
+    const after = (await http.get('/api/v1/characters/current').set(as('p-mon-gone')).expect(200)).body.data;
+    expect(after.gold).toBe(won.character.gold);
+    const rows = await queryRows(DB!, `SELECT COUNT(*)::int AS n FROM challenge_attempts WHERE challenge_id = '${id}'`);
+    expect(rows[0]).toEqual({ n: 0 });
+  });
 });
