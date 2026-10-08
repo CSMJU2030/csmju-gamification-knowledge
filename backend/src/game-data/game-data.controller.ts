@@ -30,6 +30,10 @@ export class SkillDefDto {
   @ApiProperty() unlockLevel!: number;
   @ApiPropertyOptional({ description: 'คำอธิบายสำหรับผู้เล่น (มีเฉพาะสกิลของอาชีพ)' }) descTh?: string;
   @ApiPropertyOptional({ description: 'ชื่อแอนิเมชันเอฟเฟกต์ที่ฉากรบใช้วาด' }) animation?: string;
+  @ApiPropertyOptional({
+    description: 'สกิลประจำภูมิภาค: ได้เมื่อพิสูจน์บทเรียนของภูมิภาคนี้ ไม่ได้ตามเลเวล (unlockLevel ไม่มีความหมาย)',
+  })
+  region?: string;
 }
 
 export class ClassInfoDto {

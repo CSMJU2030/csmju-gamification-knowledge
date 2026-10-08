@@ -31,7 +31,8 @@ export function ClassChoice({ character, onChosen }: { character: Character; onC
   const { gameData } = useGame();
   const skillsOf = (classId: string) =>
     (gameData?.skills ?? [])
-      .filter((s) => s.classId === classId)
+      // สกิลประจำภูมิภาคไม่ได้ตามเลเวล — การ์ดเลือกอาชีพแสดงเฉพาะสกิลที่ได้ตามเลเวล
+      .filter((s) => s.classId === classId && !s.region)
       .sort((a, b) => a.unlockLevel - b.unlockLevel || a.id.localeCompare(b.id));
 
   const unlocked = character.highestFloorCleared >= 1;

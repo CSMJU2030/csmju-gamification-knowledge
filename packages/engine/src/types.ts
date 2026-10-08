@@ -83,6 +83,11 @@ export interface SkillDef {
   descTh?: string;
   /** เฟส 2A: ชื่อแอนิเมชันเอฟเฟกต์ที่ client ใช้วาด (ดู EFFECT_ANIMATIONS ใน client/src/sprites/schema.ts) */
   animation?: string;
+  /**
+   * สกิลประจำภูมิภาค (8 ต.ค. 2569 · docs/design-skill-acquisition.md ระยะ S1) — id ของภูมิภาค
+   * มีค่า = ไม่ได้ตามเลเวล ได้เมื่อพิสูจน์บทเรียนของภูมิภาคนั้น (proofs.ts) · `unlockLevel` ของสกิลกลุ่มนี้ไม่มีความหมาย
+   */
+  region?: string;
 }
 
 // ---------- Equipment ----------

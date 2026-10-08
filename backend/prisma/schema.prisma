@@ -54,6 +54,10 @@ model Character {
   profVit       Float    @default(0) @map("prof_vit")
   profAgi       Float    @default(0) @map("prof_agi")
   profLuk       Float    @default(0) @map("prof_luk")
+  /// ภูมิภาคที่พิสูจน์บทเรียนแล้ว (8 ต.ค. 2569 · docs/design-skill-acquisition.md ระยะ S1) — ได้สกิลประจำภูมิภาคของอาชีพตัวเอง
+  /// เก็บผลพิสูจน์ ไม่ได้เก็บสกิล: ผู้ฝึกหัดที่พิสูจน์ก่อนเลือกอาชีพได้สกิลของอาชีพที่เลือกทีหลังทันที
+  /// เขียนในทรานแซกชันเดียวกับผลการรบ (ล็อกแถวตัวละครแล้ว) จึงไม่ซ้ำแม้รบพร้อมกัน
+  provedRegions String[] @default([]) @map("proved_regions")
   createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt     DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
 

@@ -17,6 +17,8 @@ import { PrismaService } from '../prisma/prisma.service';
 export interface BattlePlace {
   regionId: string;
   depth: number;
+  /** การรบนี้พิสูจน์บทเรียนของภูมิภาคได้ (regionProof ของ engine) — ได้สกิลประจำภูมิภาค */
+  proofPassed?: boolean;
 }
 
 /**
@@ -32,6 +34,8 @@ export interface BattleAttempt {
 
 export interface PersistedBattle {
   battleId: string;
+  /** พิสูจน์ภูมิภาคนี้สำเร็จเป็นครั้งแรกในการรบนี้ */
+  newlyProved: boolean;
   attempt: BattleAttempt;
   result: BattleResult & { drops: { gold: number; materials: number; items: EnrichedItem[] } };
   gains: {
@@ -55,7 +59,7 @@ export class BattlePersistenceService {
     // id ของไอเทมจาก engine คิดจาก seed จึงซ้ำข้ามการรบได้ — แทนด้วย UUID ก่อนเก็บ
     for (const item of result.drops.items) item.id = randomUUID();
 
-    const { battleId, before, prog, attempt } = await this.prisma.$transaction(async (tx) => {
+    const { battleId, before, prog, attempt, newlyProved } = await this.prisma.$transaction(async (tx) => {
       // ล็อกแถวแล้วคิดผลจากค่าล่าสุด — สองการรบที่จบพร้อมกันต้องไม่เขียนทับกัน
       const row = await lockCharacter(tx, characterId);
 
@@ -71,6 +75,8 @@ export class BattlePersistenceService {
       };
       const prog = progress(row, work, result.expGained);
       const highestFloor = result.victory && floor > row.highestFloor ? floor : row.highestFloor;
+      // ผลพิสูจน์เขียนพร้อมผลการรบ บนแถวที่ล็อกไว้ — สองการรบพร้อมกันได้สกิลครั้งเดียว ไม่ซ้ำในอาเรย์
+      const newlyProved = !!place.proofPassed && !row.provedRegions.includes(place.regionId);
 
       // สร้างทีละชิ้นตามลำดับที่ดรอป เพื่อให้ seq (ลำดับในกระเป๋า) ตรงกับลำดับในบันทึกการรบ
       for (const item of result.drops.items) {
@@ -106,6 +112,7 @@ export class BattlePersistenceService {
           profVit: prog.carry.vit,
           profAgi: prog.carry.agi,
           profLuk: prog.carry.luk,
+          ...(newlyProved ? { provedRegions: [...row.provedRegions, place.regionId] } : {}),
         },
       });
 
@@ -146,7 +153,7 @@ export class BattlePersistenceService {
           goldGained: result.drops.gold,
         },
       });
-      return { battleId: battle.id, before: statsOf(row), prog, attempt };
+      return { battleId: battle.id, before: statsOf(row), prog, attempt, newlyProved };
     });
 
     // สเตตัสที่เพิ่งได้ — ผู้เล่นไม่ได้กดแจกแต้มเอง ถ้าไม่บอกว่า "ได้ +3 STR เพราะตีเยอะ" จะกลายเป็นเวทมนตร์
@@ -161,6 +168,7 @@ export class BattlePersistenceService {
 
     return {
       battleId,
+      newlyProved,
       attempt,
       result: {
         ...result,

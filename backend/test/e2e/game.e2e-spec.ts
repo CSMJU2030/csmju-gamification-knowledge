@@ -7,6 +7,7 @@
 import type { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import request from 'supertest';
+import { FORMULAS, allocatePoints, gamedata } from '@tower/engine';
 import { FakeCoreHub, testEnv, type CoreRoleClaim } from '../support/fake-core-hub';
 import { insertItems, queryRows, resetDatabase } from '../support/test-db';
 
@@ -293,6 +294,118 @@ describe('ภูมิภาค', () => {
     expect(fe.body.data.duel.opponent.displayName).toBe('6504100002');
     expect(JSON.stringify(fe.body.data.duel.events)).toBe(JSON.stringify(ff.body.data.duel.events));
     expect(fe.body.data.duel.won).toBe(!ff.body.data.duel.won);
+  });
+});
+
+describe('สกิลประจำภูมิภาค (8 ต.ค. 2569 · ระยะ S1)', () => {
+  const MARKED = 'def turn():\n    if has_debuff("marked"):\n        defend()\n    else:\n        attack(weakest(enemies))\n';
+  type Proof = { eligible: boolean; passed: boolean; newlyProved: boolean; checks: { code: string; ok: boolean }[]; skill: { id: string } | null };
+  type Outcome = { proof: Proof; character: { skills: { id: string; region?: string }[] } };
+  let code = 6504109000;
+  /** ตัวละครใหม่ที่มีรหัสใน Core Hub (ชื่อในเกม = รหัส) */
+  const create = async (sub: string) => {
+    hub.people.set(sub, String(code++));
+    await http.post('/api/v1/characters').set(as(sub)).send({}).expect(201);
+  };
+
+  /** ผู้พิทักษ์เลเวล 10 สเตตัสแจกตามน้ำหนักมาตรฐาน (เหมือน tools/proofprobe.cjs) · ผ่านชั้น 4 · ป่าเคลียร์ถึงรอบ 3 */
+  async function readyGuardian(sub: string) {
+    await create(sub);
+    const stats = { ...gamedata.classes.guardian.baseStats };
+    for (let l = 2; l <= 10; l++) {
+      const g = allocatePoints({ str: 0, int: 0, vit: 0, agi: 0, luk: 0 }, FORMULAS.statPointsPerLevel, 'guardian', l);
+      for (const k of Object.keys(stats) as (keyof typeof stats)[]) stats[k] += g[k];
+    }
+    const [row] = await queryRows<{ id: string }>(DB!,
+      `UPDATE characters SET class_id = 'guardian', level = 10, highest_floor = 4, program_source = $2,
+         stat_str = $3, stat_int = $4, stat_vit = $5, stat_agi = $6, stat_luk = $7
+       WHERE core_user_id = $1 RETURNING id`,
+      [sub, MARKED, stats.str, stats.int, stats.vit, stats.agi, stats.luk]);
+    await queryRows(DB!,
+      `INSERT INTO region_progress (id, character_id, region_id, depth_cleared, updated_at)
+       VALUES (gen_random_uuid(), $1, 'greenwood', 3, now())`, [row.id]);
+  }
+
+  async function deepestGreenwood(sub: string): Promise<{ proof: Proof; body: Outcome }> {
+    const run = await http.post('/api/v1/region-runs').set(as(sub)).send({ regionId: 'greenwood', depth: 4 }).expect(201);
+    const res = await http.post('/api/v1/battles').set(as(sub)).send({ regionRunId: run.body.data.id }).expect(201);
+    return { proof: res.body.data.proof, body: res.body.data };
+  }
+
+  it('แผนที่บอกเงื่อนไขและสกิล · หอคอยกับเมืองไม่มี · ผู้ฝึกหัดยังไม่มีสกิลให้ดู', async () => {
+    await create('p-map');
+    const regions = (await http.get('/api/v1/regions?limit=20').set(as('p-map')).expect(200)).body.data as { id: string; proof: unknown }[];
+    const byId = new Map(regions.map((r) => [r.id, r.proof]));
+    expect(byId.get('tower')).toBeNull();
+    expect(byId.get('haven')).toBeNull();
+    expect(byId.get('greenwood')).toMatchObject({ proved: false, skill: null });
+    expect((byId.get('greenwood') as { requirementsTh: string[] }).requirementsTh[0]).toBe('ชนะรอบลึกสุดของภูมิภาค');
+  });
+
+  it('ชนะรอบลึกสุดตามบทเรียน → ได้สกิลครั้งเดียว · ใช้ในโปรแกรมได้ทันที · รอบฝึกไม่นับ', async () => {
+    await readyGuardian('p-prove');
+    const before = await http.get('/api/v1/programs/current').set(as('p-prove')).expect(200);
+    expect(before.body.data.availableSkills.map((s: { id: string }) => s.id)).not.toContain('g_iron_guard');
+    const saveCast = () => http.patch('/api/v1/programs/current').set(as('p-prove'))
+      .send({ source: 'def turn():\n    cast("iron_guard", me)\n    attack(weakest(enemies))\n' });
+    expect((await saveCast().expect(400)).body.error.details.join(' ')).toContain('ได้จากการพิสูจน์บทเรียนของป่าเริ่มต้น');
+
+    // seed ของรอบคิดจากเวลาเข้า — ผู้พิทักษ์เลเวล 10 อ่านท่า ผ่าน 20/20 ใน proofprobe จึงลองไม่เกิน 4 รอบ
+    let first: { proof: Proof; body: Outcome } | null = null;
+    for (let i = 0; i < 4 && !first; i++) {
+      const r = await deepestGreenwood('p-prove');
+      expect(r.proof).toMatchObject({ eligible: true, skill: { id: 'g_iron_guard', nameTh: 'การ์ดเหล็ก' } });
+      if (r.proof.passed) first = r;
+    }
+    expect(first).not.toBeNull();
+    expect(first!.proof.newlyProved).toBe(true);
+    expect(first!.body.character.skills).toEqual(expect.arrayContaining([expect.objectContaining({ id: 'g_iron_guard', region: 'greenwood' })]));
+
+    const after = await http.get('/api/v1/programs/current').set(as('p-prove')).expect(200);
+    expect(after.body.data.availableSkills.map((s: { id: string }) => s.id)).toContain('g_iron_guard');
+    await saveCast().expect(200);
+    await http.patch('/api/v1/programs/current').set(as('p-prove')).send({ source: MARKED }).expect(200);
+
+    // ผ่านซ้ำไม่ได้ซ้ำ · ในฐานข้อมูลมีครั้งเดียว
+    let again: Proof | null = null;
+    for (let i = 0; i < 4 && !again; i++) {
+      const r = await deepestGreenwood('p-prove');
+      if (r.proof.passed) again = r.proof;
+    }
+    expect(again).toMatchObject({ passed: true, newlyProved: false });
+    const rows = await queryRows<{ proved_regions: string[] }>(DB!, 'SELECT proved_regions FROM characters WHERE core_user_id = $1', ['p-prove']);
+    expect(rows[0].proved_regions).toEqual(['greenwood']);
+
+    // รอบที่ไม่ใช่รอบลึกสุด: ตรวจให้ดู แต่ไม่นับ
+    const run = await http.post('/api/v1/region-runs').set(as('p-prove')).send({ regionId: 'greenwood', depth: 1 }).expect(201);
+    const practice = await http.post('/api/v1/battles').set(as('p-prove')).send({ regionRunId: run.body.data.id }).expect(201);
+    expect(practice.body.data.proof).toMatchObject({ eligible: false, passed: false, newlyProved: false });
+
+    const map = (await http.get('/api/v1/regions?limit=20').set(as('p-prove')).expect(200)).body.data as { id: string; proof: unknown }[];
+    expect(map.find((r) => r.id === 'greenwood')!.proof).toMatchObject({ proved: true, skill: { id: 'g_iron_guard' } });
+  });
+
+  it('ตีอย่างเดียวชนะรอบลึกสุดได้แต่ไม่ได้สกิล · หอคอยไม่มีผลพิสูจน์', async () => {
+    await readyGuardian('p-naive');
+    await queryRows(DB!, "UPDATE characters SET level = 14 WHERE core_user_id = $1", ['p-naive']);
+    await http.patch('/api/v1/programs/current').set(as('p-naive')).send({ source: 'def turn():\n    attack(weakest(enemies))\n' }).expect(200);
+    for (let i = 0; i < 2; i++) {
+      const { proof } = await deepestGreenwood('p-naive');
+      expect(proof).toMatchObject({ passed: false, newlyProved: false });
+    }
+    const tower = await http.post('/api/v1/battles').set(as('p-naive')).send({ towerFloor: 1 }).expect(201);
+    expect(tower.body.data.proof).toBeUndefined();
+    const rows = await queryRows<{ proved_regions: string[] }>(DB!, 'SELECT proved_regions FROM characters WHERE core_user_id = $1', ['p-naive']);
+    expect(rows[0].proved_regions).toEqual([]);
+  });
+
+  it('ผู้ฝึกหัดที่พิสูจน์ไว้ก่อน ได้สกิลของอาชีพที่เลือกทีหลังทันที', async () => {
+    await create('p-late');
+    await queryRows(DB!, "UPDATE characters SET highest_floor = 1, proved_regions = '{greenwood}' WHERE core_user_id = $1", ['p-late']);
+    const before = await http.get('/api/v1/characters/current').set(as('p-late')).expect(200);
+    expect(before.body.data.skills).toEqual([]);
+    const chosen = await http.patch('/api/v1/characters/current').set(as('p-late')).send({ classId: 'mage' }).expect(200);
+    expect(chosen.body.data.skills.map((s: { id: string }) => s.id)).toEqual(['m_firebolt', 'm_mana_veil']);
   });
 });
 

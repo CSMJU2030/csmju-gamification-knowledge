@@ -114,10 +114,11 @@ export function derivedFor(row: Character, equipped: Item[]): DerivedStats {
 }
 
 export function skillsView(row: Character) {
-  return unlockedSkills(row.classId as ClassId, row.level).map((s) => ({
+  return unlockedSkills(row.classId as ClassId, row.level, row.provedRegions).map((s) => ({
     id: s.id,
     nameTh: s.nameTh,
     unlockLevel: s.unlockLevel,
+    ...(s.region ? { region: s.region } : {}),
     mpCost: s.mpCost,
     kind: s.kind,
     aoe: s.aoe,

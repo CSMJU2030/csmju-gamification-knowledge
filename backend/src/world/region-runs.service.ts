@@ -3,12 +3,13 @@
  * เพราะ EX และคู่ดวลต้องประกาศ **ก่อน** การรบเริ่ม (รอบ 2W §8.1) · ย้ายมาจาก server/src/routes/world.ts
  */
 import { Injectable } from '@nestjs/common';
-import { isBattleRegion, regionFloorRange, syncLevelForFloor, type RegionDef } from '@tower/engine';
+import { isBattleRegion, proofRequirements, regionFloorRange, syncLevelForFloor, type RegionDef } from '@tower/engine';
 import { badRequest, conflict, forbidden, notFound } from '../common/api-error';
 import { Page } from '../common/envelope';
 import type { PageQueryDto } from '../common/pagination.dto';
 import type { Character, RegionRun } from '../generated/prisma/client';
 import { requireCharacter, type Db } from '../game/character.repository';
+import { regionSkillView } from '../game/game-rules';
 import {
   allRegions, duelConfig, floorFor, isSyncedRegion, regionById, regionProgress, rollElite,
 } from '../game/world';
@@ -56,6 +57,7 @@ export class RegionRunsService {
         hotspot: r.hotspot,
         ...regionProgress(r, row.highestFloor, cleared.get(r.id) ?? 0),
         playersHere: here.get(r.id) ?? 0,
+        proof: proofInfo(r.id, row),
       };
     });
     return Page.of(regions.slice(query.skip, query.skip + query.limit), regions.length, query.page, query.limit);
@@ -157,4 +159,11 @@ export class RegionRunsService {
     if (count === 0) throw notFound('ไม่พบรอบนี้ (อาจหมดอายุหรือเข้ารอบใหม่ไปแล้ว)');
     return { id: run.id, deleted: true };
   }
+}
+
+/** สกิลประจำภูมิภาคบนแผนที่ (ระยะ S1) — null = ภูมิภาคนี้ไม่มีสกิลให้พิสูจน์ */
+function proofInfo(regionId: string, row: Character) {
+  const requirementsTh = proofRequirements(regionId);
+  if (!requirementsTh) return null;
+  return { requirementsTh, proved: row.provedRegions.includes(regionId), skill: regionSkillView(row.classId, regionId) };
 }

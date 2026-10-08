@@ -98,7 +98,8 @@ export function buildHero(
     level,
     stats,
     derived,
-    skills: unlockedSkills(classId, level).map((s) => s.id),
+    // สกิลภูมิภาคได้จากการพิสูจน์ ไม่ได้ตามเลเวล จึงมีเท่าเดิมแม้ล็อกเลเวล
+    skills: unlockedSkills(classId, level, row.provedRegions).map((s) => s.id),
     // โปรแกรมที่บันทึกได้ผ่าน parse มาแล้วเสมอ rules จึงไม่ถูกใช้ — ส่งว่างไว้ตาม type ของ engine
     rules: [],
     // field ที่ engine อ่านเพิ่มโดยไม่แก้ type Combatant ที่ล็อกไว้: equipment (affix) · programSource

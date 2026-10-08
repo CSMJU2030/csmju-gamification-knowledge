@@ -130,7 +130,10 @@ const isSurelyUnit = (e: Expr, units: ReadonlySet<string>): boolean =>
 function unownedSkillMessage(written: string, info: SkillInfo, owned: string[]): string {
   const classes = gamedata.classes as Record<string, { nameTh: string } | undefined>;
   const owner = classes[info.classId]?.nameTh ?? info.classId;
-  const facts = `ยังใช้สกิล '${written}' ไม่ได้ — เป็นสกิลของ${owner} ปลดที่เลเวล ${info.unlockLevel}`;
+  // สกิลประจำภูมิภาคไม่ได้ตามเลเวล — บอกว่าได้จากไหนตามจริง (8 ต.ค. 2569)
+  const regionName = info.region ? gamedata.regions.find((r) => r.id === info.region)?.nameTh ?? info.region : null;
+  const how = regionName ? `ได้จากการพิสูจน์บทเรียนของ${regionName}` : `ปลดที่เลเวล ${info.unlockLevel}`;
+  const facts = `ยังใช้สกิล '${written}' ไม่ได้ — เป็นสกิลของ${owner} ${how}`;
   return owned.length > 0
     ? `${facts} · สกิลที่คุณใช้ได้ตอนนี้: ${owned.join(', ')}`
     : `${facts} · ตอนนี้คุณยังไม่มีสกิลเลย — ใช้ attack() ไปก่อน`;

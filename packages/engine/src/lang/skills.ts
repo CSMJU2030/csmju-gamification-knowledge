@@ -25,6 +25,8 @@ export interface SkillInfo {
    */
   classId: SkillDef['classId'];
   unlockLevel: number;
+  /** สกิลประจำภูมิภาค (8 ต.ค. 2569) — ได้จากการพิสูจน์บทเรียน ไม่ได้ตามเลเวล */
+  region?: string;
 }
 
 function aliasesOf(s: SkillDef): string[] {
@@ -43,6 +45,7 @@ for (const s of gamedata.skills) {
   const info: SkillInfo = {
     id: s.id, aoe: s.aoe, mpCost: s.mpCost, kind: s.kind,
     classId: s.classId, unlockLevel: s.unlockLevel,
+    ...(s.region ? { region: s.region } : {}),
   };
   for (const a of aliasesOf(s)) {
     const prev = aliasMap.get(a);

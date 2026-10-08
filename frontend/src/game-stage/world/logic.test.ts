@@ -33,6 +33,7 @@ function region(over: Partial<Region> = {}): Region {
     maxDepthAllowed: 1,
     completed: false,
     unlocked: true,
+    proof: null,
     playersHere: 0,
     ...over,
   };

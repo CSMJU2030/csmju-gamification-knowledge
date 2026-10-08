@@ -2699,6 +2699,10 @@
           },
           "aoe": {
             "type": "boolean"
+          },
+          "region": {
+            "type": "string",
+            "description": "สกิลประจำภูมิภาค: id ของภูมิภาคที่พิสูจน์แล้วได้สกิลนี้ (ไม่มี = สกิลอาชีพตามเลเวล)"
           }
         },
         "required": [
@@ -3219,6 +3223,71 @@
           "r"
         ]
       },
+      "RegionSkillDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "nameTh": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "physical",
+              "magic",
+              "heal",
+              "shield",
+              "taunt"
+            ]
+          },
+          "mpCost": {
+            "type": "number"
+          },
+          "aoe": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "nameTh",
+          "kind",
+          "mpCost",
+          "aoe"
+        ]
+      },
+      "RegionProofInfoDto": {
+        "type": "object",
+        "properties": {
+          "requirementsTh": {
+            "description": "เงื่อนไขที่ต้องทำให้ครบในการรบครั้งเดียว (ข้อแรก = ชนะรอบลึกสุด)",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "proved": {
+            "type": "boolean",
+            "description": "ตัวละครนี้พิสูจน์ภูมิภาคนี้แล้ว"
+          },
+          "skill": {
+            "nullable": true,
+            "description": "สกิลที่จะได้/ได้แล้วสำหรับอาชีพของคุณ (null = ผู้ฝึกหัด ยังไม่มีอาชีพ)",
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/RegionSkillDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "requirementsTh",
+          "proved",
+          "skill"
+        ]
+      },
       "RegionDto": {
         "type": "object",
         "properties": {
@@ -3267,6 +3336,16 @@
           "playersHere": {
             "type": "number",
             "description": "จำนวนผู้เล่นที่อยู่ในโซนนี้ตอนนี้"
+          },
+          "proof": {
+            "nullable": true,
+            "description": "สกิลประจำภูมิภาค (null = หอคอย · เมือง ไม่มีสกิลให้พิสูจน์)",
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/RegionProofInfoDto"
+              }
+            ]
           }
         },
         "required": [
@@ -3282,7 +3361,8 @@
           "maxDepthAllowed",
           "completed",
           "unlocked",
-          "playersHere"
+          "playersHere",
+          "proof"
         ]
       },
       "EliteDto": {
@@ -3541,6 +3621,71 @@
           "opponentProgram"
         ]
       },
+      "ProofCheckDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "รหัสคงที่ของเงื่อนไข เช่น deepest_win · handled · hp_floor"
+          },
+          "textTh": {
+            "type": "string",
+            "description": "ข้อความพร้อมตัวเลขของการรบครั้งนี้"
+          },
+          "ok": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "code",
+          "textTh",
+          "ok"
+        ]
+      },
+      "RegionProofDto": {
+        "type": "object",
+        "properties": {
+          "regionId": {
+            "type": "string"
+          },
+          "eligible": {
+            "type": "boolean",
+            "description": "การรบนี้นับไหม — ต้องเป็นรอบลึกสุดของภูมิภาค"
+          },
+          "passed": {
+            "type": "boolean",
+            "description": "นับ + ชนะ + ผ่านทุกเงื่อนไข"
+          },
+          "newlyProved": {
+            "type": "boolean",
+            "description": "พิสูจน์สำเร็จครั้งแรกในการรบนี้ (ได้สกิลตอนนี้)"
+          },
+          "checks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProofCheckDto"
+            }
+          },
+          "skill": {
+            "nullable": true,
+            "description": "สกิลของภูมิภาคนี้สำหรับอาชีพของคุณ (null = ผู้ฝึกหัด)",
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/RegionSkillDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "regionId",
+          "eligible",
+          "passed",
+          "newlyProved",
+          "checks",
+          "skill"
+        ]
+      },
       "PreviousAttemptDto": {
         "type": "object",
         "properties": {
@@ -3616,6 +3761,16 @@
             "allOf": [
               {
                 "$ref": "#/components/schemas/DuelBlockDto"
+              }
+            ]
+          },
+          "proof": {
+            "nullable": true,
+            "description": "มีเฉพาะการรบในภูมิภาค · null = ภูมิภาคนี้ไม่มีสกิลให้พิสูจน์",
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/RegionProofDto"
               }
             ]
           },
@@ -3806,6 +3961,10 @@
           "animation": {
             "type": "string",
             "description": "ชื่อแอนิเมชันเอฟเฟกต์ที่ฉากรบใช้วาด"
+          },
+          "region": {
+            "type": "string",
+            "description": "สกิลประจำภูมิภาค: ได้เมื่อพิสูจน์บทเรียนของภูมิภาคนี้ ไม่ได้ตามเลเวล (unlockLevel ไม่มีความหมาย)"
           }
         },
         "required": [

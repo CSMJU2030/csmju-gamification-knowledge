@@ -23,7 +23,7 @@ import type { ProgramDto } from './program.dto';
 export function langOptions(row: Character): ValidateOptions {
   return {
     features: unlockedFeatures(row.highestFloor),
-    availableSkills: unlockedSkills(row.classId as ClassId, row.level).map((s) => s.id),
+    availableSkills: unlockedSkills(row.classId as ClassId, row.level, row.provedRegions).map((s) => s.id),
   };
 }
 
@@ -70,7 +70,7 @@ export class ProgramsService {
     return {
       source: row.programSource,
       unlockedFeatures: [...opts.features],
-      availableSkills: unlockedSkills(row.classId as ClassId, row.level).map((s) => ({
+      availableSkills: unlockedSkills(row.classId as ClassId, row.level, row.provedRegions).map((s) => ({
         id: s.id,
         nameTh: s.nameTh,
         mpCost: s.mpCost,

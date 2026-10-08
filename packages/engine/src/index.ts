@@ -26,6 +26,10 @@ export { buildWaves, MONSTER_STAT_GROWTH_PER_LEVEL } from './waves';
 export { rollItem } from './drops';
 export { gamedata } from './data';
 export { proficiencyFromBattle, allocatePoints } from './proficiency';
+export {
+  regionProof, proofRequirements, regionSkillFor, skillsFor, archetypeOfId, PROOF_REGIONS,
+} from './proofs';
+export type { RegionProof, ProofCheck } from './proofs';
 
 // ---- BloxCode (เฟส 2B-1) ----
 export {

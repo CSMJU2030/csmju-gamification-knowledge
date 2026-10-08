@@ -259,7 +259,7 @@ export class DuelService {
           level: row.level,
           stats: stats as unknown as object,
           derived: derived as unknown as object,
-          skills: unlockedSkills(classId, row.level).map((s) => s.id),
+          skills: unlockedSkills(classId, row.level, row.provedRegions).map((s) => s.id),
           programSource: row.programSource,
           createdAt: new Date(now),
         },

@@ -1,7 +1,7 @@
 /**
  * ข้อมูลเกมที่ backend ต้องใช้ — อ่านจาก engine ทางเดียว (ไม่มีสำเนาของตัวเลขใด ๆ ที่นี่)
  */
-import { gamedata, type ClassId, type SkillDef } from '@tower/engine';
+import { gamedata, regionSkillFor, skillsFor, type ClassId, type SkillDef } from '@tower/engine';
 
 export type BaseItemDef = (typeof gamedata.baseItems)[number];
 
@@ -24,12 +24,18 @@ export const RARITIES = ['common', 'uncommon', 'rare', 'epic', 'legendary'] as c
 
 export const EQUIP_SLOTS = ['weapon', 'armor', 'helmet', 'accessory'] as const;
 
-export function classSkills(classId: ClassId): SkillDef[] {
-  return gamedata.skills.filter((s) => s.classId === classId);
+/**
+ * สกิลที่ตัวละครใช้ได้: สกิลอาชีพตามเลเวล + สกิลของภูมิภาคที่พิสูจน์แล้ว (8 ต.ค. 2569)
+ * ทุกทางเข้า (รบ · ตรวจโปรแกรม · หน้าตัวละคร · สแนปช็อตดวล) ต้องเรียกตัวนี้พร้อม provedRegions ของแถวเสมอ
+ */
+export function unlockedSkills(classId: ClassId, level: number, provedRegions: readonly string[] = []): SkillDef[] {
+  return skillsFor(classId, level, provedRegions);
 }
 
-export function unlockedSkills(classId: ClassId, level: number): SkillDef[] {
-  return classSkills(classId).filter((s) => s.unlockLevel <= level);
+/** สกิลประจำภูมิภาคของอาชีพนี้ในรูปที่ส่งออก API (null = ผู้ฝึกหัด หรือภูมิภาคไม่มีสกิล) */
+export function regionSkillView(classId: string, regionId: string) {
+  const s = regionSkillFor(classId, regionId);
+  return s ? { id: s.id, nameTh: s.nameTh, kind: s.kind, mpCost: s.mpCost, aoe: s.aoe } : null;
 }
 
 export function baseItemById(baseId: string): BaseItemDef | undefined {

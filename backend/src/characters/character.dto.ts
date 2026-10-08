@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { PLAYABLE_CLASSES } from '@tower/engine';
 import { IsIn, IsOptional, IsString, Matches } from 'class-validator';
 
@@ -82,6 +82,8 @@ export class SkillSummaryDto {
   @ApiProperty() mpCost!: number;
   @ApiProperty({ enum: ['physical', 'magic', 'heal', 'shield', 'taunt'] }) kind!: string;
   @ApiProperty() aoe!: boolean;
+  @ApiPropertyOptional({ description: 'สกิลประจำภูมิภาค: id ของภูมิภาคที่พิสูจน์แล้วได้สกิลนี้ (ไม่มี = สกิลอาชีพตามเลเวล)' })
+  region?: string;
 }
 
 /** ความชำนาญเฉพาะสามช่องที่ผู้เล่นควบคุมได้ (agi/luk โตเอง) */
