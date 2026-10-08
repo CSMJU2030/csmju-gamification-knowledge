@@ -13,7 +13,7 @@
 | ขั้นในคู่มือ | ค่าของ Code Tower |
 |---|---|
 | พอร์ต | frontend **3213** · backend **4213** — ผู้ดูแล dev server กำหนดให้ทีมนี้ (2 ต.ค. 2569) |
-| ลงทะเบียน (PL ด้วยบัญชีเจ้าของระบบของทีม) | ชื่อระบบ `csmju-gamification-knowledge` · Repository `github.com/CSMJU2030/csmju-gamification-knowledge` · Standards version `1.0` (ตัวเลือกเดียวในฟอร์ม) · Callback URL `http://localhost:3213/auth/callback` · Base URL **เว้นว่าง** |
+| ลงทะเบียน (ลงใหม่ 8 ต.ค. 2569 ด้วยบัญชีเจ้าของระบบของทีม) | ชื่อระบบ `csmju-gamification-knowledge` · ชื่อที่แสดง `Gamification Knowledge — Code Tower` · หมวดหมู่ ฝึกเขียนโปรแกรม · Repository `csmju-gamification-knowledge` · เวอร์ชันมาตรฐาน `1.8.4` · Callback URL `https://csmju-gamification-knowledge.jowave.com/auth/callback` · Base URL เว้นว่างตอนส่ง (ใส่ origin เดียวกันได้เมื่อระบบขึ้น server แล้ว) |
 | บทบาทที่ติ๊ก | student → `PLAYER` · alumni → `PLAYER` · staff → `INSTRUCTOR` · lecturer → `INSTRUCTOR` · admin → `ADMIN` · **guest ไม่ติ๊ก** — ต้องตรงกับ `backend/src/auth/role-mapping.ts` |
 | `backend/.env` | คัดลอก `backend/.env.example` (ชี้ server จริงแล้ว) · `SUBSYSTEM_ID=csmju-gamification-knowledge` |
 | `frontend/.env.local` | คัดลอก `frontend/.env.example` · `BACKEND_URL=http://127.0.0.1:4213` |

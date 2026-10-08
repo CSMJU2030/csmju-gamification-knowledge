@@ -9,8 +9,10 @@ conformance_level: L3                 # L1 · L2 · L3 (ระบบที่ม
 
 # frontend เป็นประตูเดียวของระบบ (Next :3213) — proxy /api/* และ /auth/login /auth/callback /auth/logout ไป backend (:4213)
 # พอร์ตของทีมตามที่ผู้ดูแล dev server กำหนด (frontend 3213 · backend 4213)
-# Callback URL ในทะเบียน = base_url + callback_path = http://localhost:3213/auth/callback
-base_url: http://localhost:3213       # localhost ไม่ใช่ 127.0.0.1
+# Callback URL ในทะเบียน = base_url + callback_path = https://csmju-gamification-knowledge.jowave.com/auth/callback
+# (ลงทะเบียนใหม่กับ Core Hub จริง 8 ต.ค. 2569 · ชื่อเว็บตาม deployment.md ข้อ 2) — conformance L3-04 ตรวจว่าตรงกัน
+# ทดสอบในเครื่องกับตัวจำลอง: node standards/conformance/run.js --url http://localhost:3213 --core-hub http://localhost:3000 --core-hub-web http://localhost:3100
+base_url: https://csmju-gamification-knowledge.jowave.com
 core_hub_url: https://csmju2030.jowave.com       # Core Hub จริง (API อยู่ใต้ /api/v1) · ตัวจำลองในเครื่อง: http://localhost:3000
 core_hub_web_url: https://csmju2030.jowave.com   # เว็บที่ /auth/login ส่งเบราว์เซอร์ไป (L3 ต้องมี) · ตัวจำลองในเครื่อง: http://localhost:3100
 callback_path: /auth/callback         # base_url + callback_path ต้องตรงกับ Callback URL ที่ลงทะเบียนไว้
@@ -37,7 +39,7 @@ probes:
     valid_body:
       title: "โจทย์ทดสอบจาก conformance"
 
-# ui-design-system ข้อ 19.2 — ยังใช้ชุดจำลองของ template (frontend/src/csmju) จนกว่าจะได้สิทธิ์อ่าน csmju-core-hub
+# ui-design-system ข้อ 19.2 — shell ยังเป็นของเราเอง (frontend/src/csmju) · โลโก้ใช้ไฟล์จริงจาก standards/templates/csmju-subsystem-web แล้ว
 ui:
   design_system_version: "stand-in"
   theme: light

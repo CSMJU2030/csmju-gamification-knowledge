@@ -32,7 +32,7 @@ export function lockNoteOf(def: BlockDef): string {
   if (!def.needs) return '';
   const needFloor = FEATURE_UNLOCK[def.needs];
   return needFloor >= 999
-    ? `${FEATURE_LABEL_TH[def.needs]} — ยังไม่เปิดในเฟสนี้`
+    ? `${FEATURE_LABEL_TH[def.needs]} — ใช้ไม่ได้ในเกมนี้`
     : `ต้องผ่านชั้น ${needFloor} ก่อน (${FEATURE_LABEL_TH[def.needs]})`;
 }
 

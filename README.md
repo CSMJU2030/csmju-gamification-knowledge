@@ -46,7 +46,8 @@ pnpm --filter frontend start   # http://localhost:3213  (dev: pnpm --filter fron
 ค่าที่ใช้ลงทะเบียนและเชื่อม Core Hub จริง: [`docs/local-integration.md`](docs/local-integration.md) ข้อ 0
 เข้าสู่ระบบเริ่มที่ `/auth/login` ของระบบนี้ แล้วไปเว็บ Core Hub (`CORE_HUB_WEB_URL` ใน `backend/.env`) · ออกจากระบบ = `POST /auth/logout` ออกทั้งระบบ
 frontend เรียก API ผ่าน origin ของตัวเอง (`/api/*` และ `/auth/*` ถูกส่งต่อไป `BACKEND_URL`) จึงไม่ต้องเปิด CORS ·
-origin นี้คือ `base_url` ใน `subsystem.yaml` และ Callback URL ในทะเบียน (`http://localhost:3213/auth/callback`)
+origin ของ server จริงคือ `base_url` ใน `subsystem.yaml` (`https://csmju-gamification-knowledge.jowave.com`) และ Callback URL ในทะเบียนคือ origin นี้ + `/auth/callback` ·
+ทดสอบในเครื่องใช้ `http://localhost:3213` กับตัวจำลอง Core Hub
 
 ## ทดสอบ
 
