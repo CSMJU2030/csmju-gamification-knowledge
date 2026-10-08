@@ -45,6 +45,8 @@ const FLOAT_STYLE: Record<FloatNum['kind'], { color: string; size: number }> = {
   heal: { color: '#6be08a', size: 18 },
   shield: { color: '#6ba6ff', size: 16 },
   mark: { color: '#e8c14a', size: 16 },
+  /** MP ที่ฟื้นในเทิร์นที่สั่ง wait() */
+  mp: { color: '#8ab4ff', size: 16 },
 };
 
 interface HpBar {
@@ -311,9 +313,10 @@ export class SceneRenderer {
     for (const f of dir.play.floats) {
       const t = clamp01((dir.clock - f.born) / FLOAT_LIFE);
       const style = FLOAT_STYLE[f.kind];
-      // ภาพนิ่ง: ตัวเลขอยู่กับที่ ทึบตลอดอายุ · ปกติ: ลอยขึ้น 42px แล้วจางหาย
+      // ภาพนิ่ง: ตัวเลขอยู่กับที่ ทึบตลอดอายุ · ปกติ: โผล่ทึบทันที ลอยขึ้น 42px แล้วจางหาย
+      // (เดิมค่อย ๆ จางเข้าจาก 0 — กด "หยุด" แล้วไล่ "เทิร์นถัดไป" นาฬิกาไม่เดิน ตัวเลขทุกตัวจึงโปร่งใสค้าง มองไม่เห็นเลย)
       const rise = reduced ? 0 : 42 * easeOut(t) * cssScale;
-      const alpha = reduced ? 1 : t < 0.15 ? t / 0.15 : 1 - clamp01((t - 0.55) / 0.45);
+      const alpha = reduced ? 1 : 1 - clamp01((t - 0.55) / 0.45);
       if (alpha <= 0.01) continue;
       const size = Math.round(style.size * cssScale);
       out.font = `800 ${size}px ${this.fontFamily}`;

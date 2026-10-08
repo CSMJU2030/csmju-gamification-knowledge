@@ -2874,8 +2874,10 @@
             "enum": [
               "attack",
               "skill",
-              "defend"
-            ]
+              "defend",
+              "wait"
+            ],
+            "description": "wait = เทิร์นที่โปรแกรมสั่ง wait() — ไม่มีเป้าหมาย มีแค่ mpAfter ที่ฟื้นขึ้น"
           },
           "skillId": {
             "type": "string"

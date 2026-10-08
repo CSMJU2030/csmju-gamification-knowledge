@@ -78,6 +78,14 @@ describe('describeEvent — ข้อความไทยของบันท�
     ]);
   });
 
+  it('เทิร์นที่สั่ง wait() บอกว่ารอ และ MP ฟื้นเป็นเท่าไร', () => {
+    expect(describeEvent(ev({ action: 'wait', mpAfter: 1234 }), ctx)).toEqual([
+      { text: 'อัศวินน้อย รอ 1 เทิร์น · MP เป็น 1,234', kind: 'normal' },
+    ]);
+    // บันทึกที่ไม่มี mpAfter ยังมีบรรทัดรอ แค่ไม่บอก MP
+    expect(describeEvent(ev({ action: 'wait' }), ctx)).toEqual([{ text: 'อัศวินน้อย รอ 1 เทิร์น', kind: 'normal' }]);
+  });
+
   it('หมายหัว (windup) บอกโค้ดที่อ่านสถานะนี้ได้', () => {
     const [line] = describeEvent(
       ev({ actorName: 'ออร์ค', note: 'windup', targets: [{ id: 'p1', name: 'อัศวินน้อย', hpAfter: 90 }] }),

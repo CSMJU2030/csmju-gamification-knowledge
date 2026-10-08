@@ -151,6 +151,76 @@ describe('BattleDirector — หลอด MP (playtest รอบ A ข้อ 4)'
   });
 });
 
+describe('BattleDirector — เทิร์นที่สั่ง wait() (ผู้ใช้แจ้ง 8 ต.ค. 2569: MP ที่ฟื้นไม่แสดง)', () => {
+  const skillCtx: DirectorCtx = {
+    ...ctx,
+    skills: [{ id: 'w_power_strike', nameTh: 'ฟันสายฟ้าแลบ', mpCost: 16, kind: 'physical', aoe: false }],
+  };
+  const cast: CombatEvent = {
+    turn: 1,
+    wave: 1,
+    actorId: 'p1',
+    actorName: 'อัศวินน้อย',
+    action: 'skill',
+    skillId: 'w_power_strike',
+    line: 2,
+    targets: [{ id: 'f1w1_m0_slime', name: 'สไลม์', damage: 5, hpAfter: 25 }],
+    mpAfter: 5,
+  };
+  const wait = (turn: number, mpAfter: number): CombatEvent => ({
+    turn,
+    wave: 1,
+    actorId: 'p1',
+    actorName: 'อัศวินน้อย',
+    action: 'wait',
+    line: 3,
+    targets: [],
+    mpAfter,
+  });
+
+  it('หลอด MP ขยับทุกเทิร์นที่รอ พร้อมตัวเลข +MP ลอยขึ้น และบันทึกมีบรรทัดรอ', () => {
+    const d = new BattleDirector([events[0], cast, wait(2, 6), wait(3, 7)], skillCtx, () => {});
+    d.stepEvent(); // wave_start
+    d.stepEvent(); // ร่ายสกิล 20 → 5
+    expect(d.play.combatants.p1.mp).toBe(5);
+    d.advance(451); // ค้างภาพจบ → เริ่มเทิร์นรอ
+    expect(d.play.combatants.p1.mp).toBe(6);
+    expect(d.play.floats.filter((f) => f.kind === 'mp').map((f) => f.text)).toEqual(['+1 MP']);
+    expect(texts(d).at(-1)).toBe('อัศวินน้อย รอ 1 เทิร์น · MP เป็น 6');
+    // บรรทัดในโปรแกรมที่สั่ง wait() สว่างขึ้นเหมือนเทิร์นอื่น
+    expect(d.play.code).toMatchObject({ line: 3, active: true });
+    d.stepEvent();
+    expect(d.play.combatants.p1.mp).toBe(7);
+    // กดเทิร์นถัดไปตอนหยุดอยู่ = เห็นแค่ตัวเลขของเทิร์นนี้ ไม่ค้างของเทิร์นก่อน
+    expect(d.play.floats.map((f) => `${f.kind} ${f.text}`)).toEqual(['mp +1 MP']);
+    d.stepEvent();
+    expect(d.done).toBe(true);
+  });
+
+  it('เทิร์นรอไม่มีท่าโจมตี ไม่มีเอฟเฟกต์ และไม่มีตัวเลขดาเมจ', () => {
+    const d = new BattleDirector([events[0], cast, wait(2, 6)], skillCtx, () => {});
+    d.stepEvent();
+    d.stepEvent();
+    const seen = new Set(d.play.floats.map((f) => f.id)); // ตัวเลขดาเมจของเทิร์นร่ายยังลอยค้างอยู่
+    d.advance(451);
+    const me = d.ents.get('p1'); // ตัวกำกับเปลี่ยนคีย์ผู้เล่นเป็น id จริงของ engine
+    expect(me).toBeDefined();
+    expect(me?.anim).not.toBe('act');
+    expect(me?.lunge).toBe(0);
+    expect(d.fx).toHaveLength(0);
+    expect(d.play.floats.filter((f) => !seen.has(f.id)).map((f) => f.kind)).toEqual(['mp']);
+  });
+
+  it('MP เต็มอยู่แล้วตอนรอ = ไม่มีตัวเลข +0 MP · ข้ามไปผลลัพธ์ไม่ลงบรรทัดรอซ้ำ', () => {
+    const d = new BattleDirector([events[0], wait(1, 20), wait(2, 20)], skillCtx, () => {});
+    d.stepEvent();
+    d.stepEvent();
+    expect(d.play.floats.some((f) => f.kind === 'mp')).toBe(false);
+    d.skip();
+    expect(texts(d).filter((t) => t.includes('รอ 1 เทิร์น'))).toHaveLength(2);
+  });
+});
+
 describe('duelSides', () => {
   it('หา id ทั้งสองฝั่งจากชื่อ และอ่านเลือดเต็มจาก log', () => {
     const duel: DuelBlock = {

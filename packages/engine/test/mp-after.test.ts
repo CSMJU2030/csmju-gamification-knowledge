@@ -82,6 +82,40 @@ describe('mpAfter', () => {
     }
   });
 
+  it('เทิร์นที่สั่ง wait() มีเหตุการณ์ของตัวเอง — เห็น MP ที่ฟื้นระหว่างรอ · บรรทัดที่สั่ง · คำเตือน MP ไม่พอ (8 ต.ค. 2569)', () => {
+    // โปรแกรมของผู้เล่นจริงบน server: ร่ายพายุน้ำแข็ง (MP 16) ไม่พอก็รอ — เดิมเทิร์นรอไม่มีเหตุการณ์เลย หลอด MP จึงค้าง
+    const WAIT_FOR_MP = 'def turn():\n    cast("blizzard", weakest(enemies))\n    wait()\n';
+    const h = hero('mage', 5, WAIT_FOR_MP);
+    const max = h.derived.maxMp;
+    const regen = Math.round(max * MP_REGEN_PCT);
+    const restore = Math.round(max * WAVE_CLEAR_RESTORE);
+    const r = runBattle([h], 2, 4242);
+    const waits = r.events.filter((e) => e.actorId === 'p1' && e.action === 'wait');
+    expect(waits.length).toBeGreaterThan(0);
+    for (const e of waits) {
+      expect(e.targets).toEqual([]);
+      expect(e.line).toBe(3);
+      expect(e.codeWarnings?.some((w) => w.includes('blizzard'))).toBe(true);
+    }
+    // ลำดับ MP สร้างกลับได้ครบทุกเทิร์น รวมเทิร์นรอ (ฟื้น 5% ต่อเทิร์น)
+    let mp = max;
+    for (const e of r.events) {
+      if (e.note === 'wave_clear') {
+        mp = Math.min(max, mp + restore);
+        continue;
+      }
+      if (e.actorId !== 'p1') continue;
+      const spent = e.action === 'skill' ? mpCost(e.skillId) : 0;
+      expect(mp).toBeGreaterThanOrEqual(spent);
+      expect(e.mpAfter).toBe(Math.min(max, mp - spent + regen));
+      mp = e.mpAfter!;
+    }
+    // ทุกรอบที่ผู้เล่นยังยืนอยู่มีเหตุการณ์ของผู้เล่นหนึ่งอัน (ไม่มีเทิร์นที่หายไปจากฉาก)
+    const heroTurns = new Set(r.events.filter((e) => e.actorId === 'p1').map((e) => `${e.wave}:${e.turn}`));
+    const rounds = new Set(r.events.filter((e) => e.actorId !== 'system').map((e) => `${e.wave}:${e.turn}`));
+    expect(heroTurns.size).toBe(rounds.size);
+  });
+
   it('อยู่ในช่วง 0 ถึง MP สูงสุดของผู้ลงมือเสมอ (ทั้งผู้เล่นและมอน)', () => {
     const h = hero('warrior', 5, 'def turn():\n    cast("power_strike", weakest(enemies))\n');
     const r = runBattle([h], 4, 123);
