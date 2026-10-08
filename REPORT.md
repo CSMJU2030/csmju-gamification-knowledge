@@ -16,8 +16,21 @@
 > `jwt.verification.success` · `jwks.refresh` · `jwks.refresh.failure` · `jwks.unknown_kid` · `authorization.denied` · reason `jwks_unavailable`
 > **มาตรฐาน 1.8.4 · พร้อมขึ้น server กลาง** (6 ต.ค. 2569 · branch `feature/gamification-knowledge/bump-standards-v1-8-4`): Dockerfile ของ api และ web ·
 > `.dockerignore` · Next.js standalone · `DATABASE_POOL_MAX` · `docker-compose.yml` ทดสอบในเครื่อง — ผ่าน `DEP-01..04` (deployment.md 1.4)
+> **ขึ้น server แล้ว · หน้าตาแบบเปิดใช้จริง** (8 ต.ค. 2569 · branch `feature/gamification-knowledge/launch-polish`): ระบบเปิดที่
+> `https://csmju-gamification-knowledge.jowave.com` (ลงทะเบียนใหม่กับ Core Hub จริง) · โลโก้จริงจาก template มาตรฐาน · เอาช่องค้นหาและกระดิ่งที่กดไม่ได้ออก ·
+> ส่วนท้ายมีที่ติดต่อและลิงก์จริงชุดเดียวกับ Core Hub · `base_url` ใน `subsystem.yaml` เป็น origin จริง
 
 ## ผลรัน
+
+**ลองเล่นบน server จริง + หน้าตาแบบเปิดใช้จริง (8 ต.ค. 2569 · branch `launch-polish`)**
+
+- ลองเล่นบน `https://csmju-gamification-knowledge.jowave.com` ด้วยบัญชีเจ้าของระบบ (บุคลากร → ผู้สอน): health · ตัวละคร · หอคอยชั้น 1 ชนะ 10/10 ·
+  สวมของ · หน้าโปรแกรม (บล็อก/โค้ด) · ป่าเริ่มต้นรอบ 1 ชนะ 10/10 · ประวัติการรบ · ตัวอย่างอาชีพ · หน้าโจทย์ — ทุกคำขอ API ได้ 2xx · console ไม่มี error
+- สิ่งที่ยังดูไม่เหมือนเปิดใช้จริงและแก้ใน branch นี้: ช่องค้นหาเขียนว่า "ยังไม่เปิดในชุดจำลอง" · กระดิ่งที่กดไม่ได้ · ส่วนท้ายเป็นตัวหนังสือที่กดไม่ได้ ·
+  โลโก้เป็นตัวอักษรแทน · คำว่า "ยังไม่เปิดในเฟสนี้" ในถาดบล็อก (ทางที่ไม่มีบล็อกใดใช้ แต่แก้ไว้กันหลุด)
+- โลโก้ย่อจากไฟล์ของ template (8192px · 435 KB → 480px · 52 KB) ใช้ `<img>` ธรรมดา เพราะ container อ่านอย่างเดียว ตัวย่อภาพของ Next เขียน cache ไม่ได้
+- ผลรัน: frontend 81 · lint · typecheck · build · เบราว์เซอร์กับตัวจำลอง (W23) ทั้ง 1280 และ 360px: ไม่มีคำว่า "ชุดจำลอง"/"ยังไม่เปิด" ·
+  ไม่มีช่องค้นหาและกระดิ่ง · โลโก้โหลดและกว้าง 184px (ขั้นต่ำ 120) · ส่วนท้ายมีลิงก์ 5 ลิงก์ ไม่มี `#` · ไม่เลื่อนข้าง
 
 **standards 1.8.4 + image สำหรับ server กลาง (6 ต.ค. 2569 · branch `bump-standards-v1-8-4`)** — standards/docs/deployment.md 1.4
 

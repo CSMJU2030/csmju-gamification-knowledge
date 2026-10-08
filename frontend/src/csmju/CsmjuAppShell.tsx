@@ -19,7 +19,7 @@ import {
   type ReactNode,
 } from 'react';
 import { CsmjuLogo } from './CsmjuLogo';
-import { BellIcon, CloseIcon, LogoutIcon, MenuIcon, NAV_ICONS, SearchIcon, type NavIconName } from './icons';
+import { CloseIcon, LogoutIcon, MenuIcon, NAV_ICONS, type NavIconName } from './icons';
 import {
   LOGOUT_PATH,
   coreDashboardUrl,
@@ -142,6 +142,13 @@ export interface CsmjuAppShellProps {
   primaryAction?: { label: string; href: string; icon?: NavIconName };
   children: ReactNode;
 }
+
+/** ลิงก์ส่วนท้าย — ชุดเดียวกับส่วนท้ายของเว็บ Core Hub */
+const FOOTER_LINKS = [
+  { label: 'เว็บไซต์สาขาวิชา (csmju.com)', href: 'https://csmju.com' },
+  { label: 'มหาวิทยาลัยแม่โจ้', href: 'https://www.mju.ac.th' },
+  { label: 'งานทะเบียน (reg.mju.ac.th)', href: 'https://reg.mju.ac.th' },
+] as const;
 
 export function CsmjuAppShell({ subsystemName, displayName, nav, primaryAction, children }: CsmjuAppShellProps) {
   const pathname = usePathname() ?? '/';
@@ -338,28 +345,8 @@ export function CsmjuAppShell({ subsystemName, displayName, nav, primaryAction, 
             </button>
             <span className="truncate font-display text-label-md font-bold text-gradient md:hidden">{displayName}</span>
 
-            <div className="mx-auto hidden w-full max-w-md md:block">
-              <label className="relative block">
-                <span className="sr-only">ค้นหา</span>
-                <SearchIcon className="pointer-events-none absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2 text-outline" />
-                <input
-                  type="search"
-                  disabled
-                  placeholder="ค้นหาทั่วระบบ (ยังไม่เปิดในชุดจำลอง)"
-                  className="w-full rounded-full border border-transparent bg-surface py-2 pr-4 pl-10 text-body-md text-on-surface placeholder:text-outline/70 disabled:cursor-not-allowed"
-                />
-              </label>
-            </div>
-
-            <div className="ml-auto flex items-center gap-2 md:ml-0">
-              <button
-                type="button"
-                disabled
-                aria-label="การแจ้งเตือน (ยังไม่มีรายการ)"
-                className="inline-flex h-11 w-11 items-center justify-center rounded-full text-on-surface-variant disabled:cursor-not-allowed"
-              >
-                <BellIcon className="h-6 w-6" />
-              </button>
+            {/* ค้นหาทั่วระบบและการแจ้งเตือนยังไม่มีบริการรองรับ — ไม่แสดงช่องที่กดไม่ได้ให้ผู้ใช้เห็นบน server จริง */}
+            <div className="ml-auto flex items-center gap-2">
               <div className="flex items-center gap-3">
                 {user ? (
                   <>
@@ -403,14 +390,38 @@ export function CsmjuAppShell({ subsystemName, displayName, nav, primaryAction, 
           </main>
 
           <footer className="border-t border-outline-variant/30 bg-surface-container-low">
-            <div className="mx-auto flex w-full max-w-[1280px] flex-col gap-3 px-4 py-6 text-caption text-on-surface-variant md:flex-row md:items-center md:justify-between md:px-12">
-              <span>© 2026 สาขาวิชาวิทยาการคอมพิวเตอร์ มหาวิทยาลัยแม่โจ้</span>
-              <span className="flex flex-wrap gap-x-4 gap-y-1">
-                <span>ติดต่อเรา</span>
-                <span>นโยบายความเป็นส่วนตัว</span>
-                <span>ทำเนียบบุคลากร</span>
-                <span>ปฏิทินการศึกษา</span>
-              </span>
+            <div className="mx-auto flex w-full max-w-[1280px] flex-col gap-3 px-4 py-6 text-caption text-on-surface-variant md:flex-row md:items-start md:justify-between md:px-12">
+              <div className="space-y-1">
+                <p>© {new Date().getFullYear()} สาขาวิชาวิทยาการคอมพิวเตอร์ คณะวิทยาศาสตร์ มหาวิทยาลัยแม่โจ้</p>
+                <p className="flex flex-wrap gap-x-3 gap-y-1">
+                  <span>
+                    โทร{' '}
+                    <a href="tel:053873890" className="underline-offset-2 hover:text-primary-container hover:underline">
+                      053-873890-3
+                    </a>
+                  </span>
+                  <span>
+                    อีเมล{' '}
+                    <a href="mailto:cs@mju.ac.th" className="underline-offset-2 hover:text-primary-container hover:underline">
+                      cs@mju.ac.th
+                    </a>
+                  </span>
+                </p>
+              </div>
+              {/* ลิงก์เดียวกับส่วนท้ายของ Core Hub — ไม่ใส่ลิงก์ที่ยังไม่มีปลายทาง */}
+              <nav aria-label="เว็บไซต์ที่เกี่ยวข้อง" className="flex flex-wrap gap-x-4 gap-y-1">
+                {FOOTER_LINKS.map((l) => (
+                  <a
+                    key={l.href}
+                    href={l.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline-offset-2 hover:text-primary-container hover:underline"
+                  >
+                    {l.label}
+                  </a>
+                ))}
+              </nav>
             </div>
           </footer>
         </div>
