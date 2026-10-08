@@ -39,7 +39,11 @@ export class CombatEventDto {
   @ApiProperty() wave!: number;
   @ApiProperty() actorId!: string;
   @ApiProperty() actorName!: string;
-  @ApiProperty({ enum: ['attack', 'skill', 'defend'] }) action!: 'attack' | 'skill' | 'defend';
+  @ApiProperty({
+    enum: ['attack', 'skill', 'defend', 'wait'],
+    description: 'wait = เทิร์นที่โปรแกรมสั่ง wait() — ไม่มีเป้าหมาย มีแค่ mpAfter ที่ฟื้นขึ้น',
+  })
+  action!: 'attack' | 'skill' | 'defend' | 'wait';
   @ApiPropertyOptional() skillId?: string;
   @ApiProperty({ type: [CombatTargetDto] }) targets!: CombatTargetDto[];
   @ApiPropertyOptional({ enum: ['wave_start', 'wave_clear', 'defend', 'windup'] })

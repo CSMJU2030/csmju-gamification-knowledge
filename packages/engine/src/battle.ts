@@ -766,6 +766,16 @@ export function simulateWaves(
               action: 'skill', skillId: skill.id, targets, ...codeMeta,
             });
           }
+        } else if (resolved) {
+          /**
+           * wait() ก็เป็นเทิร์นจริง: ไม่ทำอะไรแต่ฟื้น MP ตอนจบเทิร์นเหมือนเทิร์นอื่น (8 ต.ค. 2569)
+           * เดิมไม่มีเหตุการณ์ออกมาเลย ฉากจึงไม่เห็น MP ที่ฟื้นระหว่างรอ (หลอดค้างแล้วกระโดดตอนร่ายครั้งถัดไป)
+           * ไม่รู้ว่าบรรทัดไหนสั่งรอ และคำเตือน "MP ไม่พอ" ของ cast() ที่ถูกข้ามก่อน wait() หายไปด้วย
+           */
+          events.push({
+            turn: round, wave: w, actorId: actor.c.id, actorName: actor.c.name,
+            action: 'wait', targets: [], ...codeMeta,
+          });
         }
 
         // End-of-turn MP regeneration (5% of maxMp).

@@ -129,7 +129,8 @@ export interface CombatEvent {
   wave: number;
   actorId: string;
   actorName: string;
-  action: ActionType;
+  /** 'wait' = เทิร์นที่โปรแกรมสั่ง wait() — ไม่มีเป้าหมาย มีไว้ให้ฉากเห็น MP ที่ฟื้นและบรรทัดที่สั่ง (8 ต.ค. 2569) */
+  action: ActionType | 'wait';
   skillId?: string;
   targets: {
     id: string; name: string;

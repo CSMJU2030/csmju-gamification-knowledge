@@ -47,6 +47,12 @@ export function describeEvent(ev: CombatEvent, ctx: LogContext): LogEntry[] {
     return [{ text: `${ev.actorName} ตั้งท่าป้องกัน`, kind: 'normal' }];
   }
 
+  // wait() — เทิร์นที่ไม่ทำอะไรแต่ MP ยังฟื้น (เดิมไม่มีบรรทัดนี้ ผู้เล่นไม่รู้ว่าเทิร์นหายไปไหน)
+  if (ev.action === 'wait') {
+    const mp = typeof ev.mpAfter === 'number' ? ` · MP เป็น ${fmt(ev.mpAfter)}` : '';
+    return [{ text: `${ev.actorName} รอ 1 เทิร์น${mp}`, kind: 'normal' }];
+  }
+
   /*
    * รอบ 2M: ตั้งท่าหมายหัว — ไม่มีดาเมจ แต่เป็นบรรทัดที่สำคัญที่สุดของเวฟนั้น
    * เพราะมันคือ "ช่วงที่ has_debuff("marked") เป็นจริง" ผู้เล่นต้องเห็นว่าโค้ดของตัวเองตอบทันไหม

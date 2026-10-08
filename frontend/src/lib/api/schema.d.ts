@@ -532,8 +532,11 @@ export interface components {
             wave: number;
             actorId: string;
             actorName: string;
-            /** @enum {string} */
-            action: "attack" | "skill" | "defend";
+            /**
+             * @description wait = เทิร์นที่โปรแกรมสั่ง wait() — ไม่มีเป้าหมาย มีแค่ mpAfter ที่ฟื้นขึ้น
+             * @enum {string}
+             */
+            action: "attack" | "skill" | "defend" | "wait";
             skillId?: string;
             targets: components["schemas"]["CombatTargetDto"][];
             /** @enum {string} */

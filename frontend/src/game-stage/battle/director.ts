@@ -73,7 +73,7 @@ export interface FloatNum {
   id: number;
   combatantId: string;
   text: string;
-  kind: 'dmg' | 'crit' | 'miss' | 'heal' | 'shield' | 'mark';
+  kind: 'dmg' | 'crit' | 'miss' | 'heal' | 'shield' | 'mark' | 'mp';
   /** พิกัดในระบบฉาก 256x160 */
   x: number;
   y: number;
@@ -336,6 +336,8 @@ export class BattleDirector {
       this.remain = STEP_HOLD;
     } else {
       if (this.phase !== 'boot') this.idx++;
+      // ตอนหยุดอยู่ นาฬิกาไม่เดิน ตัวเลขของเทิร์นก่อน ๆ จะค้างทับกันบนจอ — ล้างทิ้ง ให้เห็นแค่ของเทิร์นนี้
+      this.play.floats = [];
       this.beginEvent(true);
     }
     this.dirty = true;
@@ -451,6 +453,14 @@ export class BattleDirector {
     this.play.activeActor = actorId;
     this.markCode(ev, actorId);
     this.dirty = true;
+
+    // wait(): ไม่มีท่าและไม่มีเป้า — ลงผลทันที (หลอด MP ขยับ + ตัวเลข MP ที่ฟื้นลอยขึ้น) แล้วค้างสั้น ๆ
+    if (ev.action === 'wait') {
+      this.applyEvent(ev);
+      this.phase = 'hold';
+      this.remain = this.reduced ? STILL_HOLD : STEP_HOLD;
+      return;
+    }
 
     if (instant) {
       // ลงผลทั้งก้อน แล้วค้างภาพนิ่ง — ผู้กระทำยังมีวงไฮไลต์บนแท่นให้รู้ว่าใครเพิ่งลงมือ
@@ -793,11 +803,15 @@ export class BattleDirector {
       if (typeof ev.mpAfter === 'number') {
         const mp = Math.max(0, ev.mpAfter);
         s.combatants[actorKey] = { ...actorView, mp, maxMp: Math.max(actorView.maxMp, mp) };
+        // เทิร์นรอ: บอกให้เห็นว่า MP ฟื้นเท่าไร (เดิมเทิร์นรอไม่มีเหตุการณ์ หลอดค้างแล้วกระโดด)
+        if (ev.action === 'wait' && mp > actorView.mp) this.pushFloat(actorKey, `+${fmt(mp - actorView.mp)} MP`, 'mp', 0);
       } else if (usedSkill) {
         const def = this.ctx.skills.find((x) => x.id === ev.skillId);
         if (def) s.combatants[actorKey] = { ...actorView, mp: Math.max(0, actorView.mp - def.mpCost) };
       }
     }
+
+    if (ev.action === 'wait') return;
 
     if (ev.action === 'defend' || ev.note === 'defend') return;
 
