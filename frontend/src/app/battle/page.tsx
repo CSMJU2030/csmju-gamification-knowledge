@@ -249,6 +249,7 @@ function BattleView({ pending }: { pending: PendingBattle }) {
               actionError={retryError}
               headingRef={resultHeadingRef}
               growth={growth}
+              {...(region ? { regionName: region.regionName } : {})}
             />
           )}
           <BattlePlayer

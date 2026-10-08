@@ -21,6 +21,7 @@ import {
 import { MAX_WAVE } from '@/game-stage/battle/battle-log';
 import type { GrowthSummary } from '@/lib/game/growth';
 import GrowthPanel from './GrowthPanel';
+import ProofPanel from './ProofPanel';
 
 type StatKey = keyof typeof STAT_SHORT;
 const STAT_ORDER: StatKey[] = ['str', 'int', 'vit', 'agi', 'luk'];
@@ -66,6 +67,8 @@ interface Props {
   headingRef?: Ref<HTMLHeadingElement>;
   /** การเติบโต ก่อน → หลัง (playtest รอบ A ข้อ 6) — ไม่ส่ง = ป้าย +สเตตัสแบบเดิม */
   growth?: GrowthSummary;
+  /** ชื่อภูมิภาคสำหรับผลตรวจบทเรียน (มีเฉพาะการรบในภูมิภาคที่ outcome.proof ไม่เป็น null) */
+  regionName?: string;
 }
 
 export default function BattleResult({
@@ -77,6 +80,7 @@ export default function BattleResult({
   actionError,
   headingRef,
   growth,
+  regionName,
 }: Props) {
   const headingId = useId();
   const { result, leveledUp, newLevel, statsGained } = outcome;
@@ -111,6 +115,8 @@ export default function BattleResult({
       </p>
 
       {notes && <div className="mt-4 space-y-3">{notes}</div>}
+
+      {outcome.proof && regionName && <ProofPanel proof={outcome.proof} regionName={regionName} />}
 
       {growth && <GrowthPanel growth={growth} />}
 
