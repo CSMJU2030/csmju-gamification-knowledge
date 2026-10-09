@@ -18,6 +18,7 @@ import {
   STAT_SHORT,
   fmt,
   pct,
+  regionNameOf,
 } from '@/lib/game/labels';
 import { Portrait } from './Portrait';
 
@@ -61,12 +62,17 @@ export function CharacterOverview({ character: c, gameData }: { character: Chara
   const maxStat = Math.max(1, ...STAT_KEYS.map((k) => c.stats[k]));
 
   // สกิลทั้งหมดของอาชีพ (รวมที่ยังไม่ปลดล็อก) จาก game-data · ถ้าตารางยังไม่มาใช้ของที่ตัวละครมี
-  const classSkills = useMemo<Pick<SkillDef, 'id' | 'nameTh' | 'unlockLevel' | 'mpCost' | 'kind' | 'aoe'>[]>(() => {
-    const merged = new Map<string, Pick<SkillDef, 'id' | 'nameTh' | 'unlockLevel' | 'mpCost' | 'kind' | 'aoe'>>();
-    // สกิลประจำภูมิภาคมาจาก c.skills เฉพาะตัวที่พิสูจน์แล้ว — ไม่ดึงจาก game-data ไม่งั้นขึ้นว่าใช้ได้ทั้งที่ยังไม่ได้
-    for (const s of gameData?.skills ?? []) if (s.classId === c.classId && !s.region) merged.set(s.id, s);
-    for (const s of c.skills) if (!merged.has(s.id)) merged.set(s.id, s);
-    return [...merged.values()].sort((a, b) => a.unlockLevel - b.unlockLevel);
+  // สกิลประจำภูมิภาค (8 ต.ค. 2569): ได้แล้วมาจาก c.skills · ยังไม่ได้มาจาก game-data แสดงล็อกพร้อมชื่อภูมิภาค ต่อท้ายสกิลตามเลเวล
+  type Row = Pick<SkillDef, 'id' | 'nameTh' | 'unlockLevel' | 'mpCost' | 'kind' | 'aoe'> & { region?: string; owned: boolean };
+  const classSkills = useMemo<Row[]>(() => {
+    const owned = new Set(c.skills.map((s) => s.id));
+    const merged = new Map<string, Row>();
+    for (const s of gameData?.skills ?? []) if (s.classId === c.classId) merged.set(s.id, { ...s, owned: owned.has(s.id) });
+    for (const s of c.skills) if (!merged.has(s.id)) merged.set(s.id, { ...s, owned: true });
+    const order = (gameData?.regions ?? []).map((r) => r.id);
+    return [...merged.values()].sort((a, b) =>
+      (a.region ? 1 : 0) - (b.region ? 1 : 0)
+      || (a.region && b.region ? order.indexOf(a.region) - order.indexOf(b.region) : a.unlockLevel - b.unlockLevel));
   }, [gameData, c]);
 
   const d = c.derived;
@@ -270,7 +276,7 @@ export function CharacterOverview({ character: c, gameData }: { character: Chara
           ) : (
             <ul className="divide-y divide-outline-variant/40">
               {classSkills.map((s) => {
-                const locked = c.level < s.unlockLevel;
+                const locked = s.region ? !s.owned : c.level < s.unlockLevel;
                 return (
                   <li key={s.id} className="flex items-center justify-between gap-3 px-6 py-3.5">
                     <span className="min-w-0">
@@ -280,11 +286,12 @@ export function CharacterOverview({ character: c, gameData }: { character: Chara
                       <span className="block text-label-sm font-normal text-on-surface-variant">
                         {SKILL_KIND_LABELS[s.kind] ?? s.kind}
                         {s.aoe && ' · โดนทุกตัว'}
+                        {s.region && ` · สกิลของ${regionNameOf(s.region, gameData)}`}
                       </span>
                     </span>
                     {locked ? (
                       <StatusBadge tone="neutral">
-                        <LockIcon className="h-3 w-3" /> เลเวล {s.unlockLevel}
+                        <LockIcon className="h-3 w-3" /> {s.region ? 'พิสูจน์บทเรียนของโซน' : `เลเวล ${s.unlockLevel}`}
                       </StatusBadge>
                     ) : (
                       <span className="text-label-md text-on-surface-variant tabular-nums">MP {s.mpCost}</span>

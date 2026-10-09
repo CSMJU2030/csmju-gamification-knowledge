@@ -151,6 +151,25 @@ export function skillName(skillId: string | undefined, gamedata: GameData | null
   return gamedata?.skills.find((s) => s.id === skillId)?.nameTh ?? skillId;
 }
 
+/**
+ * ชื่อที่เขียนใน cast() — id ตัดคำนำหน้าอาชีพออก (w_ · m_ · g_)
+ * ตัวแปลภาษายอมรับชื่อนี้เสมอ เทสต์ของ engine คุมว่าชื่อสั้นของสกิลภูมิภาคไม่ชนกับสกิลอื่น
+ */
+export function castName(skillId: string): string {
+  const i = skillId.indexOf('_');
+  return i > 0 ? skillId.slice(i + 1) : skillId;
+}
+
+/** โล่ · ฮีล · ยั่วยุ ใส่เป้าเป็น me · ท่าโจมตีใส่ศัตรู — ใช้แสดงตัวอย่างโค้ดให้ถูกเป้า */
+export function castExample(skill: { id: string; kind: string }): string {
+  const target = skill.kind === 'physical' || skill.kind === 'magic' ? 'weakest(enemies)' : 'me';
+  return `cast("${castName(skill.id)}", ${target})`;
+}
+
+export function regionNameOf(regionId: string, gamedata: GameData | null): string {
+  return gamedata?.regions.find((r) => r.id === regionId)?.nameTh ?? regionId;
+}
+
 export function fmt(n: number): string {
   return n.toLocaleString('th-TH');
 }

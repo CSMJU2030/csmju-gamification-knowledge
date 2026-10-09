@@ -33,6 +33,7 @@ import {
   regionStatus,
   unlockFloor,
 } from './logic';
+import RegionSkillSection from './RegionSkillSection';
 
 const focusRing = 'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-container';
 
@@ -111,6 +112,8 @@ export default function RegionDetailCard({
         <h3 className="text-label-md text-on-surface">บทเรียนของโซนนี้</h3>
         <p className="text-body-md text-on-surface-variant">{region.lessonTh}</p>
       </div>
+
+      {region.proof && <RegionSkillSection proof={region.proof} />}
 
       {!isTown && (
         <dl className="flex items-baseline justify-between gap-3 rounded-lg bg-surface-container-low px-4 py-3">
