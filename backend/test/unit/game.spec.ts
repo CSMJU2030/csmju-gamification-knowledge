@@ -22,7 +22,7 @@ function character(overrides: Partial<Character> = {}): Character {
     classId: 'novice', level: 1, exp: 0,
     statStr: base.str, statInt: base.int, statVit: base.vit, statAgi: base.agi, statLuk: base.luk,
     gold: 100, materials: 0, highestFloor: 0, programSource: TRIVIAL_PROGRAM,
-    profStr: 0, profInt: 0, profVit: 0, profAgi: 0, profLuk: 0,
+    profStr: 0, profInt: 0, profVit: 0, profAgi: 0, profLuk: 0, provedRegions: [],
     createdAt: new Date(0), updatedAt: new Date(0),
     ...overrides,
   };
@@ -124,6 +124,30 @@ describe('ตรวจโปรแกรม BloxCode', () => {
   });
   it('ยาวเกิน 20000 ตัวอักษร → ปฏิเสธก่อนเข้า parser', () => {
     expect(checkProgram(`#${'x'.repeat(20001)}`, novice)[0].line).toBe(1);
+  });
+});
+
+describe('สกิลประจำภูมิภาค (8 ต.ค. 2569 · ระยะ S1)', () => {
+  const warrior = (provedRegions: string[] = []) => character({ classId: 'warrior', level: 3, highestFloor: 2, provedRegions });
+  it('รบ: ได้สกิลของภูมิภาคที่พิสูจน์แล้วเท่านั้น · ล็อกเลเวลก็ไม่หาย', () => {
+    expect(buildHero(warrior(), []).combatant.skills).toEqual(['w_power_strike']);
+    expect(buildHero(warrior(['greenwood']), []).combatant.skills).toEqual(['w_power_strike', 'w_guard_up']);
+    expect(buildHero(warrior(['greenwood']), [], HERO_ID, { floor: 1 }).combatant.skills).toContain('w_guard_up');
+  });
+  it('หน้าตัวละคร: สกิลภูมิภาคบอกว่ามาจากภูมิภาคไหน', () => {
+    const skills = characterView(warrior(['ruins']), []).skills;
+    expect(skills.find((s) => s.id === 'w_pierce')).toMatchObject({ region: 'ruins', nameTh: 'แทงทะลวง' });
+    expect(skills.find((s) => s.id === 'w_power_strike')).not.toHaveProperty('region');
+  });
+  it('ตรวจโปรแกรม: ยังไม่พิสูจน์ = บอกว่าได้จากภูมิภาคไหน · พิสูจน์แล้วบันทึกได้', () => {
+    const src = 'def turn():\n    cast("guard_up", me)\n';
+    const before = checkProgram(src, langOptions(warrior()));
+    expect(before.map((e) => e.messageTh).join(' ')).toContain('ได้จากการพิสูจน์บทเรียนของป่าเริ่มต้น');
+    expect(checkProgram(src, langOptions(warrior(['greenwood'])))).toEqual([]);
+  });
+  it('ผู้ฝึกหัดที่พิสูจน์ไว้ยังไม่มีสกิล — ได้ตอนเลือกอาชีพ', () => {
+    expect(unlockedSkills('novice', 5, ['greenwood'])).toEqual([]);
+    expect(unlockedSkills('mage', 1, ['greenwood']).map((s) => s.id)).toEqual(['m_firebolt', 'm_mana_veil']);
   });
 });
 

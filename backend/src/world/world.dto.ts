@@ -22,6 +22,24 @@ export class HotspotDto {
   @ApiProperty({ description: 'รัศมี (สัดส่วนของความกว้าง)' }) r!: number;
 }
 
+/** สกิลประจำภูมิภาคของอาชีพผู้เล่น (8 ต.ค. 2569 · ระยะ S1) */
+export class RegionSkillDto {
+  @ApiProperty() id!: string;
+  @ApiProperty() nameTh!: string;
+  @ApiProperty({ enum: ['physical', 'magic', 'heal', 'shield', 'taunt'] }) kind!: string;
+  @ApiProperty() mpCost!: number;
+  @ApiProperty() aoe!: boolean;
+}
+
+/** การพิสูจน์บทเรียนของภูมิภาค — มีเฉพาะภูมิภาคที่มีสกิลให้ */
+export class RegionProofInfoDto {
+  @ApiProperty({ type: [String], description: 'เงื่อนไขที่ต้องทำให้ครบในการรบครั้งเดียว (ข้อแรก = ชนะรอบลึกสุด)' })
+  requirementsTh!: string[];
+  @ApiProperty({ description: 'ตัวละครนี้พิสูจน์ภูมิภาคนี้แล้ว' }) proved!: boolean;
+  @ApiProperty({ type: RegionSkillDto, nullable: true, description: 'สกิลที่จะได้/ได้แล้วสำหรับอาชีพของคุณ (null = ผู้ฝึกหัด ยังไม่มีอาชีพ)' })
+  skill!: RegionSkillDto | null;
+}
+
 export class RegionDto {
   @ApiProperty() id!: string;
   @ApiProperty() nameTh!: string;
@@ -36,6 +54,8 @@ export class RegionDto {
   @ApiProperty() completed!: boolean;
   @ApiProperty() unlocked!: boolean;
   @ApiProperty({ description: 'จำนวนผู้เล่นที่อยู่ในโซนนี้ตอนนี้' }) playersHere!: number;
+  @ApiProperty({ type: RegionProofInfoDto, nullable: true, description: 'สกิลประจำภูมิภาค (null = หอคอย · เมือง ไม่มีสกิลให้พิสูจน์)' })
+  proof!: RegionProofInfoDto | null;
 }
 
 export class EliteDto {

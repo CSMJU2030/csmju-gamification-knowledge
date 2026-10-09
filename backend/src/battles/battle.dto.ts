@@ -3,7 +3,7 @@ import { IsInt, IsUUID, Max, Min } from 'class-validator';
 import { CharacterDto, ItemDto, StatsDto } from '../characters/character.dto';
 import { TOWER_MAX_FLOOR } from '../game/game-rules';
 import { OptionalButNotNull } from '../common/validation';
-import { DuelAnnounceDto, RegionRunDto } from '../world/world.dto';
+import { DuelAnnounceDto, RegionRunDto, RegionSkillDto } from '../world/world.dto';
 
 /** ส่งอย่างใดอย่างหนึ่ง: `towerFloor` (ท้าทายหอคอย) หรือ `regionRunId` (รบรอบที่เข้าไว้ในภูมิภาค) */
 export class CreateBattleDto {
@@ -96,12 +96,35 @@ export class BattleAttemptDto {
   previous!: PreviousAttemptDto | null;
 }
 
+export class ProofCheckDto {
+  @ApiProperty({ description: 'รหัสคงที่ของเงื่อนไข เช่น deepest_win · handled · hp_floor' }) code!: string;
+  @ApiProperty({ description: 'ข้อความพร้อมตัวเลขของการรบครั้งนี้' }) textTh!: string;
+  @ApiProperty() ok!: boolean;
+}
+
+/** ผลตรวจบทเรียนของภูมิภาคในการรบครั้งนี้ (8 ต.ค. 2569 · ระยะ S1) */
+export class RegionProofDto {
+  @ApiProperty() regionId!: string;
+  @ApiProperty({ description: 'การรบนี้นับไหม — ต้องเป็นรอบลึกสุดของภูมิภาค' }) eligible!: boolean;
+  @ApiProperty({ description: 'นับ + ชนะ + ผ่านทุกเงื่อนไข' }) passed!: boolean;
+  @ApiProperty({ description: 'พิสูจน์สำเร็จครั้งแรกในการรบนี้ (ได้สกิลตอนนี้)' }) newlyProved!: boolean;
+  @ApiProperty({ type: [ProofCheckDto] }) checks!: ProofCheckDto[];
+  @ApiProperty({ type: RegionSkillDto, nullable: true, description: 'สกิลของภูมิภาคนี้สำหรับอาชีพของคุณ (null = ผู้ฝึกหัด)' })
+  skill!: RegionSkillDto | null;
+}
+
 export class BattleOutcomeDto {
   @ApiProperty({ format: 'uuid', description: 'id ของบันทึกการรบแบบย่อ (GET /api/v1/battles)' }) id!: string;
   @ApiProperty({ type: BattleResultDto }) result!: BattleResultDto;
   @ApiPropertyOptional({ type: RegionRunDto, description: 'มีเฉพาะการรบในภูมิภาค' }) announce?: RegionRunDto;
   @ApiPropertyOptional({ type: DuelBlockDto, nullable: true, description: 'มีเฉพาะการรบในภูมิภาค' })
   duel?: DuelBlockDto | null;
+  @ApiPropertyOptional({
+    type: RegionProofDto,
+    nullable: true,
+    description: 'มีเฉพาะการรบในภูมิภาค · null = ภูมิภาคนี้ไม่มีสกิลให้พิสูจน์',
+  })
+  proof?: RegionProofDto | null;
   @ApiProperty({ type: CharacterDto, description: 'ตัวละครหลังบันทึกผลแล้ว' }) character!: CharacterDto;
   @ApiProperty() leveledUp!: boolean;
   @ApiPropertyOptional() newLevel?: number;

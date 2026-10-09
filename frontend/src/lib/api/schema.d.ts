@@ -481,6 +481,8 @@ export interface components {
             /** @enum {string} */
             kind: "physical" | "magic" | "heal" | "shield" | "taunt";
             aoe: boolean;
+            /** @description สกิลประจำภูมิภาค: id ของภูมิภาคที่พิสูจน์แล้วได้สกิลนี้ (ไม่มี = สกิลอาชีพตามเลเวล) */
+            region?: string;
         };
         CharacterDto: {
             /** Format: uuid */
@@ -638,6 +640,22 @@ export interface components {
             /** @description รัศมี (สัดส่วนของความกว้าง) */
             r: number;
         };
+        RegionSkillDto: {
+            id: string;
+            nameTh: string;
+            /** @enum {string} */
+            kind: "physical" | "magic" | "heal" | "shield" | "taunt";
+            mpCost: number;
+            aoe: boolean;
+        };
+        RegionProofInfoDto: {
+            /** @description เงื่อนไขที่ต้องทำให้ครบในการรบครั้งเดียว (ข้อแรก = ชนะรอบลึกสุด) */
+            requirementsTh: string[];
+            /** @description ตัวละครนี้พิสูจน์ภูมิภาคนี้แล้ว */
+            proved: boolean;
+            /** @description สกิลที่จะได้/ได้แล้วสำหรับอาชีพของคุณ (null = ผู้ฝึกหัด ยังไม่มีอาชีพ) */
+            skill: components["schemas"]["RegionSkillDto"] | null;
+        };
         RegionDto: {
             id: string;
             nameTh: string;
@@ -654,6 +672,8 @@ export interface components {
             unlocked: boolean;
             /** @description จำนวนผู้เล่นที่อยู่ในโซนนี้ตอนนี้ */
             playersHere: number;
+            /** @description สกิลประจำภูมิภาค (null = หอคอย · เมือง ไม่มีสกิลให้พิสูจน์) */
+            proof: components["schemas"]["RegionProofInfoDto"] | null;
         };
         EliteDto: {
             wave: number;
@@ -724,6 +744,25 @@ export interface components {
             /** @description โปรแกรมของคู่ดวล — ฝ่ายแพ้เปิดดูได้ (รอบ 2W §5.4) */
             opponentProgram: string;
         };
+        ProofCheckDto: {
+            /** @description รหัสคงที่ของเงื่อนไข เช่น deepest_win · handled · hp_floor */
+            code: string;
+            /** @description ข้อความพร้อมตัวเลขของการรบครั้งนี้ */
+            textTh: string;
+            ok: boolean;
+        };
+        RegionProofDto: {
+            regionId: string;
+            /** @description การรบนี้นับไหม — ต้องเป็นรอบลึกสุดของภูมิภาค */
+            eligible: boolean;
+            /** @description นับ + ชนะ + ผ่านทุกเงื่อนไข */
+            passed: boolean;
+            /** @description พิสูจน์สำเร็จครั้งแรกในการรบนี้ (ได้สกิลตอนนี้) */
+            newlyProved: boolean;
+            checks: components["schemas"]["ProofCheckDto"][];
+            /** @description สกิลของภูมิภาคนี้สำหรับอาชีพของคุณ (null = ผู้ฝึกหัด) */
+            skill: components["schemas"]["RegionSkillDto"] | null;
+        };
         PreviousAttemptDto: {
             victory: boolean;
             wavesCleared: number;
@@ -749,6 +788,8 @@ export interface components {
             announce?: components["schemas"]["RegionRunDto"];
             /** @description มีเฉพาะการรบในภูมิภาค */
             duel?: components["schemas"]["DuelBlockDto"] | null;
+            /** @description มีเฉพาะการรบในภูมิภาค · null = ภูมิภาคนี้ไม่มีสกิลให้พิสูจน์ */
+            proof?: components["schemas"]["RegionProofDto"] | null;
             /** @description ตัวละครหลังบันทึกผลแล้ว */
             character: components["schemas"]["CharacterDto"];
             leveledUp: boolean;
@@ -808,6 +849,8 @@ export interface components {
             descTh?: string;
             /** @description ชื่อแอนิเมชันเอฟเฟกต์ที่ฉากรบใช้วาด */
             animation?: string;
+            /** @description สกิลประจำภูมิภาค: ได้เมื่อพิสูจน์บทเรียนของภูมิภาคนี้ ไม่ได้ตามเลเวล (unlockLevel ไม่มีความหมาย) */
+            region?: string;
         };
         RegionNameDto: {
             id: string;

@@ -5,7 +5,7 @@
  */
 import { Injectable } from '@nestjs/common';
 import {
-  enterRegion, hashSeed, mulberry32, runBattle, simulateWaves,
+  enterRegion, hashSeed, mulberry32, regionProof, runBattle, simulateWaves,
 } from '@tower/engine';
 import { conflict, forbidden, notFound, validationError } from '../common/api-error';
 import { Page } from '../common/envelope';
@@ -13,8 +13,8 @@ import type { SearchPageQueryDto } from '../common/pagination.dto';
 import { idsMatching } from '../common/search';
 import type { Character } from '../generated/prisma/client';
 import { equippedItems, loadCharacterView, requireCharacter } from '../game/character.repository';
-import { TOWER_MAX_FLOOR } from '../game/game-rules';
-import { buildHero } from '../game/progression';
+import { TOWER_MAX_FLOOR, regionSkillView } from '../game/game-rules';
+import { HERO_ID, buildHero } from '../game/progression';
 import { TOWER_REGION_ID, allRegions, isSyncedRegion, regionById, towerRegion } from '../game/world';
 import { PrismaService } from '../prisma/prisma.service';
 import { DuelService, type DuelBlock } from '../world/duel.service';
@@ -131,9 +131,12 @@ export class BattlesService {
       duel = await this.duels.runDuelFor(row, run, duelHero, side, now);
     }
 
+    // บทเรียนของภูมิภาค (ระยะ S1) — ตรวจทุกรอบให้ผู้เล่นเห็นว่าขาดข้อไหน แต่นับเฉพาะรอบลึกสุดที่ชนะ
+    const proof = regionProof(region.id, run.depth, result, HERO_ID, hero.derived.maxHp);
     const persisted = await this.persistence.persist(row.id, result, hero.derived.maxHp, announce.floor, {
       regionId: region.id,
       depth: run.depth,
+      proofPassed: proof?.passed ?? false,
     });
     await this.duels.writeSnapshot(row.id, now);
 
@@ -142,6 +145,9 @@ export class BattlesService {
       result: persisted.result,
       announce,
       duel,
+      proof: proof
+        ? { ...proof, newlyProved: persisted.newlyProved, skill: regionSkillView(row.classId, region.id) }
+        : null,
       character: await loadCharacterView(this.prisma, row.id),
       ...persisted.gains,
       attempt: attemptView(persisted.attempt),

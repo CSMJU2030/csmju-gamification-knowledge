@@ -63,7 +63,8 @@ export function CharacterOverview({ character: c, gameData }: { character: Chara
   // สกิลทั้งหมดของอาชีพ (รวมที่ยังไม่ปลดล็อก) จาก game-data · ถ้าตารางยังไม่มาใช้ของที่ตัวละครมี
   const classSkills = useMemo<Pick<SkillDef, 'id' | 'nameTh' | 'unlockLevel' | 'mpCost' | 'kind' | 'aoe'>[]>(() => {
     const merged = new Map<string, Pick<SkillDef, 'id' | 'nameTh' | 'unlockLevel' | 'mpCost' | 'kind' | 'aoe'>>();
-    for (const s of gameData?.skills ?? []) if (s.classId === c.classId) merged.set(s.id, s);
+    // สกิลประจำภูมิภาคมาจาก c.skills เฉพาะตัวที่พิสูจน์แล้ว — ไม่ดึงจาก game-data ไม่งั้นขึ้นว่าใช้ได้ทั้งที่ยังไม่ได้
+    for (const s of gameData?.skills ?? []) if (s.classId === c.classId && !s.region) merged.set(s.id, s);
     for (const s of c.skills) if (!merged.has(s.id)) merged.set(s.id, s);
     return [...merged.values()].sort((a, b) => a.unlockLevel - b.unlockLevel);
   }, [gameData, c]);

@@ -120,7 +120,8 @@ export class CharactersService {
     const demo = demoProgram(classId as ClassId, row.level);
     const floor = Math.max(1, row.highestFloor);
     const { combatant, derived } = buildHero(
-      { ...row, classId, programSource: demo.source },
+      // ตัวอย่างอาชีพโชว์สกิลของอาชีพตามเลเวลเท่านั้น — ไม่พกสกิลภูมิภาคที่ตัวละครพิสูจน์ไว้
+      { ...row, classId, programSource: demo.source, provedRegions: [] },
       await equippedItems(this.prisma, row.id),
     );
     const result = runTrial(combatant, floor);
