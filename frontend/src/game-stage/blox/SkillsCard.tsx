@@ -13,9 +13,14 @@ interface Props {
   skills: SkillOption[];
   /** ไวยากรณ์ string (ข้อความในเครื่องหมายคำพูด) ปลดล็อกแล้วหรือยัง — cast() ต้องใช้ */
   canCast: boolean;
+  /** ช่องสกิลตามเลเวล (ข้อ 8.2) — null = ไม่จำกัด */
+  slots?: { slots: number; nextLevel: number | null } | null;
+  /** skill id ที่โปรแกรมตอนนี้ cast() อยู่ เรียงตามที่เจอในโค้ด */
+  used?: string[];
 }
 
-export default function SkillsCard({ skills, canCast }: Props) {
+export default function SkillsCard({ skills, canCast, slots = null, used = [] }: Props) {
+  const over = slots ? used.length > slots.slots : false;
   return (
     <section aria-labelledby="blox-skills-title" className={`${cardClass} p-4`}>
       <h2 id="blox-skills-title" className="text-label-md text-on-surface">
@@ -31,6 +36,17 @@ export default function SkillsCard({ skills, canCast }: Props) {
           {!canCast && (
             <p className="mt-2 text-body-md text-on-surface-variant">
               ต้องผ่านชั้น {FEATURE_UNLOCK.string} ก่อน ({FEATURE_LABEL_TH.string}) ถึงจะเขียน cast() ได้
+            </p>
+          )}
+          {slots && (
+            <p className="mt-2 flex flex-wrap items-center gap-2 text-body-md text-on-surface-variant">
+              <StatusBadge tone={over ? 'error' : used.length === slots.slots ? 'warning' : 'neutral'}>
+                ใช้อยู่ {used.length}/{slots.slots} ชนิด
+              </StatusBadge>
+              <span>
+                โปรแกรมเดียวพกสกิลได้ {slots.slots} ชนิด
+                {slots.nextLevel ? ` · ช่องถัดไปที่เลเวล ${slots.nextLevel}` : ''}
+              </span>
             </p>
           )}
           <p className="mt-2 text-body-md text-on-surface-variant">
@@ -49,6 +65,8 @@ export default function SkillsCard({ skills, canCast }: Props) {
                   <span className="text-body-md text-on-surface">{s.nameTh}</span>
                   <span className="text-label-sm text-on-surface-variant tabular-nums">MP {s.mpCost}</span>
                   {s.kindTh && <StatusBadge tone={s.aoe ? 'info' : 'neutral'}>{s.kindTh}</StatusBadge>}
+                  {s.rank === 2 && <StatusBadge tone="success">ขั้น 2</StatusBadge>}
+                  {slots && used.includes(s.id) && <StatusBadge tone="neutral">ใช้อยู่</StatusBadge>}
                 </span>
                 {s.effectTh && (
                   <span className="mt-1 block text-label-md text-on-surface tabular-nums">

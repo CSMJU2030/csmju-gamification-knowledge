@@ -8,7 +8,7 @@ import Link from '@/components/AppLink';
 import { useMemo, type ReactNode } from 'react';
 import { ChevronRightIcon, InfoIcon, LockIcon, StatusBadge, cardClass, secondaryButtonClass } from '@/csmju';
 import { ProgressBar } from '@/components/ProgressBar';
-import type { Character, GameData, SkillDef } from '@/lib/api/types';
+import type { Character, GameData, SkillDef, SkillSummary } from '@/lib/api/types';
 import {
   CLASS_NAMES,
   PROFICIENCY_INFO,
@@ -21,6 +21,7 @@ import {
   regionNameOf,
 } from '@/lib/game/labels';
 import { Portrait } from './Portrait';
+import { LineSkillsCard, SkillBooksCard } from './SkillGrowth';
 
 const STAT_KEYS = ['str', 'int', 'vit', 'agi', 'luk'] as const;
 const PROF_KEYS = ['str', 'int', 'vit'] as const;
@@ -63,15 +64,27 @@ export function CharacterOverview({ character: c, gameData }: { character: Chara
 
   // สกิลทั้งหมดของอาชีพ (รวมที่ยังไม่ปลดล็อก) จาก game-data · ถ้าตารางยังไม่มาใช้ของที่ตัวละครมี
   // สกิลประจำภูมิภาค (8 ต.ค. 2569): ได้แล้วมาจาก c.skills · ยังไม่ได้มาจาก game-data แสดงล็อกพร้อมชื่อภูมิภาค ต่อท้ายสกิลตามเลเวล
-  type Row = Pick<SkillDef, 'id' | 'nameTh' | 'unlockLevel' | 'mpCost' | 'kind' | 'aoe'> & { region?: string; owned: boolean };
+  // ระยะ S2–S4 (20 ต.ค. 2569): สกิลที่ได้แล้วมาจาก c.skills พร้อมขั้นและความคืบหน้า · สกิลสาย/ตำราที่ยังไม่ได้
+  // อยู่ในการ์ดของมันเอง (LineSkillsCard · SkillBooksCard) ไม่ซ้ำในรายการนี้
+  type Row = Pick<SkillDef, 'id' | 'nameTh' | 'unlockLevel' | 'mpCost' | 'kind' | 'aoe'> & {
+    region?: string;
+    line?: string;
+    book?: string;
+    owned?: SkillSummary;
+  };
   const classSkills = useMemo<Row[]>(() => {
-    const owned = new Set(c.skills.map((s) => s.id));
+    const owned = new Map(c.skills.map((s) => [s.id, s]));
     const merged = new Map<string, Row>();
-    for (const s of gameData?.skills ?? []) if (s.classId === c.classId) merged.set(s.id, { ...s, owned: owned.has(s.id) });
-    for (const s of c.skills) if (!merged.has(s.id)) merged.set(s.id, { ...s, owned: true });
+    for (const s of gameData?.skills ?? []) {
+      if (s.classId !== c.classId) continue;
+      if ((s.line || s.book) && !owned.has(s.id)) continue;
+      merged.set(s.id, { ...s, owned: owned.get(s.id) });
+    }
+    for (const s of c.skills) if (!merged.has(s.id)) merged.set(s.id, { ...s, owned: s });
     const order = (gameData?.regions ?? []).map((r) => r.id);
+    const group = (r: Row) => (r.book ? 3 : r.line ? 2 : r.region ? 1 : 0);
     return [...merged.values()].sort((a, b) =>
-      (a.region ? 1 : 0) - (b.region ? 1 : 0)
+      group(a) - group(b)
       || (a.region && b.region ? order.indexOf(a.region) - order.indexOf(b.region) : a.unlockLevel - b.unlockLevel));
   }, [gameData, c]);
 
@@ -260,6 +273,11 @@ export function CharacterOverview({ character: c, gameData }: { character: Chara
           <CardHeader
             id="skills-title"
             title="สกิลที่เรียกได้ใน cast()"
+            hint={
+              c.classId === 'novice'
+                ? undefined
+                : `โปรแกรมเดียวใช้ได้ ${c.skillSlots.slots} ชนิด${c.skillSlots.nextLevel ? ` · ช่องถัดไปที่เลเวล ${c.skillSlots.nextLevel}` : ' (ครบแล้ว)'}`
+            }
             action={
               <Link href="/program" className={secondaryButtonClass}>
                 เปิดโปรแกรม
@@ -276,25 +294,50 @@ export function CharacterOverview({ character: c, gameData }: { character: Chara
           ) : (
             <ul className="divide-y divide-outline-variant/40">
               {classSkills.map((s) => {
-                const locked = s.region ? !s.owned : c.level < s.unlockLevel;
+                const locked = !s.owned;
+                const mastery = s.owned?.mastery;
+                const rank2 = s.owned?.rank === 2;
                 return (
-                  <li key={s.id} className="flex items-center justify-between gap-3 px-6 py-3.5">
-                    <span className="min-w-0">
+                  <li key={s.id} className="flex items-start justify-between gap-3 px-6 py-3.5">
+                    <span className="min-w-0 space-y-0.5">
                       <span className={`block text-body-md ${locked ? 'text-on-surface-variant' : 'text-on-surface'}`}>
                         {s.nameTh}
+                        {rank2 && (
+                          <>
+                            {' '}
+                            <StatusBadge tone="success">ขั้น 2</StatusBadge>
+                          </>
+                        )}
                       </span>
                       <span className="block text-label-sm font-normal text-on-surface-variant">
                         {SKILL_KIND_LABELS[s.kind] ?? s.kind}
                         {s.aoe && ' · โดนทุกตัว'}
                         {s.region && ` · สกิลของ${regionNameOf(s.region, gameData)}`}
+                        {s.line && ' · จากความชำนาญ'}
+                        {s.book && ' · จากตำรา'}
                       </span>
+                      {mastery && !locked && (
+                        <span className="block text-label-sm font-normal text-on-surface-variant">
+                          {rank2 ? (
+                            <>ขั้น 2: {mastery.rank2Th}</>
+                          ) : (
+                            <>
+                              ขั้น 2 ({mastery.rank2Th}) · ใช้ถูกจังหวะ{' '}
+                              <span className="tabular-nums text-on-surface">
+                                {mastery.count}/{mastery.need}
+                              </span>{' '}
+                              ครั้ง — {mastery.requirementTh}
+                            </>
+                          )}
+                        </span>
+                      )}
                     </span>
                     {locked ? (
                       <StatusBadge tone="neutral">
                         <LockIcon className="h-3 w-3" /> {s.region ? 'พิสูจน์บทเรียนของโซน' : `เลเวล ${s.unlockLevel}`}
                       </StatusBadge>
                     ) : (
-                      <span className="text-label-md text-on-surface-variant tabular-nums">MP {s.mpCost}</span>
+                      <span className="shrink-0 text-label-md text-on-surface-variant tabular-nums">MP {s.mpCost}</span>
                     )}
                   </li>
                 );
@@ -302,6 +345,12 @@ export function CharacterOverview({ character: c, gameData }: { character: Chara
             </ul>
           )}
         </section>
+      </div>
+
+      {/* ผู้ฝึกหัดก็สะสมแต้มสายและเก็บตำราได้ — สกิลมาเมื่อเลือกอาชีพ */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        <LineSkillsCard character={c} />
+        <SkillBooksCard character={c} />
       </div>
     </>
   );

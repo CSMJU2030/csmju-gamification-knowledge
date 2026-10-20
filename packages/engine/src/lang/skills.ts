@@ -74,8 +74,13 @@ export function preferredSkillName(skillId: string): string {
   return back && back.id === skillId ? short : skillId;
 }
 
-/** สะดวกสำหรับหน้าเว็บที่มีแค่ id — สกิลที่ไม่รู้จักคืน undefined */
-export function describeSkillById(id: string): SkillText | undefined {
+/**
+ * สะดวกสำหรับหน้าเว็บที่มีแค่ id — สกิลที่ไม่รู้จักคืน undefined
+ * `rank` 2 (ระยะ S2) = ข้อความของค่าขั้น 2 (ค่าเดียวกับที่ battle.ts ใช้ · rankedSkill/tauntCut)
+ */
+export function describeSkillById(id: string, rank = 1): SkillText | undefined {
   const s = getSkill(id);
-  return s ? describeSkill(s) : undefined;
+  if (!s) return undefined;
+  if (rank < 2 || !s.rank2) return describeSkill(s);
+  return describeSkill({ ...s, power: s.rank2.power ?? s.power, tauntReduction: s.rank2.tauntReduction });
 }

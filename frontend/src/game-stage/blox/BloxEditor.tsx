@@ -18,6 +18,7 @@ import {
   describeSkillById,
   parse,
   preferredSkillName,
+  programSkillIds,
   toPython,
   validate,
   type CmpOp,
@@ -150,10 +151,19 @@ export default function BloxEditor({ program: meta, source, onSourceChange, serv
         nameTh: s.nameTh,
         mpCost: s.mpCost,
         aoe: s.aoe,
-        // สร้างจากค่าของ engine ชุดเดียวกับตัวรบ (ไม่ใช่ข้อความที่พิมพ์ไว้ในหน้าเว็บ)
-        ...(describeSkillById(s.id) ?? { kindTh: '', effectTh: '', targetTh: '', descTh: '' }),
+        rank: s.rank ?? 1,
+        // สร้างจากค่าของ engine ชุดเดียวกับตัวรบ (ไม่ใช่ข้อความที่พิมพ์ไว้ในหน้าเว็บ) · ขั้น 2 ใช้ค่าของขั้น 2
+        ...(describeSkillById(s.id, s.rank ?? 1) ?? { kindTh: '', effectTh: '', targetTh: '', descTh: '' }),
       })),
     [meta.availableSkills],
+  );
+
+  /** ช่องสกิล (ข้อ 8.2) — ไม่ส่งมา (หน้าโจทย์ · เซิร์ฟเวอร์รุ่นเก่า) = ไม่จำกัด เหมือนตัวตรวจฝั่งเซิร์ฟเวอร์ */
+  const slots = meta.skillSlots && meta.skillSlots.slots > 0 ? meta.skillSlots : null;
+  /** ชนิดสกิลที่โปรแกรมนี้ใช้อยู่ — นับแบบเดียวกับตัวตรวจ (สกิลที่ไม่มีในมือไม่นับ เพราะฟ้องแยกอยู่แล้ว) */
+  const usedSkills = useMemo(
+    () => (ast ? programSkillIds(ast).filter((id) => skillIds.includes(id)) : []),
+    [ast, skillIds],
   );
 
   // ------------------------------------------------------- ตรวจโปรแกรม (หน่วงเล็กน้อย)
@@ -164,12 +174,16 @@ export default function BloxEditor({ program: meta, source, onSourceChange, serv
       if (!result.program) {
         setErrors(groupErrors(result.errors));
       } else {
-        setErrors(groupErrors(validate(result.program, { features, availableSkills: skillIds }).errors));
+        setErrors(groupErrors(validate(result.program, {
+          features,
+          availableSkills: skillIds,
+          ...(slots ? { skillSlots: slots.slots, skillSlotNextLevel: slots.nextLevel } : {}),
+        }).errors));
       }
       setChecking(false);
     }, CHECK_DELAY_MS);
     return () => window.clearTimeout(timer);
-  }, [source, features, skillIds]);
+  }, [source, features, skillIds, slots]);
 
   // ------------------------------------------------------------------ แก้โปรแกรม
   /** ทางออกทางเดียวของการแก้ AST — แปลงกลับเป็นข้อความเสมอ (กฎข้อ 1) */
@@ -534,7 +548,7 @@ export default function BloxEditor({ program: meta, source, onSourceChange, serv
 
       <div className="min-w-0 space-y-6">
         <ErrorPanel id="blox-errors" errors={errors} server={server} checking={checking} onJump={jumpToLine} />
-        <SkillsCard skills={skills} canCast={features.has('string')} />
+        <SkillsCard skills={skills} canCast={features.has('string')} slots={slots} used={usedSkills} />
       </div>
 
       {hole && ast && (

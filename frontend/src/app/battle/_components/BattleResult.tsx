@@ -22,6 +22,7 @@ import { MAX_WAVE } from '@/game-stage/battle/battle-log';
 import type { GrowthSummary } from '@/lib/game/growth';
 import GrowthPanel from './GrowthPanel';
 import ProofPanel from './ProofPanel';
+import SkillGainsPanel from './SkillGainsPanel';
 
 type StatKey = keyof typeof STAT_SHORT;
 const STAT_ORDER: StatKey[] = ['str', 'int', 'vit', 'agi', 'luk'];
@@ -130,6 +131,8 @@ export default function BattleResult({
       {notes && <div className="mt-4 space-y-3">{notes}</div>}
 
       {outcome.proof && regionName && <ProofPanel proof={outcome.proof} regionName={regionName} />}
+
+      {outcome.skills && <SkillGainsPanel gains={outcome.skills} />}
 
       {growth && <GrowthPanel growth={growth} />}
 

@@ -47,6 +47,10 @@ const FLOAT_STYLE: Record<FloatNum['kind'], { color: string; size: number }> = {
   mark: { color: '#e8c14a', size: 16 },
   /** MP ที่ฟื้นในเทิร์นที่สั่ง wait() */
   mp: { color: '#8ab4ff', size: 16 },
+  /** พิษกัด / ติดพิษ (สกิลตำรา ระยะ S4) */
+  poison: { color: '#c58cff', size: 17 },
+  /** มึน · บัฟพลัง */
+  status: { color: '#f2e2a4', size: 16 },
 };
 
 interface HpBar {

@@ -144,6 +144,14 @@ export const SKILL_KIND_LABELS: Record<string, string> = {
   heal: 'ฟื้นฟู',
   shield: 'โล่',
   taunt: 'ยั่วยุ',
+  buff: 'บัฟ',
+};
+
+/** สายของสกิลจากความชำนาญ (ระยะ S3) */
+export const LINE_LABELS: Record<string, { key: string; th: string }> = {
+  str: { key: 'STR', th: 'สายพลัง' },
+  int: { key: 'INT', th: 'สายเวท' },
+  vit: { key: 'VIT', th: 'สายอึด' },
 };
 
 export function skillName(skillId: string | undefined, gamedata: GameData | null): string {
@@ -161,8 +169,9 @@ export function castName(skillId: string): string {
 }
 
 /** โล่ · ฮีล · ยั่วยุ ใส่เป้าเป็น me · ท่าโจมตีใส่ศัตรู — ใช้แสดงตัวอย่างโค้ดให้ถูกเป้า */
-export function castExample(skill: { id: string; kind: string }): string {
-  const target = skill.kind === 'physical' || skill.kind === 'magic' ? 'weakest(enemies)' : 'me';
+export function castExample(skill: { id: string; kind: string; aoe?: boolean }): string {
+  const hurts = skill.kind === 'physical' || skill.kind === 'magic';
+  const target = hurts ? (skill.aoe ? 'enemies' : 'weakest(enemies)') : 'me';
   return `cast("${castName(skill.id)}", ${target})`;
 }
 

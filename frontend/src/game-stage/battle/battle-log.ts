@@ -47,6 +47,22 @@ export function describeEvent(ev: CombatEvent, ctx: LogContext): LogEntry[] {
     return [{ text: `${ev.actorName} ตั้งท่าป้องกัน`, kind: 'normal' }];
   }
 
+  /*
+   * สถานะจากสกิลตำรา (ระยะ S4) — ผู้ลงมือของสองเหตุการณ์นี้คือตัวที่ติดสถานะ ไม่ใช่คนร่าย
+   * พิษกัดตอนต้นเทิร์นของมัน · มึนทำให้มันเสียเทิร์นนั้นทั้งเทิร์น
+   */
+  if (ev.note === 'poison') {
+    const out: LogEntry[] = [];
+    for (const t of ev.targets) {
+      out.push({ text: `${t.name} โดนพิษจาก ${ctx.skillName(ev.skillId)} — ${fmt(t.damage ?? 0)} ดาเมจ`, kind: 'normal' });
+      if (t.killed) out.push({ text: `${t.name} ล้มลง!`, kind: 'kill' });
+    }
+    return out;
+  }
+  if (ev.note === 'stunned') {
+    return [{ text: `${ev.actorName} มึน — ข้ามเทิร์นนี้`, kind: 'system' }];
+  }
+
   // wait() — เทิร์นที่ไม่ทำอะไรแต่ MP ยังฟื้น (เดิมไม่มีบรรทัดนี้ ผู้เล่นไม่รู้ว่าเทิร์นหายไปไหน)
   if (ev.action === 'wait') {
     const mp = typeof ev.mpAfter === 'number' ? ` · MP เป็น ${fmt(ev.mpAfter)}` : '';
@@ -81,12 +97,24 @@ export function describeEvent(ev: CombatEvent, ctx: LogContext): LogEntry[] {
 
     if (typeof t.damage === 'number') {
       const crit = t.crit ? ' ติดคริ!' : '';
+      // สถานะที่ติดจากการโดนครั้งนี้ (ระยะ S4)
+      const status = `${t.poison ? ` · ติดพิษ ${t.poison} เทิร์น` : ''}${t.stun ? ' · มึน!' : ''}`;
       out.push({
         text: usedSkill
-          ? `${ev.actorName} ใช้ ${sName} ใส่ ${t.name} — ${fmt(t.damage)} ดาเมจ${crit}`
-          : `${ev.actorName} โจมตี ${t.name} — ${fmt(t.damage)} ดาเมจ${crit}`,
+          ? `${ev.actorName} ใช้ ${sName} ใส่ ${t.name} — ${fmt(t.damage)} ดาเมจ${crit}${status}`
+          : `${ev.actorName} โจมตี ${t.name} — ${fmt(t.damage)} ดาเมจ${crit}${status}`,
         kind: 'normal',
       });
+    }
+
+    if (t.drain && typeof t.heal === 'number') {
+      out.push({ text: `${ev.actorName} ดูดเลือดคืน ${fmt(t.heal)} HP`, kind: 'heal' });
+      continue;
+    }
+
+    if (t.buff) {
+      out.push({ text: `${ev.actorName} ใช้ ${sName} — พลังโจมตีเพิ่มขึ้น · has_buff("${t.buff}") เป็นจริง`, kind: 'heal' });
+      continue;
     }
 
     if (typeof t.heal === 'number') {

@@ -64,10 +64,12 @@ function EnemyItem({ c, active, level }: { c: CombatantView; active: boolean; le
         <span className="truncate text-label-md text-on-surface">{c.name}</span>
         <span className="shrink-0 text-label-sm text-on-surface-variant tabular-nums">Lv {level}</span>
       </div>
-      {(c.isBoss || (c.alive && c.windingUp)) && (
+      {(c.isBoss || (c.alive && (c.windingUp || !!c.poisonTurns || c.stunned))) && (
         <div className="mt-1 flex flex-wrap gap-1">
           {c.isBoss && <StatusBadge tone="error">บอส</StatusBadge>}
           {c.alive && c.windingUp && <StatusBadge tone="warning">ตั้งท่า ทุบเทิร์นหน้า</StatusBadge>}
+          {c.alive && !!c.poisonTurns && <StatusBadge tone="info">พิษ {c.poisonTurns} เทิร์น</StatusBadge>}
+          {c.alive && c.stunned && <StatusBadge tone="neutral">มึน ข้ามเทิร์นหน้า</StatusBadge>}
         </div>
       )}
       {c.alive ? (
@@ -115,6 +117,19 @@ export default function BattleHud({ play, character, enemyLevel, enemyLevels, en
             <code className="font-mono text-label-sm text-on-surface-variant">has_debuff(&quot;marked&quot;)</code>
           </p>
         )}
+        {player && !!player.buffTurns && (
+          <p className="flex flex-wrap items-center gap-2">
+            <StatusBadge tone="success">พลังเพิ่ม อีก {player.buffTurns} เทิร์น</StatusBadge>
+            <code className="font-mono text-label-sm text-on-surface-variant">has_buff(&quot;power&quot;)</code>
+          </p>
+        )}
+        {player && !!player.poisonTurns && (
+          <p className="flex flex-wrap items-center gap-2">
+            <StatusBadge tone="info">ติดพิษ {player.poisonTurns} เทิร์น</StatusBadge>
+            <code className="font-mono text-label-sm text-on-surface-variant">has_debuff(&quot;poison&quot;)</code>
+          </p>
+        )}
+        {player?.stunned && <StatusBadge tone="neutral">มึน ข้ามเทิร์นหน้า</StatusBadge>}
         {player && (
           <>
             <Bar label="HP" value={player.hp} max={player.maxHp} fill={hpFill(playerPct)} />

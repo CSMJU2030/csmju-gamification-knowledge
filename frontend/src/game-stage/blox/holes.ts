@@ -70,6 +70,8 @@ export interface SkillOption {
   nameTh: string;
   mpCost: number;
   aoe: boolean;
+  /** ขั้นของสกิล (ระยะ S2) — 2 = ข้อความผลด้านล่างเป็นค่าของขั้น 2 แล้ว */
+  rank?: number;
   /**
    * สกิลนี้ทำอะไร (26 ก.ย. 2026 — playtest: "รู้แค่ชื่อสกิล ไม่รู้ว่าทำอะไรได้")
    * สร้างด้วย describeSkill() ของ engine ตัวเลขจึงตรงกับตัวรบเสมอ

@@ -48,7 +48,11 @@ const BASIC_ATTACK: EffectAnimation = 'slash';
  * สกิลที่ตัวกำกับต้องรู้จัก — รวม `SkillDef` เต็มจาก game-data กับ `SkillSummary` ย่อของตัวละคร
  * (ตัวย่อไม่มี animation จึงเป็น optional)
  */
-export type StageSkill = Pick<SkillDef, 'id' | 'nameTh' | 'mpCost' | 'kind' | 'aoe'> & { animation?: string };
+export type StageSkill = Pick<SkillDef, 'id' | 'nameTh' | 'mpCost' | 'kind' | 'aoe'> & {
+  animation?: string;
+  /** บัฟจากสกิลตำรา (ระยะ S4) — ใช้นับเทิร์นที่บัฟยังอยู่ (มีเฉพาะใน game-data) */
+  buff?: { turns: number };
+};
 
 export interface CombatantView {
   id: string;
@@ -64,6 +68,13 @@ export interface CombatantView {
   windingUp?: boolean;
   /** รอบ 2M: id ของมอนที่หมายหัวตัวนี้อยู่ (ว่าง = ไม่ถูกหมาย) = has_debuff("marked") ในโค้ด */
   markedBy?: string[];
+  // ---- สถานะจากสกิลตำรา (ระยะ S4) — ติดตามจากเหตุการณ์ของ engine เท่านั้น ไม่คำนวณเอง ----
+  /** พิษเหลืออีกกี่เทิร์น = .poison_turns ในโค้ด */
+  poisonTurns?: number;
+  /** มึนอยู่ — เทิร์นถัดไปของตัวนี้ถูกข้าม */
+  stunned?: boolean;
+  /** บัฟพลังเหลืออีกกี่เทิร์น = has_buff("power") ในโค้ด */
+  buffTurns?: number;
 }
 
 /** สกิลทุบของกลไกหมายหัว (engine/src/battle.ts CRUSH_SKILL_ID) */
@@ -73,7 +84,7 @@ export interface FloatNum {
   id: number;
   combatantId: string;
   text: string;
-  kind: 'dmg' | 'crit' | 'miss' | 'heal' | 'shield' | 'mark' | 'mp';
+  kind: 'dmg' | 'crit' | 'miss' | 'heal' | 'shield' | 'mark' | 'mp' | 'poison' | 'status';
   /** พิกัดในระบบฉาก 256x160 */
   x: number;
   y: number;
@@ -455,8 +466,9 @@ export class BattleDirector {
     this.dirty = true;
 
     // wait(): ไม่มีท่าและไม่มีเป้า — ลงผลทันที (หลอด MP ขยับ + ตัวเลข MP ที่ฟื้นลอยขึ้น) แล้วค้างสั้น ๆ
+    // พิษกัด/มึน (ระยะ S4) ก็เป็นเหตุการณ์ 'wait' ไม่มีท่า — impact() ลงผลและให้ตัวที่โดนพิษสะดุ้ง/ล้มด้วย
     if (ev.action === 'wait') {
-      this.applyEvent(ev);
+      this.impact();
       this.phase = 'hold';
       this.remain = this.reduced ? STILL_HOLD : STEP_HOLD;
       return;
@@ -688,7 +700,7 @@ export class BattleDirector {
       if (named) return named;
       if (def?.kind === 'heal') return 'heal_ring';
       if (def?.kind === 'shield') return 'shield_dome';
-      if (def?.kind === 'taunt') return 'taunt_aura';
+      if (def?.kind === 'taunt' || def?.kind === 'buff') return 'taunt_aura';
       if (def?.kind === 'magic') return def.aoe ? 'rain_ice' : 'projectile_fire';
       return def?.aoe ? 'spin' : 'slash_heavy';
     }
@@ -714,6 +726,17 @@ export class BattleDirector {
       }
     }
     this.dirty = true;
+  }
+
+  /**
+   * บัฟพลังนับลงหนึ่งเทิร์นต่อเทิร์นของเจ้าตัว (ไม่นับเทิร์นที่ร่าย) — ตรงกับ battle.ts ที่ตั้ง turns + 1
+   * แล้วนับลงตอนจบทุกเทิร์นของตัวเองรวมเทิร์นที่ร่าย · พิษกัดตอนต้นเทิร์นไม่ใช่เทิร์นแยก จึงไม่นับที่นี่
+   */
+  private tickBuff(actorKey: string, ev: CombatEvent): void {
+    const a = this.play.combatants[actorKey];
+    if (!a?.buffTurns) return;
+    if (ev.targets.some((t) => t.buff && t.id === ev.actorId)) return;
+    this.play.combatants[actorKey] = { ...a, buffTurns: a.buffTurns - 1 };
   }
 
   private pushLogs(ev: CombatEvent): void {
@@ -811,7 +834,23 @@ export class BattleDirector {
       }
     }
 
-    if (ev.action === 'wait') return;
+    // ---- สถานะจากสกิลตำรา (ระยะ S4)
+    if (ev.note === 'stunned') {
+      const a = s.combatants[actorKey];
+      if (a) s.combatants[actorKey] = { ...a, stunned: false };
+      this.pushFloat(actorKey, 'มึน', 'status', 0);
+      this.tickBuff(actorKey, ev);
+      return;
+    }
+    const poisonTick = ev.note === 'poison';
+    if (poisonTick) {
+      const a = s.combatants[actorKey];
+      if (a) s.combatants[actorKey] = { ...a, poisonTurns: Math.max(0, (a.poisonTurns ?? 1) - 1) };
+    } else {
+      this.tickBuff(actorKey, ev);
+    }
+
+    if (ev.action === 'wait' && !poisonTick) return;
 
     if (ev.action === 'defend' || ev.note === 'defend') return;
 
@@ -845,10 +884,24 @@ export class BattleDirector {
         continue;
       }
       if (typeof t.damage === 'number') {
-        this.pushFloat(t.id, `-${fmt(t.damage)}`, t.crit ? 'crit' : 'dmg', order++);
+        if (poisonTick) this.pushFloat(t.id, `-${fmt(t.damage)} พิษ`, 'poison', order++);
+        else this.pushFloat(t.id, `-${fmt(t.damage)}`, t.crit ? 'crit' : 'dmg', order++);
       }
       if (typeof t.heal === 'number') {
-        this.pushFloat(t.id, `+${fmt(t.heal)}`, 'heal', order++);
+        this.pushFloat(t.id, t.drain ? `+${fmt(t.heal)} ดูด` : `+${fmt(t.heal)}`, 'heal', order++);
+      }
+      if (t.poison) {
+        cur.poisonTurns = t.poison;
+        this.pushFloat(t.id, 'ติดพิษ', 'poison', order++);
+      }
+      if (t.stun) {
+        cur.stunned = true;
+        this.pushFloat(t.id, 'มึน!', 'status', order++);
+      }
+      if (t.buff) {
+        const def = this.ctx.skills.find((x) => x.id === ev.skillId);
+        cur.buffTurns = def?.buff?.turns ?? 3;
+        this.pushFloat(t.id, 'พลัง+', 'status', order++);
       }
       if (typeof t.shield === 'number') {
         this.pushFloat(t.id, `+${fmt(t.shield)} โล่`, 'shield', order++);

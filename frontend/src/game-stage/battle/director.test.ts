@@ -251,3 +251,81 @@ describe('duelSides', () => {
     expect(duelSides(duel, 'ไม่มีชื่อนี้', 100)).toBeNull();
   });
 });
+
+describe('BattleDirector — สถานะจากสกิลตำรา (ระยะ S4)', () => {
+  const ME = 'อัศวินน้อย';
+  const SLIME = 'f1w1_m0_slime';
+  const skills = [
+    { id: 'w_venom_edge', nameTh: 'คมพิษ', mpCost: 10, kind: 'physical' as const, aoe: false },
+    { id: 'w_skull_crack', nameTh: 'ทุบกะโหลก', mpCost: 16, kind: 'physical' as const, aoe: false },
+    { id: 'w_war_cry', nameTh: 'เสียงคำรามศึก', mpCost: 12, kind: 'buff' as const, aoe: false, buff: { turns: 3 } },
+    { id: 'w_blood_strike', nameTh: 'ฟันกระหายเลือด', mpCost: 12, kind: 'physical' as const, aoe: false },
+  ];
+  const start: CombatEvent = {
+    turn: 0, wave: 1, actorId: 'system', actorName: 'system', action: 'attack', note: 'wave_start',
+    targets: [{ id: SLIME, name: 'สไลม์', hpAfter: 100 }],
+  };
+  const mine = (turn: number, extra: Partial<CombatEvent>): CombatEvent =>
+    ({ turn, wave: 1, actorId: 'p1', actorName: ME, action: 'skill', targets: [], ...extra }) as CombatEvent;
+  const run = (evs: CombatEvent[]) => {
+    const d = new BattleDirector([start, ...evs], { ...ctx, skills }, () => {});
+    d.reduced = true;
+    for (let i = 0; i <= evs.length; i++) d.stepEvent();
+    return d;
+  };
+
+  it('พิษ: ติดแล้วนับเทิร์นถอยหลังตามพิษกัด · ตัวเลขพิษลอย · พิษฆ่าได้ · บันทึกบอกที่มาของพิษ', () => {
+    const d = run([
+      mine(1, { skillId: 'w_venom_edge', targets: [{ id: SLIME, name: 'สไลม์', damage: 10, hpAfter: 90, poison: 3 }] }),
+      { turn: 1, wave: 1, actorId: SLIME, actorName: 'สไลม์', action: 'wait', skillId: 'w_venom_edge', note: 'poison',
+        targets: [{ id: SLIME, name: 'สไลม์', damage: 8, hpAfter: 82 }] },
+    ]);
+    expect(d.play.combatants[SLIME]).toMatchObject({ hp: 82, poisonTurns: 2, alive: true });
+    expect(texts(d)).toContain('อัศวินน้อย ใช้ คมพิษ ใส่ สไลม์ — 10 ดาเมจ · ติดพิษ 3 เทิร์น');
+    expect(texts(d)).toContain('สไลม์ โดนพิษจาก คมพิษ — 8 ดาเมจ');
+    expect(d.play.floats.map((f) => f.text)).toContain('-8 พิษ');
+
+    const dead = run([
+      { turn: 1, wave: 1, actorId: SLIME, actorName: 'สไลม์', action: 'wait', skillId: 'w_venom_edge', note: 'poison',
+        targets: [{ id: SLIME, name: 'สไลม์', damage: 100, killed: true, hpAfter: 0 }] },
+    ]);
+    expect(dead.play.combatants[SLIME].alive).toBe(false);
+    expect(dead.ents.get(SLIME)!.anim).toBe('down');
+    expect(texts(dead)).toContain('สไลม์ ล้มลง!');
+  });
+
+  it('มึน: ป้ายขึ้นตอนโดน · หายเมื่อเทิร์นของมันถูกข้าม · บันทึกบอกว่าข้ามเทิร์น', () => {
+    const hit = mine(1, { skillId: 'w_skull_crack', targets: [{ id: SLIME, name: 'สไลม์', damage: 12, hpAfter: 88, stun: true }] });
+    expect(run([hit]).play.combatants[SLIME].stunned).toBe(true);
+    const d = run([hit, { turn: 1, wave: 1, actorId: SLIME, actorName: 'สไลม์', action: 'wait', note: 'stunned', targets: [] }]);
+    expect(d.play.combatants[SLIME].stunned).toBe(false);
+    expect(texts(d)).toContain('สไลม์ มึน — ข้ามเทิร์นนี้');
+  });
+
+  it('บัฟ: นับสามเทิร์นถัดไปของผู้ร่าย (ไม่นับเทิร์นที่ร่าย) แล้วหายเอง', () => {
+    const cast = mine(1, { skillId: 'w_war_cry', targets: [{ id: 'p1', name: ME, buff: 'power', hpAfter: 100 }] });
+    const swing = (turn: number) => mine(turn, { action: 'attack', targets: [{ id: SLIME, name: 'สไลม์', damage: 5, hpAfter: 100 - turn * 5 }] });
+    expect(run([cast]).play.combatants.p1.buffTurns).toBe(3);
+    expect(run([cast, swing(2)]).play.combatants.p1.buffTurns).toBe(2);
+    expect(run([cast, swing(2), swing(3), swing(4)]).play.combatants.p1.buffTurns).toBe(0);
+    expect(texts(run([cast]))).toContain('อัศวินน้อย ใช้ เสียงคำรามศึก — พลังโจมตีเพิ่มขึ้น · has_buff("power") เป็นจริง');
+  });
+
+  it('ดูดเลือด: เลือดผู้ร่ายขึ้นตามแถว drain · ตัวเลขบอกว่าดูด · หลายฮิตลอยหลายตัวเลข', () => {
+    const d = run([
+      { turn: 1, wave: 1, actorId: SLIME, actorName: 'สไลม์', action: 'attack', targets: [{ id: 'p1', name: ME, damage: 30, hpAfter: 70 }] },
+      mine(2, {
+        skillId: 'w_blood_strike',
+        targets: [
+          { id: SLIME, name: 'สไลม์', damage: 20, hpAfter: 80 },
+          { id: SLIME, name: 'สไลม์', damage: 20, hpAfter: 60 },
+          { id: 'p1', name: ME, heal: 20, hpAfter: 90, drain: true },
+        ],
+      }),
+    ]);
+    expect(d.play.combatants.p1.hp).toBe(90);
+    expect(d.play.combatants[SLIME].hp).toBe(60);
+    expect(d.play.floats.map((f) => f.text)).toEqual(expect.arrayContaining(['-20', '+20 ดูด']));
+    expect(texts(d)).toContain('อัศวินน้อย ดูดเลือดคืน 20 HP');
+  });
+});

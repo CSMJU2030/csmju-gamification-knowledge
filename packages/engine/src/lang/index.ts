@@ -16,6 +16,8 @@ export {
   resolveSkillName, preferredSkillName, KNOWN_SKILL_NAMES, describeSkillById,
 } from './skills';
 export type { SkillInfo } from './skills';
+/** ชนิดสกิลที่โปรแกรม cast() — เอดิเตอร์ใช้นับช่องสกิลแบบเดียวกับตัวตรวจ (ระยะ S2–S4 ข้อ 8.2) */
+export { programSkillIds } from '../acquisition';
 export {
   describeSkill, describeRank2, BASIC_ATTACK_TEXT_TH, DEFEND_TEXT_TH, MP_RULES_TEXT_TH,
 } from './skillText';
