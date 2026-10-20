@@ -4301,7 +4301,7 @@
             "type": "object",
             "allOf": [
               {
-                "$ref": "#/components/schemas/NewSkillDto"
+                "$ref": "#/components/schemas/SkillBriefDto"
               }
             ]
           }

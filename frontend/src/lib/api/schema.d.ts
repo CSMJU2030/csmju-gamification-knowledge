@@ -932,7 +932,7 @@ export interface components {
             nameTh: string;
             mechanicTh: string;
             /** @description สกิลของเล่มนี้สำหรับอาชีพคุณ (null = ผู้ฝึกหัด ได้เมื่อเลือกอาชีพ) */
-            skill: components["schemas"]["NewSkillDto"] | null;
+            skill: components["schemas"]["SkillBriefDto"] | null;
         };
         BookProgressDto: {
             id: string;

@@ -1,6 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsInt, IsUUID, Max, Min } from 'class-validator';
-import { CharacterDto, ItemDto, SKILL_KINDS, StatsDto } from '../characters/character.dto';
+import { CharacterDto, ItemDto, SKILL_KINDS, SkillBriefDto, StatsDto } from '../characters/character.dto';
 import { TOWER_MAX_FLOOR } from '../game/game-rules';
 import { OptionalButNotNull } from '../common/validation';
 import { DuelAnnounceDto, RegionRunDto, RegionSkillDto } from '../world/world.dto';
@@ -168,8 +168,8 @@ export class BookDropDto {
   @ApiProperty() id!: string;
   @ApiProperty() nameTh!: string;
   @ApiProperty() mechanicTh!: string;
-  @ApiProperty({ type: NewSkillDto, nullable: true, description: 'สกิลของเล่มนี้สำหรับอาชีพคุณ (null = ผู้ฝึกหัด ได้เมื่อเลือกอาชีพ)' })
-  skill!: Omit<NewSkillDto, 'source'> | null;
+  @ApiProperty({ type: SkillBriefDto, nullable: true, description: 'สกิลของเล่มนี้สำหรับอาชีพคุณ (null = ผู้ฝึกหัด ได้เมื่อเลือกอาชีพ)' })
+  skill!: SkillBriefDto | null;
 }
 
 export class BookProgressDto {
