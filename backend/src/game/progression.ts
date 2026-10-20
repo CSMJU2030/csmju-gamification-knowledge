@@ -8,6 +8,10 @@ import {
   ZERO_PROFICIENCY,
   allocatePoints,
   buildDerivedStats,
+  loadoutSkills,
+  parse,
+  skillRanksOf,
+  skillSlotsFor,
   syncLoadout,
   type BaseStats,
   type ClassId,
@@ -18,7 +22,7 @@ import {
 } from '@tower/engine';
 import type { Character, Item } from '../generated/prisma/client';
 import { statsOf, toItemInstance } from './character.view';
-import { unlockedSkills } from './game-rules';
+import { masteryOf, ownedSkills } from './game-rules';
 
 /** id ของตัวละครผู้เล่นในปาร์ตี้ — ใช้ทั้งตอนสร้าง Combatant และตอนอ่านงานที่เขาทำ */
 export const HERO_ID = 'p1';
@@ -65,6 +69,20 @@ export function progress(row: Character, work: Proficiency, gainedExp: number): 
   return { level, exp, stats, carry, leveledUp };
 }
 
+/**
+ * สกิลที่พกเข้าการรบจริง + ขั้นของสกิล — ใช้ร่วมกันทุกทางที่สร้างตัวละครเข้ารบ (buildHero · สแนปช็อตดวล)
+ *
+ * พกเฉพาะสกิลที่มีและโปรแกรมใช้ ไม่เกินช่องสกิลตามเลเวลจริง (docs/design-skill-acquisition.md ข้อ 8.2)
+ * ช่องผูกกับเลเวลจริง ไม่ใช่เลเวลที่ล็อก — ไม่งั้นโปรแกรมเดียวกันจะเสียสกิลท้าย ๆ เฉพาะบางภูมิภาคแบบเงียบ ๆ
+ */
+export function combatLoadout(
+  row: Character, level: number = row.level,
+): { skills: string[]; skillRanks: Record<string, number> } {
+  const owned = ownedSkills(row, level).map((s) => s.id);
+  const program = row.programSource.trim() !== '' ? parse(row.programSource).program : null;
+  return { skills: loadoutSkills(owned, program, skillSlotsFor(row.level)), skillRanks: skillRanksOf(masteryOf(row)) };
+}
+
 /** ล็อกเลเวลของภูมิภาค (รอบ 2L) — null = ไม่ล็อก (หอคอย · การดวล) */
 export interface HeroSync {
   floor: number;
@@ -90,6 +108,7 @@ export function buildHero(
   const stats = synced ? synced.stats : statsOf(row);
   const equipment = synced ? synced.equipment : real;
   const derived = buildDerivedStats(classId, level, stats, equipment);
+  const loadout = combatLoadout(row, level);
   const combatant: Combatant = {
     id,
     name: row.displayName,
@@ -98,13 +117,14 @@ export function buildHero(
     level,
     stats,
     derived,
-    // สกิลภูมิภาคได้จากการพิสูจน์ ไม่ได้ตามเลเวล จึงมีเท่าเดิมแม้ล็อกเลเวล
-    skills: unlockedSkills(classId, level, row.provedRegions).map((s) => s.id),
+    // สกิลภูมิภาค/สาย/ตำราผูกกับตัวละคร ไม่ได้ตามเลเวล จึงมีเท่าเดิมแม้ล็อกเลเวล
+    skills: loadout.skills,
     // โปรแกรมที่บันทึกได้ผ่าน parse มาแล้วเสมอ rules จึงไม่ถูกใช้ — ส่งว่างไว้ตาม type ของ engine
     rules: [],
-    // field ที่ engine อ่านเพิ่มโดยไม่แก้ type Combatant ที่ล็อกไว้: equipment (affix) · programSource
+    // field ที่ engine อ่านเพิ่มโดยไม่แก้ type Combatant ที่ล็อกไว้: equipment (affix) · skillRanks (ระยะ S2) · programSource
     ...({
       equipment,
+      skillRanks: loadout.skillRanks,
       ...(row.programSource.trim() !== '' ? { programSource: row.programSource } : {}),
     } as object),
   };

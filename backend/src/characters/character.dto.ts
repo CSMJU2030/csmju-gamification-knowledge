@@ -75,15 +75,73 @@ export class ItemDto {
   @ApiProperty() equipped!: boolean;
 }
 
+export const SKILL_KINDS = ['physical', 'magic', 'heal', 'shield', 'taunt', 'buff'] as const;
+
+/** สกิลแบบย่อ — บอกว่าจะได้อะไรก่อนได้จริง */
+export class SkillBriefDto {
+  @ApiProperty() id!: string;
+  @ApiProperty() nameTh!: string;
+  @ApiProperty({ enum: SKILL_KINDS }) kind!: string;
+  @ApiProperty() mpCost!: number;
+  @ApiProperty() aoe!: boolean;
+}
+
+/** ความคืบหน้าสู่ขั้น 2 (ระยะ S2) */
+export class SkillMasteryDto {
+  @ApiProperty({ description: 'ครั้งที่ใช้ถูกจังหวะที่นับแล้ว (หยุดที่ need)' }) count!: number;
+  @ApiProperty() need!: number;
+  @ApiProperty({ description: 'เงื่อนไข "ใช้ถูกจังหวะ" ของสกิลนี้' }) requirementTh!: string;
+  @ApiProperty({ description: 'ผลของขั้น 2 เช่น "ดาเมจ 225% ของ ATK"' }) rank2Th!: string;
+}
+
 export class SkillSummaryDto {
   @ApiProperty() id!: string;
   @ApiProperty() nameTh!: string;
   @ApiProperty() unlockLevel!: number;
+  @ApiProperty({
+    enum: ['level', 'region', 'line', 'book'],
+    description: 'ได้มาจากไหน: level = ตามเลเวล · region = พิสูจน์ภูมิภาค · line = ความชำนาญ · book = ตำรา',
+  })
+  source!: string;
   @ApiProperty() mpCost!: number;
-  @ApiProperty({ enum: ['physical', 'magic', 'heal', 'shield', 'taunt'] }) kind!: string;
+  @ApiProperty({ enum: SKILL_KINDS }) kind!: string;
   @ApiProperty() aoe!: boolean;
   @ApiPropertyOptional({ description: 'สกิลประจำภูมิภาค: id ของภูมิภาคที่พิสูจน์แล้วได้สกิลนี้ (ไม่มี = สกิลอาชีพตามเลเวล)' })
   region?: string;
+  @ApiPropertyOptional({ enum: ['str', 'int', 'vit'], description: 'สกิลสายจากความชำนาญ' }) line?: string;
+  @ApiPropertyOptional({ description: 'สกิลจากตำรา: id ของตำรา' }) book?: string;
+  @ApiProperty({ enum: [1, 2], description: 'ขั้นของสกิล' }) rank!: number;
+  @ApiPropertyOptional({ type: SkillMasteryDto, description: 'มีเฉพาะสกิลที่มีขั้น 2' }) mastery?: SkillMasteryDto;
+}
+
+/** ช่องสกิล (docs/design-skill-acquisition.md ข้อ 8.2) */
+export class SkillSlotsDto {
+  @ApiProperty({ description: 'ใช้สกิลใน cast() ได้ไม่เกินกี่ชนิดต่อโปรแกรม ตามเลเวลตอนนี้' }) slots!: number;
+  @ApiProperty({ type: Number, nullable: true, description: 'เลเวลที่ได้ช่องถัดไป (null = ได้ครบแล้ว)' })
+  nextLevel!: number | null;
+}
+
+/** สกิลสายจากความชำนาญ (ระยะ S3) */
+export class SkillLineDto {
+  @ApiProperty({ enum: ['str', 'int', 'vit'] }) line!: string;
+  @ApiProperty({ description: 'แต้มที่ความชำนาญแจกให้สายนี้แล้ว (สเตตัสตอนนี้ - ค่าเริ่มของผู้ฝึกหัด)' }) earned!: number;
+  @ApiProperty() threshold!: number;
+  @ApiProperty() unlocked!: boolean;
+  @ApiProperty({ type: SkillBriefDto, nullable: true, description: 'สกิลสายนี้ของอาชีพคุณ (null = ผู้ฝึกหัด)' })
+  skill!: SkillBriefDto | null;
+}
+
+/** ตำราสกิล (ระยะ S4) */
+export class SkillBookDto {
+  @ApiProperty() id!: string;
+  @ApiProperty() nameTh!: string;
+  @ApiProperty({ description: 'ชื่อกลไก เช่น พิษ' }) mechanicTh!: string;
+  @ApiProperty() owned!: boolean;
+  @ApiProperty({ description: 'ล้มต้นทางแล้วยังไม่ได้กี่ครั้ง (ได้แล้ว = 0)' }) pity!: number;
+  @ApiProperty({ description: 'ล้มครบเท่านี้ได้แน่นอน' }) pityMax!: number;
+  @ApiProperty({ type: [String], description: 'บอสและ EX ที่ดรอปเล่มนี้' }) sourcesTh!: string[];
+  @ApiProperty({ type: SkillBriefDto, nullable: true, description: 'สกิลของเล่มนี้สำหรับอาชีพคุณ (null = ผู้ฝึกหัด)' })
+  skill!: SkillBriefDto | null;
 }
 
 /** ความชำนาญเฉพาะสามช่องที่ผู้เล่นควบคุมได้ (agi/luk โตเอง) */
@@ -124,5 +182,8 @@ export class CharacterDto {
   @ApiProperty() materials!: number;
   @ApiProperty({ type: EquipmentDto }) equipment!: EquipmentDto;
   @ApiProperty({ type: [SkillSummaryDto] }) skills!: SkillSummaryDto[];
+  @ApiProperty({ type: SkillSlotsDto }) skillSlots!: SkillSlotsDto;
+  @ApiProperty({ type: [SkillLineDto] }) lines!: SkillLineDto[];
+  @ApiProperty({ type: [SkillBookDto] }) books!: SkillBookDto[];
   @ApiProperty() highestFloorCleared!: number;
 }

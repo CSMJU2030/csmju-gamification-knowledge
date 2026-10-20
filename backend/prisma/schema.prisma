@@ -58,6 +58,13 @@ model Character {
   /// เก็บผลพิสูจน์ ไม่ได้เก็บสกิล: ผู้ฝึกหัดที่พิสูจน์ก่อนเลือกอาชีพได้สกิลของอาชีพที่เลือกทีหลังทันที
   /// เขียนในทรานแซกชันเดียวกับผลการรบ (ล็อกแถวตัวละครแล้ว) จึงไม่ซ้ำแม้รบพร้อมกัน
   provedRegions String[] @default([]) @map("proved_regions")
+  /// ความเชี่ยวชาญสกิล (20 ต.ค. 2569 · ระยะ S2) — skill id → ครั้งที่ใช้ถูกจังหวะที่นับแล้ว (หยุดที่ masteryNeed = ขั้น 2)
+  /// เขียนในทรานแซกชันเดียวกับผลการรบ เหมือน provedRegions
+  skillMastery  Json     @default("{}") @map("skill_mastery") @db.Json
+  /// ตำราสกิลที่เก็บแล้ว (ระยะ S4) — id ใน gamedata.skillBooks · เก็บตำรา ไม่ได้เก็บสกิล (ผู้ฝึกหัดได้สกิลเมื่อเลือกอาชีพ)
+  skillBooks    String[] @default([]) @map("skill_books")
+  /// เพดานดวงของตำรา (ระยะ S4) — book id → ล้มต้นทางแล้วยังไม่ได้กี่ครั้ง
+  bookPity      Json     @default("{}") @map("book_pity") @db.Json
   createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt     DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
 
@@ -137,6 +144,8 @@ model DuelSnapshot {
   stats         Json     @db.Json
   derived       Json     @db.Json
   skills        Json     @db.Json
+  /// ขั้นของสกิล (ระยะ S2) — skill id → 2 เฉพาะสกิลที่ถึงขั้น 2 · คู่ดวลต้องรบด้วยสกิลแรงเท่าตอนเก็บภาพ
+  skillRanks    Json     @default("{}") @map("skill_ranks") @db.Json
   programSource String   @map("program_source")
   /// เวลาที่แอปเขียนเอง — ใช้เรียงหา "ชุดล่าสุด" และตัดชุดที่เก่าเกินอายุ
   createdAt     DateTime @map("created_at") @db.Timestamptz(3)

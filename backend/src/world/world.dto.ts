@@ -26,7 +26,7 @@ export class HotspotDto {
 export class RegionSkillDto {
   @ApiProperty() id!: string;
   @ApiProperty() nameTh!: string;
-  @ApiProperty({ enum: ['physical', 'magic', 'heal', 'shield', 'taunt'] }) kind!: string;
+  @ApiProperty({ enum: ['physical', 'magic', 'heal', 'shield', 'taunt', 'buff'] }) kind!: string;
   @ApiProperty() mpCost!: number;
   @ApiProperty() aoe!: boolean;
 }

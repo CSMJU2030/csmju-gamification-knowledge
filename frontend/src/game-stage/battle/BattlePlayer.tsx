@@ -254,7 +254,9 @@ export default function BattlePlayer({
   const program = useApi(
     (signal) =>
       programSource !== undefined
-        ? Promise.resolve({ source: programSource, unlockedFeatures: [], availableSkills: [], highestFloorCleared: 0 } as Program)
+        ? Promise.resolve({
+          source: programSource, unlockedFeatures: [], availableSkills: [], skillSlots: { slots: 0, nextLevel: null }, highestFloorCleared: 0,
+        } as Program)
         : api.get<Program>('/programs/current', undefined, signal),
     [programSource],
   );

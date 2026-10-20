@@ -15,8 +15,7 @@ import {
 import type { Character, DuelSnapshot, RegionRun } from '../generated/prisma/client';
 import { equippedItems, type Db } from '../game/character.repository';
 import { statsOf, toItemInstance } from '../game/character.view';
-import { unlockedSkills } from '../game/game-rules';
-import { buildHero } from '../game/progression';
+import { buildHero, combatLoadout } from '../game/progression';
 import { duelConfig, levelBandFor } from '../game/world';
 import { PrismaService, type Tx } from '../prisma/prisma.service';
 import { liveId, snapId } from './run-seed';
@@ -195,7 +194,8 @@ export class DuelService {
       derived: snap.derived as unknown as Combatant['derived'],
       skills: snap.skills as unknown as string[],
       rules: [],
-      ...({ programSource: snap.programSource } as object),
+      // ขั้นของสกิล ณ ตอนเก็บภาพ (ระยะ S2) — คู่ดวลรบด้วยสกิลแรงเท่าที่เจ้าของมีตอนนั้น
+      ...({ programSource: snap.programSource, skillRanks: snap.skillRanks } as object),
     };
   }
 
@@ -259,7 +259,8 @@ export class DuelService {
           level: row.level,
           stats: stats as unknown as object,
           derived: derived as unknown as object,
-          skills: unlockedSkills(classId, row.level, row.provedRegions).map((s) => s.id),
+          // สกิลที่พกเข้ารบจริงตามช่องสกิล + ขั้นของสกิล — ชุดเดียวกับที่ buildHero ใช้ (progression.combatLoadout)
+          ...combatLoadout(row),
           programSource: row.programSource,
           createdAt: new Date(now),
         },

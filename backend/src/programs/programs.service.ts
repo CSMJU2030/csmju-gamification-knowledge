@@ -10,20 +10,26 @@
  */
 import { Injectable } from '@nestjs/common';
 import {
-  MAX_PROGRAM_LINES, parse, unlockedFeatures, validate,
-  type ClassId, type LangError, type ValidateOptions,
+  MAX_PROGRAM_LINES, nextSlotLevel, parse, skillRank, skillSlotsFor, unlockedFeatures, validate,
+  type LangError, type ValidateOptions,
 } from '@tower/engine';
 import { validationError } from '../common/api-error';
 import type { Character } from '../generated/prisma/client';
 import { requireCharacter } from '../game/character.repository';
-import { MAX_PROGRAM_CHARS, unlockedSkills } from '../game/game-rules';
+import { MAX_PROGRAM_CHARS, masteryOf, ownedSkills } from '../game/game-rules';
 import { PrismaService } from '../prisma/prisma.service';
 import type { ProgramDto } from './program.dto';
 
+/**
+ * ตัวเลือกของตัวตรวจโปรแกรมสำหรับตัวละครนี้ — สกิลที่มีครบทุกทาง (เลเวล · ภูมิภาค · สาย · ตำรา)
+ * และช่องสกิลตามเลเวล (docs/design-skill-acquisition.md ข้อ 8.2)
+ */
 export function langOptions(row: Character): ValidateOptions {
   return {
     features: unlockedFeatures(row.highestFloor),
-    availableSkills: unlockedSkills(row.classId as ClassId, row.level, row.provedRegions).map((s) => s.id),
+    availableSkills: ownedSkills(row).map((s) => s.id),
+    skillSlots: skillSlotsFor(row.level),
+    skillSlotNextLevel: nextSlotLevel(row.level),
   };
 }
 
@@ -67,15 +73,18 @@ export class ProgramsService {
 
   private view(row: Character): ProgramDto {
     const opts = langOptions(row);
+    const mastery = masteryOf(row);
     return {
       source: row.programSource,
       unlockedFeatures: [...opts.features],
-      availableSkills: unlockedSkills(row.classId as ClassId, row.level, row.provedRegions).map((s) => ({
+      availableSkills: ownedSkills(row).map((s) => ({
         id: s.id,
         nameTh: s.nameTh,
         mpCost: s.mpCost,
         aoe: s.aoe,
+        rank: skillRank(s.id, mastery[s.id] ?? 0),
       })),
+      skillSlots: { slots: opts.skillSlots ?? 0, nextLevel: opts.skillSlotNextLevel ?? null },
       highestFloorCleared: row.highestFloor,
     };
   }

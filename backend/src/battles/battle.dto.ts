@@ -1,6 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsInt, IsUUID, Max, Min } from 'class-validator';
-import { CharacterDto, ItemDto, StatsDto } from '../characters/character.dto';
+import { CharacterDto, ItemDto, SKILL_KINDS, StatsDto } from '../characters/character.dto';
 import { TOWER_MAX_FLOOR } from '../game/game-rules';
 import { OptionalButNotNull } from '../common/validation';
 import { DuelAnnounceDto, RegionRunDto, RegionSkillDto } from '../world/world.dto';
@@ -39,6 +39,10 @@ export class CombatTargetDto {
   @ApiPropertyOptional() evaded?: boolean;
   @ApiPropertyOptional() killed?: boolean;
   @ApiProperty() hpAfter!: number;
+  @ApiPropertyOptional({ description: 'ติดพิษจากการโจมตีนี้ นานกี่เทิร์น (สกิลตำรา ระยะ S4)' }) poison?: number;
+  @ApiPropertyOptional({ description: 'มึนจากการโจมตีนี้ — เทิร์นถัดไปของเป้าถูกข้าม' }) stun?: boolean;
+  @ApiPropertyOptional({ description: 'ได้บัฟชื่อนี้ (ชื่อเดียวกับ has_buff) เช่น power' }) buff?: string;
+  @ApiPropertyOptional({ description: 'heal ของแถวนี้มาจากการดูดเลือด ไม่ใช่สกิลฮีล' }) drain?: boolean;
 }
 
 /** หนึ่งการกระทำในบันทึกการรบ — ตรงกับ CombatEvent ของ engine */
@@ -54,8 +58,11 @@ export class CombatEventDto {
   action!: 'attack' | 'skill' | 'defend' | 'wait';
   @ApiPropertyOptional() skillId?: string;
   @ApiProperty({ type: [CombatTargetDto] }) targets!: CombatTargetDto[];
-  @ApiPropertyOptional({ enum: ['wave_start', 'wave_clear', 'defend', 'windup'] })
-  note?: 'wave_start' | 'wave_clear' | 'defend' | 'windup';
+  @ApiPropertyOptional({
+    enum: ['wave_start', 'wave_clear', 'defend', 'windup', 'poison', 'stunned'],
+    description: 'poison = พิษกัดตอนต้นเทิร์นของผู้ลงมือ (targets มีตัวมันเอง · skillId = สกิลที่ใส่พิษ) · stunned = ผู้ลงมือมึน ข้ามเทิร์นนี้',
+  })
+  note?: 'wave_start' | 'wave_clear' | 'defend' | 'windup' | 'poison' | 'stunned';
   @ApiPropertyOptional({ description: 'บรรทัดในโปรแกรม BloxCode ที่ตัดสินใจเทิร์นนี้ (0 = การกระทำสำรอง)' }) line?: number;
   @ApiPropertyOptional({ type: [String], description: 'คำเตือนตอนรันโปรแกรม' }) codeWarnings?: string[];
   @ApiPropertyOptional({
@@ -135,6 +142,56 @@ export class ChallengeBattleDto {
   @ApiProperty({ description: 'ผู้สู้เป็นเจ้าของโจทย์ — สู้ได้แต่ไม่ได้รางวัล และไม่ขึ้นในผลของผู้เล่น' }) ownChallenge!: boolean;
 }
 
+/** ความเชี่ยวชาญของสกิลหนึ่งตัวจากการรบนี้ (ระยะ S2) */
+export class MasteryGainDto {
+  @ApiProperty() skillId!: string;
+  @ApiProperty() nameTh!: string;
+  @ApiProperty({ description: 'ร่ายกี่ครั้งในการรบนี้' }) casts!: number;
+  @ApiProperty({ description: 'ถูกจังหวะกี่ครั้ง' }) correct!: number;
+  @ApiProperty({ description: 'นับเข้าความเชี่ยวชาญจริงกี่ครั้ง (0 = ถูกจังหวะไม่ถึงเกณฑ์ หรือขั้น 2 แล้ว)' }) credited!: number;
+  @ApiProperty({ description: 'สะสมแล้วรวมการรบนี้' }) total!: number;
+  @ApiProperty() need!: number;
+  @ApiProperty({ description: 'ขึ้นขั้น 2 ในการรบนี้' }) rankedUp!: boolean;
+}
+
+/** สกิลที่ได้เพิ่มจากการรบนี้ */
+export class NewSkillDto {
+  @ApiProperty() id!: string;
+  @ApiProperty() nameTh!: string;
+  @ApiProperty({ enum: SKILL_KINDS }) kind!: string;
+  @ApiProperty() mpCost!: number;
+  @ApiProperty() aoe!: boolean;
+  @ApiProperty({ enum: ['level', 'region', 'line', 'book'] }) source!: string;
+}
+
+export class BookDropDto {
+  @ApiProperty() id!: string;
+  @ApiProperty() nameTh!: string;
+  @ApiProperty() mechanicTh!: string;
+  @ApiProperty({ type: NewSkillDto, nullable: true, description: 'สกิลของเล่มนี้สำหรับอาชีพคุณ (null = ผู้ฝึกหัด ได้เมื่อเลือกอาชีพ)' })
+  skill!: Omit<NewSkillDto, 'source'> | null;
+}
+
+export class BookProgressDto {
+  @ApiProperty() id!: string;
+  @ApiProperty() nameTh!: string;
+  @ApiProperty({ description: 'ล้มต้นทางของเล่มนี้ได้กี่ตัวในการรบนี้' }) kills!: number;
+  @ApiProperty({ description: 'ล้มแล้วยังไม่ได้กี่ครั้ง (สะสม)' }) pity!: number;
+  @ApiProperty({ description: 'ล้มครบเท่านี้ได้แน่นอน' }) pityMax!: number;
+}
+
+export class BookGainsDto {
+  @ApiProperty({ type: [BookDropDto] }) dropped!: BookDropDto[];
+  @ApiProperty({ type: [BookProgressDto] }) progress!: BookProgressDto[];
+}
+
+/** สิ่งที่การรบนี้ให้กับสกิล (docs/design-skill-acquisition.md ข้อ 8) — มีเฉพาะหอคอยและภูมิภาค */
+export class SkillGainsDto {
+  @ApiProperty({ type: [MasteryGainDto], description: 'สกิลที่มีขั้น 2 และร่ายในการรบนี้' }) mastery!: MasteryGainDto[];
+  @ApiProperty({ type: [NewSkillDto] }) newSkills!: NewSkillDto[];
+  @ApiProperty({ type: BookGainsDto }) books!: BookGainsDto;
+}
+
 export class BattleOutcomeDto {
   @ApiProperty({
     format: 'uuid',
@@ -156,6 +213,8 @@ export class BattleOutcomeDto {
   @ApiPropertyOptional() newLevel?: number;
   @ApiPropertyOptional({ type: StatsDto, description: 'สเตตัสที่ได้จากการเลเวลอัพรอบนี้' }) statsGained?: StatsDto;
   @ApiProperty({ type: BattleAttemptDto }) attempt!: BattleAttemptDto;
+  @ApiPropertyOptional({ type: SkillGainsDto, description: 'มีเฉพาะหอคอยและภูมิภาค (มอนของโจทย์ไม่นับความเชี่ยวชาญและไม่ดรอปตำรา)' })
+  skills?: SkillGainsDto;
   @ApiPropertyOptional({ type: ChallengeBattleDto, description: 'มีเฉพาะการสู้กับมอนของโจทย์' })
   challenge?: ChallengeBattleDto;
 }

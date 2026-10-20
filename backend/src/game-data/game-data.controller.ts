@@ -14,15 +14,31 @@ import { ApiErrors, ApiSuccess } from '../common/swagger';
 import { RARITIES } from '../game/game-rules';
 import { allRegions } from '../game/world';
 
+export class SkillRank2Dto {
+  @ApiPropertyOptional({ description: 'พลังใหม่ของขั้น 2' }) power?: number;
+  @ApiPropertyOptional({ description: 'ยั่วยุ: สัดส่วนดาเมจที่ลดระหว่างยั่วยุของขั้น 2' }) tauntReduction?: number;
+}
+
+export class SkillPoisonDto {
+  @ApiProperty({ description: '% ของ ATK/MATK ผู้ร่ายต่อเทิร์น' }) power!: number;
+  @ApiProperty() turns!: number;
+}
+
+export class SkillBuffDto {
+  @ApiProperty({ enum: ['atk', 'matk'] }) stat!: string;
+  @ApiProperty() pct!: number;
+  @ApiProperty() turns!: number;
+}
+
 /** SkillDef ของ engine */
 export class SkillDefDto {
   @ApiProperty() id!: string;
   @ApiProperty() name!: string;
   @ApiProperty() nameTh!: string;
   @ApiProperty({ enum: ['novice', 'warrior', 'mage', 'guardian', 'monster'] }) classId!: string;
-  @ApiProperty({ enum: ['physical', 'magic', 'heal', 'shield', 'taunt'] }) kind!: string;
+  @ApiProperty({ enum: ['physical', 'magic', 'heal', 'shield', 'taunt', 'buff'] }) kind!: string;
   @ApiProperty({
-    description: 'physical/magic = % ของ atk/matk (100 = 1 เท่า) · heal = % ของเลือดสูงสุดของเป้า · shield = % ของเลือดสูงสุดของผู้ร่าย · taunt ไม่ใช้',
+    description: 'physical/magic = % ของ atk/matk (100 = 1 เท่า) · heal = % ของเลือดสูงสุดของเป้า · shield = % ของเลือดสูงสุดของผู้ร่าย · taunt/buff ไม่ใช้',
   })
   power!: number;
   @ApiProperty() mpCost!: number;
@@ -34,6 +50,15 @@ export class SkillDefDto {
     description: 'สกิลประจำภูมิภาค: ได้เมื่อพิสูจน์บทเรียนของภูมิภาคนี้ ไม่ได้ตามเลเวล (unlockLevel ไม่มีความหมาย)',
   })
   region?: string;
+  @ApiPropertyOptional({ enum: ['str', 'int', 'vit'], description: 'สกิลสายจากความชำนาญ (ระยะ S3): ได้เมื่อแต้มสายนี้ถึงเกณฑ์' })
+  line?: string;
+  @ApiPropertyOptional({ description: 'สกิลจากตำรา (ระยะ S4): id ของตำรา' }) book?: string;
+  @ApiPropertyOptional({ type: SkillRank2Dto, description: 'ผลเมื่อสกิลถึงขั้น 2 (ระยะ S2)' }) rank2?: SkillRank2Dto;
+  @ApiPropertyOptional({ description: 'ตีเป้าเดิมกี่ครั้ง (หลายฮิต)' }) hits?: number;
+  @ApiPropertyOptional({ description: 'ฟื้นเลือดผู้ร่ายเป็นสัดส่วนของดาเมจ (0..1)' }) drain?: number;
+  @ApiPropertyOptional({ type: SkillPoisonDto, description: 'ติดพิษ' }) poison?: SkillPoisonDto;
+  @ApiPropertyOptional({ description: 'มึน: เป้าข้ามเทิร์นถัดไป (บอสไม่มึน)' }) stun?: boolean;
+  @ApiPropertyOptional({ type: SkillBuffDto, description: 'บัฟพลังโจมตีของผู้ร่าย (kind buff)' }) buff?: SkillBuffDto;
 }
 
 export class ClassInfoDto {

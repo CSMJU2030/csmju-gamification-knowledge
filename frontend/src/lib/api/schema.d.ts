@@ -510,16 +510,83 @@ export interface components {
             helmet: components["schemas"]["ItemDto"] | null;
             accessory: components["schemas"]["ItemDto"] | null;
         };
+        SkillMasteryDto: {
+            /** @description ครั้งที่ใช้ถูกจังหวะที่นับแล้ว (หยุดที่ need) */
+            count: number;
+            need: number;
+            /** @description เงื่อนไข "ใช้ถูกจังหวะ" ของสกิลนี้ */
+            requirementTh: string;
+            /** @description ผลของขั้น 2 เช่น "ดาเมจ 225% ของ ATK" */
+            rank2Th: string;
+        };
         SkillSummaryDto: {
             id: string;
             nameTh: string;
             unlockLevel: number;
+            /**
+             * @description ได้มาจากไหน: level = ตามเลเวล · region = พิสูจน์ภูมิภาค · line = ความชำนาญ · book = ตำรา
+             * @enum {string}
+             */
+            source: "level" | "region" | "line" | "book";
             mpCost: number;
             /** @enum {string} */
-            kind: "physical" | "magic" | "heal" | "shield" | "taunt";
+            kind: "physical" | "magic" | "heal" | "shield" | "taunt" | "buff";
             aoe: boolean;
             /** @description สกิลประจำภูมิภาค: id ของภูมิภาคที่พิสูจน์แล้วได้สกิลนี้ (ไม่มี = สกิลอาชีพตามเลเวล) */
             region?: string;
+            /**
+             * @description สกิลสายจากความชำนาญ
+             * @enum {string}
+             */
+            line?: "str" | "int" | "vit";
+            /** @description สกิลจากตำรา: id ของตำรา */
+            book?: string;
+            /**
+             * @description ขั้นของสกิล
+             * @enum {number}
+             */
+            rank: 1 | 2;
+            /** @description มีเฉพาะสกิลที่มีขั้น 2 */
+            mastery?: components["schemas"]["SkillMasteryDto"];
+        };
+        SkillSlotsDto: {
+            /** @description ใช้สกิลใน cast() ได้ไม่เกินกี่ชนิดต่อโปรแกรม ตามเลเวลตอนนี้ */
+            slots: number;
+            /** @description เลเวลที่ได้ช่องถัดไป (null = ได้ครบแล้ว) */
+            nextLevel: number | null;
+        };
+        SkillBriefDto: {
+            id: string;
+            nameTh: string;
+            /** @enum {string} */
+            kind: "physical" | "magic" | "heal" | "shield" | "taunt" | "buff";
+            mpCost: number;
+            aoe: boolean;
+        };
+        SkillLineDto: {
+            /** @enum {string} */
+            line: "str" | "int" | "vit";
+            /** @description แต้มที่ความชำนาญแจกให้สายนี้แล้ว (สเตตัสตอนนี้ - ค่าเริ่มของผู้ฝึกหัด) */
+            earned: number;
+            threshold: number;
+            unlocked: boolean;
+            /** @description สกิลสายนี้ของอาชีพคุณ (null = ผู้ฝึกหัด) */
+            skill: components["schemas"]["SkillBriefDto"] | null;
+        };
+        SkillBookDto: {
+            id: string;
+            nameTh: string;
+            /** @description ชื่อกลไก เช่น พิษ */
+            mechanicTh: string;
+            owned: boolean;
+            /** @description ล้มต้นทางแล้วยังไม่ได้กี่ครั้ง (ได้แล้ว = 0) */
+            pity: number;
+            /** @description ล้มครบเท่านี้ได้แน่นอน */
+            pityMax: number;
+            /** @description บอสและ EX ที่ดรอปเล่มนี้ */
+            sourcesTh: string[];
+            /** @description สกิลของเล่มนี้สำหรับอาชีพคุณ (null = ผู้ฝึกหัด) */
+            skill: components["schemas"]["SkillBriefDto"] | null;
         };
         CharacterDto: {
             /** Format: uuid */
@@ -539,6 +606,9 @@ export interface components {
             materials: number;
             equipment: components["schemas"]["EquipmentDto"];
             skills: components["schemas"]["SkillSummaryDto"][];
+            skillSlots: components["schemas"]["SkillSlotsDto"];
+            lines: components["schemas"]["SkillLineDto"][];
+            books: components["schemas"]["SkillBookDto"][];
             highestFloorCleared: number;
         };
         CreateCharacterDto: {
@@ -565,6 +635,14 @@ export interface components {
             evaded?: boolean;
             killed?: boolean;
             hpAfter: number;
+            /** @description ติดพิษจากการโจมตีนี้ นานกี่เทิร์น (สกิลตำรา ระยะ S4) */
+            poison?: number;
+            /** @description มึนจากการโจมตีนี้ — เทิร์นถัดไปของเป้าถูกข้าม */
+            stun?: boolean;
+            /** @description ได้บัฟชื่อนี้ (ชื่อเดียวกับ has_buff) เช่น power */
+            buff?: string;
+            /** @description heal ของแถวนี้มาจากการดูดเลือด ไม่ใช่สกิลฮีล */
+            drain?: boolean;
         };
         CombatEventDto: {
             turn: number;
@@ -578,8 +656,11 @@ export interface components {
             action: "attack" | "skill" | "defend" | "wait";
             skillId?: string;
             targets: components["schemas"]["CombatTargetDto"][];
-            /** @enum {string} */
-            note?: "wave_start" | "wave_clear" | "defend" | "windup";
+            /**
+             * @description poison = พิษกัดตอนต้นเทิร์นของผู้ลงมือ (targets มีตัวมันเอง · skillId = สกิลที่ใส่พิษ) · stunned = ผู้ลงมือมึน ข้ามเทิร์นนี้
+             * @enum {string}
+             */
+            note?: "wave_start" | "wave_clear" | "defend" | "windup" | "poison" | "stunned";
             /** @description บรรทัดในโปรแกรม BloxCode ที่ตัดสินใจเทิร์นนี้ (0 = การกระทำสำรอง) */
             line?: number;
             /** @description คำเตือนตอนรันโปรแกรม */
@@ -632,12 +713,19 @@ export interface components {
             nameTh: string;
             mpCost: number;
             aoe: boolean;
+            /**
+             * @description ขั้นของสกิล (ระยะ S2) — 2 = ใช้ถูกจังหวะครบแล้ว แรงขึ้น
+             * @enum {number}
+             */
+            rank: 1 | 2;
         };
         ProgramDto: {
             source: string;
             /** @description ไวยากรณ์ที่ปลดล็อกแล้ว */
             unlockedFeatures: string[];
+            /** @description สกิลที่มีทั้งหมด — โปรแกรมเดียวใช้ได้ไม่เกิน skillSlots.slots ชนิด */
             availableSkills: components["schemas"]["ProgramSkillDto"][];
+            skillSlots: components["schemas"]["SkillSlotsDto"];
             highestFloorCleared: number;
         };
         UpdateProgramDto: {
@@ -681,7 +769,7 @@ export interface components {
             id: string;
             nameTh: string;
             /** @enum {string} */
-            kind: "physical" | "magic" | "heal" | "shield" | "taunt";
+            kind: "physical" | "magic" | "heal" | "shield" | "taunt" | "buff";
             mpCost: number;
             aoe: boolean;
         };
@@ -814,6 +902,58 @@ export interface components {
             /** @description ผลครั้งก่อนที่จุดนี้ (null = ไม่เคยรบ) */
             previous: components["schemas"]["PreviousAttemptDto"] | null;
         };
+        MasteryGainDto: {
+            skillId: string;
+            nameTh: string;
+            /** @description ร่ายกี่ครั้งในการรบนี้ */
+            casts: number;
+            /** @description ถูกจังหวะกี่ครั้ง */
+            correct: number;
+            /** @description นับเข้าความเชี่ยวชาญจริงกี่ครั้ง (0 = ถูกจังหวะไม่ถึงเกณฑ์ หรือขั้น 2 แล้ว) */
+            credited: number;
+            /** @description สะสมแล้วรวมการรบนี้ */
+            total: number;
+            need: number;
+            /** @description ขึ้นขั้น 2 ในการรบนี้ */
+            rankedUp: boolean;
+        };
+        NewSkillDto: {
+            id: string;
+            nameTh: string;
+            /** @enum {string} */
+            kind: "physical" | "magic" | "heal" | "shield" | "taunt" | "buff";
+            mpCost: number;
+            aoe: boolean;
+            /** @enum {string} */
+            source: "level" | "region" | "line" | "book";
+        };
+        BookDropDto: {
+            id: string;
+            nameTh: string;
+            mechanicTh: string;
+            /** @description สกิลของเล่มนี้สำหรับอาชีพคุณ (null = ผู้ฝึกหัด ได้เมื่อเลือกอาชีพ) */
+            skill: components["schemas"]["NewSkillDto"] | null;
+        };
+        BookProgressDto: {
+            id: string;
+            nameTh: string;
+            /** @description ล้มต้นทางของเล่มนี้ได้กี่ตัวในการรบนี้ */
+            kills: number;
+            /** @description ล้มแล้วยังไม่ได้กี่ครั้ง (สะสม) */
+            pity: number;
+            /** @description ล้มครบเท่านี้ได้แน่นอน */
+            pityMax: number;
+        };
+        BookGainsDto: {
+            dropped: components["schemas"]["BookDropDto"][];
+            progress: components["schemas"]["BookProgressDto"][];
+        };
+        SkillGainsDto: {
+            /** @description สกิลที่มีขั้น 2 และร่ายในการรบนี้ */
+            mastery: components["schemas"]["MasteryGainDto"][];
+            newSkills: components["schemas"]["NewSkillDto"][];
+            books: components["schemas"]["BookGainsDto"];
+        };
         ChallengeRewardDto: {
             exp: number;
             gold: number;
@@ -847,6 +987,8 @@ export interface components {
             /** @description สเตตัสที่ได้จากการเลเวลอัพรอบนี้ */
             statsGained?: components["schemas"]["StatsDto"];
             attempt: components["schemas"]["BattleAttemptDto"];
+            /** @description มีเฉพาะหอคอยและภูมิภาค (มอนของโจทย์ไม่นับความเชี่ยวชาญและไม่ดรอปตำรา) */
+            skills?: components["schemas"]["SkillGainsDto"];
             /** @description มีเฉพาะการสู้กับมอนของโจทย์ */
             challenge?: components["schemas"]["ChallengeBattleDto"];
         };
@@ -889,6 +1031,23 @@ export interface components {
             growthHint: string;
             baseStats: components["schemas"]["StatsDto"];
         };
+        SkillRank2Dto: {
+            /** @description พลังใหม่ของขั้น 2 */
+            power?: number;
+            /** @description ยั่วยุ: สัดส่วนดาเมจที่ลดระหว่างยั่วยุของขั้น 2 */
+            tauntReduction?: number;
+        };
+        SkillPoisonDto: {
+            /** @description % ของ ATK/MATK ผู้ร่ายต่อเทิร์น */
+            power: number;
+            turns: number;
+        };
+        SkillBuffDto: {
+            /** @enum {string} */
+            stat: "atk" | "matk";
+            pct: number;
+            turns: number;
+        };
         SkillDefDto: {
             id: string;
             name: string;
@@ -896,8 +1055,8 @@ export interface components {
             /** @enum {string} */
             classId: "novice" | "warrior" | "mage" | "guardian" | "monster";
             /** @enum {string} */
-            kind: "physical" | "magic" | "heal" | "shield" | "taunt";
-            /** @description physical/magic = % ของ atk/matk (100 = 1 เท่า) · heal = % ของเลือดสูงสุดของเป้า · shield = % ของเลือดสูงสุดของผู้ร่าย · taunt ไม่ใช้ */
+            kind: "physical" | "magic" | "heal" | "shield" | "taunt" | "buff";
+            /** @description physical/magic = % ของ atk/matk (100 = 1 เท่า) · heal = % ของเลือดสูงสุดของเป้า · shield = % ของเลือดสูงสุดของผู้ร่าย · taunt/buff ไม่ใช้ */
             power: number;
             mpCost: number;
             aoe: boolean;
@@ -908,6 +1067,25 @@ export interface components {
             animation?: string;
             /** @description สกิลประจำภูมิภาค: ได้เมื่อพิสูจน์บทเรียนของภูมิภาคนี้ ไม่ได้ตามเลเวล (unlockLevel ไม่มีความหมาย) */
             region?: string;
+            /**
+             * @description สกิลสายจากความชำนาญ (ระยะ S3): ได้เมื่อแต้มสายนี้ถึงเกณฑ์
+             * @enum {string}
+             */
+            line?: "str" | "int" | "vit";
+            /** @description สกิลจากตำรา (ระยะ S4): id ของตำรา */
+            book?: string;
+            /** @description ผลเมื่อสกิลถึงขั้น 2 (ระยะ S2) */
+            rank2?: components["schemas"]["SkillRank2Dto"];
+            /** @description ตีเป้าเดิมกี่ครั้ง (หลายฮิต) */
+            hits?: number;
+            /** @description ฟื้นเลือดผู้ร่ายเป็นสัดส่วนของดาเมจ (0..1) */
+            drain?: number;
+            /** @description ติดพิษ */
+            poison?: components["schemas"]["SkillPoisonDto"];
+            /** @description มึน: เป้าข้ามเทิร์นถัดไป (บอสไม่มึน) */
+            stun?: boolean;
+            /** @description บัฟพลังโจมตีของผู้ร่าย (kind buff) */
+            buff?: components["schemas"]["SkillBuffDto"];
         };
         RegionNameDto: {
             id: string;

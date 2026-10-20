@@ -409,6 +409,99 @@ describe('สกิลประจำภูมิภาค (8 ต.ค. 2569 · �
   });
 });
 
+describe('วิธีได้สกิลระยะ S2–S4 (20 ต.ค. 2569 · docs/design-skill-acquisition.md ข้อ 8)', () => {
+  let code = 6504119000;
+  const STRONGEST = 'def turn():\n    cast("power_strike", strongest(enemies))\n    attack(weakest(enemies))\n';
+  /** นักรบเลเวลที่กำหนด สเตตัสแจกตามน้ำหนักมาตรฐาน · คืน id ของแถว */
+  async function readyWarrior(sub: string, level: number, source: string, extraSql = '', extra: unknown[] = []): Promise<string> {
+    hub.people.set(sub, String(code++));
+    await http.post('/api/v1/characters').set(as(sub)).send({}).expect(201);
+    const stats = { ...gamedata.classes.novice.baseStats };
+    for (let l = 2; l <= level; l++) {
+      const g = allocatePoints({ str: 0, int: 0, vit: 0, agi: 0, luk: 0 }, FORMULAS.statPointsPerLevel, 'warrior', l);
+      for (const k of Object.keys(stats) as (keyof typeof stats)[]) stats[k] += g[k];
+    }
+    const [row] = await queryRows<{ id: string }>(DB!,
+      `UPDATE characters SET class_id = 'warrior', level = $2, highest_floor = 5, program_source = $3,
+         stat_str = $4, stat_int = $5, stat_vit = $6, stat_agi = $7, stat_luk = $8 ${extraSql}
+       WHERE core_user_id = $1 RETURNING id`,
+      [sub, level, source, stats.str, stats.int, stats.vit, stats.agi, stats.luk, ...extra]);
+    return row.id;
+  }
+
+  it('หน้าตัวละครมีช่องสกิล · สายสามสาย · ตำราทุกเล่ม · โปรแกรมที่ใช้สกิลเกินช่องบันทึกไม่ได้', async () => {
+    await readyWarrior('p-slot', 7, STRONGEST, ", proved_regions = '{greenwood,ruins}'");
+    const ch = (await http.get('/api/v1/characters/current').set(as('p-slot')).expect(200)).body.data;
+    expect(ch.skillSlots).toEqual({ slots: 3, nextLevel: 8 });
+    expect(ch.lines.map((l: { line: string }) => l.line)).toEqual(['str', 'int', 'vit']);
+    expect(ch.books).toHaveLength(gamedata.skillBooks.length);
+    expect(ch.books[0]).toMatchObject({ owned: false, pity: 0, pityMax: gamedata.acquisition.bookPity });
+    expect(ch.skills.find((s: { id: string }) => s.id === 'w_power_strike')).toMatchObject({ source: 'level', rank: 1, mastery: { count: 0 } });
+    const prog = (await http.get('/api/v1/programs/current').set(as('p-slot')).expect(200)).body.data;
+    expect(prog.skillSlots).toEqual({ slots: 3, nextLevel: 8 });
+    expect(prog.availableSkills.find((s: { id: string }) => s.id === 'w_pierce')).toMatchObject({ rank: 1 });
+
+    const four = 'def turn():\n    if me.hp_pct < 30:\n        cast("guard_up", me)\n    elif count(enemies) >= 3:\n        cast("whirlwind", enemies)\n'
+      + '    elif weakest(enemies).hp_pct < 30:\n        cast("pierce", weakest(enemies))\n    else:\n        cast("power_strike", weakest(enemies))\n';
+    const bad = await http.patch('/api/v1/programs/current').set(as('p-slot')).send({ source: four }).expect(400);
+    expect(bad.body.error.details.join(' ')).toContain('พกสกิลได้ 3 ชนิด');
+    expect(bad.body.error.details.join(' ')).toContain('เลเวล 8');
+    await queryRows(DB!, 'UPDATE characters SET level = 8 WHERE core_user_id = $1', ['p-slot']);
+    await http.patch('/api/v1/programs/current').set(as('p-slot')).send({ source: four }).expect(200);
+  });
+
+  it('ใช้ถูกจังหวะครบ → ขั้น 2 ในการรบนั้น · บันทึกในฐานข้อมูล · คู่ดวลเก็บขั้นของสกิลไว้', async () => {
+    const need = gamedata.acquisition.masteryNeed;
+    await readyWarrior('p-rank', 12, STRONGEST, ', skill_mastery = $9::json', [JSON.stringify({ w_power_strike: need - 1 })]);
+    const res = await http.post('/api/v1/battles').set(as('p-rank')).send({ towerFloor: 1 }).expect(201);
+    const gain = res.body.data.skills.mastery.find((m: { skillId: string }) => m.skillId === 'w_power_strike');
+    expect(gain).toMatchObject({ rankedUp: true, total: need, need });
+    expect(gain.correct).toBe(gain.casts);
+    expect(res.body.data.character.skills.find((s: { id: string }) => s.id === 'w_power_strike')).toMatchObject({ rank: 2 });
+    const [row] = await queryRows<{ skill_mastery: Record<string, number> }>(DB!, 'SELECT skill_mastery FROM characters WHERE core_user_id = $1', ['p-rank']);
+    expect(row.skill_mastery).toEqual({ w_power_strike: need });
+
+    // สแนปช็อตดวลเขียนหลังรบในภูมิภาค — ต้องพกขั้นของสกิลไปด้วย
+    const run = await http.post('/api/v1/region-runs').set(as('p-rank')).send({ regionId: 'greenwood', depth: 1 }).expect(201);
+    await http.post('/api/v1/battles').set(as('p-rank')).send({ regionRunId: run.body.data.id }).expect(201);
+    const snaps = await queryRows<{ skills: string[]; skill_ranks: Record<string, number> }>(DB!,
+      'SELECT s.skills, s.skill_ranks FROM duel_snapshots s JOIN characters c ON c.id = s.character_id WHERE c.core_user_id = $1', ['p-rank']);
+    expect(snaps[0]).toEqual({ skills: ['w_power_strike'], skill_ranks: { w_power_strike: 2 } });
+  });
+
+  it('เพดานดวง: ล้มบอสต้นทางครบเพดาน → ได้ตำราแน่นอน · สกิลของอาชีพใช้ในโปรแกรมได้ทันที', async () => {
+    const pity = gamedata.acquisition.bookPity;
+    await readyWarrior('p-book', 15, STRONGEST, ', book_pity = $9::json', [JSON.stringify({ venom: pity - 1 })]);
+    const res = await http.post('/api/v1/battles').set(as('p-book')).send({ towerFloor: 1 }).expect(201);
+    expect(res.body.data.result.victory).toBe(true);
+    expect(res.body.data.skills.books.dropped).toEqual([expect.objectContaining({ id: 'venom', skill: expect.objectContaining({ id: 'w_venom_edge' }) })]);
+    expect(res.body.data.skills.newSkills).toEqual(expect.arrayContaining([expect.objectContaining({ id: 'w_venom_edge', source: 'book' })]));
+    const [row] = await queryRows<{ skill_books: string[]; book_pity: Record<string, number> }>(DB!,
+      'SELECT skill_books, book_pity FROM characters WHERE core_user_id = $1', ['p-book']);
+    expect(row.skill_books).toEqual(['venom']);
+    expect(row.book_pity).not.toHaveProperty('venom');
+    expect(res.body.data.character.books.find((b: { id: string }) => b.id === 'venom')).toMatchObject({ owned: true });
+    await http.patch('/api/v1/programs/current').set(as('p-book'))
+      .send({ source: 'def turn():\n    if weakest(enemies).poison_turns == 0:\n        cast("venom_edge", weakest(enemies))\n    else:\n        attack(weakest(enemies))\n' })
+      .expect(200);
+    // ได้แล้ว = ไม่ดรอปซ้ำ ไม่นับเพดานอีก
+    const again = await http.post('/api/v1/battles').set(as('p-book')).send({ towerFloor: 1 }).expect(201);
+    expect(again.body.data.skills.books).toEqual({ dropped: [], progress: [] });
+  });
+
+  it('สกิลสาย: แต้มสาย STR ถึงเกณฑ์ → มีผ่าพสุธาและใช้ในโปรแกรมได้', async () => {
+    const start = gamedata.classes.novice.baseStats;
+    await readyWarrior('p-line', 9, STRONGEST);
+    await queryRows(DB!, 'UPDATE characters SET stat_str = $2 WHERE core_user_id = $1', ['p-line', start.str + gamedata.acquisition.lineThreshold]);
+    const ch = (await http.get('/api/v1/characters/current').set(as('p-line')).expect(200)).body.data;
+    expect(ch.lines[0]).toMatchObject({ line: 'str', unlocked: true, skill: { id: 'w_cleave' } });
+    expect(ch.skills.find((s: { id: string }) => s.id === 'w_cleave')).toMatchObject({ source: 'line', line: 'str' });
+    await http.patch('/api/v1/programs/current').set(as('p-line'))
+      .send({ source: 'def turn():\n    if count(enemies) >= 3:\n        cast("cleave", enemies)\n    else:\n        attack(weakest(enemies))\n' })
+      .expect(200);
+  });
+});
+
 describe('โจทย์ (D4)', () => {
   it('ผู้สอนสร้าง · ผู้เล่นอ่านได้แต่สร้างไม่ได้ · แก้ของคนอื่นไม่ได้ · admin แก้ได้', async () => {
     await http.post('/api/v1/challenges').set(as('p-alice')).send({ title: 'x' }).expect(403);

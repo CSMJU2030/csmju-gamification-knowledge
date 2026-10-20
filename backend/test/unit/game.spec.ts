@@ -11,6 +11,7 @@ import { characterView, enrichInstance, proficiencyView } from '../../src/game/c
 import { TRIAL_WAVES, demoProgram, runTrial, trialSummary } from '../../src/game/class-trial';
 import { CLASS_CHOICE_FLOOR, TRIVIAL_PROGRAM, unlockedSkills } from '../../src/game/game-rules';
 import { HERO_ID, buildHero, progress } from '../../src/game/progression';
+import { skillGainsOf } from '../../src/game/skill-gains';
 import { levelBandFor, regionProgress } from '../../src/game/world';
 import { checkProgram, formatLangError, langOptions } from '../../src/programs/programs.service';
 import { runSeed, textSeed } from '../../src/world/run-seed';
@@ -23,6 +24,7 @@ function character(overrides: Partial<Character> = {}): Character {
     statStr: base.str, statInt: base.int, statVit: base.vit, statAgi: base.agi, statLuk: base.luk,
     gold: 100, materials: 0, highestFloor: 0, programSource: TRIVIAL_PROGRAM,
     profStr: 0, profInt: 0, profVit: 0, profAgi: 0, profLuk: 0, provedRegions: [],
+    skillMastery: {}, skillBooks: [], bookPity: {},
     createdAt: new Date(0), updatedAt: new Date(0),
     ...overrides,
   };
@@ -68,7 +70,7 @@ describe('มุมมองตัวละครและไอเทม', () =
     const view = characterView(character(), []);
     expect(Object.keys(view)).toEqual([
       'id', 'displayName', 'classId', 'level', 'exp', 'expToNext', 'proficiency', 'stats', 'derived',
-      'gold', 'materials', 'equipment', 'skills', 'highestFloorCleared',
+      'gold', 'materials', 'equipment', 'skills', 'skillSlots', 'lines', 'books', 'highestFloorCleared',
     ]);
     expect(view.equipment).toEqual({ weapon: null, armor: null, helmet: null, accessory: null });
   });
@@ -129,10 +131,13 @@ describe('ตรวจโปรแกรม BloxCode', () => {
 
 describe('สกิลประจำภูมิภาค (8 ต.ค. 2569 · ระยะ S1)', () => {
   const warrior = (provedRegions: string[] = []) => character({ classId: 'warrior', level: 3, highestFloor: 2, provedRegions });
+  // ตั้งแต่มีช่องสกิล (ข้อ 8.2) ตัวละครพกเข้ารบเฉพาะสกิลที่โปรแกรมใช้ — โปรแกรมนี้ใช้ทั้งสองตัว
+  const USES_BOTH = 'def turn():\n    if has_debuff("marked"):\n        cast("guard_up", me)\n    else:\n        cast("power_strike", weakest(enemies))\n';
   it('รบ: ได้สกิลของภูมิภาคที่พิสูจน์แล้วเท่านั้น · ล็อกเลเวลก็ไม่หาย', () => {
-    expect(buildHero(warrior(), []).combatant.skills).toEqual(['w_power_strike']);
-    expect(buildHero(warrior(['greenwood']), []).combatant.skills).toEqual(['w_power_strike', 'w_guard_up']);
-    expect(buildHero(warrior(['greenwood']), [], HERO_ID, { floor: 1 }).combatant.skills).toContain('w_guard_up');
+    const w = (proved: string[] = []) => ({ ...warrior(proved), programSource: USES_BOTH });
+    expect(buildHero(w(), []).combatant.skills).toEqual(['w_power_strike']);
+    expect(buildHero(w(['greenwood']), []).combatant.skills).toEqual(['w_guard_up', 'w_power_strike']);
+    expect(buildHero(w(['greenwood']), [], HERO_ID, { floor: 1 }).combatant.skills).toContain('w_guard_up');
   });
   it('หน้าตัวละคร: สกิลภูมิภาคบอกว่ามาจากภูมิภาคไหน', () => {
     const skills = characterView(warrior(['ruins']), []).skills;
@@ -191,5 +196,79 @@ describe('ตัวอย่างการรบก่อนเลือกอ�
       expect(sum.hpLeftPct).toBeLessThanOrEqual(100);
     }
     expect(new Set(rosters).size).toBe(1);
+  });
+});
+
+describe('วิธีได้สกิลระยะ S2–S4 (20 ต.ค. 2569 · docs/design-skill-acquisition.md ข้อ 8)', () => {
+  const need = gamedata.acquisition.masteryNeed;
+  const FOUR = 'def turn():\n    if me.hp_pct < 30:\n        cast("guard_up", me)\n    elif count(enemies) >= 3:\n        cast("whirlwind", enemies)\n'
+    + '    elif weakest(enemies).hp_pct < 30:\n        cast("execute", weakest(enemies))\n    else:\n        cast("power_strike", weakest(enemies))\n';
+  const warrior = (over: Partial<Character> = {}) =>
+    character({ classId: 'warrior', level: 12, highestFloor: 9, provedRegions: ['greenwood'], programSource: FOUR, ...over });
+
+  it('ช่องสกิล: รบพกไม่เกินจำนวนช่องตามเลเวล (ตัวแรก ๆ ในโค้ด) · ตัวตรวจโปรแกรมฟ้องตัวที่เกิน', () => {
+    expect(buildHero(warrior({ level: 12 }), []).combatant.skills).toEqual(['w_guard_up', 'w_whirlwind', 'w_execute', 'w_power_strike']);
+    expect(buildHero(warrior({ level: 10, statStr: 30 }), []).combatant.skills).toHaveLength(4);
+    const low = warrior({ level: 7 });
+    expect(langOptions(low)).toMatchObject({ skillSlots: 3, skillSlotNextLevel: 8 });
+    // lv7 ยังไม่มี execute (ปลดที่ 10) → ใช้แค่ 3 ชนิด
+    expect(buildHero(low, []).combatant.skills).toEqual(['w_guard_up', 'w_whirlwind', 'w_power_strike']);
+    expect(checkProgram(FOUR, langOptions(warrior({ level: 10 })))).toEqual([]);
+    const tooMany = checkProgram(FOUR.replace('cast("execute"', 'cast("pierce"'), langOptions({ ...warrior({ level: 7 }), provedRegions: ['greenwood', 'ruins'] }));
+    expect(tooMany.map((e) => e.messageTh).join(' ')).toContain('พกสกิลได้ 3 ชนิด');
+  });
+
+  it('ขั้น 2: ความเชี่ยวชาญครบ = ตัวรบได้ skillRanks · หน้าตัวละครบอกขั้นและเงื่อนไข', () => {
+    const row = warrior({ skillMastery: { w_execute: need, w_power_strike: 7 } });
+    const c = buildHero(row, []).combatant as unknown as { skillRanks: Record<string, number> };
+    expect(c.skillRanks).toEqual({ w_execute: 2 });
+    const skills = characterView(row, []).skills;
+    expect(skills.find((s) => s.id === 'w_execute')).toMatchObject({ rank: 2, source: 'level', mastery: { count: need, need } });
+    expect(skills.find((s) => s.id === 'w_power_strike')).toMatchObject({ rank: 1, mastery: { count: 7 } });
+    expect(skills.find((s) => s.id === 'w_guard_up')).toMatchObject({ rank: 1, source: 'region' });
+    expect(skills.find((s) => s.id === 'w_guard_up')).not.toHaveProperty('mastery');
+    // ค่าแปลกในคอลัมน์ JSON ไม่ทำให้พัง
+    expect(characterView(warrior({ skillMastery: { w_execute: 'x', bogus: -3 } as never }), []).skills.every((s) => s.rank === 1)).toBe(true);
+  });
+
+  it('สกิลสาย: แต้มถึงเกณฑ์ได้สกิล · หน้าตัวละครบอกแต้มทั้งสามสาย', () => {
+    const start = gamedata.classes.novice.baseStats;
+    const T = gamedata.acquisition.lineThreshold;
+    const row = warrior({ statStr: start.str + T, statVit: start.vit + T - 1 });
+    const lines = characterView(row, []).lines;
+    expect(lines.map((l) => [l.line, l.earned, l.unlocked])).toEqual([['str', T, true], ['int', 0, false], ['vit', T - 1, false]]);
+    expect(characterView(row, []).skills.find((s) => s.source === 'line')).toMatchObject({ id: 'w_cleave', line: 'str' });
+  });
+
+  it('ตำรา: หน้าตัวละครมีทุกเล่มพร้อมต้นทางและเพดานดวง · เก็บแล้วได้สกิลของอาชีพ', () => {
+    const row = warrior({ skillBooks: ['venom'], bookPity: { stun: 3 } });
+    const books = characterView(row, []).books;
+    expect(books).toHaveLength(gamedata.skillBooks.length);
+    expect(books.find((b) => b.id === 'venom')).toMatchObject({ owned: true, pity: 0, skill: { id: 'w_venom_edge' } });
+    expect(books.find((b) => b.id === 'stun')).toMatchObject({ owned: false, pity: 3, pityMax: gamedata.acquisition.bookPity });
+    expect(books.find((b) => b.id === 'venom')!.sourcesTh).toContain('ราชาสไลม์');
+    expect(characterView(row, []).skills.map((s) => s.id)).toContain('w_venom_edge');
+  });
+
+  it('ผลการรบ → ความเชี่ยวชาญ · ตำรา (เพดานดวง) · สกิลใหม่จากสเตตัสที่โตขึ้น', () => {
+    const wave = { turn: 1, wave: 1, actorId: 'system', actorName: 'system', action: 'attack' as const, note: 'wave_start' as const,
+      targets: [{ id: 'f1w10_boss_boss_king_slime', name: 'b', hpAfter: 100 }, { id: 'f1w10_m1_slime', name: 's', hpAfter: 100 }] };
+    const exec = (turn: number, hpAfter: number) => ({ turn, wave: 1, actorId: HERO_ID, actorName: 'h', action: 'skill' as const,
+      skillId: 'w_execute', targets: [{ id: 'f1w10_boss_boss_king_slime', name: 'b', damage: 5, hpAfter, killed: hpAfter === 0 }] });
+    const pre = { turn: 1, wave: 1, actorId: HERO_ID, actorName: 'h', action: 'attack' as const,
+      targets: [{ id: 'f1w10_boss_boss_king_slime', name: 'b', damage: 80, hpAfter: 20 }] };
+    const events = [wave, pre, exec(2, 10), exec(3, 0)];
+    const row = warrior({ skillMastery: { w_execute: need - 1 }, bookPity: { venom: gamedata.acquisition.bookPity - 1 } });
+    const start = gamedata.classes.novice.baseStats;
+    const after = { level: 12, stats: { str: start.str + gamedata.acquisition.lineThreshold, int: 4, vit: 7, agi: 4, luk: 4 } };
+    const g = skillGainsOf(row, { events, seed: 5 }, 500, after);
+    expect(g.gains.mastery).toEqual([{ skillId: 'w_execute', nameTh: 'ปิดฉาก', casts: 2, correct: 2, credited: 1, total: need, need, rankedUp: true }]);
+    expect(g.data.skillMastery).toEqual({ w_execute: need });
+    expect(g.gains.books.dropped).toEqual([expect.objectContaining({ id: 'venom', skill: expect.objectContaining({ id: 'w_venom_edge' }) })]);
+    expect(g.data.skillBooks).toEqual(['venom']);
+    expect(g.data.bookPity).toEqual({});
+    expect(g.gains.newSkills.map((s) => [s.id, s.source])).toEqual([['w_cleave', 'line'], ['w_venom_edge', 'book']]);
+    // ไม่มีอะไรเปลี่ยน = ไม่เขียนอะไรกลับ
+    expect(skillGainsOf(warrior(), { events: [wave], seed: 1 }, 500, { level: 12, stats: { str: 6, int: 4, vit: 7, agi: 4, luk: 4 } }).data).toEqual({});
   });
 });

@@ -2865,6 +2865,32 @@
           "accessory"
         ]
       },
+      "SkillMasteryDto": {
+        "type": "object",
+        "properties": {
+          "count": {
+            "type": "number",
+            "description": "ครั้งที่ใช้ถูกจังหวะที่นับแล้ว (หยุดที่ need)"
+          },
+          "need": {
+            "type": "number"
+          },
+          "requirementTh": {
+            "type": "string",
+            "description": "เงื่อนไข \"ใช้ถูกจังหวะ\" ของสกิลนี้"
+          },
+          "rank2Th": {
+            "type": "string",
+            "description": "ผลของขั้น 2 เช่น \"ดาเมจ 225% ของ ATK\""
+          }
+        },
+        "required": [
+          "count",
+          "need",
+          "requirementTh",
+          "rank2Th"
+        ]
+      },
       "SkillSummaryDto": {
         "type": "object",
         "properties": {
@@ -2877,6 +2903,16 @@
           "unlockLevel": {
             "type": "number"
           },
+          "source": {
+            "type": "string",
+            "enum": [
+              "level",
+              "region",
+              "line",
+              "book"
+            ],
+            "description": "ได้มาจากไหน: level = ตามเลเวล · region = พิสูจน์ภูมิภาค · line = ความชำนาญ · book = ตำรา"
+          },
           "mpCost": {
             "type": "number"
           },
@@ -2887,7 +2923,8 @@
               "magic",
               "heal",
               "shield",
-              "taunt"
+              "taunt",
+              "buff"
             ]
           },
           "aoe": {
@@ -2896,15 +2933,192 @@
           "region": {
             "type": "string",
             "description": "สกิลประจำภูมิภาค: id ของภูมิภาคที่พิสูจน์แล้วได้สกิลนี้ (ไม่มี = สกิลอาชีพตามเลเวล)"
+          },
+          "line": {
+            "type": "string",
+            "enum": [
+              "str",
+              "int",
+              "vit"
+            ],
+            "description": "สกิลสายจากความชำนาญ"
+          },
+          "book": {
+            "type": "string",
+            "description": "สกิลจากตำรา: id ของตำรา"
+          },
+          "rank": {
+            "type": "number",
+            "enum": [
+              1,
+              2
+            ],
+            "description": "ขั้นของสกิล"
+          },
+          "mastery": {
+            "description": "มีเฉพาะสกิลที่มีขั้น 2",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/SkillMasteryDto"
+              }
+            ]
           }
         },
         "required": [
           "id",
           "nameTh",
           "unlockLevel",
+          "source",
           "mpCost",
           "kind",
+          "aoe",
+          "rank"
+        ]
+      },
+      "SkillSlotsDto": {
+        "type": "object",
+        "properties": {
+          "slots": {
+            "type": "number",
+            "description": "ใช้สกิลใน cast() ได้ไม่เกินกี่ชนิดต่อโปรแกรม ตามเลเวลตอนนี้"
+          },
+          "nextLevel": {
+            "type": "number",
+            "nullable": true,
+            "description": "เลเวลที่ได้ช่องถัดไป (null = ได้ครบแล้ว)"
+          }
+        },
+        "required": [
+          "slots",
+          "nextLevel"
+        ]
+      },
+      "SkillBriefDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "nameTh": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "physical",
+              "magic",
+              "heal",
+              "shield",
+              "taunt",
+              "buff"
+            ]
+          },
+          "mpCost": {
+            "type": "number"
+          },
+          "aoe": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "nameTh",
+          "kind",
+          "mpCost",
           "aoe"
+        ]
+      },
+      "SkillLineDto": {
+        "type": "object",
+        "properties": {
+          "line": {
+            "type": "string",
+            "enum": [
+              "str",
+              "int",
+              "vit"
+            ]
+          },
+          "earned": {
+            "type": "number",
+            "description": "แต้มที่ความชำนาญแจกให้สายนี้แล้ว (สเตตัสตอนนี้ - ค่าเริ่มของผู้ฝึกหัด)"
+          },
+          "threshold": {
+            "type": "number"
+          },
+          "unlocked": {
+            "type": "boolean"
+          },
+          "skill": {
+            "nullable": true,
+            "description": "สกิลสายนี้ของอาชีพคุณ (null = ผู้ฝึกหัด)",
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/SkillBriefDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "line",
+          "earned",
+          "threshold",
+          "unlocked",
+          "skill"
+        ]
+      },
+      "SkillBookDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "nameTh": {
+            "type": "string"
+          },
+          "mechanicTh": {
+            "type": "string",
+            "description": "ชื่อกลไก เช่น พิษ"
+          },
+          "owned": {
+            "type": "boolean"
+          },
+          "pity": {
+            "type": "number",
+            "description": "ล้มต้นทางแล้วยังไม่ได้กี่ครั้ง (ได้แล้ว = 0)"
+          },
+          "pityMax": {
+            "type": "number",
+            "description": "ล้มครบเท่านี้ได้แน่นอน"
+          },
+          "sourcesTh": {
+            "description": "บอสและ EX ที่ดรอปเล่มนี้",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "skill": {
+            "nullable": true,
+            "description": "สกิลของเล่มนี้สำหรับอาชีพคุณ (null = ผู้ฝึกหัด)",
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/SkillBriefDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "nameTh",
+          "mechanicTh",
+          "owned",
+          "pity",
+          "pityMax",
+          "sourcesTh",
+          "skill"
         ]
       },
       "CharacterDto": {
@@ -2965,6 +3179,21 @@
               "$ref": "#/components/schemas/SkillSummaryDto"
             }
           },
+          "skillSlots": {
+            "$ref": "#/components/schemas/SkillSlotsDto"
+          },
+          "lines": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SkillLineDto"
+            }
+          },
+          "books": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SkillBookDto"
+            }
+          },
           "highestFloorCleared": {
             "type": "number"
           }
@@ -2983,6 +3212,9 @@
           "materials",
           "equipment",
           "skills",
+          "skillSlots",
+          "lines",
+          "books",
           "highestFloorCleared"
         ]
       },
@@ -3043,6 +3275,22 @@
           },
           "hpAfter": {
             "type": "number"
+          },
+          "poison": {
+            "type": "number",
+            "description": "ติดพิษจากการโจมตีนี้ นานกี่เทิร์น (สกิลตำรา ระยะ S4)"
+          },
+          "stun": {
+            "type": "boolean",
+            "description": "มึนจากการโจมตีนี้ — เทิร์นถัดไปของเป้าถูกข้าม"
+          },
+          "buff": {
+            "type": "string",
+            "description": "ได้บัฟชื่อนี้ (ชื่อเดียวกับ has_buff) เช่น power"
+          },
+          "drain": {
+            "type": "boolean",
+            "description": "heal ของแถวนี้มาจากการดูดเลือด ไม่ใช่สกิลฮีล"
           }
         },
         "required": [
@@ -3091,8 +3339,11 @@
               "wave_start",
               "wave_clear",
               "defend",
-              "windup"
-            ]
+              "windup",
+              "poison",
+              "stunned"
+            ],
+            "description": "poison = พิษกัดตอนต้นเทิร์นของผู้ลงมือ (targets มีตัวมันเอง · skillId = สกิลที่ใส่พิษ) · stunned = ผู้ลงมือมึน ข้ามเทิร์นนี้"
           },
           "line": {
             "type": "number",
@@ -3262,13 +3513,22 @@
           },
           "aoe": {
             "type": "boolean"
+          },
+          "rank": {
+            "type": "number",
+            "enum": [
+              1,
+              2
+            ],
+            "description": "ขั้นของสกิล (ระยะ S2) — 2 = ใช้ถูกจังหวะครบแล้ว แรงขึ้น"
           }
         },
         "required": [
           "id",
           "nameTh",
           "mpCost",
-          "aoe"
+          "aoe",
+          "rank"
         ]
       },
       "ProgramDto": {
@@ -3285,10 +3545,14 @@
             }
           },
           "availableSkills": {
+            "description": "สกิลที่มีทั้งหมด — โปรแกรมเดียวใช้ได้ไม่เกิน skillSlots.slots ชนิด",
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/ProgramSkillDto"
             }
+          },
+          "skillSlots": {
+            "$ref": "#/components/schemas/SkillSlotsDto"
           },
           "highestFloorCleared": {
             "type": "number"
@@ -3298,6 +3562,7 @@
           "source",
           "unlockedFeatures",
           "availableSkills",
+          "skillSlots",
           "highestFloorCleared"
         ]
       },
@@ -3432,7 +3697,8 @@
               "magic",
               "heal",
               "shield",
-              "taunt"
+              "taunt",
+              "buff"
             ]
           },
           "mpCost": {
@@ -3928,6 +4194,202 @@
           "previous"
         ]
       },
+      "MasteryGainDto": {
+        "type": "object",
+        "properties": {
+          "skillId": {
+            "type": "string"
+          },
+          "nameTh": {
+            "type": "string"
+          },
+          "casts": {
+            "type": "number",
+            "description": "ร่ายกี่ครั้งในการรบนี้"
+          },
+          "correct": {
+            "type": "number",
+            "description": "ถูกจังหวะกี่ครั้ง"
+          },
+          "credited": {
+            "type": "number",
+            "description": "นับเข้าความเชี่ยวชาญจริงกี่ครั้ง (0 = ถูกจังหวะไม่ถึงเกณฑ์ หรือขั้น 2 แล้ว)"
+          },
+          "total": {
+            "type": "number",
+            "description": "สะสมแล้วรวมการรบนี้"
+          },
+          "need": {
+            "type": "number"
+          },
+          "rankedUp": {
+            "type": "boolean",
+            "description": "ขึ้นขั้น 2 ในการรบนี้"
+          }
+        },
+        "required": [
+          "skillId",
+          "nameTh",
+          "casts",
+          "correct",
+          "credited",
+          "total",
+          "need",
+          "rankedUp"
+        ]
+      },
+      "NewSkillDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "nameTh": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "physical",
+              "magic",
+              "heal",
+              "shield",
+              "taunt",
+              "buff"
+            ]
+          },
+          "mpCost": {
+            "type": "number"
+          },
+          "aoe": {
+            "type": "boolean"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "level",
+              "region",
+              "line",
+              "book"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "nameTh",
+          "kind",
+          "mpCost",
+          "aoe",
+          "source"
+        ]
+      },
+      "BookDropDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "nameTh": {
+            "type": "string"
+          },
+          "mechanicTh": {
+            "type": "string"
+          },
+          "skill": {
+            "nullable": true,
+            "description": "สกิลของเล่มนี้สำหรับอาชีพคุณ (null = ผู้ฝึกหัด ได้เมื่อเลือกอาชีพ)",
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/NewSkillDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "nameTh",
+          "mechanicTh",
+          "skill"
+        ]
+      },
+      "BookProgressDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "nameTh": {
+            "type": "string"
+          },
+          "kills": {
+            "type": "number",
+            "description": "ล้มต้นทางของเล่มนี้ได้กี่ตัวในการรบนี้"
+          },
+          "pity": {
+            "type": "number",
+            "description": "ล้มแล้วยังไม่ได้กี่ครั้ง (สะสม)"
+          },
+          "pityMax": {
+            "type": "number",
+            "description": "ล้มครบเท่านี้ได้แน่นอน"
+          }
+        },
+        "required": [
+          "id",
+          "nameTh",
+          "kills",
+          "pity",
+          "pityMax"
+        ]
+      },
+      "BookGainsDto": {
+        "type": "object",
+        "properties": {
+          "dropped": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BookDropDto"
+            }
+          },
+          "progress": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BookProgressDto"
+            }
+          }
+        },
+        "required": [
+          "dropped",
+          "progress"
+        ]
+      },
+      "SkillGainsDto": {
+        "type": "object",
+        "properties": {
+          "mastery": {
+            "description": "สกิลที่มีขั้น 2 และร่ายในการรบนี้",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MasteryGainDto"
+            }
+          },
+          "newSkills": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/NewSkillDto"
+            }
+          },
+          "books": {
+            "$ref": "#/components/schemas/BookGainsDto"
+          }
+        },
+        "required": [
+          "mastery",
+          "newSkills",
+          "books"
+        ]
+      },
       "ChallengeRewardDto": {
         "type": "object",
         "properties": {
@@ -4032,6 +4494,14 @@
           },
           "attempt": {
             "$ref": "#/components/schemas/BattleAttemptDto"
+          },
+          "skills": {
+            "description": "มีเฉพาะหอคอยและภูมิภาค (มอนของโจทย์ไม่นับความเชี่ยวชาญและไม่ดรอปตำรา)",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/SkillGainsDto"
+              }
+            ]
           },
           "challenge": {
             "description": "มีเฉพาะการสู้กับมอนของโจทย์",
@@ -4156,6 +4626,58 @@
           "baseStats"
         ]
       },
+      "SkillRank2Dto": {
+        "type": "object",
+        "properties": {
+          "power": {
+            "type": "number",
+            "description": "พลังใหม่ของขั้น 2"
+          },
+          "tauntReduction": {
+            "type": "number",
+            "description": "ยั่วยุ: สัดส่วนดาเมจที่ลดระหว่างยั่วยุของขั้น 2"
+          }
+        }
+      },
+      "SkillPoisonDto": {
+        "type": "object",
+        "properties": {
+          "power": {
+            "type": "number",
+            "description": "% ของ ATK/MATK ผู้ร่ายต่อเทิร์น"
+          },
+          "turns": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "power",
+          "turns"
+        ]
+      },
+      "SkillBuffDto": {
+        "type": "object",
+        "properties": {
+          "stat": {
+            "type": "string",
+            "enum": [
+              "atk",
+              "matk"
+            ]
+          },
+          "pct": {
+            "type": "number"
+          },
+          "turns": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "stat",
+          "pct",
+          "turns"
+        ]
+      },
       "SkillDefDto": {
         "type": "object",
         "properties": {
@@ -4185,12 +4707,13 @@
               "magic",
               "heal",
               "shield",
-              "taunt"
+              "taunt",
+              "buff"
             ]
           },
           "power": {
             "type": "number",
-            "description": "physical/magic = % ของ atk/matk (100 = 1 เท่า) · heal = % ของเลือดสูงสุดของเป้า · shield = % ของเลือดสูงสุดของผู้ร่าย · taunt ไม่ใช้"
+            "description": "physical/magic = % ของ atk/matk (100 = 1 เท่า) · heal = % ของเลือดสูงสุดของเป้า · shield = % ของเลือดสูงสุดของผู้ร่าย · taunt/buff ไม่ใช้"
           },
           "mpCost": {
             "type": "number"
@@ -4212,6 +4735,55 @@
           "region": {
             "type": "string",
             "description": "สกิลประจำภูมิภาค: ได้เมื่อพิสูจน์บทเรียนของภูมิภาคนี้ ไม่ได้ตามเลเวล (unlockLevel ไม่มีความหมาย)"
+          },
+          "line": {
+            "type": "string",
+            "enum": [
+              "str",
+              "int",
+              "vit"
+            ],
+            "description": "สกิลสายจากความชำนาญ (ระยะ S3): ได้เมื่อแต้มสายนี้ถึงเกณฑ์"
+          },
+          "book": {
+            "type": "string",
+            "description": "สกิลจากตำรา (ระยะ S4): id ของตำรา"
+          },
+          "rank2": {
+            "description": "ผลเมื่อสกิลถึงขั้น 2 (ระยะ S2)",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/SkillRank2Dto"
+              }
+            ]
+          },
+          "hits": {
+            "type": "number",
+            "description": "ตีเป้าเดิมกี่ครั้ง (หลายฮิต)"
+          },
+          "drain": {
+            "type": "number",
+            "description": "ฟื้นเลือดผู้ร่ายเป็นสัดส่วนของดาเมจ (0..1)"
+          },
+          "poison": {
+            "description": "ติดพิษ",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/SkillPoisonDto"
+              }
+            ]
+          },
+          "stun": {
+            "type": "boolean",
+            "description": "มึน: เป้าข้ามเทิร์นถัดไป (บอสไม่มึน)"
+          },
+          "buff": {
+            "description": "บัฟพลังโจมตีของผู้ร่าย (kind buff)",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/SkillBuffDto"
+              }
+            ]
           }
         },
         "required": [

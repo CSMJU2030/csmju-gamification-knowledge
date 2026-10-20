@@ -91,6 +91,7 @@ export class BattlesService {
       result: persisted.result,
       character: await loadCharacterView(this.prisma, row.id),
       ...persisted.gains,
+      skills: persisted.skills,
       attempt: attemptView(persisted.attempt),
     };
   }
@@ -152,6 +153,7 @@ export class BattlesService {
         : null,
       character: await loadCharacterView(this.prisma, row.id),
       ...persisted.gains,
+      skills: persisted.skills,
       attempt: attemptView(persisted.attempt),
     };
   }
