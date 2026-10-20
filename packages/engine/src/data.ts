@@ -134,6 +134,7 @@ export interface SkillBookDef {
 export interface AcquisitionTuning {
   masteryNeed: number;
   masteryMinShare: number;
+  masteryPerBattleCap: number;
   /** เลเวลที่ปลดช่องที่ 1, 2, 3, … */
   slotLevels: number[];
   lineThreshold: number;

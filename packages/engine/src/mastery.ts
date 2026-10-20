@@ -9,6 +9,7 @@
  *  · วัดจากบันทึกการรบที่เซิร์ฟเวอร์จำลองเอง ไม่อ่านตัวโปรแกรม
  *  · กันสแปม: การรบหนึ่งครั้งนับ "ครั้งที่ถูกจังหวะ" ของสกิลนั้นก็ต่อเมื่อถูกจังหวะอย่างน้อย
  *    `acquisition.masteryMinShare` ของทุกครั้งที่ร่าย — ร่ายรัวทุกเทิร์นได้ถูกบ้างโดยบังเอิญแต่ไม่ถึงเกณฑ์
+ *  · ต้องสม่ำเสมอ: นับได้ไม่เกิน `acquisition.masteryPerBattleCap` ต่อการรบ — ขั้น 2 ต้องใช้หลายการรบเสมอ
  *  · ตัวเลขเกณฑ์วัดด้วย tools/masteryprobe.cjs
  */
 import { TAUNT_ROUNDS } from './combat-rules';
@@ -155,7 +156,7 @@ export interface MasteryTally {
   casts: number;
   /** ถูกจังหวะกี่ครั้ง */
   correct: number;
-  /** ครั้งที่นับเข้าความเชี่ยวชาญจริง — `correct` ถ้าถูกจังหวะถึงเกณฑ์ ไม่งั้น 0 */
+  /** ครั้งที่นับเข้าความเชี่ยวชาญจริง — `correct` (ไม่เกินเพดานต่อการรบ) ถ้าถูกจังหวะถึงเกณฑ์ ไม่งั้น 0 */
   credited: number;
 }
 
@@ -201,9 +202,9 @@ export function masteryFromBattle(events: readonly CombatEvent[], heroId: string
     }
   }
 
-  const minShare = gamedata.acquisition.masteryMinShare;
+  const { masteryMinShare: minShare, masteryPerBattleCap: cap } = gamedata.acquisition;
   for (const t of Object.values(tallies)) {
-    t.credited = t.casts > 0 && t.correct / t.casts >= minShare ? t.correct : 0;
+    t.credited = t.casts > 0 && t.correct / t.casts >= minShare ? Math.min(cap, t.correct) : 0;
   }
   return tallies;
 }

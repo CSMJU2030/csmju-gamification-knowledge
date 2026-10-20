@@ -75,7 +75,7 @@ describe('S2 สกิลขั้น 2', () => {
     const good = masteryFromBattle(fight([h], waves).events, HERO, h.derived.maxHp).w_execute;
     expect(good.casts).toBeGreaterThan(0);
     expect(good.correct).toBe(good.casts);
-    expect(good.credited).toBe(good.correct);
+    expect(good.credited).toBe(Math.min(good.correct, gamedata.acquisition.masteryPerBattleCap));
 
     const s = hero('warrior', 12, ['w_power_strike', 'w_whirlwind', 'w_execute'], spam);
     const bad = masteryFromBattle(fight([s], waves).events, HERO, s.derived.maxHp).w_execute;
@@ -102,6 +102,17 @@ describe('S2 สกิลขั้น 2', () => {
     ];
     expect(masteryFromBattle(fake(70, 30), HERO, 100).m_heal).toMatchObject({ casts: 1, correct: 1 });
     expect(masteryFromBattle(fake(100, 5), HERO, 100).m_heal).toMatchObject({ casts: 1, correct: 0 });
+  });
+
+  it('ต้องสม่ำเสมอหลายการรบ: ถูกจังหวะกี่ครั้งก็นับได้ไม่เกินเพดานต่อการรบ', () => {
+    const cap = gamedata.acquisition.masteryPerBattleCap;
+    const events: CombatEvent[] = [
+      { turn: 1, wave: 1, actorId: 'system', actorName: 'system', action: 'attack', note: 'wave_start', targets: [{ id: 'm', name: 'm', hpAfter: 50 }] },
+      ...Array.from({ length: cap + 5 }, (_, i): CombatEvent => ({
+        turn: i + 2, wave: 1, actorId: HERO, actorName: 'h', action: 'skill', skillId: 'm_heal', targets: [{ id: HERO, name: 'h', heal: 10, hpAfter: 30 }],
+      })),
+    ];
+    expect(masteryFromBattle(events, HERO, 100).m_heal).toEqual({ casts: cap + 5, correct: cap + 5, credited: cap });
   });
 
   it('สะสม: นับเฉพาะ credited · หยุดที่ masteryNeed · บอกว่าขึ้นขั้นในการรบไหน · สกิลที่ไม่มีในมือไม่นับ', () => {
@@ -301,6 +312,9 @@ describe('S4 ตำราสกิล', () => {
       for (const boss of b.bosses) expect(gamedata.bosses.some((x) => x.id === boss), boss).toBe(true);
       for (const a of b.elites) expect(gamedata.monsterArchetypes.some((x) => x.id === a), a).toBe(true);
     }
+    // EX ที่เป็นต้นทางต้องโผล่ได้จริง (อยู่ในสระมอนของภูมิภาคใดภูมิภาคหนึ่ง) — ไม่งั้นหน้าเว็บบอกต้นทางที่ไม่มีวันเจอ
+    const pools = new Set(gamedata.regions.flatMap((r) => r.pool ?? []));
+    for (const a of gamedata.skillBooks.flatMap((b) => b.elites)) expect(pools.has(a), `EX ${a}`).toBe(true);
     // บอสหอคอยทั้ง 10 ตัวเป็นต้นทางของตำราเล่มใดเล่มหนึ่ง
     for (const boss of gamedata.bosses) expect(bookSourceOf(`f1w10_boss_${boss.id}`), boss.id).toBeDefined();
   });
