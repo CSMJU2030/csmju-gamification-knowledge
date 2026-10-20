@@ -90,11 +90,14 @@ export const GLOBALS = ['me', 'enemies', 'allies', 'turn_no'] as const;
  */
 export const ME_ATTRS = [
   'hp', 'mp', 'hp_pct', 'mp_pct', 'level', 'atk', 'matk',
-  'defense', 'magic_defense', 'speed',
+  'defense', 'magic_defense', 'speed', 'poison_turns',
 ] as const;
 
-/** attribute ของสมาชิกใน enemies/allies */
-export const UNIT_ATTRS = ['hp', 'hp_pct', 'level', 'atk', 'speed'] as const;
+/**
+ * attribute ของสมาชิกใน enemies/allies
+ * `poison_turns` (ระยะ S4 · 20 ต.ค. 2569): พิษที่เหลือกี่เทิร์น — ให้เขียน "ใส่พิษเฉพาะตัวที่ยังไม่ติด" ได้
+ */
+export const UNIT_ATTRS = ['hp', 'hp_pct', 'level', 'atk', 'speed', 'poison_turns'] as const;
 
 /**
  * ตัดสินใจแล้ว (PM, 9 ก.ย. 2026): `can_cast("x")` เป็นการ "ถาม" ไม่ใช่ "ใช้"
@@ -257,6 +260,12 @@ export interface ValidateOptions {
   features: Set<Feature>;
   /** สกิลที่ผู้เล่นมีสิทธิ์ใช้ (ปลดล็อกตามเลเวล + บล็อกที่ดรอปได้ในเฟส 2C) */
   availableSkills: string[];
+  /**
+   * ช่องสกิล (20 ต.ค. 2569 · docs/design-skill-acquisition.md ข้อ 8.2) — ใช้สกิลใน cast() ได้ไม่เกินกี่ชนิดต่อโปรแกรม
+   * ไม่ส่ง = ไม่จำกัด (มอนของโจทย์ · เทสต์เดิม) · `skillSlotNextLevel` = เลเวลที่ได้ช่องถัดไป (ไม่มี = ครบแล้ว)
+   */
+  skillSlots?: number;
+  skillSlotNextLevel?: number | null;
 }
 
 export interface ValidateResult {

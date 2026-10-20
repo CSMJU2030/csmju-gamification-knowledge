@@ -79,16 +79,19 @@ const FUNC_GROUPS: { labelTh: string; names: string[] }[] = [
  *
  * ระบบสถานะเต็ม (พิษ/มึน) ถูกเลื่อนไปรอบ 2C ตาม docs/bloxcode-language.md §8
  * เมื่อรอบนั้นมาถึง ให้ย้ายรายการนี้ไป spec.ts/gamedata.json แล้วเลิกฮาร์ดโค้ด
+ * ระยะ S4 (20 ต.ค. 2569) เพิ่ม `power` = บัฟพลังโจมตีจากตำราพลัง (battle.ts POWER_BUFF) · มึนไม่มีชื่อให้ถาม
+ * เพราะตัวที่มึนไม่ได้ลงมือ จึงไม่มีโปรแกรมไหนได้เห็นว่าตัวเองมึน
  * ระหว่างนี้มีเทสต์ 'status vocabulary covers every buff battle.ts can produce'
  * คอยกันไม่ให้ชื่อใหม่ใน battle.ts หลุดไปโดยที่ validate ไม่รู้จัก
  */
-export const BUFF_NAMES = ['taunt', 'shield'] as const;
+export const BUFF_NAMES = ['taunt', 'shield', 'power'] as const;
 /**
  * สถานะร้ายที่มอนใส่ให้เราได้ (รอบ 2M) — แยกคลังจากบัฟเพราะ `has_debuff("shield")`
  * ไม่มีวันเป็นจริง (โล่ไม่ใช่ของที่ศัตรูใส่ให้) การรับไว้เฉย ๆ คืออาการเงียบแบบเดียวกับ "bananas"
  *   marked — โกเลมที่ดินแดนน้ำแข็งตั้งท่าเล็งเราไว้ เทิร์นหน้าของมันจะทุบแรง (battle.ts `windup`)
+ *   poison — ติดพิษจากสกิลตำรา (ระยะ S4) · มอนไม่มีสกิลพิษ จึงเกิดกับผู้เล่นได้เฉพาะในการดวล
  */
-export const DEBUFF_NAMES = ['marked'] as const;
+export const DEBUFF_NAMES = ['marked', 'poison'] as const;
 /** ทุกชื่อรวมกัน — คงไว้ให้ของที่อ้างถึงชื่อเดิม */
 export const STATUS_NAMES = [...BUFF_NAMES, ...DEBUFF_NAMES] as const;
 
@@ -229,6 +232,8 @@ class Validator {
   private readonly localSides = new Map<string, Side>();
   /** ฟีเจอร์ที่ล็อกและรายงานไปแล้ว — กันข้อความซ้ำ (ดู needFeature) */
   private readonly lockedReported = new Set<Feature>();
+  /** ชนิดสกิลที่ cast() ในโปรแกรม เรียงตามที่เจอครั้งแรก — ใช้ตรวจช่องสกิล (ดู slotCheck) */
+  private readonly castSkills: string[] = [];
 
   constructor(private readonly opts: ValidateOptions) {}
 
@@ -812,6 +817,7 @@ class Validator {
       );
       return 'action';
     }
+    this.slotCheck(nameNode.value, info.id, nameNode.line, nameNode.col);
     if (targetT === 'list' && !info.aoe) {
       this.add(
         'TypeError',
@@ -830,6 +836,30 @@ class Validator {
       this.castTargetSide(nameNode.value, info.kind, targetNode);
     }
     return 'action';
+  }
+
+  /**
+   * ช่องสกิล (20 ต.ค. 2569 · docs/design-skill-acquisition.md ข้อ 8.2) — โปรแกรมเดียวใช้สกิลได้ไม่เกิน N ชนิด
+   *
+   * เมื่อครบทุกระยะ ผู้เล่นมีสกิลได้เกิน 20 ตัว ถ้าใส่ได้หมด โปรแกรมจะกลายเป็นรายการ "ลองทุกท่า"
+   * ช่องจำกัดบังคับให้เลือกว่าจะพกอะไร แบบเดียวกับงบ Memory ของเฟส 2 แต่เบากว่า (นับชนิด ไม่นับขนาด)
+   * นับเฉพาะ cast() — can_cast() เป็นการถาม ไม่ใช่การใช้ · cast ตัวเดิมกี่ครั้งก็นับชนิดเดียว
+   * ฟ้องที่ cast แรกของชนิดที่เกิน พร้อมรายชื่อที่ใช้อยู่ และเลเวลที่ได้ช่องเพิ่ม
+   */
+  private slotCheck(written: string, skillId: string, line: number, col: number): void {
+    const slots = this.opts.skillSlots;
+    if (slots === undefined || this.castSkills.includes(skillId)) return;
+    this.castSkills.push(skillId);
+    if (this.castSkills.length <= slots) return;
+    const used = this.castSkills.map(preferredSkillName).join(', ');
+    const next = this.opts.skillSlotNextLevel;
+    this.add(
+      'ValueError',
+      `โปรแกรมเดียวพกสกิลได้ ${slots} ชนิดตามเลเวลตอนนี้ — '${written}' เป็นชนิดที่ ${this.castSkills.length} (${used})`
+        + ` · เอาสกิลที่ไม่จำเป็นออก${next ? ` หรือรอเลเวล ${next} ได้ช่องเพิ่ม` : ''}`,
+      line,
+      col,
+    );
   }
 
   /**
@@ -852,7 +882,7 @@ class Validator {
         targetNode.line,
         targetNode.col,
       );
-    } else if ((kind === 'heal' || kind === 'shield') && side === 'enemy') {
+    } else if ((kind === 'heal' || kind === 'shield' || kind === 'buff') && side === 'enemy') {
       this.add(
         'TypeError',
         `'${name}' เป็นสกิลช่วยเหลือ ต้องเล็งฝ่ายเดียวกับคุณ แต่ ${Validator.describe(targetNode, 'enemy')}`

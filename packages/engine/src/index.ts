@@ -3,7 +3,8 @@
  * signature ต้องตรงกับ EngineApi ใน types.ts เสมอ
  */
 export * from './types';
-export { runBattle, runDuel, simulateWaves, DUEL_MAX_ROUNDS } from './battle';
+export { runBattle, runDuel, simulateWaves, DUEL_MAX_ROUNDS, POWER_BUFF } from './battle';
+export { STUN_IMMUNE_TURNS } from './combat-rules';
 export {
   listRegions, getRegion, battleRegions, floorForRegion, regionFloorRange,
   rollElite, enterRegion, buildRegionWaves, isBattleRegion,
@@ -27,9 +28,23 @@ export { rollItem } from './drops';
 export { gamedata } from './data';
 export { proficiencyFromBattle, allocatePoints } from './proficiency';
 export {
-  regionProof, proofRequirements, regionSkillFor, skillsFor, archetypeOfId, PROOF_REGIONS,
+  regionProof, proofRequirements, regionSkillFor, archetypeOfId, PROOF_REGIONS,
 } from './proofs';
 export type { RegionProof, ProofCheck } from './proofs';
+
+// ---- วิธีได้สกิลระยะ S2–S4 (docs/design-skill-acquisition.md ข้อ 8) ----
+export {
+  skillsFor, sourceOf, lineProgress, lineSkillFor, SKILL_LINES, levelSkillsOf,
+  skillSlotsFor, nextSlotLevel, programSkillIds, loadoutSkills,
+} from './acquisition';
+export type { SkillSources, SkillSource } from './acquisition';
+export {
+  masteryFromBattle, masteryRequirement, skillRank, skillRanksOf, addMastery, MASTERY_SKILLS,
+} from './mastery';
+export type { MasteryTally } from './mastery';
+export { getBook, bookSkillFor, bookSourceOf, rollSkillBooks } from './books';
+export type { BookRoll } from './books';
+export type { SkillBookDef, AcquisitionTuning } from './data';
 
 // ---- มอนของโจทย์ (docs/design-challenge-monsters.md) ----
 export {
@@ -46,7 +61,7 @@ export type {
 export {
   parse, validate, runTurn, toPython, fromRules, tokenize,
   resolveSkillName, preferredSkillName, KNOWN_SKILL_NAMES,
-  describeSkill, describeSkillById, BASIC_ATTACK_TEXT_TH, DEFEND_TEXT_TH, MP_RULES_TEXT_TH,
+  describeSkill, describeRank2, describeSkillById, BASIC_ATTACK_TEXT_TH, DEFEND_TEXT_TH, MP_RULES_TEXT_TH,
   monsterProgramFor, isElifChain, SELF_TARGET,
   unlockedFeatures, BUFF_NAMES, DEBUFF_NAMES, STATUS_NAMES,
   GLOBALS, ME_ATTRS, UNIT_ATTRS, PURE_FUNCS, ACTION_FUNCS,
@@ -57,5 +72,5 @@ export type {
   Program, Stmt, Expr, Pos, CmpOp, BinOp,
   LangError, ErrorName, Feature,
   ParseResult, ValidateOptions, ValidateResult, TurnDecision,
-  RuntimeUnit, TurnContext, SkillInfo, FromRulesOptions, SkillText,
+  RuntimeUnit, TurnContext, SkillInfo, FromRulesOptions, SkillText, DescribableSkill,
 } from './lang/index';

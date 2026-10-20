@@ -71,6 +71,8 @@ class Unit(object):
         self.magic_defense = d['mdef']
         self.hp_pct = (self.hp / self.max_hp) * 100 if self.max_hp > 0 else 0
         self.mp_pct = (self.mp / self.max_mp) * 100 if self.max_mp > 0 else 0
+        # พิษที่เหลือ (ระยะ S4) — ไม่ส่งมา = 0 เหมือนฝั่ง TypeScript
+        self.poison_turns = d.get('poisonTurns', 0)
 
 
 class Runtime(object):

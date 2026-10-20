@@ -281,11 +281,5 @@ export function regionSkillFor(classId: ClassId | string, regionId: string): Ski
   return gamedata.skills.find((s) => s.region === regionId && s.classId === classId);
 }
 
-/**
- * สกิลทั้งหมดที่ตัวละครใช้ได้: สกิลอาชีพตามเลเวล + สกิลของภูมิภาคที่พิสูจน์แล้ว
- * ผลพิสูจน์ผูกกับตัวละคร ไม่ผูกกับอาชีพ — ผู้ฝึกหัดที่พิสูจน์ก่อนเลือกอาชีพได้สกิลของอาชีพที่เลือกทีหลังทันที
- */
-export function skillsFor(classId: ClassId | string, level: number, provedRegions: readonly string[] = []): SkillDef[] {
-  return gamedata.skills.filter((s) =>
-    s.classId === classId && (s.region ? provedRegions.includes(s.region) : s.unlockLevel <= level));
-}
+/** สกิลทั้งหมดที่ตัวละครใช้ได้ — ย้ายไป acquisition.ts เมื่อมีทางได้สกิลเพิ่ม (ระยะ S2–S4) · ส่งต่อไว้ให้ที่เดิมยังใช้ได้ */
+export { skillsFor } from './acquisition';

@@ -64,7 +64,22 @@ export interface Rule {
 }
 
 // ---------- Skills ----------
-export type SkillKind = 'physical' | 'magic' | 'heal' | 'shield' | 'taunt';
+/** 'buff' (ตำราสกิล ระยะ S4) = เพิ่มพลังโจมตีของผู้ร่ายชั่วคราว — ดู SkillDef.buff */
+export type SkillKind = 'physical' | 'magic' | 'heal' | 'shield' | 'taunt' | 'buff';
+
+/** สายของสกิลจากความชำนาญ (ระยะ S3) — สเตตัสที่ความชำนาญแจกได้ */
+export type SkillLine = 'str' | 'int' | 'vit';
+
+/**
+ * ผลของสกิลขั้น 2 (ระยะ S2 · docs/design-skill-acquisition.md ข้อ 8) — ค่าที่เปลี่ยนเมื่อถึงขั้น 2 เท่านั้น
+ * ไม่มีช่องค่า MP โดยตั้งใจ: ตัวรันภาษา (can_cast · คำเตือน MP ไม่พอ) อ่านค่า MP จากตารางสกิลตัวเดียว
+ */
+export interface SkillRank2 {
+  /** พลังใหม่ (หน่วยเดียวกับ SkillDef.power) */
+  power?: number;
+  /** ยั่วยุ: สัดส่วนดาเมจที่ลดลงระหว่างยั่วยุ (ค่าปกติ TAUNT_DAMAGE_REDUCTION) */
+  tauntReduction?: number;
+}
 
 export interface SkillDef {
   id: string;
@@ -88,6 +103,26 @@ export interface SkillDef {
    * มีค่า = ไม่ได้ตามเลเวล ได้เมื่อพิสูจน์บทเรียนของภูมิภาคนั้น (proofs.ts) · `unlockLevel` ของสกิลกลุ่มนี้ไม่มีความหมาย
    */
   region?: string;
+  /**
+   * สกิลจากความชำนาญ (ระยะ S3) — ได้เมื่อแต้มที่ความชำนาญแจกให้สายนี้ถึงเกณฑ์ (acquisition.ts)
+   * `unlockLevel` ของสกิลกลุ่มนี้ไม่มีความหมาย
+   */
+  line?: SkillLine;
+  /** สกิลจากตำรา (ระยะ S4) — id ของตำราใน `gamedata.skillBooks` · ได้เมื่อเก็บตำราเล่มนั้น (books.ts) */
+  book?: string;
+  /** ผลเมื่อสกิลถึงขั้น 2 (ระยะ S2) — มีเฉพาะสกิลอาชีพ 9 ตัวที่ได้ตามเลเวล */
+  rank2?: SkillRank2;
+  // ---- กลไกของสกิลจากตำรา (ระยะ S4) — ไม่มีค่า = ไม่มีกลไกนั้น (สกิลเดิมทุกตัวไม่มี) ----
+  /** ตีเป้าเดิมกี่ครั้ง (แต่ละครั้งคิดดาเมจ หลบ คริ แยกกัน · หยุดเมื่อเป้าตาย) */
+  hits?: number;
+  /** ฟื้นเลือดผู้ร่ายเป็นสัดส่วนของดาเมจที่ทำได้ (0..1) */
+  drain?: number;
+  /** ติดพิษ: ทุกเทิร์นของเป้าเสียเลือด power% ของ ATK (กายภาพ) หรือ MATK (เวท) ของผู้ร่าย ไม่หักเกราะ · นาน turns เทิร์น */
+  poison?: { power: number; turns: number };
+  /** มึน: เป้าข้ามเทิร์นถัดไป · บอสไม่มึน · หายมึนแล้วต้านมึนต่ออีก STUN_IMMUNE_TURNS เทิร์น */
+  stun?: boolean;
+  /** บัฟ (kind 'buff'): เพิ่ม ATK หรือ MATK ของผู้ร่าย pct% นาน turns เทิร์นของผู้ร่าย (ไม่นับเทิร์นที่ร่าย) */
+  buff?: { stat: 'atk' | 'matk'; pct: number; turns: number };
 }
 
 // ---------- Equipment ----------
@@ -142,12 +177,25 @@ export interface CombatEvent {
     damage?: number; heal?: number; shield?: number;
     crit?: boolean; evaded?: boolean; killed?: boolean;
     hpAfter: number;
+    // ---- สถานะจากสกิลตำรา (ระยะ S4) — มีเฉพาะเมื่อเกิดขึ้นจริง ----
+    /** ติดพิษจากการโจมตีนี้ นานกี่เทิร์น */
+    poison?: number;
+    /** มึนจากการโจมตีนี้ (เทิร์นถัดไปของเป้าถูกข้าม) */
+    stun?: boolean;
+    /** ได้บัฟชื่อนี้ (ชื่อเดียวกับ has_buff) */
+    buff?: string;
+    /** `heal` ของแถวนี้มาจากการดูดเลือด ไม่ใช่สกิลฮีล (ความชำนาญไม่นับเป็นงานของ INT) */
+    drain?: boolean;
   }[];
   /**
    * 'windup' (รอบ 2M): มอนตั้งท่าหมายหัวเป้าใน `targets` — เทิร์นถัดไปของมันจะทุบเป้านั้น
    * (ดู RegionMechanic) · event นี้ไม่มีดาเมจ มีไว้ให้ฉากและบันทึกการรบบอกผู้เล่นก่อนโดนทุบ
+   *
+   * ระยะ S4 (สถานะจากสกิลตำรา) — ผู้ลงมือของ event สองแบบนี้คือ "ตัวที่ติดสถานะ" ไม่ใช่คนร่าย:
+   * 'poison'  = พิษกัดตอนต้นเทิร์นของตัวนั้น · `targets` มีตัวมันเองพร้อมดาเมจ · `skillId` = สกิลที่ใส่พิษ
+   * 'stunned' = ตัวนั้นมึนจึงข้ามเทิร์นนี้ (action 'wait' · ไม่มีเป้า)
    */
-  note?: 'wave_start' | 'wave_clear' | 'defend' | 'windup';
+  note?: 'wave_start' | 'wave_clear' | 'defend' | 'windup' | 'poison' | 'stunned';
   /**
    * เฟส 2B-1 (เพิ่มได้ตาม docs/api-spec.md — เพิ่มอย่างเดียว ไม่แก้ของเดิม)
    * line: บรรทัดในโปรแกรม BloxCode ที่ตัดสินใจเทิร์นนี้ (0 = ใช้การกระทำสำรอง)

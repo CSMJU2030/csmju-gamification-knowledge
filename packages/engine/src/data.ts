@@ -117,8 +117,34 @@ export interface DuelTuning {
   rewardMult: number;
 }
 
+/**
+ * ตำราสกิล (ระยะ S4 · docs/design-skill-acquisition.md ข้อ 8.4) — หนึ่งเล่ม = หนึ่งกลไก · สกิลจริงขึ้นกับอาชีพ (SkillDef.book)
+ * ต้นทาง = บอส (id ใน `bosses`) และ EX ของ archetype ใน `elites` · ล้มที่ไหนก็นับ (หอคอย · ภูมิภาค)
+ */
+export interface SkillBookDef {
+  id: string;
+  nameTh: string;
+  /** ชื่อกลไกสั้น ๆ เช่น "พิษ" */
+  mechanicTh: string;
+  bosses: string[];
+  elites: string[];
+}
+
+/** ตัวเลขของวิธีได้สกิลระยะ S2–S4 — ความหมายของแต่ละช่องอยู่ใน `_comment*` ของ gamedata.json */
+export interface AcquisitionTuning {
+  masteryNeed: number;
+  masteryMinShare: number;
+  /** เลเวลที่ปลดช่องที่ 1, 2, 3, … */
+  slotLevels: number[];
+  lineThreshold: number;
+  bookDropChance: number;
+  bookPity: number;
+}
+
 export interface GameData {
   balance: BalanceTuning;
+  acquisition: AcquisitionTuning;
+  skillBooks: SkillBookDef[];
   /** ภูมิภาคบนแผนที่โลก (รอบ 2W) — เพิ่ม/แก้โซนได้โดยไม่แตะโค้ด */
   regions: RegionDef[];
   elite: EliteTuning;

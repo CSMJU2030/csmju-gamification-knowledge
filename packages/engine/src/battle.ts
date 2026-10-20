@@ -22,7 +22,7 @@ import { runTurn, SELF_TARGET, type RuntimeUnit, type TurnContext } from './lang
 import { monsterProgramFor } from './lang/monsterAi';
 
 import {
-  BASIC_ATTACK_MP, GUARD_MULT, MP_REGEN_PCT, TAUNT_DAMAGE_REDUCTION, TAUNT_ROUNDS, WAVE_CLEAR_RESTORE,
+  BASIC_ATTACK_MP, GUARD_MULT, MP_REGEN_PCT, STUN_IMMUNE_TURNS, TAUNT_DAMAGE_REDUCTION, TAUNT_ROUNDS, WAVE_CLEAR_RESTORE,
 } from './combat-rules';
 
 /** Safety cap: after this many rounds the battle counts as a defeat. */
@@ -41,7 +41,23 @@ interface Fighter {
   turnsTaken: number;
   /** id ของคนที่ตัวนี้หมายหัวไว้ — เทิร์นถัดไปของมันจะทุบคนนี้ (null = ไม่ได้ตั้งท่าอยู่) */
   windupTarget: string | null;
+  /** ขั้นของสกิล (ระยะ S2) — id → ขั้น · ไม่มี = ขั้น 1 */
+  ranks: Readonly<Record<string, number>>;
+  /** สัดส่วนดาเมจที่ลดระหว่างยั่วยุ — ตั้งตอนร่าย (ยั่วยุขั้น 2 ลดมากกว่า) */
+  tauntCut: number;
+  // ---- สถานะจากสกิลตำรา (ระยะ S4) ----
+  /** พิษ: เสียเลือดตอนต้นเทิร์นของตัวเอง perTurn ต่อเทิร์น อีก turnsLeft เทิร์น */
+  poison: { perTurn: number; turnsLeft: number; skillId: string } | null;
+  /** มึนอยู่ = เทิร์นถัดไปของตัวนี้ถูกข้าม */
+  stunned: boolean;
+  /** ต้านมึนอีกกี่เทิร์น (นับลงตอนจบเทิร์นของตัวเอง) */
+  stunImmune: number;
+  /** บัฟพลังโจมตี — turnsLeft นับลงตอนจบทุกเทิร์นของตัวเอง (รวมเทิร์นที่ร่าย จึงตั้งไว้ turns + 1) */
+  buff: { stat: 'atk' | 'matk'; pct: number; turnsLeft: number } | null;
 }
+
+/** ชื่อบัฟพลังโจมตีของสกิลตำรา (has_buff("power")) */
+export const POWER_BUFF = 'power';
 
 const alive = (f: Fighter) => f.hp > 0;
 
@@ -63,6 +79,15 @@ function partyExtras(c: Combatant): { lifesteal: number; expBonus: number } {
   };
 }
 
+/**
+ * ขั้นของสกิลที่ตัวละครพกมา (ระยะ S2) — field เสริมแบบเดียวกับ `equipment` ด้านบน (ไม่แก้ type Combatant)
+ * `skillRanks: { [skillId]: 2 }` · ไม่มี = ขั้น 1 ทุกสกิล
+ */
+function ranksOf(c: Combatant): Record<string, number> {
+  const raw = (c as Combatant & { skillRanks?: Record<string, number> }).skillRanks;
+  return raw && typeof raw === 'object' ? raw : {};
+}
+
 function makeFighter(c: Combatant, lifesteal: number): Fighter {
   return {
     c,
@@ -74,7 +99,55 @@ function makeFighter(c: Combatant, lifesteal: number): Fighter {
     lifesteal,
     turnsTaken: 0,
     windupTarget: null,
+    ranks: ranksOf(c),
+    tauntCut: TAUNT_DAMAGE_REDUCTION,
+    poison: null,
+    stunned: false,
+    stunImmune: 0,
+    buff: null,
   };
+}
+
+/**
+ * สกิลในรูปที่ใช้รบจริงของตัวนี้ — ขั้น 2 (ระยะ S2) แทนค่าพลังตาม `rank2` ของสกิล
+ * ขั้น 1 คืนตัวเดิมทุกไบต์ (หอคอยและ golden fixture ไม่มีใครขั้น 2)
+ */
+function rankedSkill(skill: SkillDef, actor: Fighter): SkillDef {
+  if ((actor.ranks[skill.id] ?? 1) < 2 || !skill.rank2) return skill;
+  return { ...skill, power: skill.rank2.power ?? skill.power };
+}
+
+/** ATK/MATK ที่ใช้ตีจริง — บัฟพลังโจมตี (ระยะ S4) คูณเพิ่ม · ไม่มีบัฟคืนค่าเดิมทุกไบต์ */
+function attackStat(f: Fighter, stat: 'atk' | 'matk'): number {
+  const base = f.c.derived[stat];
+  return f.buff && f.buff.stat === stat ? base * (1 + f.buff.pct / 100) : base;
+}
+
+/** สกิลช่วยฝ่ายเดียวกัน — เล็งตัวเองหรือพวกเดียวกัน */
+const isSupportKind = (kind: SkillDef['kind']) =>
+  kind === 'heal' || kind === 'shield' || kind === 'taunt' || kind === 'buff';
+
+/** นับสถานะที่หมดตามเทิร์นของตัวเองลงหนึ่งเทิร์น — เรียกตอนจบทุกเทิร์นที่ตัวนี้ได้ลงมือ (รวมเทิร์นที่มึน) */
+function endOfTurn(f: Fighter): void {
+  if (f.buff && --f.buff.turnsLeft <= 0) f.buff = null;
+  if (f.stunImmune > 0) f.stunImmune--;
+}
+
+/**
+ * ใส่สถานะของสกิลตำราให้เป้าที่โดนแล้วยังไม่ตาย (ระยะ S4) — ไม่กิน rng เลย
+ * พิษใส่ซ้ำ = เริ่มนับใหม่ ไม่ซ้อน · มึนไม่ติดบอส ตัวที่กำลังมึน และตัวที่เพิ่งหายมึน (stunImmune)
+ */
+function applyStatus(actor: Fighter, target: Fighter, skill: SkillDef, entry: CombatEvent['targets'][number]): void {
+  if (skill.poison) {
+    const stat = skill.kind === 'magic' ? 'matk' : 'atk';
+    const perTurn = Math.max(1, Math.round(attackStat(actor, stat) * (skill.poison.power / 100)));
+    target.poison = { perTurn, turnsLeft: skill.poison.turns, skillId: skill.id };
+    entry.poison = skill.poison.turns;
+  }
+  if (skill.stun && !target.c.isBoss && !target.stunned && target.stunImmune === 0) {
+    target.stunned = true;
+    entry.stun = true;
+  }
 }
 
 /**
@@ -196,7 +269,7 @@ function resolveAction(
     if (!skill) continue;
     if (!actor.c.skills.includes(skillId)) continue; // unusable — not learned
     if (actor.mp < skill.mpCost) continue;           // insufficient MP → next rule
-    const wantsAlly = skill.kind === 'heal' || skill.kind === 'shield' || skill.kind === 'taunt';
+    const wantsAlly = isSupportKind(skill.kind);
     let target = selectTarget(act.target, actor, allies, enemies, rng);
     if (!target || (wantsAlly && target.c.side !== actor.c.side)) {
       target = wantsAlly ? actor : selectTarget('random_enemy', actor, allies, enemies, rng);
@@ -249,6 +322,7 @@ function toRuntimeUnit(f: Fighter): RuntimeUnit {
     def: d.def,
     mdef: d.mdef,
     speed: d.speed,
+    poisonTurns: f.poison ? f.poison.turnsLeft : 0,
   };
 }
 
@@ -269,7 +343,9 @@ function decideFromProgram(
   const buffs: string[] = [];
   if (actor.tauntUntil >= round) buffs.push('taunt');
   if (actor.shield > 0) buffs.push('shield');
+  if (actor.buff) buffs.push(POWER_BUFF);
   const debuffs: string[] = [];
+  if (actor.poison) debuffs.push('poison');
   // รอบ 2M: มีศัตรูที่ยังไม่ตายตั้งท่าเล็งเราอยู่ = เทิร์นหน้าของมันจะทุบเรา
   if (enemies.some((e) => alive(e) && e.windupTarget === actor.c.id)) debuffs.push('marked');
 
@@ -305,7 +381,7 @@ function decideFromProgram(
   if (d.action === 'skill' && d.skillId) {
     const skill = getSkill(d.skillId);
     if (skill && actor.c.skills.includes(skill.id) && actor.mp >= skill.mpCost) {
-      const wantsAlly = skill.kind === 'heal' || skill.kind === 'shield' || skill.kind === 'taunt';
+      const wantsAlly = isSupportKind(skill.kind);
       let target = byId(d.targetId);
       if (wantsAlly) {
         if (!target || target.c.side !== actor.c.side) target = actor;
@@ -380,15 +456,15 @@ function dealDamage(
 
   const varMult = variance(rng);
   let dmg = kind === 'physical'
-    ? FORMULAS.physicalDamage(ad.atk, power, td.def, varMult)
-    : FORMULAS.magicDamage(ad.matk, power, td.mdef, varMult);
+    ? FORMULAS.physicalDamage(attackStat(attacker, 'atk'), power, td.def, varMult)
+    : FORMULAS.magicDamage(attackStat(attacker, 'matk'), power, td.mdef, varMult);
 
   const crit = rng() < ad.critRate;
   if (crit) dmg = Math.round(dmg * ad.critDmg);
   if (target.defending) dmg = Math.max(1, Math.round(dmg * guardMult));
-  // คนที่กำลังยั่วยุอยู่ = กำลังตั้งรับ จึงกินดาเมจน้อยลงด้วย (ดู TAUNT_DAMAGE_REDUCTION)
+  // คนที่กำลังยั่วยุอยู่ = กำลังตั้งรับ จึงกินดาเมจน้อยลงด้วย (ดู TAUNT_DAMAGE_REDUCTION · ยั่วยุขั้น 2 ลดมากกว่า)
   if (target.tauntUntil >= round) {
-    dmg = Math.max(1, Math.round(dmg * (1 - TAUNT_DAMAGE_REDUCTION)));
+    dmg = Math.max(1, Math.round(dmg * (1 - target.tauntCut)));
   }
 
   // Shield absorbs before HP.
@@ -643,6 +719,37 @@ export function simulateWaves(
 
         const d = actor.c.derived;
 
+        // ---- ระยะ S4: พิษกัดตอนต้นเทิร์น แล้วค่อยดูว่ามึนไหม (ตัวที่ไม่มีสถานะไม่แตะโค้ดส่วนนี้เลย)
+        if (actor.poison) {
+          const p = actor.poison;
+          const wasAlive = alive(actor);
+          const dmg = Math.max(1, p.perTurn);
+          actor.hp = Math.max(0, actor.hp - dmg);
+          if (--p.turnsLeft <= 0) actor.poison = null;
+          const killed = !alive(actor);
+          recordKillIfEnemy(actor, wasAlive);
+          events.push({
+            turn: round, wave: w, actorId: actor.c.id, actorName: actor.c.name,
+            action: 'wait', skillId: p.skillId, note: 'poison',
+            targets: [{ id: actor.c.id, name: actor.c.name, damage: dmg, killed, hpAfter: actor.hp }],
+          });
+          if (killed) continue;
+        }
+        if (actor.stunned) {
+          // มึน = เสียเทิร์นนี้ทั้งเทิร์น (รวมท่าตั้งท่า/ทุบของกลไกหมายหัว — คนที่ถูกหมายไว้ยังถูกหมายอยู่)
+          actor.stunned = false;
+          actor.stunImmune = STUN_IMMUNE_TURNS + 1;
+          events.push({
+            turn: round, wave: w, actorId: actor.c.id, actorName: actor.c.name,
+            action: 'wait', note: 'stunned', targets: [],
+          });
+          actor.mp = Math.min(d.maxMp, actor.mp + Math.round(d.maxMp * MP_REGEN_PCT));
+          actor.turnsTaken++;
+          endOfTurn(actor);
+          stampMp(events, turnStart, actor);
+          continue;
+        }
+
         // ---- รอบ 2M: กลไกหมายหัว — มาก่อนโปรแกรมของมอน (ดูคำอธิบายที่ windupEveryOf)
         const every = windupEveryOf(actor.c);
         if (every > 0) {
@@ -678,6 +785,7 @@ export function simulateWaves(
           if (forced) {
             actor.turnsTaken++;
             actor.mp = Math.min(d.maxMp, actor.mp + Math.round(d.maxMp * MP_REGEN_PCT));
+            endOfTurn(actor);
             stampMp(events, turnStart, actor);
             continue;
           }
@@ -709,25 +817,45 @@ export function simulateWaves(
               action: 'attack', targets: [hit.entry], ...codeMeta,
             });
           } else {
-            const { skill } = resolved;
+            // ขั้น 2 (ระยะ S2) แทนค่าพลัง — ขั้น 1 ได้สกิลตัวเดิม
+            const skill = rankedSkill(resolved.skill, actor);
             actor.mp -= skill.mpCost;
             const targets: CombatEvent['targets'] = [];
 
             if (skill.kind === 'physical' || skill.kind === 'magic') {
+              const kind = skill.kind;
+              /** ดาเมจรวมของการร่ายครั้งนี้ — ใช้คิดการดูดเลือด */
+              let dealt = 0;
+              const strike = (t: Fighter, singleTarget: boolean) => {
+                const wasAlive = alive(t);
+                const hit = dealDamage(actor, t, kind, skill.power, singleTarget, rng, round);
+                recordKillIfEnemy(t, wasAlive);
+                dealt += hit.damageDealt;
+                if (!hit.entry.evaded && alive(t)) applyStatus(actor, t, skill, hit.entry);
+                targets.push(hit.entry);
+              };
               if (skill.aoe) {
-                for (const t of enemies.filter(alive)) {
-                  const wasAlive = alive(t);
-                  const hit = dealDamage(actor, t, skill.kind, skill.power, false, rng, round);
-                  recordKillIfEnemy(t, wasAlive);
-                  targets.push(hit.entry);
-                }
+                for (const t of enemies.filter(alive)) strike(t, false);
               } else {
                 const target = applyTaunt(resolved.target, enemies, round);
-                const wasAlive = alive(target);
-                const hit = dealDamage(actor, target, skill.kind, skill.power, true, rng, round);
-                recordKillIfEnemy(target, wasAlive);
-                targets.push(hit.entry);
+                // หลายฮิต (ระยะ S4): ตีเป้าเดิมซ้ำ หยุดเมื่อเป้าตาย · สกิลทั่วไปตีครั้งเดียวเหมือนเดิม
+                const hits = Math.max(1, skill.hits ?? 1);
+                for (let i = 0; i < hits; i++) {
+                  if (i > 0 && !alive(target)) break;
+                  strike(target, true);
+                }
               }
+              if (skill.drain && dealt > 0) {
+                const healed = Math.min(Math.round(dealt * skill.drain), d.maxHp - actor.hp);
+                if (healed > 0) {
+                  actor.hp += healed;
+                  targets.push({ id: actor.c.id, name: actor.c.name, heal: healed, hpAfter: actor.hp, drain: true });
+                }
+              }
+            } else if (skill.kind === 'buff' && skill.buff) {
+              // ร่ายซ้ำตอนบัฟยังอยู่ = ต่อเวลา ไม่ซ้อนพลัง · +1 เพราะนับลงตอนจบเทิร์นที่ร่ายด้วย
+              actor.buff = { stat: skill.buff.stat, pct: skill.buff.pct, turnsLeft: skill.buff.turns + 1 };
+              targets.push({ id: actor.c.id, name: actor.c.name, buff: POWER_BUFF, hpAfter: actor.hp });
             } else if (skill.kind === 'heal') {
               const t = resolved.target;
               /**
@@ -758,6 +886,8 @@ export function simulateWaves(
               targets.push({ id: t.c.id, name: t.c.name, shield: points, hpAfter: t.hp });
             } else if (skill.kind === 'taunt') {
               actor.tauntUntil = round + TAUNT_ROUNDS;
+              actor.tauntCut = ((actor.ranks[skill.id] ?? 1) >= 2 ? skill.rank2?.tauntReduction : undefined)
+                ?? TAUNT_DAMAGE_REDUCTION;
               targets.push({ id: actor.c.id, name: actor.c.name, hpAfter: actor.hp });
             }
 
@@ -781,6 +911,7 @@ export function simulateWaves(
         // End-of-turn MP regeneration (5% of maxMp).
         actor.mp = Math.min(d.maxMp, actor.mp + Math.round(d.maxMp * MP_REGEN_PCT));
         actor.turnsTaken++;
+        endOfTurn(actor);
         stampMp(events, turnStart, actor);
       }
 

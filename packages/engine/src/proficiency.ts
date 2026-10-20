@@ -24,7 +24,7 @@ import {
 import type {
   BaseStats, BattleResult, ClassId, CombatEvent, Proficiency,
 } from './types';
-import { getSkill } from './data';
+import { gamedata, getSkill } from './data';
 
 /** ลำดับคงที่ของสเตตัส — ใช้ทั้งการวนและการตัดสินเสมอตอนปัดเศษ (ต้อง deterministic) */
 const STAT_ORDER = ['str', 'int', 'vit', 'agi', 'luk'] as const;
@@ -126,7 +126,8 @@ function creditedDamage(damage: number, hpAfter: number, trackedBefore: number):
 
 /** ประเภทงานของ 1 การกระทำ — ใช้ตัดสินว่าดาเมจก้อนนี้เข้า STR หรือ INT */
 function damageStatOf(e: CombatEvent): 'str' | 'int' {
-  if (e.action !== 'skill' || !e.skillId) return 'str'; // โจมตีปกติ = กายภาพเสมอ
+  // โจมตีปกติ = กายภาพเสมอ · พิษกัด (action 'wait') ใช้ชนิดของสกิลที่ใส่พิษ
+  if ((e.action !== 'skill' && e.note !== 'poison') || !e.skillId) return 'str';
   const kind = getSkill(e.skillId)?.kind;
   // สกิลที่ไม่รู้จัก (บล็อกใหม่ที่ยังไม่อยู่ใน gamedata) ถือเป็นกายภาพ
   // เพราะ battle.ts ก็คิดดาเมจจาก atk เป็นค่าตั้งต้นเหมือนกัน
@@ -143,6 +144,19 @@ function damageStatOf(e: CombatEvent): 'str' | 'int' {
  */
 const SHIELD_STAT: ProfStat = 'vit';
 const HEAL_STAT: ProfStat = 'int';
+
+/**
+ * ตัวคูณงานของการฮีล (20 ต.ค. 2569 · ระยะ S3 docs/design-skill-acquisition.md ข้อ 8.3)
+ *
+ * งานทุกช่องนับเป็น "สัดส่วนของหลอดเลือด" แต่หลอดของมอนเล็กกว่าหลอดของผู้เล่นมาก (`monsterHpMult` = 0.25)
+ * ตีมอนหนึ่งตัวจนตายจึงได้งาน 1 หน่วย ขณะที่ฮีลตัวเอง 15% ได้แค่ 0.15 — ช่อง INT ของนักรบและผู้พิทักษ์
+ * ที่ฮีลตัวเองบ่อยจึงแทบไม่ขยับเลย (tools/lineprobe.cjs: ฮีลทุกครั้งที่เลือดต่ำกว่า 70% ถึงเลเวล 30 ได้ INT +2)
+ * สกิลสาย INT ของสองอาชีพนี้จึงได้ไม่ได้จริง ทั้งที่ข้อเสนอสัญญาว่าสไตล์ไหนก็ได้สกิลสายนั้น
+ * คูณด้วย 1/monsterHpMult = นับฮีลด้วยหน่วยเดียวกับดาเมจที่ทำใส่มอน (หลอดผู้เล่นหนึ่งหลอด = หลอดมอนสี่หลอด)
+ * VIT แก้ปัญหาเดียวกันไปแล้วด้วยน้ำหนัก 2 และงานต่อเทิร์นรับ (ดู PROFICIENCY_WEIGHTS · DEFENSIVE_TURN_WORK)
+ * วัดแล้ว: ฮีลบ่อยได้สกิลสาย INT ราวเลเวล 20-24 · เกณฑ์ทั้งสี่ข้อของ profprobe ยังผ่านครบ
+ */
+const HEAL_WORK_SCALE = 1 / gamedata.balance.monsterHpMult;
 
 /** เทิร์นนี้ hero เลือกเล่นเป็นฝ่ายรับหรือเปล่า (ดู DEFENSIVE_TURN_WORK) */
 function isDefensiveTurn(e: CombatEvent): boolean {
@@ -206,9 +220,16 @@ export function proficiencyFromBattle(
           work[damageStatOf(e)] += creditedDamage(damage, t.hpAfter, before) / maxHp;
         }
         // ฮีล/โล่ คิดเทียบหลอดของ "ผู้รับ" รวมกรณีร่ายใส่ตัวเอง
-        if (t.heal) work[HEAL_STAT] += t.heal / maxHp;
+        // เลือดที่ดูดกลับจากการตี (สกิลตำราดูดเลือด) ไม่ใช่เวทสนับสนุน จึงไม่นับเป็นงานของ INT
+        if (t.heal && !t.drain) work[HEAL_STAT] += (t.heal / maxHp) * HEAL_WORK_SCALE;
         if (t.shield) work[SHIELD_STAT] += t.shield / maxHp;
         if (t.crit) work.luk += EVENT_WORK_UNIT;
+      }
+
+      // พิษกัดศัตรู (ระยะ S4) — ผู้ลงมือของเหตุการณ์คือตัวที่ติดพิษ แต่พิษมาจากสกิลของ hero
+      // (มอนไม่มีสกิลพิษ) จึงนับเป็นงานของ hero ตามชนิดของสกิลที่ใส่พิษ เหมือนดาเมจที่ตีเอง
+      if (e.note === 'poison' && !isHero && enemyIds.has(t.id) && damage > 0) {
+        work[damageStatOf(e)] += creditedDamage(damage, t.hpAfter, before) / maxHp;
       }
 
       if (t.id === heroId && !isHero) {

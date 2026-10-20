@@ -463,7 +463,8 @@ describe('รอบ 2F §3.4 — อาการเงียบต้องก�
     for (const d of DEBUFF_NAMES) {
       expect(validate(ok(`def turn():\n    if has_debuff("${d}"):\n        defend()\n`), opts({})).errors).toEqual([]);
     }
-    const [bad] = rejected('def turn():\n    if has_debuff("poison"):\n        defend()\n');
+    // "poison" มีจริงแล้วตั้งแต่ระยะ S4 (ติดพิษในการดวล) — ใช้ชื่อที่ไม่มีในเกมแทน
+    const [bad] = rejected('def turn():\n    if has_debuff("burn"):\n        defend()\n');
     expect(bad.name).toBe('ValueError');
     for (const d of DEBUFF_NAMES) expect(bad.messageTh).toContain(d);
 

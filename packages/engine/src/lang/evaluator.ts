@@ -31,6 +31,8 @@ export interface RuntimeUnit {
   /** เข้าถึงในโค้ดผ่าน me.magic_defense */
   mdef: number;
   speed: number;
+  /** พิษเหลืออีกกี่เทิร์น (ระยะ S4) · เข้าถึงในโค้ดผ่าน .poison_turns · ไม่มี = 0 */
+  poisonTurns?: number;
 }
 
 export interface TurnContext {
@@ -312,7 +314,7 @@ class Interpreter {
       this.warn(`cast('${name}') ต้องระบุเป้าหมาย — ข้ามคำสั่งนี้ (ไม่เสียเทิร์น)`);
       return true;
     }
-    const wantsAlly = info.kind === 'heal' || info.kind === 'shield';
+    const wantsAlly = info.kind === 'heal' || info.kind === 'shield' || info.kind === 'buff';
     const hurts = info.kind === 'physical' || info.kind === 'magic';
     if (hurts && !this.isEnemy(target)) {
       this.warnWrongSide(
@@ -342,6 +344,7 @@ function unitAttr(u: RuntimeUnit, attr: string): number {
     case 'defense': return u.def;
     case 'magic_defense': return u.mdef;
     case 'speed': return u.speed;
+    case 'poison_turns': return u.poisonTurns ?? 0;
     // `def` เป็นคำสงวนของ Python — ต้องไม่รองรับ ไม่งั้นโค้ดที่เกมรับจะรัน CPython ไม่ได้
     default: throw new Abort(`ไม่รู้จักคุณสมบัติ '.${attr}'`);
   }

@@ -46,10 +46,10 @@ const pickOne = <T,>(r: Rand, arr: readonly T[]): T => arr[Math.floor(r() * arr.
 const intIn = (r: Rand, lo: number, hi: number) => lo + Math.floor(r() * (hi - lo + 1));
 
 /** attribute ที่ใช้ได้กับหน่วยทั่วไป (ครบตาม spec — ทุกตัวเป็น Python ที่ถูกต้อง) */
-const UNIT_ATTRS_SAFE = ['hp', 'hp_pct', 'level', 'atk', 'speed'] as const;
+const UNIT_ATTRS_SAFE = ['hp', 'hp_pct', 'level', 'atk', 'speed', 'poison_turns'] as const;
 const ME_ATTRS_SAFE = [
   'hp', 'mp', 'hp_pct', 'mp_pct', 'level', 'atk', 'matk',
-  'defense', 'magic_defense', 'speed',
+  'defense', 'magic_defense', 'speed', 'poison_turns',
 ] as const;
 
 const ALL_SKILL_SHORT = gamedata.skills.map((s) => preferredSkillName(s.id));

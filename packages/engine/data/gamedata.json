@@ -57,7 +57,10 @@
       "aoe": false,
       "unlockLevel": 1,
       "descTh": "ฟันแรงเกือบสองเท่าของตีปกติใส่ศัตรูตัวเดียว — ท่าหลักที่ร่ายได้บ่อยที่สุดของนักรบ",
-      "animation": "slash"
+      "animation": "slash",
+      "rank2": {
+        "power": 225
+      }
     },
     {
       "id": "w_whirlwind",
@@ -70,7 +73,10 @@
       "aoe": true,
       "unlockLevel": 5,
       "descTh": "หมุนดาบฟันศัตรูทุกตัวในเทิร์นเดียว แรงต่อตัวพอ ๆ กับตีปกติ — คุ้มเมื่อศัตรูยังเหลือหลายตัว",
-      "animation": "spin"
+      "animation": "spin",
+      "rank2": {
+        "power": 140
+      }
     },
     {
       "id": "w_execute",
@@ -83,7 +89,10 @@
       "aoe": false,
       "unlockLevel": 10,
       "descTh": "ท่าไม้ตาย แรงที่สุดของนักรบใส่ศัตรูตัวเดียว แต่กิน MP มาก — เก็บไว้ใช้กับตัวที่อึดที่สุด",
-      "animation": "slash_heavy"
+      "animation": "slash_heavy",
+      "rank2": {
+        "power": 330
+      }
     },
     {
       "id": "m_firebolt",
@@ -96,7 +105,10 @@
       "aoe": false,
       "unlockLevel": 1,
       "descTh": "ยิงลูกไฟใส่ศัตรูตัวเดียว คิดจาก MATK และหลบไม่ได้ — ท่าหลักของจอมเวท",
-      "animation": "projectile_fire"
+      "animation": "projectile_fire",
+      "rank2": {
+        "power": 195
+      }
     },
     {
       "id": "m_blizzard",
@@ -109,7 +121,10 @@
       "aoe": true,
       "unlockLevel": 4,
       "descTh": "พายุน้ำแข็งโดนศัตรูทุกตัวพร้อมกัน — ตาที่ศัตรูมาเป็นฝูงคุ้มที่สุด",
-      "animation": "rain_ice"
+      "animation": "rain_ice",
+      "rank2": {
+        "power": 125
+      }
     },
     {
       "id": "m_heal",
@@ -122,7 +137,10 @@
       "aoe": false,
       "unlockLevel": 7,
       "descTh": "ฟื้นเลือดเป็นสัดส่วนของหลอดเลือด (ไม่ขึ้นกับ INT) — ตัวจำกัดจริงคือ MP",
-      "animation": "heal_ring"
+      "animation": "heal_ring",
+      "rank2": {
+        "power": 40
+      }
     },
     {
       "id": "g_shield_bash",
@@ -135,7 +153,10 @@
       "aoe": false,
       "unlockLevel": 1,
       "descTh": "กระแทกด้วยโล่ใส่ศัตรูตัวเดียว แรงกว่าตีปกติและใช้ MP น้อย",
-      "animation": "bash"
+      "animation": "bash",
+      "rank2": {
+        "power": 175
+      }
     },
     {
       "id": "g_taunt",
@@ -148,7 +169,10 @@
       "aoe": true,
       "unlockLevel": 3,
       "descTh": "ประกาศตัวเป็นเป้า: ศัตรูที่ตีเป้าเดี่ยวต้องหันมาตีคุณ และคุณรับดาเมจน้อยลงชั่วคราว — ใช้ได้แม้เล่นคนเดียว",
-      "animation": "taunt_aura"
+      "animation": "taunt_aura",
+      "rank2": {
+        "tauntReduction": 0.45
+      }
     },
     {
       "id": "g_barrier",
@@ -161,7 +185,10 @@
       "aoe": false,
       "unlockLevel": 6,
       "descTh": "กางโล่ซับดาเมจก่อนเลือดจะลด โล่อยู่จนกว่าจะถูกตีจนแตก",
-      "animation": "shield_dome"
+      "animation": "shield_dome",
+      "rank2": {
+        "power": 33
+      }
     },
     {
       "id": "w_guard_up",
@@ -372,6 +399,378 @@
       "region": "volcano",
       "descTh": "กระแทกหนักเป้าเดียว — ผู้พิทักษ์ได้ท่าล้มตัวใหญ่ก่อนที่มันจะได้ตีซ้ำ",
       "animation": "bash"
+    },
+    {
+      "id": "w_cleave",
+      "name": "Cleave",
+      "nameTh": "ผ่าพสุธา",
+      "classId": "warrior",
+      "kind": "physical",
+      "power": 150,
+      "mpCost": 20,
+      "aoe": true,
+      "unlockLevel": 1,
+      "line": "str",
+      "descTh": "ฟันกวาดแรงกว่าดาบหมุนวน โดนศัตรูทุกตัว — รางวัลของนักรบที่ตีหนักมาตลอด",
+      "animation": "spin"
+    },
+    {
+      "id": "w_focus",
+      "name": "Focus",
+      "nameTh": "ตั้งสมาธิ",
+      "classId": "warrior",
+      "kind": "heal",
+      "power": 20,
+      "mpCost": 12,
+      "aoe": false,
+      "unlockLevel": 1,
+      "line": "int",
+      "descTh": "หยุดหายใจลึก ๆ ฟื้นเลือดตัวเอง — ได้เมื่อโปรแกรมของคุณดูแลเลือดบ่อยจน INT โต",
+      "animation": "heal_ring"
+    },
+    {
+      "id": "w_provoke",
+      "name": "Provoke",
+      "nameTh": "ท้าทาย",
+      "classId": "warrior",
+      "kind": "taunt",
+      "power": 0,
+      "mpCost": 5,
+      "aoe": true,
+      "unlockLevel": 1,
+      "line": "vit",
+      "descTh": "ตะโกนท้าให้ศัตรูหันมาตีคุณ และรับดาเมจน้อยลงชั่วคราว — ได้เมื่อเล่นฝ่ายรับจน VIT โต",
+      "animation": "taunt_aura"
+    },
+    {
+      "id": "m_staff_strike",
+      "name": "Staff Strike",
+      "nameTh": "ฟาดคทา",
+      "classId": "mage",
+      "kind": "physical",
+      "power": 160,
+      "mpCost": 3,
+      "aoe": false,
+      "unlockLevel": 1,
+      "line": "str",
+      "descTh": "ฟาดด้วยคทาแทนการร่ายเวท ราคา MP ถูกมาก — ทางออกตอนเจอศัตรูต้านเวทหรือ MP ใกล้หมด",
+      "animation": "bash"
+    },
+    {
+      "id": "m_chain_lightning",
+      "name": "Chain Lightning",
+      "nameTh": "สายฟ้าลูกโซ่",
+      "classId": "mage",
+      "kind": "magic",
+      "power": 140,
+      "mpCost": 24,
+      "aoe": true,
+      "unlockLevel": 1,
+      "line": "int",
+      "descTh": "สายฟ้ากระโดดไปโดนศัตรูทุกตัว แรงกว่าพายุน้ำแข็งแต่ MP แพงกว่า",
+      "animation": "roar_wave"
+    },
+    {
+      "id": "m_stone_skin",
+      "name": "Stone Skin",
+      "nameTh": "ผิวหิน",
+      "classId": "mage",
+      "kind": "shield",
+      "power": 25,
+      "mpCost": 14,
+      "aoe": false,
+      "unlockLevel": 1,
+      "line": "vit",
+      "descTh": "ผิวแข็งเป็นหินซับดาเมจก้อนใหญ่ — ได้เมื่อจอมเวทของคุณยอมยืนรับมาพอสมควร",
+      "animation": "shield_dome"
+    },
+    {
+      "id": "g_hammer_slam",
+      "name": "Hammer Slam",
+      "nameTh": "ทุบพื้น",
+      "classId": "guardian",
+      "kind": "physical",
+      "power": 130,
+      "mpCost": 16,
+      "aoe": true,
+      "unlockLevel": 1,
+      "line": "str",
+      "descTh": "ทุบพื้นให้แรงกระแทกโดนศัตรูทุกตัว — ผู้พิทักษ์ที่เลือกบุกจะได้ท่านี้",
+      "animation": "roar_wave"
+    },
+    {
+      "id": "g_holy_light",
+      "name": "Holy Light",
+      "nameTh": "แสงศักดิ์สิทธิ์",
+      "classId": "guardian",
+      "kind": "heal",
+      "power": 25,
+      "mpCost": 14,
+      "aoe": false,
+      "unlockLevel": 1,
+      "line": "int",
+      "descTh": "แสงอุ่นฟื้นเลือดก้อนใหญ่ — ได้เมื่อโปรแกรมของคุณฮีลบ่อยจน INT โต",
+      "animation": "heal_ring"
+    },
+    {
+      "id": "g_fortress",
+      "name": "Fortress",
+      "nameTh": "ป้อมเหล็ก",
+      "classId": "guardian",
+      "kind": "shield",
+      "power": 40,
+      "mpCost": 22,
+      "aoe": false,
+      "unlockLevel": 1,
+      "line": "vit",
+      "descTh": "โล่หนาที่สุดในเกม แพงจนต้องเลือกจังหวะให้ดี — รางวัลของผู้พิทักษ์สายตัน",
+      "animation": "shield_dome"
+    },
+    {
+      "id": "w_venom_edge",
+      "name": "Venom Edge",
+      "nameTh": "คมพิษ",
+      "classId": "warrior",
+      "kind": "physical",
+      "power": 100,
+      "mpCost": 10,
+      "aoe": false,
+      "unlockLevel": 1,
+      "book": "venom",
+      "poison": {
+        "power": 40,
+        "turns": 3
+      },
+      "descTh": "ฟันด้วยดาบอาบพิษ เป้าเสียเลือดต่อทุกเทิร์นของมัน — ใส่ซ้ำตัวที่ยังติดพิษอยู่ไม่ได้อะไรเพิ่ม",
+      "animation": "slash"
+    },
+    {
+      "id": "m_toxic_cloud",
+      "name": "Toxic Cloud",
+      "nameTh": "หมอกพิษ",
+      "classId": "mage",
+      "kind": "magic",
+      "power": 60,
+      "mpCost": 18,
+      "aoe": true,
+      "unlockLevel": 1,
+      "book": "venom",
+      "poison": {
+        "power": 30,
+        "turns": 3
+      },
+      "descTh": "หมอกพิษคลุมศัตรูทุกตัว ดาเมจแรกเบาแต่พิษกัดต่อทุกเทิร์น",
+      "animation": "roar_wave"
+    },
+    {
+      "id": "g_thorn_bash",
+      "name": "Thorn Bash",
+      "nameTh": "กระแทกหนาม",
+      "classId": "guardian",
+      "kind": "physical",
+      "power": 90,
+      "mpCost": 9,
+      "aoe": false,
+      "unlockLevel": 1,
+      "book": "venom",
+      "poison": {
+        "power": 35,
+        "turns": 3
+      },
+      "descTh": "กระแทกด้วยโล่หนามอาบพิษ — เป้าติดพิษต่ออีกหลายเทิร์น",
+      "animation": "bash"
+    },
+    {
+      "id": "w_flurry",
+      "name": "Flurry",
+      "nameTh": "ฟันรัว",
+      "classId": "warrior",
+      "kind": "physical",
+      "power": 70,
+      "mpCost": 14,
+      "aoe": false,
+      "unlockLevel": 1,
+      "book": "flurry",
+      "hits": 3,
+      "descTh": "ฟันรัวสามครั้ง แต่ละครั้งหลบและคริแยกกัน — คุ้มที่สุดกับเป้าเลือดเยอะ",
+      "animation": "slash"
+    },
+    {
+      "id": "m_magic_missiles",
+      "name": "Magic Missiles",
+      "nameTh": "ศรเวทสามดอก",
+      "classId": "mage",
+      "kind": "magic",
+      "power": 60,
+      "mpCost": 14,
+      "aoe": false,
+      "unlockLevel": 1,
+      "book": "flurry",
+      "hits": 3,
+      "descTh": "ยิงศรเวทสามดอกใส่เป้าเดียว หลบไม่ได้ · ถ้าเป้าตายก่อน ดอกที่เหลือหายไป",
+      "animation": "projectile_dark"
+    },
+    {
+      "id": "g_double_bash",
+      "name": "Double Bash",
+      "nameTh": "กระแทกคู่",
+      "classId": "guardian",
+      "kind": "physical",
+      "power": 90,
+      "mpCost": 12,
+      "aoe": false,
+      "unlockLevel": 1,
+      "book": "flurry",
+      "hits": 2,
+      "descTh": "กระแทกโล่สองจังหวะติดกัน",
+      "animation": "bash"
+    },
+    {
+      "id": "w_skull_crack",
+      "name": "Skull Crack",
+      "nameTh": "ทุบกะโหลก",
+      "classId": "warrior",
+      "kind": "physical",
+      "power": 120,
+      "mpCost": 16,
+      "aoe": false,
+      "unlockLevel": 1,
+      "book": "stun",
+      "stun": true,
+      "descTh": "ทุบจนเป้ามึน ข้ามเทิร์นถัดไปของมัน · บอสไม่มึน · หายมึนแล้วต้านมึนไปอีกสองเทิร์น",
+      "animation": "slash_heavy"
+    },
+    {
+      "id": "m_freeze",
+      "name": "Freeze",
+      "nameTh": "แช่แข็ง",
+      "classId": "mage",
+      "kind": "magic",
+      "power": 110,
+      "mpCost": 16,
+      "aoe": false,
+      "unlockLevel": 1,
+      "book": "stun",
+      "stun": true,
+      "descTh": "แช่แข็งเป้าหนึ่งตัวให้ข้ามเทิร์นถัดไป · บอสไม่มึน",
+      "animation": "rain_ice"
+    },
+    {
+      "id": "g_shield_slam",
+      "name": "Shield Slam",
+      "nameTh": "โล่ทุบมึน",
+      "classId": "guardian",
+      "kind": "physical",
+      "power": 110,
+      "mpCost": 14,
+      "aoe": false,
+      "unlockLevel": 1,
+      "book": "stun",
+      "stun": true,
+      "descTh": "ทุบด้วยขอบโล่จนเป้ามึน · เหมาะกับตัวที่กำลังหมายหัวคุณ (ยกเว้นบอส)",
+      "animation": "bash"
+    },
+    {
+      "id": "w_blood_strike",
+      "name": "Blood Strike",
+      "nameTh": "ฟันกระหายเลือด",
+      "classId": "warrior",
+      "kind": "physical",
+      "power": 150,
+      "mpCost": 12,
+      "aoe": false,
+      "unlockLevel": 1,
+      "book": "drain",
+      "drain": 0.5,
+      "descTh": "ฟันแล้วดึงเลือดกลับมาครึ่งหนึ่งของดาเมจที่ทำได้ — ตีพลาดก็ไม่ได้เลือด",
+      "animation": "slash"
+    },
+    {
+      "id": "m_drain_life",
+      "name": "Drain Life",
+      "nameTh": "ดูดชีวิต",
+      "classId": "mage",
+      "kind": "magic",
+      "power": 140,
+      "mpCost": 14,
+      "aoe": false,
+      "unlockLevel": 1,
+      "book": "drain",
+      "drain": 0.6,
+      "descTh": "ดูดพลังชีวิตจากเป้า ฟื้นเลือดตัวเองตามดาเมจที่ทำได้",
+      "animation": "projectile_dark"
+    },
+    {
+      "id": "g_vampiric_bash",
+      "name": "Vampiric Bash",
+      "nameTh": "กระแทกดูดเลือด",
+      "classId": "guardian",
+      "kind": "physical",
+      "power": 130,
+      "mpCost": 12,
+      "aoe": false,
+      "unlockLevel": 1,
+      "book": "drain",
+      "drain": 0.6,
+      "descTh": "กระแทกแล้วดึงเลือดกลับมาตามดาเมจที่ทำได้",
+      "animation": "bash"
+    },
+    {
+      "id": "w_war_cry",
+      "name": "War Cry",
+      "nameTh": "เสียงคำรามศึก",
+      "classId": "warrior",
+      "kind": "buff",
+      "power": 0,
+      "mpCost": 12,
+      "aoe": false,
+      "unlockLevel": 1,
+      "book": "power",
+      "buff": {
+        "stat": "atk",
+        "pct": 30,
+        "turns": 3
+      },
+      "descTh": "ปลุกใจตัวเอง ATK เพิ่มขึ้นสามเทิร์นถัดไป — ร่ายซ้ำตอนบัฟยังอยู่แค่ต่อเวลา ไม่ได้แรงขึ้น",
+      "animation": "taunt_aura"
+    },
+    {
+      "id": "m_arcane_power",
+      "name": "Arcane Power",
+      "nameTh": "พลังเวทล้น",
+      "classId": "mage",
+      "kind": "buff",
+      "power": 0,
+      "mpCost": 14,
+      "aoe": false,
+      "unlockLevel": 1,
+      "book": "power",
+      "buff": {
+        "stat": "matk",
+        "pct": 30,
+        "turns": 3
+      },
+      "descTh": "ปล่อยพลังเวทให้ MATK เพิ่มขึ้นสามเทิร์นถัดไป — ร่ายก่อนสกิลแรงจะคุ้มที่สุด",
+      "animation": "taunt_aura"
+    },
+    {
+      "id": "g_battle_stance",
+      "name": "Battle Stance",
+      "nameTh": "ท่าพร้อมรบ",
+      "classId": "guardian",
+      "kind": "buff",
+      "power": 0,
+      "mpCost": 10,
+      "aoe": false,
+      "unlockLevel": 1,
+      "book": "power",
+      "buff": {
+        "stat": "atk",
+        "pct": 30,
+        "turns": 3
+      },
+      "descTh": "ตั้งท่ารุก ATK เพิ่มขึ้นสามเทิร์นถัดไป",
+      "animation": "taunt_aura"
     },
     {
       "id": "mon_bite",
@@ -1199,5 +1598,92 @@
     "snapshotsPerPlayer": 3,
     "snapshotMaxAgeDays": 14,
     "presenceTtlSec": 300
+  },
+  "skillBooks": [
+    {
+      "id": "venom",
+      "nameTh": "ตำราพิษ",
+      "mechanicTh": "พิษ",
+      "bosses": [
+        "boss_king_slime",
+        "boss_storm_harpy"
+      ],
+      "elites": [
+        "slime",
+        "harpy"
+      ]
+    },
+    {
+      "id": "flurry",
+      "nameTh": "ตำราหลายฮิต",
+      "mechanicTh": "หลายฮิต",
+      "bosses": [
+        "boss_gob_chief",
+        "boss_alpha_wolf"
+      ],
+      "elites": [
+        "goblin",
+        "wolf"
+      ]
+    },
+    {
+      "id": "stun",
+      "nameTh": "ตำรามึน",
+      "mechanicTh": "มึน",
+      "bosses": [
+        "boss_bone_lord",
+        "boss_war_chief"
+      ],
+      "elites": [
+        "skeleton",
+        "orc",
+        "brute"
+      ]
+    },
+    {
+      "id": "drain",
+      "nameTh": "ตำราดูดเลือด",
+      "mechanicTh": "ดูดเลือด",
+      "bosses": [
+        "boss_arch_mage",
+        "boss_lich_king"
+      ],
+      "elites": [
+        "dark_mage",
+        "lich"
+      ]
+    },
+    {
+      "id": "power",
+      "nameTh": "ตำราพลัง",
+      "mechanicTh": "บัฟ",
+      "bosses": [
+        "boss_iron_golem",
+        "boss_tower_lord"
+      ],
+      "elites": [
+        "golem"
+      ]
+    }
+  ],
+  "acquisition": {
+    "_comment": "วิธีได้สกิลระยะ S2–S4 (docs/design-skill-acquisition.md ข้อ 8) — ทุกตัวเลขจูนได้ที่นี่โดยไม่แตะโค้ด · ค่าวัดด้วย tools/masteryprobe.cjs · tools/lineprobe.cjs · tools/bookprobe.cjs",
+    "_commentMastery": "S2 สกิลขั้น 2: การรบหนึ่งครั้งนับ \"ครั้งที่ใช้ถูกจังหวะ\" ก็ต่อเมื่อถูกจังหวะอย่างน้อย masteryMinShare ของทุกครั้งที่ร่ายสกิลนั้น (กันสแปม) · สะสมครบ masteryNeed ได้ขั้น 2 · 0.9 ไม่ใช่ 0.8 เพราะ masteryprobe วัดได้ว่าลูกไฟที่ร่ายรัวถูกจังหวะ 72-77% (ศัตรูเหลือน้อยเป็นส่วนใหญ่ของเวฟ) ที่ 0.8 ยังได้ขั้น 2 ในราว 6 การรบ · ที่ 0.9 โปรแกรมสแปมทั้ง 9 สกิลได้ 0 ส่วนโปรแกรมตามจังหวะถูก 100% ทุกการรบ ถึงขั้น 2 ใน 1-5 การรบ (ฮีล ~13 เพราะต้องรอให้เลือดลดจริง)",
+    "masteryNeed": 30,
+    "masteryMinShare": 0.9,
+    "_commentSlots": "ช่องสกิล: เลเวลที่ปลดช่องที่ 1, 2, 3, … (นับชนิดสกิลใน cast() ของโปรแกรมเดียว)",
+    "slotLevels": [
+      1,
+      1,
+      1,
+      8,
+      15,
+      22
+    ],
+    "_commentLine": "S3 สกิลจากความชำนาญ: แต้มที่ความชำนาญแจกให้สายนั้น (สเตตัสตอนนี้ - สเตตัสเริ่มของผู้ฝึกหัด) ถึง lineThreshold",
+    "lineThreshold": 20,
+    "_commentBooks": "S4 ตำราสกิล: ล้มบอส/EX ที่เป็นต้นทางของตำรา มีโอกาส bookDropChance · ล้มครบ bookPity ครั้งโดยยังไม่ได้ = ได้แน่นอน",
+    "bookDropChance": 0.15,
+    "bookPity": 8
   }
 }

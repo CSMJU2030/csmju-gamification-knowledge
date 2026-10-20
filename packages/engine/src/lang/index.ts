@@ -17,9 +17,9 @@ export {
 } from './skills';
 export type { SkillInfo } from './skills';
 export {
-  describeSkill, BASIC_ATTACK_TEXT_TH, DEFEND_TEXT_TH, MP_RULES_TEXT_TH,
+  describeSkill, describeRank2, BASIC_ATTACK_TEXT_TH, DEFEND_TEXT_TH, MP_RULES_TEXT_TH,
 } from './skillText';
-export type { SkillText } from './skillText';
+export type { SkillText, DescribableSkill } from './skillText';
 export { LangErrorException, editDistance, closestName } from './errors';
 export {
   monsterProgramFor, clearMonsterProgramCache, DEFAULT_MONSTER_PROGRAM_KEY,
